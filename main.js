@@ -13,52 +13,44 @@ function getBallColorClass(num) {
     return 'green';
 }
 
-// 심화 통계 데이터 로드 및 좌측 패널 렌더링
 fetch('advanced_stats.json')
     .then(res => res.json())
     .then(data => {
         statsData = data;
-        renderSideStats();
+        renderTopStats();
     })
     .catch(err => console.error('Stats load failed:', err));
 
-function renderSideStats() {
-    // 1. 최다 당첨 TOP 5 (좌측)
-    const topContainer = document.getElementById('top-stats-side');
+function renderTopStats() {
+    // 1. 상단 바: 최다 당첨 TOP 3
+    const topRow = document.getElementById('top-stats-row');
     const sortedFreq = Object.entries(statsData.frequency)
         .sort(([, a], [, b]) => b - a)
-        .slice(0, 5);
+        .slice(0, 3);
 
-    sortedFreq.forEach(([num, count]) => {
-        const item = document.createElement('div');
-        item.className = 'stats-list-item';
-        item.innerHTML = `
-            <span class="ball mini ${getBallColorClass(parseInt(num))}">${num}</span>
-            <span class="value">${count}회 당첨</span>
-        `;
-        topContainer.appendChild(item);
+    sortedFreq.forEach(([num]) => {
+        const ball = document.createElement('span');
+        ball.className = `ball mini ${getBallColorClass(parseInt(num))}`;
+        ball.innerText = num;
+        topRow.appendChild(ball);
     });
 
-    // 2. 장기 미출현 (좌측)
-    const unappearedContainer = document.getElementById('unappeared-side');
+    // 2. 상단 바: 장기 미출현
+    const unappearedRow = document.getElementById('unappeared-row');
     const unappearedList = Object.entries(statsData.unappeared_period)
         .filter(([, period]) => period >= 10)
         .sort(([, a], [, b]) => b - a)
-        .slice(0, 5);
+        .slice(0, 3);
 
-    unappearedList.forEach(([num, period]) => {
-        const item = document.createElement('div');
-        item.className = 'stats-list-item';
-        item.innerHTML = `
-            <span class="ball mini ${getBallColorClass(parseInt(num))}">${num}</span>
-            <span class="value">${period}회째 미출현</span>
-        `;
-        unappearedContainer.appendChild(item);
+    unappearedList.forEach(([num]) => {
+        const ball = document.createElement('span');
+        ball.className = `ball mini ${getBallColorClass(parseInt(num))}`;
+        ball.innerText = num;
+        unappearedRow.appendChild(ball);
     });
 }
 
 function analyzeNumbers(numbers) {
-    // 실시간 분석 결과 업데이트 (하단 영역)
     const odds = numbers.filter(n => n % 2 !== 0).length;
     document.getElementById('odd-even-ratio').innerText = `${odds}:${6 - odds}`;
 
@@ -67,7 +59,6 @@ function analyzeNumbers(numbers) {
         if (numbers[i] + 1 === numbers[i + 1]) consecutive++;
     }
     document.getElementById('consecutive-count').innerText = `${consecutive}쌍`;
-
     document.getElementById('prime-count').innerText = `${numbers.filter(isPrime).length}개`;
     document.getElementById('composite-count').innerText = `${numbers.filter(n => n > 1 && !isPrime(n)).length}개`;
     document.getElementById('total-sum').innerText = numbers.reduce((a, b) => a + b, 0);

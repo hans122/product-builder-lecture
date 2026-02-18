@@ -8,72 +8,28 @@ body {
     min-height: 100vh;
 }
 
-.main-wrapper {
+.main-wrapper.centered {
     display: flex;
-    gap: 20px;
-    max-width: 1100px;
-    width: 95%;
-    align-items: stretch;
-}
-
-/* 왼쪽 패널: 역대 통계 */
-.side-stats {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    justify-content: center;
+    align-items: center;
     flex: 1;
-    min-width: 280px;
-    text-align: left;
+    padding: 40px 0;
 }
 
-.side-stats h2 { font-size: 1.1rem; border-bottom: 2px solid #3498db; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
-.side-section h3 { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 10px; }
-.side-section { margin-bottom: 2rem; }
-
-/* 중앙 패널: 메인 번호 생성 */
 .main-content {
     background: white;
     padding: 3rem 2rem;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    flex: 2.5;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    max-width: 700px;
+    width: 90%;
     text-align: center;
 }
 
-/* 실시간 분석: 하단 배치 */
-.realtime-analysis-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid #eee;
-}
+h1 { margin-bottom: 0.5rem; color: #2c3e50; }
+.subtitle { color: #7f8c8d; margin-bottom: 2.5rem; }
 
-.realtime-analysis-section h3 { font-size: 1rem; color: #34495e; margin-bottom: 1.5rem; }
-
-.analysis-grid-horizontal {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 15px;
-}
-
-.analysis-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 12px;
-}
-
-.label { font-size: 0.8rem; color: #7f8c8d; }
-.value { font-weight: bold; color: #2c3e50; }
-
-/* 공 스타일 공통 */
-.ball-container { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
-.ball-container.mini { justify-content: flex-start; }
-.ball-container.vertical { flex-direction: column; align-items: flex-start; }
-
+.ball-container { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; margin-bottom: 2.5rem; }
 .ball {
     width: 50px; height: 50px; border-radius: 50%; display: flex;
     justify-content: center; align-items: center; color: white;
@@ -81,23 +37,237 @@ body {
 }
 
 .ball.mini { width: 30px; height: 30px; font-size: 0.8rem; }
-.ball.yellow { background-color: #fbc02d; }
-.ball.blue { background-color: #1e88e5; }
-.ball.red { background-color: #e53935; }
-.ball.gray { background-color: #757575; }
-.ball.green { background-color: #43a047; }
 
-.stats-list-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+/* 색상 공통 클래스 */
+.yellow { background-color: #fbc02d !important; }
+.blue { background-color: #1e88e5 !important; }
+.red { background-color: #e53935 !important; }
+.gray { background-color: #757575 !important; }
+.green { background-color: #43a047 !important; }
 
 #generate-btn {
-    padding: 1rem 3rem; font-size: 1.2rem; font-weight: bold; color: white;
-    background: #3498db; border: none; border-radius: 15px; cursor: pointer;
-    transition: 0.2s; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    padding: 1rem 3.5rem; font-size: 1.2rem; font-weight: bold; color: white;
+    background: #3498db; border: none; border-radius: 12px; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
 }
 
-#generate-btn:hover { background: #2980b9; transform: translateY(-2px); }
+/* 실시간 분석 버튼 스타일 */
+.realtime-analysis-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #f1f1f1;
+}
 
-@media (max-width: 900px) {
-    .main-wrapper { flex-direction: column; }
-    .analysis-grid-horizontal { grid-template-columns: repeat(3, 1fr); }
+.realtime-analysis-section h3 { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 1.5rem; }
+
+.analysis-grid-horizontal {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+.analysis-item-link { text-decoration: none; display: block; }
+
+.analysis-item.clickable {
+    background: #f8f9fa;
+    padding: 12px 5px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.analysis-item.clickable:hover {
+    background: #eef2f7;
+    border-color: #3498db;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.label { display: block; font-size: 0.75rem; color: #7f8c8d; margin-bottom: 5px; }
+.value { font-size: 1rem; font-weight: bold; color: #2c3e50; }
+
+/* 상단 플로팅 네비게이션 버튼 */
+.nav-links {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 3000;
+}
+
+.nav-btn.small {
+    background: white;
+    color: #3498db;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border: 2px solid #3498db;
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-btn.small:hover {
+    background: #3498db;
+    color: white;
+    transform: translateX(5px);
+    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+}
+
+/* 하단 네비게이션 유지 (페이지 맨 끝 버튼) */
+.footer-nav {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f1f1f1;
+    text-align: center;
+}
+
+.nav-btn.large {
+    display: inline-block;
+    padding: 1.2rem 2.5rem;
+    background: #27ae60;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    transition: all 0.2s;
+}
+
+.nav-btn.large:hover {
+    background: #2ecc71;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(39, 174, 96, 0.4);
+}
+
+/* 분석 페이지 스타일 보강 */
+.analysis-page {
+    display: block;
+    padding: 40px 0;
+}
+
+.analysis-page .container.wide {
+    margin: 20px auto;
+    padding: 60px 40px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    max-width: 1100px;
+}
+
+.analysis-card { background: #fcfcfc; border: 1px solid #eee; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; }
+
+/* 빈도 차트 스타일 */
+.frequency-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 200px;
+    margin-top: 2rem;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #eee;
+}
+
+.bar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+
+.bar {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    transition: all 0.2s;
+    cursor: help;
+    min-height: 2px;
+}
+
+.bar:hover {
+    transform: scaleX(1.3);
+    z-index: 10;
+    filter: brightness(1.1);
+}
+
+.bar-label {
+    position: absolute;
+    bottom: -25px;
+    font-size: 0.6rem;
+    color: #95a5a6;
+    font-weight: bold;
+}
+
+/* 분포 차트 스타일 보완 (가로 스크롤 지원) */
+.dist-bar-chart { 
+    display: flex; 
+    align-items: flex-end; 
+    gap: 15px; 
+    height: 180px; 
+    margin-top: 1rem; 
+    border-bottom: 2px solid #eee; 
+    padding-bottom: 35px; /* 라벨 공간 확보 */
+    overflow-x: auto; /* 가로 스크롤 허용 */
+    overflow-y: hidden;
+    scrollbar-width: thin; /* 파이어폭스용 스크롤바 */
+}
+
+/* 스크롤바 커스텀 (크롬, 사파리) */
+.dist-bar-chart::-webkit-scrollbar {
+    height: 6px;
+}
+.dist-bar-chart::-webkit-scrollbar-thumb {
+    background: #dfe6e9;
+    border-radius: 10px;
+}
+
+.dist-bar { 
+    flex: 0 0 auto; /* 크기 고정 및 자동 줄어듦 방지 */
+    background: #3498db; 
+    border-radius: 4px 4px 0 0; 
+    position: relative; 
+    min-width: 45px; /* 막대 너비 확보 */
+}
+
+.dist-label { 
+    position: absolute; 
+    bottom: -30px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    font-size: 0.7rem; 
+    color: #7f8c8d; 
+    white-space: nowrap; 
+    font-weight: bold;
+}
+
+/* 빈도 차트 스타일 보완 (1-45번) */
+.frequency-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 200px;
+    margin-top: 2rem;
+    padding-bottom: 40px;
+    border-bottom: 2px solid #eee;
+    overflow-x: auto;
+}
+
+.frequency-chart .bar-wrapper {
+    flex: 0 0 20px; /* 각 막대의 최소 너비 고정 */
+    min-width: 18px;
+}
+
+@media (max-width: 768px) {
+    .analysis-page .container.wide {
+        padding: 40px 20px;
+        margin: 20px 10px;
+    }
+    .dist-bar {
+        min-width: 35px; /* 모바일에서는 조금 더 좁게 */
+    }
 }
