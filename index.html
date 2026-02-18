@@ -11,48 +11,58 @@
 </head>
 <body>
     <div class="main-wrapper">
-        <!-- 왼쪽 분석 패널 -->
-        <div class="analysis-panel">
-            <h2>📊 실시간 번호 분석</h2>
-            <div class="analysis-item">
-                <span class="label">홀:짝 비율</span>
-                <span id="odd-even-ratio" class="value">-</span>
+        <!-- 왼쪽 패널: 역대 당첨 데이터 분석 -->
+        <div class="analysis-panel side-stats">
+            <h2>🏆 역대 통계 데이터</h2>
+            <div class="side-section">
+                <h3>📈 최다 당첨 TOP 5</h3>
+                <div id="top-stats-side" class="ball-container mini vertical"></div>
             </div>
-            <div class="analysis-item">
-                <span class="label">연속 번호</span>
-                <span id="consecutive-count" class="value">-</span>
+            <div class="side-section">
+                <h3>🧊 장기 미출현 (10회+)</h3>
+                <div id="unappeared-side" class="mini-list"></div>
             </div>
-            <div class="analysis-item">
-                <span class="label">소수(Prime) 개수</span>
-                <span id="prime-count" class="value">-</span>
-            </div>
-            <div class="analysis-item">
-                <span class="label">합성수 개수</span>
-                <span id="composite-count" class="value">-</span>
-            </div>
-            <div class="analysis-item">
-                <span class="label">총합(Sum)</span>
-                <span id="total-sum" class="value">-</span>
+            <div class="nav-links-side">
+                <a href="analysis.html" class="nav-btn small">상세 분석 페이지 ➔</a>
             </div>
         </div>
 
         <!-- 중앙/우측 메인 컨테이너 -->
-        <div class="container">
-            <div class="nav-links">
-                <a href="analysis.html" class="nav-btn">📊 역대 당첨 데이터 분석 보기</a>
-            </div>
+        <div class="container main-content">
             <h1>🍀 로또 번호 추천 🍀</h1>
-            <p class="subtitle">역대 데이터를 바탕으로 추천합니다</p>
+            <p class="subtitle">역대 데이터를 바탕으로 행운을 추천합니다</p>
             
-            <div id="lotto-container" class="ball-container">
+            <div id="lotto-container" class="ball-container main-balls">
                 <div class="placeholder">번호를 생성해주세요</div>
             </div>
 
             <button id="generate-btn">번호 생성하기</button>
 
-            <div class="stats-container">
-                <h3>📈 역대 최다 당첨 TOP 5</h3>
-                <div id="top-stats" class="ball-container mini"></div>
+            <!-- 실시간 분석 영역: 번호 생성 버튼 아래 배치 -->
+            <div class="realtime-analysis-section">
+                <h3>📊 실시간 번호 분석 결과</h3>
+                <div class="analysis-grid-horizontal">
+                    <div class="analysis-item">
+                        <span class="label">홀:짝</span>
+                        <span id="odd-even-ratio" class="value">-</span>
+                    </div>
+                    <div class="analysis-item">
+                        <span class="label">연속번호</span>
+                        <span id="consecutive-count" class="value">-</span>
+                    </div>
+                    <div class="analysis-item">
+                        <span class="label">소수</span>
+                        <span id="prime-count" class="value">-</span>
+                    </div>
+                    <div class="analysis-item">
+                        <span class="label">합성수</span>
+                        <span id="composite-count" class="value">-</span>
+                    </div>
+                    <div class="analysis-item">
+                        <span class="label">총합</span>
+                        <span id="total-sum" class="value">-</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

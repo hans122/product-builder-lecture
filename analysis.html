@@ -21,8 +21,19 @@
             <!-- 1-45 전체 빈도 차트 -->
             <div class="analysis-card">
                 <h3>🔢 번호별 출현 빈도 (1~45)</h3>
-                <div id="full-frequency-chart" class="frequency-chart">
-                    <!-- JS로 바 차트 생성 -->
+                <div id="full-frequency-chart" class="frequency-chart"></div>
+            </div>
+
+            <div class="stats-row">
+                <!-- 미출현 번호 -->
+                <div class="analysis-card">
+                    <h3>🧊 장기 미출현 번호 (최근 10회 이상)</h3>
+                    <div id="unappeared-list" class="stats-list grid"></div>
+                </div>
+                <!-- 궁합수 TOP -->
+                <div class="analysis-card">
+                    <h3>🤝 환상의 짝꿍 (가장 자주 같이 나온 번호들)</h3>
+                    <div id="compatibility-list" class="stats-list"></div>
                 </div>
             </div>
 
@@ -34,7 +45,7 @@
                 </div>
                 <!-- 하위 빈도 -->
                 <div class="analysis-card compact">
-                    <h3>🧊 최소 출현 번호 TOP 5</h3>
+                    <h3>📉 최소 출현 번호 TOP 5</h3>
                     <div id="bottom-5-list" class="stats-list"></div>
                 </div>
             </div>
