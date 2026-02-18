@@ -13,42 +13,23 @@ function getBallColorClass(num) {
     return 'green';
 }
 
-fetch('advanced_stats.json')
-    .then(res => res.json())
-    .then(data => {
-        statsData = data;
-        renderTopStats();
-    })
-    .catch(err => console.error('Stats load failed:', err));
+// 초기 로드 시 실행
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. 심화 통계 데이터 로드
+    fetch('advanced_stats.json')
+        .then(res => res.json())
+        .then(data => {
+            statsData = data;
+        })
+        .catch(err => console.error('Stats load failed:', err));
 
-function renderTopStats() {
-    // 1. 상단 바: 최다 당첨 TOP 3
-    const topRow = document.getElementById('top-stats-row');
-    const sortedFreq = Object.entries(statsData.frequency)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 3);
-
-    sortedFreq.forEach(([num]) => {
-        const ball = document.createElement('span');
-        ball.className = `ball mini ${getBallColorClass(parseInt(num))}`;
-        ball.innerText = num;
-        topRow.appendChild(ball);
-    });
-
-    // 2. 상단 바: 장기 미출현
-    const unappearedRow = document.getElementById('unappeared-row');
-    const unappearedList = Object.entries(statsData.unappeared_period)
-        .filter(([, period]) => period >= 10)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 3);
-
-    unappearedList.forEach(([num]) => {
-        const ball = document.createElement('span');
-        ball.className = `ball mini ${getBallColorClass(parseInt(num))}`;
-        ball.innerText = num;
-        unappearedRow.appendChild(ball);
-    });
-}
+    // 2. 이전에 생성된 번호가 있는지 확인 및 복원
+    const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
+    if (savedNumbers) {
+        const numbers = JSON.parse(savedNumbers);
+        renderNumbers(numbers, false); // 애니메이션 없이 즉시 표시
+    }
+});
 
 function analyzeNumbers(numbers) {
     const odds = numbers.filter(n => n % 2 !== 0).length;
@@ -64,10 +45,31 @@ function analyzeNumbers(numbers) {
     document.getElementById('total-sum').innerText = numbers.reduce((a, b) => a + b, 0);
 }
 
-document.getElementById('generate-btn').addEventListener('click', function() {
+// 번호를 화면에 그리는 공통 함수
+function renderNumbers(numbers, useAnimation = true) {
     const lottoContainer = document.getElementById('lotto-container');
     lottoContainer.innerHTML = ''; 
 
+    numbers.forEach((num, index) => {
+        if (useAnimation) {
+            setTimeout(() => {
+                const ball = document.createElement('div');
+                ball.classList.add('ball', getBallColorClass(num));
+                ball.innerText = num;
+                lottoContainer.appendChild(ball);
+                if (index === 5) analyzeNumbers(numbers);
+            }, index * 100);
+        } else {
+            const ball = document.createElement('div');
+            ball.classList.add('ball', getBallColorClass(num));
+            ball.innerText = num;
+            lottoContainer.appendChild(ball);
+            if (index === 5) analyzeNumbers(numbers);
+        }
+    });
+}
+
+document.getElementById('generate-btn').addEventListener('click', function() {
     const numbers = [];
     while(numbers.length < 6) {
         const num = Math.floor(Math.random() * 45) + 1;
@@ -75,14 +77,9 @@ document.getElementById('generate-btn').addEventListener('click', function() {
     }
     numbers.sort((a, b) => a - b);
 
-    numbers.forEach((num, index) => {
-        setTimeout(() => {
-            const ball = document.createElement('div');
-            ball.classList.add('ball', getBallColorClass(num));
-            ball.innerText = num;
-            lottoContainer.appendChild(ball);
-            
-            if (index === 5) analyzeNumbers(numbers);
-        }, index * 100);
-    });
+    // 로컬 스토리지에 저장
+    localStorage.setItem('lastGeneratedNumbers', JSON.stringify(numbers));
+
+    // 번호 표시 (애니메이션 포함)
+    renderNumbers(numbers, true);
 });
