@@ -1,58 +1,103 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 역대 통계 데이터 로드
-    fetch('advanced_stats.json')
+    console.log('Analysis Page Loaded');
+    
+    // 데이터 로드
+    fetch('advanced_stats.json?v=' + Date.now()) // 캐시 방지
         .then(response => response.json())
         .then(data => {
+            console.log('Data received:', data);
             if (!data || !data.distributions) return;
-            renderDistChart('odd-even-chart', Object.fromEntries(Object.entries(data.distributions.odd_even).sort()));
-            renderDistChart('consecutive-chart', data.distributions.consecutive);
-            renderDistChart('prime-chart', data.distributions.prime);
-            
-            if (data.distributions.composite) {
-                renderDistChart('composite-chart', data.distributions.composite);
-            } else {
-                renderDistChart('composite-chart', data.distributions.prime); 
+
+            const dists = data.distributions;
+
+            // 1. 홀짝 비율
+            if (dists.odd_even) {
+                renderDistChart('odd-even-chart', Object.fromEntries(Object.entries(dists.odd_even).sort()), ' : ');
+            }
+
+            // 2. 1회기 통계 (전회차 중복)
+            if (dists.period_1) {
+                console.log('Rendering Period 1 Chart:', dists.period_1);
+                const sortedPeriod1 = {};
+                // 0부터 6까지 모든 키를 보장하며 정렬
+                for(let i=0; i<=6; i++) {
+                    if (dists.period_1[i] !== undefined) {
+                        sortedPeriod1[i] = dists.period_1[i];
+                    }
+                }
+                renderDistChart('period-1-chart', sortedPeriod1, '개');
+            }
+
+            // 3. 연속번호
+            if (dists.consecutive) {
+                renderDistChart('consecutive-chart', Object.fromEntries(Object.entries(dists.consecutive).sort((a,b)=>a[0]-b[0])), '쌍');
+            }
+
+            // 4. 소수 개수
+            if (dists.prime) {
+                renderDistChart('prime-chart', Object.fromEntries(Object.entries(dists.prime).sort((a,b)=>a[0]-b[0])), '개');
             }
             
-            const sortedSum = Object.fromEntries(
-                Object.entries(data.distributions.sum).sort((a, b) => parseInt(a[0].split('-')[0]) - parseInt(b[0].split('-')[0]))
-            );
-            renderDistChart('sum-chart', sortedSum);
-            renderFrequencyChart(data.frequency);
-        })
-        .catch(err => console.error('데이터 로드 실패:', err));
+            // 5. 합성수
+            if (dists.composite) {
+                renderDistChart('composite-chart', Object.fromEntries(Object.entries(dists.composite).sort((a,b)=>a[0]-b[0])), '개');
+            }
+            
+            // 6. 총합 분포
+            if (dists.sum) {
+                const sortedSum = Object.fromEntries(
+                    Object.entries(dists.sum).sort((a, b) => parseInt(a[0].split('-')[0]) - parseInt(b[0].split('-')[0]))
+                );
+                renderDistChart('sum-chart', sortedSum, '');
+            }
 
-    // 2. 내가 마지막으로 생성한 번호 복원 (추가된 부분)
+            // 7. 전체 빈도
+            if (data.frequency) {
+                renderFrequencyChart(data.frequency);
+            }
+        })
+        .catch(err => console.error('Data load failed:', err));
+
+    // 내 번호 복원
     const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
     if (savedNumbers) {
         const numbers = JSON.parse(savedNumbers);
         const section = document.getElementById('my-numbers-section');
         const list = document.getElementById('my-numbers-list');
-        
-        section.style.display = 'flex';
-        numbers.forEach(num => {
-            const ball = document.createElement('div');
-            ball.className = `ball mini ${getBallColorClass(num)}`;
-            ball.innerText = num;
-            list.appendChild(ball);
-        });
+        if (section && list) {
+            section.style.display = 'flex';
+            numbers.forEach(num => {
+                const ball = document.createElement('div');
+                ball.className = `ball mini ${getBallColorClass(num)}`;
+                ball.innerText = num;
+                list.appendChild(ball);
+            });
+        }
     }
 });
 
-function renderDistChart(elementId, distData) {
+function renderDistChart(elementId, distData, unit = '개') {
     const container = document.getElementById(elementId);
-    if(!container) return;
+    if(!container) {
+        console.error(`Target container not found: ${elementId}`);
+        return;
+    }
     container.innerHTML = '';
+    
+    const entries = Object.entries(distData);
     const maxVal = Math.max(...Object.values(distData), 1);
 
-    Object.entries(distData).forEach(([label, value]) => {
+    entries.forEach(([label, value]) => {
         const height = (value / maxVal) * 80;
         const bar = document.createElement('div');
         bar.className = 'dist-bar';
         bar.style.height = `${Math.max(height, 5)}%`;
+        
+        const displayLabel = label.includes(':') || label.includes('-') ? label : label + unit;
+        
         bar.innerHTML = `
             <span class="dist-value">${value}</span>
-            <span class="dist-label">${label}</span>
+            <span class="dist-label">${displayLabel}</span>
         `;
         container.appendChild(bar);
     });

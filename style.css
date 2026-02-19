@@ -62,7 +62,7 @@ h1 { margin-bottom: 0.5rem; color: #2c3e50; }
 
 .analysis-grid-horizontal {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
     gap: 12px;
 }
 
@@ -91,7 +91,7 @@ h1 { margin-bottom: 0.5rem; color: #2c3e50; }
 .nav-links {
     position: fixed;
     top: 20px;
-    left: 20px;
+    right: 20px;
     z-index: 3000;
 }
 
@@ -114,7 +114,7 @@ h1 { margin-bottom: 0.5rem; color: #2c3e50; }
 .nav-btn.small:hover {
     background: #3498db;
     color: white;
-    transform: translateX(5px);
+    transform: translateX(-5px);
     box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
 }
 

@@ -1,8 +1,14 @@
-let statsData = {};
+let statsData = null;
 
 function isPrime(num) {
+    if (num <= 1) return false;
     const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43];
     return primes.includes(num);
+}
+
+function isComposite(num) {
+    if (num <= 1) return false;
+    return !isPrime(num);
 }
 
 function getBallColorClass(num) {
@@ -13,63 +19,94 @@ function getBallColorClass(num) {
     return 'green';
 }
 
-// 초기 로드 시 실행
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 심화 통계 데이터 로드
+    // 데이터 로드
     fetch('advanced_stats.json')
         .then(res => res.json())
         .then(data => {
             statsData = data;
+            console.log('Stats loaded successfully');
+            
+            // 데이터 로드 후 저장된 번호가 있다면 분석 실행
+            const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
+            if (savedNumbers) {
+                renderNumbers(JSON.parse(savedNumbers), false);
+            }
         })
-        .catch(err => console.error('Stats load failed:', err));
-
-    // 2. 이전에 생성된 번호가 있는지 확인 및 복원
-    const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
-    if (savedNumbers) {
-        const numbers = JSON.parse(savedNumbers);
-        renderNumbers(numbers, false); // 애니메이션 없이 즉시 표시
-    }
+        .catch(err => {
+            console.error('Stats load failed:', err);
+            // 에러 시 사용자에게 알림 (개발자 도구 콘솔 확인용)
+        });
 });
 
 function analyzeNumbers(numbers) {
-    const odds = numbers.filter(n => n % 2 !== 0).length;
-    document.getElementById('odd-even-ratio').innerText = `${odds}:${6 - odds}`;
+    if (!statsData) {
+        console.warn('Stats data not yet loaded. Retrying in 100ms...');
+        setTimeout(() => analyzeNumbers(numbers), 100);
+        return;
+    }
 
+    // 1. 1회기 통계 (전회차 중복)
+    if (statsData.last_draw_numbers) {
+        const lastDraw = new Set(statsData.last_draw_numbers);
+        const currentDraw = new Set(numbers);
+        const common = [...currentDraw].filter(x => lastDraw.has(x)).length;
+        const target = document.getElementById('period-1-count');
+        if (target) target.innerText = `${common}개`;
+    }
+
+    // 2. 홀짝 비율
+    const odds = numbers.filter(n => n % 2 !== 0).length;
+    const oddEvenTarget = document.getElementById('odd-even-ratio');
+    if (oddEvenTarget) oddEvenTarget.innerText = `${odds}:${6 - odds}`;
+
+    // 3. 연속번호
     let consecutive = 0;
     for (let i = 0; i < numbers.length - 1; i++) {
         if (numbers[i] + 1 === numbers[i + 1]) consecutive++;
     }
-    document.getElementById('consecutive-count').innerText = `${consecutive}쌍`;
-    document.getElementById('prime-count').innerText = `${numbers.filter(isPrime).length}개`;
-    document.getElementById('composite-count').innerText = `${numbers.filter(n => n > 1 && !isPrime(n)).length}개`;
-    document.getElementById('total-sum').innerText = numbers.reduce((a, b) => a + b, 0);
+    const consecutiveTarget = document.getElementById('consecutive-count');
+    if (consecutiveTarget) consecutiveTarget.innerText = `${consecutive}쌍`;
+
+    // 4. 소수
+    const primeTarget = document.getElementById('prime-count');
+    if (primeTarget) primeTarget.innerText = `${numbers.filter(isPrime).length}개`;
+
+    // 5. 합성수
+    const compositeTarget = document.getElementById('composite-count');
+    if (compositeTarget) {
+        const compositeCount = numbers.filter(isComposite).length;
+        compositeTarget.innerText = `${compositeCount}개`;
+    }
+
+    // 6. 총합
+    const sumTarget = document.getElementById('total-sum');
+    if (sumTarget) sumTarget.innerText = numbers.reduce((a, b) => a + b, 0);
 }
 
-// 번호를 화면에 그리는 공통 함수
 function renderNumbers(numbers, useAnimation = true) {
     const lottoContainer = document.getElementById('lotto-container');
+    if (!lottoContainer) return;
     lottoContainer.innerHTML = ''; 
 
     numbers.forEach((num, index) => {
-        if (useAnimation) {
-            setTimeout(() => {
-                const ball = document.createElement('div');
-                ball.classList.add('ball', getBallColorClass(num));
-                ball.innerText = num;
-                lottoContainer.appendChild(ball);
-                if (index === 5) analyzeNumbers(numbers);
-            }, index * 100);
-        } else {
+        const createBall = () => {
             const ball = document.createElement('div');
             ball.classList.add('ball', getBallColorClass(num));
             ball.innerText = num;
             lottoContainer.appendChild(ball);
             if (index === 5) analyzeNumbers(numbers);
+        };
+
+        if (useAnimation) {
+            setTimeout(createBall, index * 100);
+        } else {
+            createBall();
         }
     });
 }
 
-document.getElementById('generate-btn').addEventListener('click', function() {
+document.getElementById('generate-btn')?.addEventListener('click', function() {
     const numbers = [];
     while(numbers.length < 6) {
         const num = Math.floor(Math.random() * 45) + 1;
@@ -77,9 +114,6 @@ document.getElementById('generate-btn').addEventListener('click', function() {
     }
     numbers.sort((a, b) => a - b);
 
-    // 로컬 스토리지에 저장
     localStorage.setItem('lastGeneratedNumbers', JSON.stringify(numbers));
-
-    // 번호 표시 (애니메이션 포함)
     renderNumbers(numbers, true);
 });

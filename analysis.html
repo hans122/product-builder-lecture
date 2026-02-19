@@ -16,7 +16,6 @@
         </div>
         <h1>📊 항목별 역대 통계 분석</h1>
         
-        <!-- 내가 생성한 번호 표시 (추가된 부분) -->
         <div id="my-numbers-section" class="my-numbers-banner" style="display: none;">
             <span class="banner-label">내 최근 번호:</span>
             <div id="my-numbers-list" class="ball-container mini"></div>
@@ -24,49 +23,52 @@
 
         <p class="subtitle">모든 당첨 데이터를 기반으로 한 통계 수치입니다</p>
 
-        <!-- 홀짝 비율 통계 -->
+        <!-- 1. 홀짝 비율 -->
         <section id="odd-even-section" class="analysis-card">
             <h3>⚖️ 역대 홀:짝 비율 분포</h3>
             <div id="odd-even-chart" class="dist-bar-chart"></div>
         </section>
 
-        <!-- 연속번호 통계 -->
+        <!-- 2. 1회기 통계 (ID와 섹션 확실히 유지) -->
+        <section id="period-1-section" class="analysis-card">
+            <h3>🔄 역대 1회기 통계 (전회차 중복 개수 분포)</h3>
+            <div id="period-1-chart" class="dist-bar-chart"></div>
+        </section>
+
+        <!-- 3. 연속번호 -->
         <section id="consecutive-section" class="analysis-card">
             <h3>🔗 역대 연속번호 발생 빈도</h3>
             <div id="consecutive-chart" class="dist-bar-chart"></div>
         </section>
 
-        <!-- 소수 개수 통계 -->
+        <!-- 4. 소수 개수 -->
         <section id="prime-section" class="analysis-card">
             <h3>🔢 역대 소수(Prime) 포함 개수</h3>
             <div id="prime-chart" class="dist-bar-chart"></div>
         </section>
 
-        <!-- 합성수 개수 통계 -->
+        <!-- 5. 합성수 개수 -->
         <section id="composite-section" class="analysis-card">
             <h3>🧮 역대 합성수(Composite) 포함 개수</h3>
-            <p style="font-size: 0.8rem; color: #999;">*1을 제외한 숫자 통계입니다.</p>
             <div id="composite-chart" class="dist-bar-chart"></div>
         </section>
 
-        <!-- 총합 범위 통계 -->
+        <!-- 6. 총합 범위 -->
         <section id="sum-section" class="analysis-card">
             <h3>📈 역대 총합(Sum) 범위 분포</h3>
             <div id="sum-chart" class="dist-bar-chart"></div>
         </section>
 
-        <!-- 번호별 출현 빈도 -->
+        <!-- 7. 번호별 빈도 -->
         <section id="frequency-section" class="analysis-card">
             <h3>🔢 번호별 전체 출현 빈도</h3>
             <div id="full-frequency-chart" class="frequency-chart"></div>
         </section>
 
-        <!-- 하단 돌아가기 버튼 -->
         <div class="footer-nav">
             <a href="index.html" class="nav-btn large">🍀 번호 생성하러 메인으로 가기</a>
         </div>
     </div>
-
     <script src="analysis.js"></script>
 </body>
 </html>

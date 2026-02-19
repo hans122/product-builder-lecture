@@ -1,6 +1,6 @@
 import csv
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 
 def is_prime(n):
     return n in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]
@@ -10,45 +10,63 @@ def analyze():
     last_appearance = {}
     current_max_draw = 0
     
-    # 역대 분포 데이터
     odd_even_dist = Counter()
     consecutive_dist = Counter()
     prime_dist = Counter()
-    sum_dist = [] # 총합은 숫자가 다양하므로 리스트로 수집
+    composite_dist = Counter() # 합성수 추가
+    period_1_dist = Counter()
+    sum_dist = []
+
+    draws = []
 
     with open('lt645.csv', mode='r', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        rows = list(reader)
+        reader = csv.reader(file)
+        header = next(reader)
+        col_indices = {name: i for i, name in enumerate(header)}
         
-        for row in rows:
-            draw_no = int(row['No'].replace(',', ''))
-            if draw_no > current_max_draw: current_max_draw = draw_no
-            
-            nums = sorted([int(row[f'당첨번호{i}']) for i in range(1, 7)])
-            
-            # 빈도 및 마지막 출현
-            for n in nums:
-                frequency[n] += 1
-                if n not in last_appearance: last_appearance[n] = draw_no
-            
-            # 홀짝 분포
-            odds = len([n for n in nums if n % 2 != 0])
-            odd_even_dist[f"{odds}:{6-odds}"] += 1
-            
-            # 연속번호 분포
-            consecutive = 0
-            for i in range(len(nums)-1):
-                if nums[i] + 1 == nums[i+1]: consecutive += 1
-            consecutive_dist[consecutive] += 1
-            
-            # 소수 분포
-            primes = len([n for n in nums if is_prime(n)])
-            prime_dist[primes] += 1
-            
-            # 총합
-            sum_dist.append(sum(nums))
+        for row in reader:
+            if not row: continue
+            draw_no = int(row[col_indices['회차']])
+            nums = sorted([int(row[col_indices[f'당첨번호{i}']]) for i in range(1, 7)])
+            draws.append({'no': draw_no, 'nums': set(nums)})
 
-    # 총합 범위별 분포 (예: 100-110, 110-120 ...)
+    draws.sort(key=lambda x: x['no'])
+
+    prev_nums = None
+    for draw in draws:
+        draw_no = draw['no']
+        nums_list = sorted(list(draw['nums']))
+        nums_set = draw['nums']
+        
+        if draw_no > current_max_draw: current_max_draw = draw_no
+        
+        for n in nums_list:
+            frequency[n] += 1
+            last_appearance[n] = draw_no
+        
+        odds = len([n for n in nums_list if n % 2 != 0])
+        odd_even_dist[f"{odds}:{6-odds}"] += 1
+        
+        consecutive = 0
+        for i in range(len(nums_list)-1):
+            if nums_list[i] + 1 == nums_list[i+1]: consecutive += 1
+        consecutive_dist[consecutive] += 1
+        
+        primes = len([n for n in nums_list if is_prime(n)])
+        prime_dist[primes] += 1
+
+        # 합성수 계산 (1과 소수를 제외한 수)
+        composites = len([n for n in nums_list if n > 1 and not is_prime(n)])
+        composite_dist[composites] += 1
+        
+        sum_dist.append(sum(nums_list))
+
+        if prev_nums is not None:
+            common = len(nums_set.intersection(prev_nums))
+            period_1_dist[common] += 1
+        
+        prev_nums = nums_set
+
     sum_range_dist = Counter()
     for s in sum_dist:
         range_key = (s // 10) * 10
@@ -61,14 +79,17 @@ def analyze():
             "odd_even": dict(odd_even_dist),
             "consecutive": dict(consecutive_dist),
             "prime": dict(prime_dist),
+            "composite": dict(composite_dist), # 합성수 데이터 포함
+            "period_1": dict(period_1_dist),
             "sum": dict(sum_range_dist)
         },
-        "total_draws": current_max_draw
+        "total_draws": current_max_draw,
+        "last_draw_numbers": sorted(list(draws[-1]['nums']))
     }
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    print("Advanced stats with distributions generated!")
+    print(f"Success: Analyzed up to draw {current_max_draw}")
 
 if __name__ == "__main__":
     analyze()
