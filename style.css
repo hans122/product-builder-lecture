@@ -1,3 +1,33 @@
+/* 분석 페이지 상단 고정 헤더 */
+.analysis-page .sticky-header {
+    position: sticky;
+    top: 0;
+    background: #f0f4f8; /* 바디 배경색과 동일하게 */
+    z-index: 2000;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.analysis-page h1 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.analysis-page .my-numbers-banner {
+    margin-top: 0;
+    margin-bottom: 10px;
+    background: white; /* 고정되었을 때 잘 보이도록 흰색으로 변경 */
+    border: 1px solid #e2e8f0;
+}
+
+.analysis-page .container.wide {
+    margin-top: 0; /* 헤더가 고정되므로 상단 여백 조정 */
+}
+
+/* 기존 스타일 유지... */
 body {
     font-family: 'Noto Sans KR', sans-serif;
     background-color: #f0f4f8;
