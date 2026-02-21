@@ -11,6 +11,16 @@ function isComposite(num) {
     return !isPrime(num);
 }
 
+function calculate_ac(nums) {
+    const diffs = new Set();
+    for (let i = 0; i < nums.length; i++) {
+        for (let j = i + 1; j < nums.length; j++) {
+            diffs.add(Math.abs(nums[i] - nums[j]));
+        }
+    }
+    return diffs.size - (nums.length - 1);
+}
+
 function getBallColorClass(num) {
     if (num <= 10) return 'yellow';
     if (num <= 20) return 'blue';
@@ -141,7 +151,16 @@ function analyzeNumbers(numbers) {
     const ptTarget = document.getElementById('pattern-triangle-count');
     if (ptTarget) ptTarget.innerText = `${pTriCnt}개`;
 
-    // 4. 기존 항목 마무리
+    // 4. 전문 지표 추가
+    const acVal = calculate_ac(numbers);
+    const acTarget = document.getElementById('ac-value');
+    if (acTarget) acTarget.innerText = acVal;
+
+    const spanVal = numbers[numbers.length - 1] - numbers[0];
+    const spanTarget = document.getElementById('span-value');
+    if (spanTarget) spanTarget.innerText = spanVal;
+
+    // 5. 기존 항목 마무리
     let consecutive = 0;
     for (let i = 0; i < numbers.length - 1; i++) {
         if (numbers[i] + 1 === numbers[i + 1]) consecutive++;
