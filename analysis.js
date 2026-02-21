@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dists.multiple_5) renderDistChart('multiple-5-chart', Object.fromEntries(Object.entries(dists.multiple_5).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.double_num) renderDistChart('double-chart', Object.fromEntries(Object.entries(dists.double_num).sort((a,b)=>a[0]-b[0])), '개');
 
-                // 3. 심화 분석: 구간 (3단위 대표)
+                // 3. 심화 분석: 구간
                 if (dists.bucket_3) renderDistChart('bucket-3-chart', Object.fromEntries(Object.entries(dists.bucket_3).sort((a,b)=>a[0]-b[0])), '구간');
 
                 // 4. 심화 분석: 용지 패턴
@@ -177,6 +177,7 @@ function restoreMyNumbers() {
         const list = document.getElementById('my-numbers-list');
         if (section && list) {
             section.style.display = 'flex';
+            list.innerHTML = ''; // 초기화 후 추가
             numbers.forEach(num => {
                 const ball = document.createElement('div');
                 ball.className = `ball mini ${getBallColorClass(num)}`;
