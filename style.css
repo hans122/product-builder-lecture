@@ -1,3 +1,36 @@
+/* 기본 레이아웃 */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f0f4f8;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* 메인 화면 (index.html) 전용 스타일 */
+body:not(.analysis-page) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-wrapper.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px 0;
+}
+
+.main-content {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    max-width: 800px; /* 폭을 약간 확장 */
+    width: 95%;
+    text-align: center;
+}
+
 /* [분석 페이지 전용] 상단 고정 헤더 */
 .analysis-page .sticky-header {
     position: sticky;
@@ -29,7 +62,7 @@
     background: #f1f5f9;
     padding: 8px 20px;
     border-radius: 50px;
-    display: none; /* JS에서 번호가 있을 때만 flex로 변경 */
+    display: flex;
     align-items: center;
     gap: 12px;
     border: 1px solid #e2e8f0;
@@ -42,42 +75,7 @@
     white-space: nowrap;
 }
 
-/* 구슬 컨테이너 mini 전용 */
-.ball-container.mini {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 0;
-    justify-content: center;
-}
-
-/* 기본 레이아웃 */
-body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background-color: #f0f4f8;
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-body:not(.analysis-page) {
-    justify-content: center;
-    align-items: center;
-}
-
-.analysis-page {
-    display: block;
-}
-
-.container.wide {
-    margin: 20px auto;
-    padding: 40px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    max-width: 1100px;
-}
-
+.ball-container { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; margin-bottom: 2.5rem; }
 .ball {
     width: 50px; height: 50px; border-radius: 50%; display: flex;
     justify-content: center; align-items: center; color: white;
@@ -92,11 +90,55 @@ body:not(.analysis-page) {
 .gray { background-color: #757575 !important; }
 .green { background-color: #43a047 !important; }
 
-/* 네비게이션 버튼 */
+#generate-btn {
+    padding: 1rem 3.5rem; font-size: 1.2rem; font-weight: bold; color: white;
+    background: #3498db; border: none; border-radius: 12px; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.realtime-analysis-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #f1f1f1;
+}
+
+.realtime-analysis-section h3 { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 1.5rem; }
+
+.analysis-grid-horizontal {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.analysis-item-link { text-decoration: none; display: block; }
+
+.analysis-item.clickable {
+    background: #f8f9fa;
+    padding: 10px 5px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    transition: all 0.2s;
+    cursor: pointer;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.analysis-item.clickable:hover {
+    background: #eef2f7;
+    border-color: #3498db;
+    transform: translateY(-3px);
+}
+
+.label { display: block; font-size: 0.7rem; color: #7f8c8d; margin-bottom: 3px; }
+.value { font-size: 0.95rem; font-weight: bold; color: #2c3e50; }
+
 .nav-links {
     position: absolute;
     right: 20px;
-    top: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .nav-btn.small {
@@ -108,12 +150,10 @@ body:not(.analysis-page) {
     border: 2px solid #3498db;
     padding: 6px 12px;
     border-radius: 30px;
-    transition: all 0.2s;
 }
 
 .nav-btn.small:hover { background: #3498db; color: white; }
 
-/* 차트 및 카드 스타일 */
 .analysis-card { background: #fcfcfc; border: 1px solid #eee; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; }
 .description { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 1.5rem; line-height: 1.6; }
 .group-header { margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold; font-size: 1.1rem; }
@@ -145,7 +185,33 @@ body:not(.analysis-page) {
 .footer-nav { margin-top: 4rem; padding-top: 2rem; border-top: 2px solid #f1f1f1; text-align: center; }
 .nav-btn.large { display: inline-block; padding: 1.2rem 2.5rem; background: #27ae60; color: white; text-decoration: none; font-weight: bold; border-radius: 15px; }
 
+/* 조합 분석기 전용 스타일 */
+.number-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 2rem;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.select-ball {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    background: white;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.select-ball.selected { background: #3498db; color: white; border-color: #2980b9; transform: scale(1.1); }
+
 @media (max-width: 1100px) {
     .analysis-content-wrapper { grid-template-columns: 1fr; }
-    .nav-links { position: static; margin-bottom: 10px; }
+    .nav-links { position: static; margin-top: 10px; transform: none; }
 }
