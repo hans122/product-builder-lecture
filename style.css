@@ -202,31 +202,85 @@ body:not(.analysis-page) {
 .footer-nav { margin-top: 4rem; padding-top: 2rem; border-top: 2px solid #f1f1f1; text-align: center; }
 .nav-btn.large { display: inline-block; padding: 1.2rem 2.5rem; background: #27ae60; color: white; text-decoration: none; font-weight: bold; border-radius: 15px; }
 
-/* 조합 분석기 전용 스타일 */
+/* 조합 분석기 전용 스타일 (로또 용지 디자인) */
+.lotto-paper-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.lotto-paper {
+    background: #fffef0; /* 실제 종이 느낌의 미색 */
+    border: 2px solid #e2e8f0;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.05);
+    position: relative;
+    max-width: 400px;
+    width: 100%;
+}
+
+.lotto-paper::before {
+    content: "LOTTO 6/45";
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    color: #e53e3e;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e53e3e;
+    padding-bottom: 5px;
+}
+
 .number-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    margin-bottom: 2rem;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 12px;
+    gap: 8px;
+    background: transparent;
+    padding: 0;
 }
 
 .select-ball {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: 2px solid #ddd;
+    width: 100%;
+    aspect-ratio: 1;
+    border: 1px solid #cbd5e0;
     background: white;
     font-weight: bold;
+    font-size: 0.9rem;
+    color: #4a5568;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.1s;
+    position: relative;
+    border-radius: 2px;
 }
 
-.select-ball.selected { background: #3498db; color: white; border-color: #2980b9; transform: scale(1.1); }
+.select-ball:hover {
+    background: #edf2f7;
+}
+
+/* 마킹 효과: 붉은색 컴퓨터용 사인펜 느낌 */
+.select-ball.selected {
+    background: white;
+    border-color: #4a5568;
+}
+
+.select-ball.selected::after {
+    content: "";
+    position: absolute;
+    width: 60%;
+    height: 80%;
+    background: rgba(229, 62, 62, 0.85); /* 사인펜 붉은색 */
+    border-radius: 2px;
+}
+
+.selection-controls {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #cbd5e0;
+}
 
 @media (max-width: 1100px) {
     .analysis-content-wrapper { grid-template-columns: 1fr; }
