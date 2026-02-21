@@ -93,14 +93,20 @@ body:not(.analysis-page) {
 
 .analysis-page .my-numbers-banner {
     background: #f8fafc;
-    padding: 2px 12px; /* 패딩 대폭 축소 */
+    padding: 4px 12px; /* 1줄 높이에 최적화된 패딩 */
     border-radius: 50px;
     display: flex;
     align-items: center;
     gap: 8px;
     border: 1px solid #e2e8f0;
-    margin-top: 0; /* 상단 여백 제거 */
-    margin-bottom: 2px;
+    margin-top: 0;
+    margin-bottom: 5px;
+    overflow: hidden; /* 높이 초과 방지 */
+}
+
+/* 배너 내부 구슬 컨테이너 여백 강제 제거 */
+.analysis-page .my-numbers-banner .ball-container {
+    margin-bottom: 0 !important;
 }
 
 /* 로또 구슬 공통 스타일 복구 */
