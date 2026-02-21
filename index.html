@@ -39,128 +39,150 @@
 
             <!-- 실시간 분석 영역 -->
             <div class="realtime-analysis-section">
-                <h3>📊 실시간 분석 결과 (클릭 시 역대 통계 확인)</h3>
+                <h3>📊 실시간 분석 결과 (항목 클릭 시 역대 통계 확인)</h3>
                 <div id="last-draw-info" class="last-draw-info" style="margin-bottom: 1.5rem; display: none;">
                     <span class="label">직전 회차 당첨 번호:</span>
                     <div id="last-draw-balls" class="ball-container mini" style="margin-bottom: 0;"></div>
                 </div>
-                <div class="analysis-grid-horizontal">
-                    <a href="analysis.html#period-1-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🔄 직전 회차 출현</span>
-                            <span id="period-1-count" class="value">-</span>
+
+                <div class="analysis-row">
+                    <div class="analysis-group">
+                        <div class="group-sub-title">📍 기본 균형 분석</div>
+                        <div class="analysis-grid-horizontal">
+                            <a href="analysis.html#odd-even-section" class="analysis-item-link">
+                                <div class="analysis-item clickable">
+                                    <span class="label">⚖️ 홀:짝 비율</span>
+                                    <span id="odd-even-ratio" class="value">-</span>
+                                </div>
+                            </a>
+                            <a href="analysis.html#high-low-section" class="analysis-item-link">
+                                <div class="analysis-item clickable">
+                                    <span class="label">↕️ 고:저 비율</span>
+                                    <span id="high-low-ratio" class="value">-</span>
+                                </div>
+                            </a>
+                            <a href="analysis.html#sum-section" class="analysis-item-link">
+                                <div class="analysis-item clickable">
+                                    <span class="label">📈 총합(Sum)</span>
+                                    <span id="total-sum" class="value">-</span>
+                                </div>
+                            </a>
                         </div>
-                    </a>
-                    <a href="analysis.html#neighbor-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🏠 주변번호 출현</span>
-                            <span id="neighbor-count" class="value">-</span>
+                    </div>
+
+                    <div class="analysis-group">
+                        <div class="group-sub-title">📍 회차 상관관계</div>
+                        <div class="analysis-grid-horizontal">
+                            <a href="analysis.html#period-1-section" class="analysis-item-link">
+                                <div class="analysis-item clickable">
+                                    <span class="label">🔄 직전회차 출현</span>
+                                    <span id="period-1-count" class="value">-</span>
+                                </div>
+                            </a>
+                            <a href="analysis.html#neighbor-section" class="analysis-item-link">
+                                <div class="analysis-item clickable">
+                                    <span class="label">🏠 주변번호 출현</span>
+                                    <span id="neighbor-count" class="value">-</span>
+                                </div>
+                            </a>
+                            <a href="analysis.html#consecutive-section" class="analysis-item-link">
+                                <div class="analysis-item clickable">
+                                    <span class="label">🔗 연속번호 쌍</span>
+                                    <span id="consecutive-count" class="value">-</span>
+                                </div>
+                            </a>
                         </div>
-                    </a>
-                    <a href="analysis.html#odd-even-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">⚖️ 홀:짝 비율</span>
-                            <span id="odd-even-ratio" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#high-low-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">↕️ 고:저 비율</span>
-                            <span id="high-low-ratio" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#end-sum-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🔢 끝수 총합</span>
-                            <span id="end-sum-value" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#same-end-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">👯 동끝수</span>
-                            <span id="same-end-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#square-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🟦 완전제곱수</span>
-                            <span id="square-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#multiple-5-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🖐️ 5의배수</span>
-                            <span id="multiple-5-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#double-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">👥 쌍수</span>
-                            <span id="double-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#consecutive-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🔗 연속번호</span>
-                            <span id="consecutive-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#prime-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🔢 소수 포함</span>
-                            <span id="prime-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#composite-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🧮 합성수 포함</span>
-                            <span id="composite-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#multiple-3-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">✖️ 3배수 포함</span>
-                            <span id="multiple-3-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#sum-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">📈 총합</span>
-                            <span id="total-sum" class="value">-</span>
-                        </div>
-                    </a>
-                    <!-- 신규 심화 분석 추가 -->
-                    <a href="analysis.html#bucket-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">📦 출현구간</span>
-                            <span id="bucket-3-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#pattern-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">📐 모서리패턴</span>
-                            <span id="pattern-corner-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#pattern-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">📐 삼각형패턴</span>
-                            <span id="pattern-triangle-count" class="value">-</span>
-                        </div>
-                    </a>
-                    <!-- 전문 지표 추가 -->
-                    <a href="analysis.html#ac-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">🔢 AC값</span>
-                            <span id="ac-value" class="value">-</span>
-                        </div>
-                    </a>
-                    <a href="analysis.html#span-section" class="analysis-item-link">
-                        <div class="analysis-item clickable">
-                            <span class="label">↔️ Span</span>
-                            <span id="span-value" class="value">-</span>
-                        </div>
-                    </a>
+                    </div>
+                </div>
+
+                <div class="analysis-group full-width">
+                    <div class="group-sub-title">📍 끝수 및 특수수</div>
+                    <div class="analysis-grid-horizontal">
+                        <a href="analysis.html#end-sum-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">🔢 끝수 총합</span>
+                                <span id="end-sum-value" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#same-end-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">👯 동끝수 개수</span>
+                                <span id="same-end-count" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#prime-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">🔢 소수 포함</span>
+                                <span id="prime-count" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#composite-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">🧮 합성수 포함</span>
+                                <span id="composite-count" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#multiple-3-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">✖️ 3배수 포함</span>
+                                <span id="multiple-3-count" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#multiple-5-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">🖐️ 5의배수 포함</span>
+                                <span id="multiple-5-count" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#square-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">🟦 완전제곱수</span>
+                                <span id="square-count" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#double-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">👥 쌍수 포함</span>
+                                <span id="double-count" class="value">-</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="analysis-group full-width">
+                    <div class="group-sub-title">📍 전문 지표 및 패턴</div>
+                    <div class="analysis-grid-horizontal">
+                        <a href="analysis.html#ac-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">🔢 AC값</span>
+                                <span id="ac-value" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#span-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">↔️ Span</span>
+                                <span id="span-value" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#bucket-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">📦 출현구간수</span>
+                                <span id="bucket-3-count" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#pattern-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">📐 모서리패턴</span>
+                                <span id="pattern-corner-count" class="value">-</span>
+                            </div>
+                        </a>
+                        <a href="analysis.html#pattern-section" class="analysis-item-link">
+                            <div class="analysis-item clickable">
+                                <span class="label">📐 삼각형패턴</span>
+                                <span id="pattern-triangle-count" class="value">-</span>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
