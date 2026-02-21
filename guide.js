@@ -59,22 +59,26 @@ function updateGuideStats(data) {
         carryBox.innerHTML = `데이터 분석 결과, 이월수가 1개 이상 포함될 확률은 <strong>${carryProb}%</strong>에 달합니다. 즉, 10번 중 7~8번은 전회차 번호가 다시 나옵니다.`;
     }
 
-    // 4. 특수 번호 및 패턴 통합 분석 (추가/수정)
+    // 4. 특수 번호 및 패턴 통합 분석
     const combinedStat = document.getElementById('combined-special-stat');
     if (dists.prime && dists.multiple_3 && dists.square && dists.multiple_5 && dists.double_num) {
         const getProb = (dist) => (100 - ((dist["0"] || 0) / total * 100)).toFixed(1);
-        
         const pPrime = getProb(dists.prime);
         const pM3 = getProb(dists.multiple_3);
         const pSquare = getProb(dists.square);
         const pM5 = getProb(dists.multiple_5);
         const pDouble = getProb(dists.double_num);
 
+        // 용지 패턴 추가 분석
+        const pCorner0 = dists.pattern_corner["0"] || 0;
+        const pCornerProb = (100 - (pCorner0 / total * 100)).toFixed(1);
+
         combinedStat.innerHTML = `
             <strong>실시간 데이터 요약:</strong><br>
             • 소수 출현 확률: ${pPrime}% | 3배수 출현 확률: ${pM3}%<br>
-            • 제곱수 출현 확률: ${pSquare}% | 5배수 출현 확률: ${pM5}% | 쌍수 출현 확률: ${pDouble}%<br>
-            <small>※ 위 수치는 전체 ${total}회차 중 각 번호군이 1개 이상 포함된 비율입니다.</small>
+            • 제곱수 출현 확률: ${pSquare}% | 5배수 출현 확률: ${pM5}%<br>
+            • 쌍수 출현 확률: ${pDouble}% | 모서리패턴 출현 확률: ${pCornerProb}%<br>
+            <small>※ 위 수치는 각 번호군/패턴이 1개 이상 포함된 회차의 비율입니다.</small>
         `;
     }
 

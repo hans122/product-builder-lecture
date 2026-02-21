@@ -135,6 +135,48 @@
             </div>
         </section>
 
+        <!-- 1-8. 구간별 분포 (3,5,9,15단위) -->
+        <section id="bucket-section" class="analysis-card">
+            <h3>📦 역대 구간별(3단위) 출현 분포</h3>
+            <p class="description">1~45번을 3단위씩 나눈 15개 구간 중 번호가 출현한 구간의 개수입니다. 번호가 얼마나 골고루 퍼졌는지 알 수 있습니다.</p>
+            <div class="analysis-content-wrapper">
+                <div id="bucket-3-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 구간 출현</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>구간수</th></tr></thead>
+                        <tbody id="bucket-3-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1-9. 용지 패턴 -->
+        <section id="pattern-section" class="analysis-card">
+            <h3>📐 역대 용지 패턴(모서리, 삼각형) 분포</h3>
+            <p class="description">로또 용지 상의 특정 위치(사각 모서리, 중앙 삼각형)에 번호가 몇 개 포함되었는지의 분포입니다.</p>
+            <div class="analysis-content-wrapper">
+                <div id="pattern-corner-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 모서리패턴</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>모서리</th></tr></thead>
+                        <tbody id="pattern-corner-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="analysis-content-wrapper" style="margin-top: 2rem;">
+                <div id="pattern-triangle-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 삼각형패턴</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>삼각형</th></tr></thead>
+                        <tbody id="pattern-triangle-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- 2. 직전 회차 출현 -->
         <section id="period-1-section" class="analysis-card">
             <h3>🔄 역대 직전 회차 출현 개수 분포</h3>

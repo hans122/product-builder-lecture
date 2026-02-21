@@ -1,27 +1,32 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Analysis Page Loaded');
     
-    // 데이터 로드
-    fetch('advanced_stats.json?v=' + Date.now()) // 캐시 방지
+    fetch('advanced_stats.json?v=' + Date.now())
         .then(response => response.json())
         .then(data => {
-            console.log('Data received:', data);
             if (!data) return;
-
             const dists = data.distributions;
 
-            // 차트 렌더링
             if (dists) {
+                // 1. 기본 비율
                 if (dists.odd_even) renderDistChart('odd-even-chart', Object.fromEntries(Object.entries(dists.odd_even).sort()), ' : ');
                 if (dists.high_low) renderDistChart('high-low-chart', Object.fromEntries(Object.entries(dists.high_low).sort()), ' : ');
                 
-                // 신규 지표 차트
+                // 2. 끝수 및 특수 패턴
                 if (dists.end_sum) renderDistChart('end-sum-chart', Object.fromEntries(Object.entries(dists.end_sum).sort((a,b)=>a[0]-b[0])), '');
                 if (dists.same_end) renderDistChart('same-end-chart', Object.fromEntries(Object.entries(dists.same_end).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.square) renderDistChart('square-chart', Object.fromEntries(Object.entries(dists.square).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.multiple_5) renderDistChart('multiple-5-chart', Object.fromEntries(Object.entries(dists.multiple_5).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.double_num) renderDistChart('double-chart', Object.fromEntries(Object.entries(dists.double_num).sort((a,b)=>a[0]-b[0])), '개');
 
+                // 3. 심화 분석: 구간 (3단위 대표)
+                if (dists.bucket_3) renderDistChart('bucket-3-chart', Object.fromEntries(Object.entries(dists.bucket_3).sort((a,b)=>a[0]-b[0])), '구간');
+
+                // 4. 심화 분석: 용지 패턴
+                if (dists.pattern_corner) renderDistChart('pattern-corner-chart', Object.fromEntries(Object.entries(dists.pattern_corner).sort((a,b)=>a[0]-b[0])), '개');
+                if (dists.pattern_triangle) renderDistChart('pattern-triangle-chart', Object.fromEntries(Object.entries(dists.pattern_triangle).sort((a,b)=>a[0]-b[0])), '개');
+
+                // 5. 기존 항목들
                 if (dists.period_1) {
                     const sortedPeriod1 = {};
                     for(let i=0; i<=6; i++) if (dists.period_1[i] !== undefined) sortedPeriod1[i] = dists.period_1[i];
@@ -39,16 +44,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dists.sum) {
                     const order = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
                     const sortedSum = {};
-                    order.forEach(range => {
-                        if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range];
-                    });
+                    order.forEach(range => { if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range]; });
                     renderDistChart('sum-chart', sortedSum, '');
                 }
             }
 
             if (data.frequency) renderFrequencyChart(data.frequency);
 
-            // 최근 결과 테이블 렌더링
             if (data.recent_draws) {
                 renderRecentTable(data.recent_draws);
                 renderMiniTables(data.recent_draws.slice(0, 5));
@@ -68,6 +70,9 @@ function renderMiniTables(draws) {
         { id: 'square-mini-body', key: 'square' },
         { id: 'multiple-5-mini-body', key: 'm5' },
         { id: 'double-mini-body', key: 'double' },
+        { id: 'bucket-3-mini-body', key: 'b3' },
+        { id: 'pattern-corner-mini-body', key: 'p_corner' },
+        { id: 'pattern-triangle-mini-body', key: 'p_tri' },
         { id: 'period-1-mini-body', key: 'period_1' },
         { id: 'neighbor-mini-body', key: 'neighbor' },
         { id: 'consecutive-mini-body', key: 'consecutive' },
@@ -81,25 +86,15 @@ function renderMiniTables(draws) {
         const tbody = document.getElementById(item.id);
         if (!tbody) return;
         tbody.innerHTML = '';
-        
         draws.forEach(draw => {
             const tr = document.createElement('tr');
-            const ballsHtml = draw.nums.map(n => 
-                `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`
-            ).join('');
-
+            const ballsHtml = draw.nums.map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
             let val = draw[item.key];
-            // 예외 처리 (JSON에 없는 경우 실시간 계산)
             if (val === undefined) {
                 if (item.key === 'composite') val = draw.nums.filter(n => n > 1 && ![2,3,5,7,11,13,17,19,23,29,31,37,41,43].includes(n)).length;
                 if (item.key === 'multiple_3') val = draw.nums.filter(n => n % 3 === 0).length;
             }
-
-            tr.innerHTML = `
-                <td>${draw.no}</td>
-                <td><div class="table-nums">${ballsHtml}</div></td>
-                <td><strong>${val}</strong></td>
-            `;
+            tr.innerHTML = `<td>${draw.no}</td><td><div class="table-nums">${ballsHtml}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);
         });
     });
@@ -109,13 +104,9 @@ function renderRecentTable(draws) {
     const tbody = document.getElementById('recent-results-body');
     if (!tbody) return;
     tbody.innerHTML = '';
-
     draws.forEach(draw => {
         const tr = document.createElement('tr');
-        const ballsHtml = draw.nums.map(n => 
-            `<div class="table-ball ${getBallColorClass(n)}">${n}</div>`
-        ).join('');
-
+        const ballsHtml = draw.nums.map(n => `<div class="table-ball ${getBallColorClass(n)}">${n}</div>`).join('');
         tr.innerHTML = `
             <td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
             <td><div class="table-nums">${ballsHtml}</div></td>
