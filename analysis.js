@@ -17,9 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // 2. 직전 회차 출현 개수 (전회차 중복)
             if (dists.period_1) {
-                console.log('Rendering Period 1 Chart:', dists.period_1);
                 const sortedPeriod1 = {};
-                // 0부터 6까지 모든 키를 보장하며 정렬
                 for(let i=0; i<=6; i++) {
                     if (dists.period_1[i] !== undefined) {
                         sortedPeriod1[i] = dists.period_1[i];
@@ -28,27 +26,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderDistChart('period-1-chart', sortedPeriod1, '개');
             }
 
-            // 3. 연속번호
+            // 3. 주변번호 출현 개수 (이웃수)
+            if (dists.neighbor) {
+                const sortedNeighbor = {};
+                for(let i=0; i<=6; i++) {
+                    if (dists.neighbor[i] !== undefined) {
+                        sortedNeighbor[i] = dists.neighbor[i];
+                    }
+                }
+                renderDistChart('neighbor-chart', sortedNeighbor, '개');
+            }
+
+            // 4. 연속번호
             if (dists.consecutive) {
                 renderDistChart('consecutive-chart', Object.fromEntries(Object.entries(dists.consecutive).sort((a,b)=>a[0]-b[0])), '쌍');
             }
 
-            // 4. 소수 개수
+            // 5. 소수 개수
             if (dists.prime) {
                 renderDistChart('prime-chart', Object.fromEntries(Object.entries(dists.prime).sort((a,b)=>a[0]-b[0])), '개');
             }
             
-            // 5. 합성수
+            // 6. 합성수
             if (dists.composite) {
                 renderDistChart('composite-chart', Object.fromEntries(Object.entries(dists.composite).sort((a,b)=>a[0]-b[0])), '개');
             }
 
-            // 6. 3배수
+            // 7. 3배수
             if (dists.multiple_3) {
                 renderDistChart('multiple-3-chart', Object.fromEntries(Object.entries(dists.multiple_3).sort((a,b)=>a[0]-b[0])), '개');
             }
             
-            // 7. 총합 분포
+            // 8. 총합 분포
             if (dists.sum) {
                 const sortedSum = Object.fromEntries(
                     Object.entries(dists.sum).sort((a, b) => parseInt(a[0].split('-')[0]) - parseInt(b[0].split('-')[0]))
@@ -56,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderDistChart('sum-chart', sortedSum, '');
             }
 
-            // 8. 전체 빈도
+            // 9. 전체 빈도
             if (data.frequency) {
                 renderFrequencyChart(data.frequency);
             }

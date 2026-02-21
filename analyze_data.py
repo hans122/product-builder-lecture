@@ -16,6 +16,7 @@ def analyze():
     composite_dist = Counter() # 합성수 추가
     multiple_3_dist = Counter() # 3배수 추가
     period_1_dist = Counter()
+    neighbor_dist = Counter() # 주변번호(이웃수) 추가
     sum_dist = []
 
     draws = []
@@ -67,8 +68,20 @@ def analyze():
         sum_dist.append(sum(nums_list))
 
         if prev_nums is not None:
+            # 1회기 (직전 회차 중복)
             common = len(nums_set.intersection(prev_nums))
             period_1_dist[common] += 1
+
+            # 주변번호 (이웃수: 직전 회차 각 번호의 +-1)
+            neighbors = set()
+            for n in prev_nums:
+                if n > 1: neighbors.add(n - 1)
+                if n < 45: neighbors.add(n + 1)
+            # 직전 회차 본인은 제외하고 순수 주변번호만 따질지 여부: 
+            # 보통 분석에서는 직전 회차 번호를 포함한 전체 인접 영역을 보기도 합니다.
+            # 여기서는 '순수 주변번호' 집합과의 교집합을 계산합니다.
+            neighbor_common = len(nums_set.intersection(neighbors))
+            neighbor_dist[neighbor_common] += 1
         
         prev_nums = nums_set
 
@@ -84,9 +97,10 @@ def analyze():
             "odd_even": dict(odd_even_dist),
             "consecutive": dict(consecutive_dist),
             "prime": dict(prime_dist),
-            "composite": dict(composite_dist), # 합성수 데이터 포함
-            "multiple_3": dict(multiple_3_dist), # 3배수 데이터 포함
+            "composite": dict(composite_dist),
+            "multiple_3": dict(multiple_3_dist),
             "period_1": dict(period_1_dist),
+            "neighbor": dict(neighbor_dist), # 주변번호 데이터 추가
             "sum": dict(sum_range_dist)
         },
         "total_draws": current_max_draw,

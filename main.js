@@ -73,6 +73,16 @@ function analyzeNumbers(numbers) {
         const common = [...currentDraw].filter(x => lastDraw.has(x)).length;
         const target = document.getElementById('period-1-count');
         if (target) target.innerText = `${common}개`;
+
+        // 1-2. 주변번호 출현 (이웃수)
+        const neighbors = new Set();
+        statsData.last_draw_numbers.forEach(n => {
+            if (n > 1) neighbors.add(n - 1);
+            if (n < 45) neighbors.add(n + 1);
+        });
+        const neighborCommon = [...currentDraw].filter(x => neighbors.has(x)).length;
+        const neighborTarget = document.getElementById('neighbor-count');
+        if (neighborTarget) neighborTarget.innerText = `${neighborCommon}개`;
     }
 
     // 2. 홀짝 비율
