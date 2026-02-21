@@ -124,6 +124,21 @@ function runDetailedAnalysis() {
     }
     addReportRow('홀:짝', oddEvenRatio, oeStatus, oeOpinion);
 
+    // 2-2. 고저 분석 (추가)
+    const lows = nums.filter(n => n <= 22).length;
+    const highLowRatio = `${lows}:${6-lows}`;
+    let hlStatus = '보통';
+    let hlOpinion = '저번호와 고번호가 고르게 섞여 있습니다.';
+    if (lows >= 2 && lows <= 4) {
+        hlStatus = '최적';
+        hlOpinion = '저번호(1~22)와 고번호(23~45)의 균형이 매우 좋은 조합입니다.';
+    } else {
+        hlStatus = '주의';
+        hlOpinion = '번호가 너무 낮은 쪽이나 높은 쪽으로 쏠려 있습니다.';
+        totalScore -= 15;
+    }
+    addReportRow('고:저', highLowRatio, hlStatus, hlOpinion);
+
     // 3. 연속번호 분석
     let consecutive = 0;
     for (let i = 0; i < nums.length - 1; i++) {
