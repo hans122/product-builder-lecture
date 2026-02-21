@@ -43,7 +43,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         ballContainer.appendChild(ball);
                     });
                     const label = infoContainer.querySelector('.label');
-                    if (label) label.innerText = `직전 ${data.total_draws}회차 당첨 번호:`;
+                    if (label) {
+                        let drawDate = '';
+                        if (data.recent_draws && data.recent_draws.length > 0) {
+                            drawDate = ` (${data.recent_draws[0].date})`;
+                        }
+                        label.innerText = `직전 ${data.total_draws}회차 당첨 번호${drawDate}:`;
+                    }
                 }
             }
 
