@@ -338,9 +338,20 @@
         <!-- [그룹 7: 총합 및 기타] -->
         <div class="group-header">📍 총합 및 로우 데이터</div>
         <section id="sum-section" class="analysis-card">
-            <h3>📈 역대 총합(Sum) 범위 분포</h3>
-            <p class="description">당첨번호 6개의 모든 합계가 어느 범위에 가장 많이 분포하는지 보여줍니다.</p>
-            <div id="sum-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>📈 역대 총합(Sum) 범위 분포</h3>
+                    <p class="description">당첨번호 6개의 모든 합계가 어느 범위에 가장 많이 분포하는지 보여줍니다.</p>
+                    <div id="sum-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 총합 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>총합</th></tr></thead>
+                        <tbody id="sum-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
         
         <section id="frequency-section" class="analysis-card">

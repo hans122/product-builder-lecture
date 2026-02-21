@@ -192,6 +192,23 @@ function renderFrequencyChart(data) {
         barWrapper.appendChild(label);
         chartContainer.appendChild(barWrapper);
     }
+
+    // TOP 10 미니 테이블 렌더링 추가
+    const topBody = document.getElementById('frequency-top-body');
+    if (topBody) {
+        const sorted = Object.entries(data)
+            .map(([num, count]) => ({ num: parseInt(num), count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10);
+
+        topBody.innerHTML = sorted.map((item, index) => `
+            <tr>
+                <td>${index + 1}위</td>
+                <td><div class="table-nums"><div class="table-ball ${getBallColorClass(item.num)}">${item.num}</div></div></td>
+                <td><strong>${item.count}회</strong></td>
+            </tr>
+        `).join('');
+    }
 }
 
 function restoreMyNumbers() {

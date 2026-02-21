@@ -278,9 +278,9 @@ body:not(.analysis-page) {
 .mini-table td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
 
 .dist-bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 180px; padding-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 35px; overflow-x: auto; }
-.dist-bar { flex: 0 0 auto; background: #3498db; border-radius: 4px 4px 0 0; position: relative; min-width: 40px; display: flex; flex-direction: column; align-items: center; }
+.dist-bar { flex: 1; background: #3498db; border-radius: 4px 4px 0 0; position: relative; min-width: 40px; max-width: 80px; display: flex; flex-direction: column; align-items: center; }
 .dist-value { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: bold; color: #2c3e50; }
-.dist-label { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: #7f8c8d; font-weight: bold; }
+.dist-label { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: #7f8c8d; font-weight: bold; white-space: nowrap; }
 
 .table-responsive { overflow-x: auto; margin-top: 1rem; }
 
@@ -323,21 +323,22 @@ body:not(.analysis-page) {
 .status-badge.normal { background-color: #f39c12; box-shadow: 0 2px 4px rgba(243, 156, 18, 0.2); }
 .status-badge.warning { background-color: #e74c3c; box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2); }
 
-#frequency-section { width: 100%; margin-left: 0; }
+#frequency-section { width: 100%; margin-left: 0; box-sizing: border-box; }
 .frequency-chart { 
     display: flex; 
     align-items: flex-end; 
     gap: 1px; 
     height: 320px; 
     margin-top: 2rem; 
-    padding-top: 40px; 
-    padding-bottom: 40px; 
+    padding: 40px 10px 40px 10px;
     border-bottom: 2px solid #eee; 
-    overflow: hidden; /* 가로 스크롤 제거하여 화면에 맞춤 */
+    overflow: hidden; 
     width: 100%;
+    box-sizing: border-box;
 }
 .bar-wrapper { 
-    flex: 1; /* 모든 바가 균등한 공간 차지 */
+    flex: 1; 
+    min-width: 0;
     display: flex; 
     flex-direction: column; 
     align-items: center; 
@@ -346,7 +347,7 @@ body:not(.analysis-page) {
     position: relative; 
 }
 .bar-value { 
-    font-size: 0.55rem; /* 더 작은 화면 대응을 위해 크기 약간 축소 */
+    font-size: 0.55rem; 
     color: #2c3e50; 
     font-weight: bold; 
     margin-bottom: 5px; 
@@ -354,7 +355,7 @@ body:not(.analysis-page) {
     transform-origin: center;
     white-space: nowrap;
     position: absolute;
-    top: -25px;
+    top: -30px;
 }
 .bar { width: 100%; border-radius: 1px 1px 0 0; transition: all 0.2s; min-height: 2px; }
 .bar-label { position: absolute; bottom: -25px; font-size: 0.55rem; color: #95a5a6; font-weight: bold; }
