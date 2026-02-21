@@ -93,13 +93,14 @@ body:not(.analysis-page) {
 
 .analysis-page .my-numbers-banner {
     background: #f8fafc;
-    padding: 5px 15px;
+    padding: 2px 12px; /* 패딩 대폭 축소 */
     border-radius: 50px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     border: 1px solid #e2e8f0;
-    margin-top: 2px;
+    margin-top: 0; /* 상단 여백 제거 */
+    margin-bottom: 2px;
 }
 
 /* 로또 구슬 공통 스타일 복구 */
@@ -316,32 +317,41 @@ body:not(.analysis-page) {
 .status-badge.normal { background-color: #f39c12; box-shadow: 0 2px 4px rgba(243, 156, 18, 0.2); }
 .status-badge.warning { background-color: #e74c3c; box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2); }
 
-#frequency-section { max-width: 100%; margin-left: 0; } /* 다른 카드들과 동일하게 100% 사용 */
+#frequency-section { width: 100%; margin-left: 0; }
 .frequency-chart { 
     display: flex; 
     align-items: flex-end; 
-    gap: 2px; /* 간격 약간 확대 */
+    gap: 1px; 
     height: 320px; 
     margin-top: 2rem; 
     padding-top: 40px; 
     padding-bottom: 40px; 
     border-bottom: 2px solid #eee; 
-    overflow-x: auto; /* 내용이 많을 경우 가로 스크롤 허용 */
+    overflow: hidden; /* 가로 스크롤 제거하여 화면에 맞춤 */
+    width: 100%;
 }
-.bar-wrapper { flex: 0 0 20px; min-width: 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; } /* 바 넓이 확대 */
+.bar-wrapper { 
+    flex: 1; /* 모든 바가 균등한 공간 차지 */
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-end; 
+    height: 100%; 
+    position: relative; 
+}
 .bar-value { 
-    font-size: 0.65rem; 
+    font-size: 0.55rem; /* 더 작은 화면 대응을 위해 크기 약간 축소 */
     color: #2c3e50; 
     font-weight: bold; 
     margin-bottom: 5px; 
-    transform: rotate(-90deg); /* 숫자 세로 표시 유지 */
+    transform: rotate(-90deg);
     transform-origin: center;
     white-space: nowrap;
     position: absolute;
     top: -25px;
 }
-.bar { width: 100%; border-radius: 2px 2px 0 0; transition: all 0.2s; min-height: 2px; }
-.bar-label { position: absolute; bottom: -25px; font-size: 0.6rem; color: #95a5a6; font-weight: bold; }
+.bar { width: 100%; border-radius: 1px 1px 0 0; transition: all 0.2s; min-height: 2px; }
+.bar-label { position: absolute; bottom: -25px; font-size: 0.55rem; color: #95a5a6; font-weight: bold; }
 
 .footer-nav { margin-top: 4rem; padding-top: 2rem; border-top: 2px solid #f1f1f1; text-align: center; }
 .nav-btn.large { display: inline-block; padding: 1.2rem 2.5rem; background: #27ae60; color: white; text-decoration: none; font-weight: bold; border-radius: 15px; }
