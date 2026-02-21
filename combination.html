@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로또 나의 조합 분석기</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="analysis-page">
+    <div class="container wide">
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn small">🏠 메인으로</a>
+            <a href="analysis.html" class="nav-btn small">📊 역대 통계</a>
+        </div>
+        <h1>🎯 나의 조합 분석 리포트</h1>
+        <p class="subtitle">선택하신 번호가 역대 당첨 데이터의 통계적 범위 내에 있는지 정밀 분석합니다</p>
+
+        <!-- 번호 선택 영역 -->
+        <section class="analysis-card">
+            <h3>🔢 번호 선택하기</h3>
+            <p class="description">분석할 번호 6개를 선택하세요. (직접 클릭하거나 자동 생성 가능)</p>
+            <div id="number-selector" class="number-grid">
+                <!-- 1~45번 구슬이 JS에서 생성됨 -->
+            </div>
+            <div class="selection-controls">
+                <div id="selected-balls" class="ball-container mini">
+                    <div class="placeholder">번호를 선택해주세요</div>
+                </div>
+                <div class="btn-group">
+                    <button id="auto-select-btn" class="btn-secondary">자동 선택</button>
+                    <button id="reset-btn" class="btn-danger">초기화</button>
+                    <button id="analyze-my-btn" class="btn-primary" disabled>조합 분석 실행</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 분석 결과 리포트 (숨김 상태였다가 분석 시 나타남) -->
+        <div id="report-section" style="display: none;">
+            <section class="analysis-card result-summary">
+                <div class="score-badge">
+                    <span class="score-label">조합 점수</span>
+                    <span id="combination-score">85</span>
+                </div>
+                <div class="grade-info">
+                    <h3>종합 평가: <span id="combination-grade">A등급</span></h3>
+                    <p id="grade-comment">역대 당첨 확률이 매우 높은 균형 잡힌 조합입니다.</p>
+                </div>
+            </section>
+
+            <div class="analysis-grid-vertical">
+                <!-- 세부 분석 항목들이 여기에 추가됨 -->
+                <div class="analysis-card">
+                    <h4>📊 세부 분석 리포트</h4>
+                    <div class="table-responsive">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>항목</th>
+                                    <th>나의 조합</th>
+                                    <th>상태</th>
+                                    <th>통계적 의견</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysis-report-body">
+                                <!-- JS에서 동적 생성 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <p class="disclaimer">※ 본 분석은 통계적 확률에 근거한 것이며, 실제 당첨을 보장하지 않습니다.</p>
+            <a href="index.html" class="nav-btn large">🍀 새로운 번호 생성하러 가기</a>
+        </div>
+    </div>
+    <script src="combination.js"></script>
+</body>
+</html>

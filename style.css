@@ -144,11 +144,129 @@ h1 { margin-bottom: 0.5rem; color: #2c3e50; }
     box-shadow: 0 8px 20px rgba(39, 174, 96, 0.4);
 }
 
-/* 분석 페이지 스타일 보강 */
-.analysis-page {
-    display: block;
-    padding: 40px 0;
+/* 조합 분석기 전용 스타일 */
+.number-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    gap: 10px;
+    margin-bottom: 2rem;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
 }
+
+.select-ball {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    background: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.select-ball:hover {
+    border-color: #3498db;
+    background: #ebf5ff;
+}
+
+.select-ball.selected {
+    background: #3498db;
+    color: white;
+    border-color: #2980b9;
+    transform: scale(1.1);
+}
+
+.selection-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-primary { background: #3498db; color: white; }
+.btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+.btn-secondary { background: #95a5a6; color: white; }
+.btn-danger { background: #e74c3c; color: white; }
+.btn-success { background: #27ae60; color: white; }
+
+/* 결과 요약 스타일 */
+.result-summary {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 2rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+    border: 2px solid #3498db;
+}
+
+.score-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #3498db;
+    color: white;
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+}
+
+.score-label { font-size: 0.8rem; opacity: 0.9; }
+#combination-score { font-size: 2.5rem; font-weight: bold; }
+
+.grade-info h3 { margin: 0 0 10px 0; color: #2c3e50; font-size: 1.5rem; }
+#combination-grade { color: #3498db; font-size: 2rem; }
+#grade-comment { color: #7f8c8d; line-height: 1.5; }
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    background: #edf2f7;
+}
+
+.text-success { color: #27ae60 !important; background: #e8f5e9; }
+.text-danger { color: #e74c3c !important; background: #ffebee; }
+.text-left { text-align: left; }
+
+.disclaimer {
+    font-size: 0.8rem;
+    color: #a0aec0;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .result-summary {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+}
+
+/* 기존 스타일 유지... */
 
 .my-numbers-banner {
     display: flex;

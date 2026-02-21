@@ -90,6 +90,11 @@ function analyzeNumbers(numbers) {
     const oddEvenTarget = document.getElementById('odd-even-ratio');
     if (oddEvenTarget) oddEvenTarget.innerText = `${odds}:${6 - odds}`;
 
+    // 2-2. 고저 비율 (저번호: 1~22, 고번호: 23~45)
+    const lows = numbers.filter(n => n <= 22).length;
+    const hlTarget = document.getElementById('high-low-ratio');
+    if (hlTarget) hlTarget.innerText = `${lows}:${6 - lows}`;
+
     // 3. 연속번호
     let consecutive = 0;
     for (let i = 0; i < numbers.length - 1; i++) {

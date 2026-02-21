@@ -11,6 +11,7 @@ def analyze():
     current_max_draw = 0
     
     odd_even_dist = Counter()
+    high_low_dist = Counter() # 고저 비율 추가
     consecutive_dist = Counter()
     prime_dist = Counter()
     composite_dist = Counter()
@@ -53,6 +54,11 @@ def analyze():
         odds = len([n for n in nums_list if n % 2 != 0])
         odd_even_val = f"{odds}:{6-odds}"
         odd_even_dist[odd_even_val] += 1
+
+        # 고저 비율 (저번호: 1~22, 고번호: 23~45)
+        lows = len([n for n in nums_list if n <= 22])
+        high_low_val = f"{lows}:{6-lows}"
+        high_low_dist[high_low_val] += 1
         
         consecutive = 0
         for i in range(len(nums_list)-1):
@@ -93,6 +99,7 @@ def analyze():
             "nums": nums_list,
             "sum": total_sum,
             "odd_even": odd_even_val,
+            "high_low": high_low_val, # 고저 추가
             "consecutive": consecutive,
             "prime": primes,
             "neighbor": neighbor_val,
@@ -128,6 +135,7 @@ def analyze():
         "frequency": {str(i): frequency.get(i, 0) for i in range(1, 46)},
         "distributions": {
             "odd_even": dict(odd_even_dist),
+            "high_low": dict(high_low_dist), # 고저 데이터 포함
             "consecutive": dict(consecutive_dist),
             "prime": dict(prime_dist),
             "composite": dict(composite_dist),

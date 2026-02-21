@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 차트 렌더링
             if (dists) {
                 if (dists.odd_even) renderDistChart('odd-even-chart', Object.fromEntries(Object.entries(dists.odd_even).sort()), ' : ');
+                if (dists.high_low) renderDistChart('high-low-chart', Object.fromEntries(Object.entries(dists.high_low).sort()), ' : '); // 고저 추가
                 if (dists.period_1) {
                     const sortedPeriod1 = {};
                     for(let i=0; i<=6; i++) if (dists.period_1[i] !== undefined) sortedPeriod1[i] = dists.period_1[i];
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function renderMiniTables(draws) {
     const config = [
         { id: 'odd-even-mini-body', key: 'odd_even' },
+        { id: 'high-low-mini-body', key: 'high_low' }, // 고저 추가
         { id: 'period-1-mini-body', key: 'period_1' },
         { id: 'neighbor-mini-body', key: 'neighbor' },
         { id: 'consecutive-mini-body', key: 'consecutive' },
