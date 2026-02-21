@@ -140,6 +140,60 @@ body:not(.analysis-page) {
     white-space: nowrap;
 }
 
+#generate-btn {
+    padding: 1rem 3.5rem; font-size: 1.2rem; font-weight: bold; color: white;
+    background: #3498db; border: none; border-radius: 12px; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.realtime-analysis-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #f1f1f1;
+}
+
+.realtime-analysis-section h3 { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 1.5rem; }
+
+.analysis-grid-horizontal {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.analysis-item-link { text-decoration: none; display: block; }
+
+.analysis-item.clickable {
+    background: #f8f9fa;
+    padding: 10px 5px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    transition: all 0.2s;
+    cursor: pointer;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.analysis-item.clickable:hover {
+    background: #eef2f7;
+    border-color: #3498db;
+    transform: translateY(-3px);
+}
+
+/* 실시간 분석 항목 상태 색상 */
+.analysis-item.optimal { background-color: #e8f5e9; border-color: #27ae60; }
+.analysis-item.optimal .value { color: #27ae60; }
+
+.analysis-item.normal { background-color: #fffde7; border-color: #fbc02d; }
+.analysis-item.normal .value { color: #f9a825; }
+
+.analysis-item.warning { background-color: #ffebee; border-color: #e53935; }
+.analysis-item.warning .value { color: #e53935; }
+
+.label { display: block; font-size: 0.7rem; color: #7f8c8d; margin-bottom: 3px; }
+.value { font-size: 0.95rem; font-weight: bold; color: #2c3e50; }
+
 .analysis-card { background: #fcfcfc; border: 1px solid #eee; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; }
 .analysis-card h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.15rem; color: #2c3e50; }
 .description { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 1.5rem; line-height: 1.6; }

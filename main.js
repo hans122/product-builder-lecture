@@ -83,12 +83,17 @@ function analyzeNumbers(numbers) {
 
     const currentDraw = new Set(numbers);
 
-    // 1. 직전 회차 출현
+    // 1. 직전 회차 출현 (이월수)
     if (statsData.last_draw_numbers) {
         const lastDraw = new Set(statsData.last_draw_numbers);
         const common = [...currentDraw].filter(x => lastDraw.has(x)).length;
         const target = document.getElementById('period-1-count');
-        if (target) target.innerText = `${common}개`;
+        if (target) {
+            let status = 'normal';
+            if (common >= 1 && common <= 2) status = 'optimal';
+            else if (common >= 3) status = 'warning';
+            updateAnalysisItem(target, `${common}개`, status);
+        }
 
         const neighbors = new Set();
         statsData.last_draw_numbers.forEach(n => {
@@ -97,68 +102,93 @@ function analyzeNumbers(numbers) {
         });
         const neighborCommon = [...currentDraw].filter(x => neighbors.has(x)).length;
         const neighborTarget = document.getElementById('neighbor-count');
-        if (neighborTarget) neighborTarget.innerText = `${neighborCommon}개`;
+        if (neighborTarget) {
+            let status = 'normal';
+            if (neighborCommon >= 1 && neighborCommon <= 2) status = 'optimal';
+            updateAnalysisItem(neighborTarget, `${neighborCommon}개`, status);
+        }
     }
 
     // 2. 기본 비율 및 수 분석
     const odds = numbers.filter(n => n % 2 !== 0).length;
     const oddEvenTarget = document.getElementById('odd-even-ratio');
-    if (oddEvenTarget) oddEvenTarget.innerText = `${odds}:${6 - odds}`;
+    if (oddEvenTarget) {
+        let status = 'normal';
+        if (odds >= 2 && odds <= 4) status = 'optimal';
+        updateAnalysisItem(oddEvenTarget, `${odds}:${6 - odds}`, status);
+    }
 
     const lows = numbers.filter(n => n <= 22).length;
     const hlTarget = document.getElementById('high-low-ratio');
-    if (hlTarget) hlTarget.innerText = `${lows}:${6 - lows}`;
+    if (hlTarget) {
+        let status = 'normal';
+        if (lows >= 2 && lows <= 4) status = 'optimal';
+        updateAnalysisItem(hlTarget, `${lows}:${6 - lows}`, status);
+    }
 
     const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
     const endSumTarget = document.getElementById('end-sum-value');
-    if (endSumTarget) endSumTarget.innerText = endSum;
+    if (endSumTarget) {
+        let status = (endSum >= 15 && endSum <= 35) ? 'optimal' : 'normal';
+        updateAnalysisItem(endSumTarget, endSum, status);
+    }
 
     const endDigits = numbers.map(n => n % 10);
     const digitCounts = {};
     endDigits.forEach(d => digitCounts[d] = (digitCounts[d] || 0) + 1);
     const maxSameEnd = Math.max(...Object.values(digitCounts));
     const sameEndTarget = document.getElementById('same-end-count');
-    if (sameEndTarget) sameEndTarget.innerText = `${maxSameEnd}개`;
+    if (sameEndTarget) {
+        let status = (maxSameEnd >= 2 && maxSameEnd <= 3) ? 'optimal' : 'normal';
+        updateAnalysisItem(sameEndTarget, `${maxSameEnd}개`, status);
+    }
 
     const squares = [1, 4, 9, 16, 25, 36];
     const squareCount = numbers.filter(n => squares.includes(n)).length;
     const squareTarget = document.getElementById('square-count');
-    if (squareTarget) squareTarget.innerText = `${squareCount}개`;
+    if (squareTarget) updateAnalysisItem(squareTarget, `${squareCount}개`, 'normal');
 
     const m5Count = numbers.filter(n => n % 5 === 0).length;
     const m5Target = document.getElementById('multiple-5-count');
-    if (m5Target) m5Target.innerText = `${m5Count}개`;
+    if (m5Target) updateAnalysisItem(m5Target, `${m5Count}개`, 'normal');
 
     const doubles = [11, 22, 33, 44];
     const doubleCount = numbers.filter(n => doubles.includes(n)).length;
     const doubleTarget = document.getElementById('double-count');
-    if (doubleTarget) doubleTarget.innerText = `${doubleCount}개`;
+    if (doubleTarget) updateAnalysisItem(doubleTarget, `${doubleCount}개`, 'normal');
 
     // 3. 심화 분석: 구간 및 패턴
-    // 3단위 구간 출현 개수
     const b3Count = new Set(numbers.map(n => Math.floor((n-1)/3))).size;
     const b3Target = document.getElementById('bucket-3-count');
-    if (b3Target) b3Target.innerText = `${b3Count}구간`;
+    if (b3Target) {
+        let status = (b3Count >= 5) ? 'optimal' : 'normal';
+        updateAnalysisItem(b3Target, `${b3Count}구간`, status);
+    }
 
-    // 용지 패턴 (모서리, 삼각형)
     const corners = new Set([1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42]);
     const triangle = new Set([4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32]);
     const pCornerCnt = numbers.filter(n => corners.has(n)).length;
     const pTriCnt = numbers.filter(n => triangle.has(n)).length;
     
     const pcTarget = document.getElementById('pattern-corner-count');
-    if (pcTarget) pcTarget.innerText = `${pCornerCnt}개`;
+    if (pcTarget) updateAnalysisItem(pcTarget, `${pCornerCnt}개`, 'normal');
     const ptTarget = document.getElementById('pattern-triangle-count');
-    if (ptTarget) ptTarget.innerText = `${pTriCnt}개`;
+    if (ptTarget) updateAnalysisItem(ptTarget, `${pTriCnt}개`, 'normal');
 
-    // 4. 전문 지표 추가
+    // 4. 전문 지표
     const acVal = calculate_ac(numbers);
     const acTarget = document.getElementById('ac-value');
-    if (acTarget) acTarget.innerText = acVal;
+    if (acTarget) {
+        let status = (acVal >= 7) ? 'optimal' : (acVal >= 6 ? 'normal' : 'warning');
+        updateAnalysisItem(acTarget, acVal, status);
+    }
 
     const spanVal = numbers[numbers.length - 1] - numbers[0];
     const spanTarget = document.getElementById('span-value');
-    if (spanTarget) spanTarget.innerText = spanVal;
+    if (spanTarget) {
+        let status = (spanVal >= 25 && spanVal <= 40) ? 'optimal' : 'normal';
+        updateAnalysisItem(spanTarget, spanVal, status);
+    }
 
     // 5. 기존 항목 마무리
     let consecutive = 0;
@@ -166,19 +196,41 @@ function analyzeNumbers(numbers) {
         if (numbers[i] + 1 === numbers[i + 1]) consecutive++;
     }
     const consecutiveTarget = document.getElementById('consecutive-count');
-    if (consecutiveTarget) consecutiveTarget.innerText = `${consecutive}쌍`;
+    if (consecutiveTarget) {
+        let status = (consecutive >= 1 && consecutive <= 2) ? 'optimal' : (consecutive >= 3 ? 'warning' : 'normal');
+        updateAnalysisItem(consecutiveTarget, `${consecutive}쌍`, status);
+    }
 
     const primeTarget = document.getElementById('prime-count');
-    if (primeTarget) primeTarget.innerText = `${numbers.filter(isPrime).length}개`;
+    if (primeTarget) {
+        const pCnt = numbers.filter(isPrime).length;
+        let status = (pCnt >= 2 && pCnt <= 3) ? 'optimal' : 'normal';
+        updateAnalysisItem(primeTarget, `${pCnt}개`, status);
+    }
 
     const compositeTarget = document.getElementById('composite-count');
-    if (compositeTarget) compositeTarget.innerText = `${numbers.filter(isComposite).length}개`;
+    if (compositeTarget) updateAnalysisItem(compositeTarget, `${numbers.filter(isComposite).length}개`, 'normal');
 
     const multiple3Target = document.getElementById('multiple-3-count');
-    if (multiple3Target) multiple3Target.innerText = `${numbers.filter(n => n % 3 === 0).length}개`;
+    if (multiple3Target) updateAnalysisItem(multiple3Target, `${numbers.filter(n => n % 3 === 0).length}개`, 'normal');
 
     const sumTarget = document.getElementById('total-sum');
-    if (sumTarget) sumTarget.innerText = numbers.reduce((a, b) => a + b, 0);
+    if (sumTarget) {
+        const totalSum = numbers.reduce((a, b) => a + b, 0);
+        let status = (totalSum >= 120 && totalSum <= 180) ? 'optimal' : 'warning';
+        updateAnalysisItem(sumTarget, totalSum, status);
+    }
+}
+
+function updateAnalysisItem(element, text, status) {
+    if (!element) return;
+    element.innerText = text;
+    // 부모 div (analysis-item)에 상태 클래스 추가
+    const parent = element.closest('.analysis-item');
+    if (parent) {
+        parent.classList.remove('optimal', 'normal', 'warning');
+        parent.classList.add(status);
+    }
 }
 
 function renderNumbers(numbers, useAnimation = true) {
