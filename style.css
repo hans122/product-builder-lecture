@@ -165,7 +165,7 @@ body:not(.analysis-page) {
 
 .analysis-content-wrapper { display: grid; grid-template-columns: 1fr 360px; gap: 25px; align-items: start; }
 .analysis-main-side { display: flex; flex-direction: column; }
-.mini-table-wrapper { background: white; padding: 10px 15px 15px 15px; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+.mini-table-wrapper { background: white; padding: 15px; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
 .mini-table-wrapper h4 { margin-top: 0; margin-bottom: 12px; font-size: 0.9rem; color: #2c3e50; display: flex; align-items: center; gap: 5px; }
 .mini-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: center; }
 .mini-table th { background: #f7fafc; padding: 8px 4px; border-bottom: 2px solid #edf2f7; color: #718096; }

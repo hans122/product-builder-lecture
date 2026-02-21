@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.recent_draws) {
                 renderRecentTable(data.recent_draws);
-                renderMiniTables(data.recent_draws.slice(0, 5));
+                renderMiniTables(data.recent_draws.slice(0, 6));
             }
         })
         .catch(err => console.error('Data load failed:', err));
