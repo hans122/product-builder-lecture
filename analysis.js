@@ -32,8 +32,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dists.pattern_triangle) renderDistChart('pattern-triangle-chart', Object.fromEntries(Object.entries(dists.pattern_triangle).sort((a,b)=>a[0]-b[0])), '개');
 
                 // 5. 전문 기술적 지표
-                if (dists.ac) renderDistChart('ac-chart', Object.fromEntries(Object.entries(dists.ac).sort((a,b)=>a[0]-b[0])), '');
-                if (dists.span) renderDistChart('span-chart', Object.fromEntries(Object.entries(dists.span).sort((a,b)=>a[0]-b[0])), '');
+                if (dists.ac) {
+                    const acGrouped = {"6 이하": 0, "7": 0, "8": 0, "9": 0, "10": 0};
+                    Object.entries(dists.ac).forEach(([val, count]) => {
+                        const v = parseInt(val);
+                        if (v <= 6) acGrouped["6 이하"] += count;
+                        else if (acGrouped[val] !== undefined) acGrouped[val] = count;
+                    });
+                    renderDistChart('ac-chart', acGrouped, '');
+                }
+                if (dists.span) {
+                    const spanGrouped = {"25 미만": 0, "25-29": 0, "30-34": 0, "35-39": 0, "40 이상": 0};
+                    Object.entries(dists.span).forEach(([val, count]) => {
+                        const v = parseInt(val);
+                        if (v < 25) spanGrouped["25 미만"] += count;
+                        else if (v <= 29) spanGrouped["25-29"] += count;
+                        else if (v <= 34) spanGrouped["30-34"] += count;
+                        else if (v <= 39) spanGrouped["35-39"] += count;
+                        else spanGrouped["40 이상"] += count;
+                    });
+                    renderDistChart('span-chart', spanGrouped, '');
+                }
 
                 // 6. 기존 항목들
                 if (dists.period_1) {

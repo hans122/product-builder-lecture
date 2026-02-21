@@ -31,6 +31,8 @@ function renderHistoryTable(draws) {
             <td class="stat-val ${sumClass}">${draw.sum}</td>
             <td class="stat-val ${oeClass}">${draw.odd_even}</td>
             <td class="stat-val">${draw.high_low}</td>
+            <td class="stat-val">${draw.ac}</td>
+            <td class="stat-val">${draw.span}</td>
             <td class="stat-val" title="직전 회차와 중복된 번호">${draw.period_1}개</td>
             <td class="stat-val" title="직전 회차의 ±1 번호">${draw.neighbor}개</td>
             <td class="stat-val">${draw.consecutive}쌍</td>

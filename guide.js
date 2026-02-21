@@ -121,4 +121,16 @@ function updateGuideStats(data) {
         const hasTriProb = (100 - (pTri0 / total * 100)).toFixed(1);
         patternStat.innerHTML = `중앙 삼각형 영역에 번호가 1개 이상 포함될 확률은 <strong>${hasTriProb}%</strong>로 매우 일반적인 패턴입니다.`;
     }
+
+    // 9. 기술적 지표 (AC & Span) 요약
+    const techStat = document.createElement('div');
+    techStat.className = 'stat-highlight';
+    if (dists.ac && dists.span) {
+        const sortedAC = Object.entries(dists.ac).sort((a, b) => b[1] - a[1]);
+        const topAC = sortedAC[0][0];
+        const acPerc = ((sortedAC[0][1] / total) * 100).toFixed(1);
+        techStat.innerHTML = `산술적 복잡도(AC)는 <strong>${topAC}</strong>(확률 ${acPerc}%)가 가장 많으며, 번호의 넓은 분포(Span)가 당첨의 핵심입니다.`;
+        const lastSection = document.querySelector('.logic-card:last-of-type');
+        if (lastSection) lastSection.appendChild(techStat);
+    }
 }
