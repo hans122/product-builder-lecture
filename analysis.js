@@ -13,7 +13,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // 차트 렌더링
             if (dists) {
                 if (dists.odd_even) renderDistChart('odd-even-chart', Object.fromEntries(Object.entries(dists.odd_even).sort()), ' : ');
-                if (dists.high_low) renderDistChart('high-low-chart', Object.fromEntries(Object.entries(dists.high_low).sort()), ' : '); // 고저 추가
+                if (dists.high_low) renderDistChart('high-low-chart', Object.fromEntries(Object.entries(dists.high_low).sort()), ' : ');
+                
+                // 신규 지표 차트
+                if (dists.end_sum) renderDistChart('end-sum-chart', Object.fromEntries(Object.entries(dists.end_sum).sort((a,b)=>a[0]-b[0])), '');
+                if (dists.same_end) renderDistChart('same-end-chart', Object.fromEntries(Object.entries(dists.same_end).sort((a,b)=>a[0]-b[0])), '개');
+                if (dists.square) renderDistChart('square-chart', Object.fromEntries(Object.entries(dists.square).sort((a,b)=>a[0]-b[0])), '개');
+                if (dists.multiple_5) renderDistChart('multiple-5-chart', Object.fromEntries(Object.entries(dists.multiple_5).sort((a,b)=>a[0]-b[0])), '개');
+                if (dists.double_num) renderDistChart('double-chart', Object.fromEntries(Object.entries(dists.double_num).sort((a,b)=>a[0]-b[0])), '개');
+
                 if (dists.period_1) {
                     const sortedPeriod1 = {};
                     for(let i=0; i<=6; i++) if (dists.period_1[i] !== undefined) sortedPeriod1[i] = dists.period_1[i];
@@ -32,9 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const order = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
                     const sortedSum = {};
                     order.forEach(range => {
-                        if (dists.sum[range] !== undefined) {
-                            sortedSum[range] = dists.sum[range];
-                        }
+                        if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range];
                     });
                     renderDistChart('sum-chart', sortedSum, '');
                 }
@@ -45,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // 최근 결과 테이블 렌더링
             if (data.recent_draws) {
                 renderRecentTable(data.recent_draws);
-                // 각 차트 옆 미니 테이블 렌더링 (최근 5회만)
                 renderMiniTables(data.recent_draws.slice(0, 5));
             }
         })
@@ -57,7 +62,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function renderMiniTables(draws) {
     const config = [
         { id: 'odd-even-mini-body', key: 'odd_even' },
-        { id: 'high-low-mini-body', key: 'high_low' }, // 고저 추가
+        { id: 'high-low-mini-body', key: 'high_low' },
+        { id: 'end-sum-mini-body', key: 'end_sum' },
+        { id: 'same-end-mini-body', key: 'same_end' },
+        { id: 'square-mini-body', key: 'square' },
+        { id: 'multiple-5-mini-body', key: 'm5' },
+        { id: 'double-mini-body', key: 'double' },
         { id: 'period-1-mini-body', key: 'period_1' },
         { id: 'neighbor-mini-body', key: 'neighbor' },
         { id: 'consecutive-mini-body', key: 'consecutive' },
@@ -78,9 +88,8 @@ function renderMiniTables(draws) {
                 `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`
             ).join('');
 
-            // composite와 multiple_3는 draw 객체에 이미 계산되어 있어야 함
-            // 만약 analyze_data.py에서 안했다면 여기서 계산 (현재는 analyze_data.py에서 일부 빠진것 확인됨)
             let val = draw[item.key];
+            // 예외 처리 (JSON에 없는 경우 실시간 계산)
             if (val === undefined) {
                 if (item.key === 'composite') val = draw.nums.filter(n => n > 1 && ![2,3,5,7,11,13,17,19,23,29,31,37,41,43].includes(n)).length;
                 if (item.key === 'multiple_3') val = draw.nums.filter(n => n % 3 === 0).length;

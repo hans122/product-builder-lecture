@@ -66,10 +66,11 @@ function analyzeNumbers(numbers) {
         return;
     }
 
+    const currentDraw = new Set(numbers);
+
     // 1. 직전 회차 출현 (전회차 중복)
     if (statsData.last_draw_numbers) {
         const lastDraw = new Set(statsData.last_draw_numbers);
-        const currentDraw = new Set(numbers);
         const common = [...currentDraw].filter(x => lastDraw.has(x)).length;
         const target = document.getElementById('period-1-count');
         if (target) target.innerText = `${common}개`;
@@ -94,6 +95,36 @@ function analyzeNumbers(numbers) {
     const lows = numbers.filter(n => n <= 22).length;
     const hlTarget = document.getElementById('high-low-ratio');
     if (hlTarget) hlTarget.innerText = `${lows}:${6 - lows}`;
+
+    // 2-3. 일의 자리 총합 (끝수 합)
+    const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
+    const endSumTarget = document.getElementById('end-sum-value');
+    if (endSumTarget) endSumTarget.innerText = endSum;
+
+    // 2-4. 같은 일의 자리 수 (동끝 최대 개수)
+    const endDigits = numbers.map(n => n % 10);
+    const digitCounts = {};
+    endDigits.forEach(d => digitCounts[d] = (digitCounts[d] || 0) + 1);
+    const maxSameEnd = Math.max(...Object.values(digitCounts));
+    const sameEndTarget = document.getElementById('same-end-count');
+    if (sameEndTarget) sameEndTarget.innerText = `${maxSameEnd}개`;
+
+    // 2-5. 완전제곱수 (1, 4, 9, 16, 25, 36)
+    const squares = [1, 4, 9, 16, 25, 36];
+    const squareCount = numbers.filter(n => squares.includes(n)).length;
+    const squareTarget = document.getElementById('square-count');
+    if (squareTarget) squareTarget.innerText = `${squareCount}개`;
+
+    // 2-6. 5의 배수
+    const m5Count = numbers.filter(n => n % 5 === 0).length;
+    const m5Target = document.getElementById('multiple-5-count');
+    if (m5Target) m5Target.innerText = `${m5Count}개`;
+
+    // 2-7. 쌍수 (11, 22, 33, 44)
+    const doubles = [11, 22, 33, 44];
+    const doubleCount = numbers.filter(n => doubles.includes(n)).length;
+    const doubleTarget = document.getElementById('double-count');
+    if (doubleTarget) doubleTarget.innerText = `${doubleCount}개`;
 
     // 3. 연속번호
     let consecutive = 0;

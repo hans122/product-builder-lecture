@@ -120,6 +120,72 @@
             "100-119": 198,
             "100 미만": 136,
             "200 이상": 26
+        },
+        "end_sum": {
+            "22": 55,
+            "25": 85,
+            "14": 19,
+            "24": 82,
+            "28": 74,
+            "42": 9,
+            "34": 34,
+            "23": 62,
+            "27": 63,
+            "21": 50,
+            "32": 55,
+            "26": 74,
+            "15": 19,
+            "39": 8,
+            "40": 7,
+            "20": 48,
+            "29": 58,
+            "37": 17,
+            "30": 56,
+            "17": 26,
+            "18": 36,
+            "38": 20,
+            "33": 47,
+            "16": 27,
+            "35": 35,
+            "31": 42,
+            "36": 18,
+            "19": 49,
+            "13": 4,
+            "11": 7,
+            "9": 3,
+            "41": 4,
+            "43": 3,
+            "12": 5,
+            "8": 2,
+            "10": 4,
+            "7": 1,
+            "44": 2,
+            "47": 1
+        },
+        "same_end": {
+            "2": 841,
+            "3": 96,
+            "1": 269,
+            "4": 5
+        },
+        "square": {
+            "0": 521,
+            "2": 170,
+            "1": 483,
+            "3": 37
+        },
+        "multiple_5": {
+            "2": 311,
+            "1": 517,
+            "0": 284,
+            "3": 90,
+            "4": 9
+        },
+        "double_num": {
+            "1": 431,
+            "0": 680,
+            "2": 96,
+            "3": 4
         }
     },
     "total_draws": 1211,
@@ -149,7 +215,12 @@
             "consecutive": 1,
             "prime": 1,
             "neighbor": 1,
-            "period_1": 2
+            "period_1": 2,
+            "end_sum": 29,
+            "same_end": 1,
+            "square": 0,
+            "m5": 2,
+            "double": 0
         },
         {
             "no": 1210,
@@ -168,7 +239,12 @@
             "consecutive": 0,
             "prime": 2,
             "neighbor": 2,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 39,
+            "same_end": 3,
+            "square": 2,
+            "m5": 0,
+            "double": 0
         },
         {
             "no": 1209,
@@ -187,7 +263,12 @@
             "consecutive": 0,
             "prime": 3,
             "neighbor": 3,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 30,
+            "same_end": 2,
+            "square": 0,
+            "m5": 2,
+            "double": 0
         },
         {
             "no": 1208,
@@ -206,7 +287,12 @@
             "consecutive": 0,
             "prime": 0,
             "neighbor": 0,
-            "period_1": 2
+            "period_1": 2,
+            "end_sum": 29,
+            "same_end": 2,
+            "square": 1,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1207,
@@ -225,7 +311,12 @@
             "consecutive": 0,
             "prime": 0,
             "neighbor": 1,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 26,
+            "same_end": 1,
+            "square": 0,
+            "m5": 2,
+            "double": 1
         },
         {
             "no": 1206,
@@ -244,7 +335,12 @@
             "consecutive": 1,
             "prime": 2,
             "neighbor": 3,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 26,
+            "same_end": 2,
+            "square": 1,
+            "m5": 0,
+            "double": 0
         },
         {
             "no": 1205,
@@ -263,7 +359,12 @@
             "consecutive": 0,
             "prime": 3,
             "neighbor": 1,
-            "period_1": 2
+            "period_1": 2,
+            "end_sum": 16,
+            "same_end": 3,
+            "square": 3,
+            "m5": 0,
+            "double": 0
         },
         {
             "no": 1204,
@@ -282,7 +383,12 @@
             "consecutive": 1,
             "prime": 1,
             "neighbor": 2,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 27,
+            "same_end": 2,
+            "square": 1,
+            "m5": 1,
+            "double": 1
         },
         {
             "no": 1203,
@@ -301,7 +407,12 @@
             "consecutive": 0,
             "prime": 2,
             "neighbor": 2,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 40,
+            "same_end": 2,
+            "square": 0,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1202,
@@ -320,7 +431,12 @@
             "consecutive": 0,
             "prime": 2,
             "neighbor": 1,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 18,
+            "same_end": 1,
+            "square": 0,
+            "m5": 2,
+            "double": 1
         },
         {
             "no": 1201,
@@ -339,7 +455,12 @@
             "consecutive": 1,
             "prime": 1,
             "neighbor": 0,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 38,
+            "same_end": 2,
+            "square": 2,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1200,
@@ -358,7 +479,12 @@
             "consecutive": 1,
             "prime": 1,
             "neighbor": 1,
-            "period_1": 2
+            "period_1": 2,
+            "end_sum": 15,
+            "same_end": 2,
+            "square": 3,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1199,
@@ -377,7 +503,12 @@
             "consecutive": 3,
             "prime": 1,
             "neighbor": 3,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 18,
+            "same_end": 1,
+            "square": 2,
+            "m5": 2,
+            "double": 0
         },
         {
             "no": 1198,
@@ -396,7 +527,12 @@
             "consecutive": 1,
             "prime": 1,
             "neighbor": 0,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 27,
+            "same_end": 1,
+            "square": 0,
+            "m5": 1,
+            "double": 1
         },
         {
             "no": 1197,
@@ -415,7 +551,12 @@
             "consecutive": 0,
             "prime": 3,
             "neighbor": 2,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 30,
+            "same_end": 1,
+            "square": 1,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1196,
@@ -434,7 +575,12 @@
             "consecutive": 0,
             "prime": 1,
             "neighbor": 0,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 29,
+            "same_end": 2,
+            "square": 0,
+            "m5": 3,
+            "double": 0
         },
         {
             "no": 1195,
@@ -453,7 +599,12 @@
             "consecutive": 1,
             "prime": 1,
             "neighbor": 2,
-            "period_1": 3
+            "period_1": 3,
+            "end_sum": 28,
+            "same_end": 2,
+            "square": 1,
+            "m5": 1,
+            "double": 1
         },
         {
             "no": 1194,
@@ -472,7 +623,12 @@
             "consecutive": 0,
             "prime": 3,
             "neighbor": 1,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 25,
+            "same_end": 3,
+            "square": 0,
+            "m5": 1,
+            "double": 1
         },
         {
             "no": 1193,
@@ -491,7 +647,12 @@
             "consecutive": 0,
             "prime": 1,
             "neighbor": 2,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 42,
+            "same_end": 2,
+            "square": 2,
+            "m5": 0,
+            "double": 0
         },
         {
             "no": 1192,
@@ -510,7 +671,12 @@
             "consecutive": 1,
             "prime": 1,
             "neighbor": 2,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 24,
+            "same_end": 2,
+            "square": 2,
+            "m5": 2,
+            "double": 0
         },
         {
             "no": 1191,
@@ -529,7 +695,12 @@
             "consecutive": 1,
             "prime": 2,
             "neighbor": 1,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 9,
+            "same_end": 3,
+            "square": 2,
+            "m5": 1,
+            "double": 1
         },
         {
             "no": 1190,
@@ -548,7 +719,12 @@
             "consecutive": 0,
             "prime": 3,
             "neighbor": 0,
-            "period_1": 2
+            "period_1": 2,
+            "end_sum": 39,
+            "same_end": 2,
+            "square": 1,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1189,
@@ -567,7 +743,12 @@
             "consecutive": 1,
             "prime": 3,
             "neighbor": 0,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 47,
+            "same_end": 3,
+            "square": 1,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1188,
@@ -586,7 +767,12 @@
             "consecutive": 1,
             "prime": 2,
             "neighbor": 3,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 27,
+            "same_end": 2,
+            "square": 1,
+            "m5": 0,
+            "double": 1
         },
         {
             "no": 1187,
@@ -605,7 +791,12 @@
             "consecutive": 0,
             "prime": 4,
             "neighbor": 1,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 30,
+            "same_end": 1,
+            "square": 0,
+            "m5": 2,
+            "double": 0
         },
         {
             "no": 1186,
@@ -624,7 +815,12 @@
             "consecutive": 0,
             "prime": 3,
             "neighbor": 3,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 30,
+            "same_end": 2,
+            "square": 1,
+            "m5": 0,
+            "double": 0
         },
         {
             "no": 1185,
@@ -643,7 +839,12 @@
             "consecutive": 1,
             "prime": 2,
             "neighbor": 3,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 34,
+            "same_end": 2,
+            "square": 0,
+            "m5": 0,
+            "double": 1
         },
         {
             "no": 1184,
@@ -662,7 +863,12 @@
             "consecutive": 0,
             "prime": 3,
             "neighbor": 3,
-            "period_1": 1
+            "period_1": 1,
+            "end_sum": 26,
+            "same_end": 1,
+            "square": 2,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1183,
@@ -681,7 +887,12 @@
             "consecutive": 0,
             "prime": 2,
             "neighbor": 1,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 32,
+            "same_end": 2,
+            "square": 2,
+            "m5": 1,
+            "double": 0
         },
         {
             "no": 1182,
@@ -700,7 +911,12 @@
             "consecutive": 0,
             "prime": 2,
             "neighbor": 2,
-            "period_1": 0
+            "period_1": 0,
+            "end_sum": 19,
+            "same_end": 3,
+            "square": 2,
+            "m5": 1,
+            "double": 0
         }
     ]
 }

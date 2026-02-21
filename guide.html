@@ -46,7 +46,6 @@
                 <h3>1. 총합(Sum) 분석 기법</h3>
                 <p>로또 번호 6개의 합계를 분석하는 것은 가장 기본적이면서 중요한 기법입니다. 이론적으로 총합은 21부터 255까지 가능하지만, 실제 당첨 번호는 중앙값 부근에 밀집되는 경향이 있습니다.</p>
                 <div id="sum-stat-box">
-                    <!-- 데이터 로드 시 업데이트됨 -->
                     <div class="stat-highlight">우리 사이트 통계: 합계 120~180 구간이 전체의 약 70% 이상을 차지합니다.</div>
                 </div>
                 <p><strong>공략 팁:</strong> 너무 낮은 합계(100 미만)나 너무 높은 합계(200 이상)는 피하고, 120~180 사이의 균형 잡힌 조합을 선택하는 것이 통계적으로 유리합니다.</p>
@@ -56,9 +55,7 @@
             <section class="logic-card">
                 <h3>2. 홀짝(Odd:Even) 균형 기법</h3>
                 <p>홀수와 짝수가 섞여 나오는 비율을 분석합니다. 6개 모두 홀수이거나 모두 짝수인 경우는 역대 통계에서 매우 희귀합니다.</p>
-                <ul id="oe-stat-list" class="top-logic-list">
-                    <!-- JS에서 데이터 채움 -->
-                </ul>
+                <ul id="oe-stat-list" class="top-logic-list"></ul>
                 <p><strong>공략 팁:</strong> 역대 당첨의 약 80%가 2:4, 3:3, 4:2 비율에서 나옵니다. 특히 3:3 비율은 가장 빈번하게 등장하는 '황금 비율'입니다.</p>
             </section>
 
@@ -66,9 +63,7 @@
             <section class="logic-card">
                 <h3>2-2. 고저(High:Low) 배합 기법</h3>
                 <p>전체 번호(1~45)를 절반으로 나누어 저번호(1~22)와 고번호(23~45)가 어떤 비율로 출현하는지 분석합니다.</p>
-                <ul id="hl-stat-list" class="top-logic-list">
-                    <!-- JS에서 데이터 채움 -->
-                </ul>
+                <ul id="hl-stat-list" class="top-logic-list"></ul>
                 <p><strong>공략 팁:</strong> 홀짝 비율과 마찬가지로 저번호와 고번호가 2:4, 3:3, 4:2 정도로 골고루 섞이는 조합이 가장 당첨 확률이 높습니다.</p>
             </section>
 
@@ -98,10 +93,33 @@
             <section class="logic-card">
                 <h3>5. 연속번호(Consecutive Numbers)</h3>
                 <p>12, 13번이나 34, 35번처럼 붙어 있는 숫자를 의미합니다. 많은 사람들이 연속번호는 잘 안 나올 것이라 생각하지만, 실제로는 당첨 번호의 절반 이상에서 최소 한 쌍 이상의 연속번호가 포함됩니다.</p>
-                <div id="consecutive-stat">
-                    <!-- JS에서 채움 -->
-                </div>
-                <p><strong>공략 팁:</strong> 6개 번호 중 한 쌍(예: 15, 16) 정도의 연속번호를 넣는 것은 매우 현실적인 조합 전략입니다.</p>
+                <div id="consecutive-stat"></div>
+                <p><strong>공략 팁:</strong> 6개 번호 중 한 쌍 정도의 연속번호를 넣는 것은 매우 현실적인 조합 전략입니다.</p>
+            </section>
+
+            <!-- 6. 끝수 분석 (끝수합 및 동끝수) -->
+            <section class="logic-card">
+                <h3>6. 끝수 분석 (끝수합 및 동끝수)</h3>
+                <p>각 번호의 일의 자리 숫자(끝수)를 분석합니다.</p>
+                <ul>
+                    <li><strong>끝수 총합:</strong> 6개 번호의 일의 자리를 모두 더한 값입니다.</li>
+                    <li><strong>동끝수:</strong> 일의 자리가 같은 번호들의 모임입니다. (예: 2, 12, 32는 '2' 동끝)</li>
+                </ul>
+                <div id="end-digit-stat" class="stat-highlight"></div>
+                <p><strong>공략 팁:</strong> 동끝수가 하나도 없는 경우보다, 2개 정도의 동끝수가 포함된 조합이 당첨 확률이 더 높게 나타나는 경우가 많습니다.</p>
+            </section>
+
+            <!-- 7. 특수 패턴 (완전제곱수, 5의 배수, 쌍수) -->
+            <section class="logic-card">
+                <h3>7. 특수 패턴 (완전제곱수, 5의 배수, 쌍수)</h3>
+                <p>특수한 수학적 성질이나 모양을 가진 번호들의 출현 빈도를 분석합니다.</p>
+                <ul>
+                    <li><strong>완전제곱수:</strong> 1, 4, 9, 16, 25, 36 (역대 당첨번호 중 평균 1개 내외 포함)</li>
+                    <li><strong>쌍수:</strong> 11, 22, 33, 44 (모양상 특징이 있는 번호)</li>
+                    <li><strong>5의 배수:</strong> 5, 10, 15... 45 (구간별 흐름을 파악하는 지표)</li>
+                </ul>
+                <div id="special-pattern-stat" class="stat-highlight"></div>
+                <p><strong>공략 팁:</strong> 이러한 특수 패턴의 번호들은 조합의 '양념' 같은 역할을 합니다. 너무 많이 넣기보다는 항목당 1~2개 이내로 적절히 분산 배치하는 것이 좋습니다.</p>
             </section>
         </div>
 
