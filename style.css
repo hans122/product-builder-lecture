@@ -37,7 +37,7 @@ body:not(.analysis-page) {
     top: 0;
     background: white;
     z-index: 3000;
-    padding: 15px 0;
+    padding: 12px 0;
     border-bottom: 1px solid #e2e8f0;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
@@ -49,114 +49,57 @@ body:not(.analysis-page) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-}
-
-.analysis-page h1 {
-    margin: 0 0 12px 0;
-    font-size: 1.5rem;
-    color: #2c3e50;
-}
-
-.analysis-page .my-numbers-banner {
-    background: #f1f5f9;
-    padding: 6px 18px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border: 1px solid #e2e8f0;
-}
-
-.analysis-page .my-numbers-banner .ball-container {
-    margin-bottom: 0;
-}
-
-.banner-label {
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: #64748b;
-    white-space: nowrap;
-}
-
-.ball-container { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; margin-bottom: 2.5rem; }
-.ball {
-    width: 50px; height: 50px; border-radius: 50%; display: flex;
-    justify-content: center; align-items: center; color: white;
-    font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.ball.mini { width: 32px; height: 32px; font-size: 0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-
-.yellow { background-color: #fbc02d !important; }
-.blue { background-color: #1e88e5 !important; }
-.red { background-color: #e53935 !important; }
-.gray { background-color: #757575 !important; }
-.green { background-color: #43a047 !important; }
-
-#generate-btn {
-    padding: 1rem 3.5rem; font-size: 1.2rem; font-weight: bold; color: white;
-    background: #3498db; border: none; border-radius: 12px; cursor: pointer;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-}
-
-.realtime-analysis-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid #f1f1f1;
-}
-
-.realtime-analysis-section h3 { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 1.5rem; }
-
-.analysis-grid-horizontal {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 10px;
 }
 
-.analysis-item-link { text-decoration: none; display: block; }
-
-.analysis-item.clickable {
-    background: #f8f9fa;
-    padding: 10px 5px;
-    border-radius: 12px;
-    border: 1px solid #eee;
-    transition: all 0.2s;
-    cursor: pointer;
-    min-height: 60px;
+.header-top-row {
+    width: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.analysis-item.clickable:hover {
-    background: #eef2f7;
-    border-color: #3498db;
-    transform: translateY(-3px);
+.analysis-page h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #2c3e50;
+    white-space: nowrap;
 }
-
-.label { display: block; font-size: 0.7rem; color: #7f8c8d; margin-bottom: 3px; }
-.value { font-size: 0.95rem; font-weight: bold; color: #2c3e50; }
 
 .nav-links {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .nav-btn.small {
     background: white;
     color: #3498db;
     text-decoration: none;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: bold;
-    border: 2px solid #3498db;
-    padding: 6px 12px;
+    border: 1.5px solid #3498db;
+    padding: 5px 10px;
     border-radius: 30px;
+    transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .nav-btn.small:hover { background: #3498db; color: white; }
+
+.analysis-page .my-numbers-banner {
+    background: #f8fafc;
+    padding: 5px 15px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #e2e8f0;
+    margin-top: 2px;
+}
 
 .analysis-card { background: #fcfcfc; border: 1px solid #eee; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; }
 .analysis-card h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.15rem; color: #2c3e50; }

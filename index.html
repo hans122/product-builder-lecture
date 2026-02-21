@@ -9,12 +9,27 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="analysis-page">
+    <!-- 상단 고정 헤더 -->
+    <header class="sticky-header">
+        <div class="header-inner">
+            <div class="header-top-row">
+                <h1>🍀 로또 번호 추천</h1>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-btn small">🏠 메인</a>
+                    <a href="guide.html" class="nav-btn small">📖 가이드</a>
+                    <a href="history.html" class="nav-btn small">📋 히스토리</a>
+                    <a href="combination.html" class="nav-btn small">🎯 정밀분석</a>
+                    <a href="analysis.html" class="nav-btn small">📊 통계</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <div class="main-wrapper centered">
         <!-- 중앙 메인 컨테이너 -->
         <div class="container main-content">
-            <h1>🍀 로또 번호 추천 🍀</h1>
-            <p class="subtitle">행운의 번호를 생성하고 역대 통계를 확인하세요</p>
+            <p class="subtitle">행운의 번호를 생성하고 다양한 분석 지표를 확인하세요</p>
             
             <div id="lotto-container" class="ball-container main-balls">
                 <div class="placeholder">번호를 생성해주세요</div>
@@ -147,13 +162,6 @@
                         </div>
                     </a>
                 </div>
-            </div>
-            
-            <div class="footer-links" style="display: flex; gap: 10px; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
-                <a href="guide.html" class="nav-btn small" style="background: #2ecc71; color: white;">📖 로또 분석 가이드 보기</a>
-                <a href="history.html" class="nav-btn small" style="background: #8e44ad; color: white;">📋 회차별 분석 히스토리</a>
-                <a href="combination.html" class="nav-btn small" style="background: #3498db; color: white;">🎯 나의 조합 정밀 분석하기</a>
-                <a href="analysis.html" class="nav-btn small">📊 전체 역대 통계 결과 보기</a>
             </div>
         </div>
     </div>
