@@ -6,113 +6,84 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             console.log('Data received:', data);
-            if (!data || !data.distributions) return;
+            if (!data) return;
 
             const dists = data.distributions;
 
-            // 1. 홀짝 비율
-            if (dists.odd_even) {
-                renderDistChart('odd-even-chart', Object.fromEntries(Object.entries(dists.odd_even).sort()), ' : ');
-            }
-
-            // 2. 직전 회차 출현 개수 (전회차 중복)
-            if (dists.period_1) {
-                const sortedPeriod1 = {};
-                for(let i=0; i<=6; i++) {
-                    if (dists.period_1[i] !== undefined) {
-                        sortedPeriod1[i] = dists.period_1[i];
-                    }
+            // 차트 렌더링
+            if (dists) {
+                if (dists.odd_even) renderDistChart('odd-even-chart', Object.fromEntries(Object.entries(dists.odd_even).sort()), ' : ');
+                if (dists.period_1) {
+                    const sortedPeriod1 = {};
+                    for(let i=0; i<=6; i++) if (dists.period_1[i] !== undefined) sortedPeriod1[i] = dists.period_1[i];
+                    renderDistChart('period-1-chart', sortedPeriod1, '개');
                 }
-                renderDistChart('period-1-chart', sortedPeriod1, '개');
-            }
-
-            // 3. 주변번호 출현 개수 (이웃수)
-            if (dists.neighbor) {
-                const sortedNeighbor = {};
-                for(let i=0; i<=6; i++) {
-                    if (dists.neighbor[i] !== undefined) {
-                        sortedNeighbor[i] = dists.neighbor[i];
-                    }
+                if (dists.neighbor) {
+                    const sortedNeighbor = {};
+                    for(let i=0; i<=6; i++) if (dists.neighbor[i] !== undefined) sortedNeighbor[i] = dists.neighbor[i];
+                    renderDistChart('neighbor-chart', sortedNeighbor, '개');
                 }
-                renderDistChart('neighbor-chart', sortedNeighbor, '개');
+                if (dists.consecutive) renderDistChart('consecutive-chart', Object.fromEntries(Object.entries(dists.consecutive).sort((a,b)=>a[0]-b[0])), '쌍');
+                if (dists.prime) renderDistChart('prime-chart', Object.fromEntries(Object.entries(dists.prime).sort((a,b)=>a[0]-b[0])), '개');
+                if (dists.composite) renderDistChart('composite-chart', Object.fromEntries(Object.entries(dists.composite).sort((a,b)=>a[0]-b[0])), '개');
+                if (dists.multiple_3) renderDistChart('multiple-3-chart', Object.fromEntries(Object.entries(dists.multiple_3).sort((a,b)=>a[0]-b[0])), '개');
+                if (dists.sum) {
+                    const sortedSum = Object.fromEntries(Object.entries(dists.sum).sort((a, b) => parseInt(a[0].split('-')[0]) - parseInt(b[0].split('-')[0])));
+                    renderDistChart('sum-chart', sortedSum, '');
+                }
             }
 
-            // 4. 연속번호
-            if (dists.consecutive) {
-                renderDistChart('consecutive-chart', Object.fromEntries(Object.entries(dists.consecutive).sort((a,b)=>a[0]-b[0])), '쌍');
-            }
+            if (data.frequency) renderFrequencyChart(data.frequency);
 
-            // 5. 소수 개수
-            if (dists.prime) {
-                renderDistChart('prime-chart', Object.fromEntries(Object.entries(dists.prime).sort((a,b)=>a[0]-b[0])), '개');
-            }
-            
-            // 6. 합성수
-            if (dists.composite) {
-                renderDistChart('composite-chart', Object.fromEntries(Object.entries(dists.composite).sort((a,b)=>a[0]-b[0])), '개');
-            }
-
-            // 7. 3배수
-            if (dists.multiple_3) {
-                renderDistChart('multiple-3-chart', Object.fromEntries(Object.entries(dists.multiple_3).sort((a,b)=>a[0]-b[0])), '개');
-            }
-            
-            // 8. 총합 분포
-            if (dists.sum) {
-                const sortedSum = Object.fromEntries(
-                    Object.entries(dists.sum).sort((a, b) => parseInt(a[0].split('-')[0]) - parseInt(b[0].split('-')[0]))
-                );
-                renderDistChart('sum-chart', sortedSum, '');
-            }
-
-            // 9. 전체 빈도
-            if (data.frequency) {
-                renderFrequencyChart(data.frequency);
-            }
+            // 테이블 렌더링 추가
+            if (data.recent_draws) renderRecentTable(data.recent_draws);
         })
         .catch(err => console.error('Data load failed:', err));
 
-    // 내 번호 복원
-    const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
-    if (savedNumbers) {
-        const numbers = JSON.parse(savedNumbers);
-        const section = document.getElementById('my-numbers-section');
-        const list = document.getElementById('my-numbers-list');
-        if (section && list) {
-            section.style.display = 'flex';
-            numbers.forEach(num => {
-                const ball = document.createElement('div');
-                ball.className = `ball mini ${getBallColorClass(num)}`;
-                ball.innerText = num;
-                list.appendChild(ball);
-            });
-        }
-    }
+    // 내 번호 복원 (생략...)
+    restoreMyNumbers();
 });
+
+function renderRecentTable(draws) {
+    const tbody = document.getElementById('recent-results-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    draws.forEach(draw => {
+        const tr = document.createElement('tr');
+        
+        // 번호 구슬 HTML 생성
+        const ballsHtml = draw.nums.map(n => 
+            `<div class="table-ball ${getBallColorClass(n)}">${n}</div>`
+        ).join('');
+
+        tr.innerHTML = `
+            <td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
+            <td><div class="table-nums">${ballsHtml}</div></td>
+            <td>${draw.sum}</td>
+            <td>${draw.odd_even}</td>
+            <td>${draw.period_1}</td>
+            <td>${draw.neighbor}</td>
+            <td>${draw.consecutive}</td>
+            <td>${draw.prime}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
 
 function renderDistChart(elementId, distData, unit = '개') {
     const container = document.getElementById(elementId);
-    if(!container) {
-        console.error(`Target container not found: ${elementId}`);
-        return;
-    }
+    if(!container) return;
     container.innerHTML = '';
-    
     const entries = Object.entries(distData);
     const maxVal = Math.max(...Object.values(distData), 1);
-
     entries.forEach(([label, value]) => {
         const height = (value / maxVal) * 80;
         const bar = document.createElement('div');
         bar.className = 'dist-bar';
         bar.style.height = `${Math.max(height, 5)}%`;
-        
         const displayLabel = label.includes(':') || label.includes('-') ? label : label + unit;
-        
-        bar.innerHTML = `
-            <span class="dist-value">${value}</span>
-            <span class="dist-label">${displayLabel}</span>
-        `;
+        bar.innerHTML = `<span class="dist-value">${value}</span><span class="dist-label">${displayLabel}</span>`;
         container.appendChild(bar);
     });
 }
@@ -121,7 +92,6 @@ function renderFrequencyChart(data) {
     const chartContainer = document.getElementById('full-frequency-chart');
     if(!chartContainer) return;
     chartContainer.innerHTML = '';
-    
     const maxFreq = Math.max(...Object.values(data), 1);
     for (let i = 1; i <= 45; i++) {
         const freq = data[i] || 0;
@@ -141,6 +111,24 @@ function renderFrequencyChart(data) {
         barWrapper.appendChild(bar);
         barWrapper.appendChild(label);
         chartContainer.appendChild(barWrapper);
+    }
+}
+
+function restoreMyNumbers() {
+    const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
+    if (savedNumbers) {
+        const numbers = JSON.parse(savedNumbers);
+        const section = document.getElementById('my-numbers-section');
+        const list = document.getElementById('my-numbers-list');
+        if (section && list) {
+            section.style.display = 'flex';
+            numbers.forEach(num => {
+                const ball = document.createElement('div');
+                ball.className = `ball mini ${getBallColorClass(num)}`;
+                ball.innerText = num;
+                list.appendChild(ball);
+            });
+        }
     }
 }
 

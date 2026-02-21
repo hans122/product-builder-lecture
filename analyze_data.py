@@ -13,10 +13,10 @@ def analyze():
     odd_even_dist = Counter()
     consecutive_dist = Counter()
     prime_dist = Counter()
-    composite_dist = Counter() # 합성수 추가
-    multiple_3_dist = Counter() # 3배수 추가
+    composite_dist = Counter()
+    multiple_3_dist = Counter()
     period_1_dist = Counter()
-    neighbor_dist = Counter() # 주변번호(이웃수) 추가
+    neighbor_dist = Counter()
     sum_dist = []
 
     draws = []
@@ -29,16 +29,19 @@ def analyze():
         for row in reader:
             if not row: continue
             draw_no = int(row[col_indices['회차']])
+            # 보너스 번호 제외 주번호 6개만
             nums = sorted([int(row[col_indices[f'당첨번호{i}']]) for i in range(1, 7)])
-            draws.append({'no': draw_no, 'nums': set(nums)})
+            draws.append({'no': draw_no, 'nums': nums, 'date': row[col_indices['추첨일']].strip("'")})
 
     draws.sort(key=lambda x: x['no'])
 
+    recent_table_data = []
     prev_nums = None
+    
     for draw in draws:
         draw_no = draw['no']
-        nums_list = sorted(list(draw['nums']))
-        nums_set = draw['nums']
+        nums_list = draw['nums']
+        nums_set = set(nums_list)
         
         if draw_no > current_max_draw: current_max_draw = draw_no
         
@@ -46,8 +49,10 @@ def analyze():
             frequency[n] += 1
             last_appearance[n] = draw_no
         
+        # 분석 항목 계산
         odds = len([n for n in nums_list if n % 2 != 0])
-        odd_even_dist[f"{odds}:{6-odds}"] += 1
+        odd_even_val = f"{odds}:{6-odds}"
+        odd_even_dist[odd_even_val] += 1
         
         consecutive = 0
         for i in range(len(nums_list)-1):
@@ -57,33 +62,48 @@ def analyze():
         primes = len([n for n in nums_list if is_prime(n)])
         prime_dist[primes] += 1
 
-        # 합성수 계산 (1과 소수를 제외한 수)
         composites = len([n for n in nums_list if n > 1 and not is_prime(n)])
         composite_dist[composites] += 1
         
-        # 3배수 계산
         m3s = len([n for n in nums_list if n % 3 == 0])
         multiple_3_dist[m3s] += 1
         
-        sum_dist.append(sum(nums_list))
+        total_sum = sum(nums_list)
+        sum_dist.append(total_sum)
 
+        period_1_val = 0
+        neighbor_val = 0
         if prev_nums is not None:
-            # 1회기 (직전 회차 중복)
-            common = len(nums_set.intersection(prev_nums))
-            period_1_dist[common] += 1
+            # 직전 회차 출현 (이월수)
+            period_1_val = len(nums_set.intersection(prev_nums))
+            period_1_dist[period_1_val] += 1
 
-            # 주변번호 (이웃수: 직전 회차 각 번호의 +-1)
+            # 주변번호 (이웃수)
             neighbors = set()
             for n in prev_nums:
                 if n > 1: neighbors.add(n - 1)
                 if n < 45: neighbors.add(n + 1)
-            # 직전 회차 본인은 제외하고 순수 주변번호만 따질지 여부: 
-            # 보통 분석에서는 직전 회차 번호를 포함한 전체 인접 영역을 보기도 합니다.
-            # 여기서는 '순수 주변번호' 집합과의 교집합을 계산합니다.
-            neighbor_common = len(nums_set.intersection(neighbors))
-            neighbor_dist[neighbor_common] += 1
+            neighbor_val = len(nums_set.intersection(neighbors))
+            neighbor_dist[neighbor_val] += 1
+        
+        # 최근 30회차 테이블용 데이터 수집
+        recent_table_data.append({
+            "no": draw_no,
+            "date": draw['date'],
+            "nums": nums_list,
+            "sum": total_sum,
+            "odd_even": odd_even_val,
+            "consecutive": consecutive,
+            "prime": primes,
+            "neighbor": neighbor_val,
+            "period_1": period_1_val
+        })
         
         prev_nums = nums_set
+
+    # 최신순 정렬 (최근 30개)
+    recent_table_data.reverse()
+    recent_table_data = recent_table_data[:30]
 
     sum_range_dist = Counter()
     for s in sum_dist:
@@ -92,7 +112,6 @@ def analyze():
 
     result = {
         "frequency": {str(i): frequency.get(i, 0) for i in range(1, 46)},
-        "unappeared_period": {str(i): current_max_draw - last_appearance.get(i, 0) for i in range(1, 46)},
         "distributions": {
             "odd_even": dict(odd_even_dist),
             "consecutive": dict(consecutive_dist),
@@ -100,11 +119,12 @@ def analyze():
             "composite": dict(composite_dist),
             "multiple_3": dict(multiple_3_dist),
             "period_1": dict(period_1_dist),
-            "neighbor": dict(neighbor_dist), # 주변번호 데이터 추가
+            "neighbor": dict(neighbor_dist),
             "sum": dict(sum_range_dist)
         },
         "total_draws": current_max_draw,
-        "last_draw_numbers": sorted(list(draws[-1]['nums']))
+        "last_draw_numbers": draws[-1]['nums'],
+        "recent_draws": recent_table_data # 테이블용 데이터 추가
     }
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
