@@ -27,56 +27,128 @@
         <section id="odd-even-section" class="analysis-card">
             <h3>⚖️ 역대 홀:짝 비율 분포</h3>
             <p class="description">당첨번호 6개 중 홀수와 짝수가 어떤 비율로 섞여 나왔는지 보여줍니다. 보통 3:3 배합이 가장 빈번합니다.</p>
-            <div id="odd-even-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div id="odd-even-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 홀:짝 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>홀:짝</th></tr></thead>
+                        <tbody id="odd-even-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 2. 직전 회차 출현 -->
         <section id="period-1-section" class="analysis-card">
             <h3>🔄 역대 직전 회차 출현 개수 분포</h3>
             <p class="description">전회차 당첨번호 중 이번 회차에 다시 출현한 번호(이월수)의 개수 분포입니다. 보통 0~1개가 가장 많이 나옵니다.</p>
-            <div id="period-1-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div id="period-1-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 이월 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>이월</th></tr></thead>
+                        <tbody id="period-1-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 3. 주변번호 출현 -->
         <section id="neighbor-section" class="analysis-card">
             <h3>🏠 역대 주변번호(이웃수) 출현 개수 분포</h3>
             <p class="description">직전 회차 당첨번호의 ±1에 해당하는 번호(이웃수)가 이번 회차에 몇 개 포함되었는지 보여줍니다.</p>
-            <div id="neighbor-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div id="neighbor-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 이웃수 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>이웃</th></tr></thead>
+                        <tbody id="neighbor-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 4. 연속번호 -->
         <section id="consecutive-section" class="analysis-card">
             <h3>🔗 역대 연속번호 발생 빈도</h3>
             <p class="description">12, 13번처럼 번호가 연속해서 나타난 쌍의 개수입니다. 당첨 번호 중 연속번호가 한 쌍이라도 포함될 확률이 꽤 높습니다.</p>
-            <div id="consecutive-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div id="consecutive-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 연속번호 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>연속</th></tr></thead>
+                        <tbody id="consecutive-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 5. 소수 개수 -->
         <section id="prime-section" class="analysis-card">
             <h3>🔢 역대 소수(Prime) 포함 개수</h3>
             <p class="description">당첨번호 중 2, 3, 5, 7, 11... 등 소수가 몇 개 포함되었는지의 분포입니다.</p>
-            <div id="prime-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div id="prime-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 소수 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>소수</th></tr></thead>
+                        <tbody id="prime-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 6. 합성수 개수 -->
         <section id="composite-section" class="analysis-card">
             <h3>🧮 역대 합성수(Composite) 포함 개수</h3>
             <p class="description">1과 소수를 제외한 합성수가 몇 개 포함되었는지 보여줍니다.</p>
-            <div id="composite-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div id="composite-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 합성수 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>합성</th></tr></thead>
+                        <tbody id="composite-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 7. 3배수 개수 -->
         <section id="multiple-3-section" class="analysis-card">
             <h3>✖️ 역대 3배수 포함 개수</h3>
             <p class="description">3, 6, 9... 등 3의 배수가 당첨번호에 포함된 개수 분포입니다.</p>
-            <div id="multiple-3-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div id="multiple-3-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 3배수 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>3배수</th></tr></thead>
+                        <tbody id="multiple-3-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 8. 총합 범위 -->
         <section id="sum-section" class="analysis-card">
             <h3>📈 역대 총합(Sum) 범위 분포</h3>
             <p class="description">당첨번호 6개의 숫자를 모두 더한 값의 분포입니다. 보통 100~170 사이의 범위에서 가장 많이 발생합니다.</p>
-            <div id="sum-chart" class="dist-bar-chart"></div>
+            <div class="analysis-content-wrapper">
+                <div id="sum-chart" class="dist-bar-chart"></div>
+                <div class="mini-table-wrapper">
+                    <h4>🕒 최근 회차 총합 결과</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>총합</th></tr></thead>
+                        <tbody id="sum-mini-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 9. 번호별 빈도 -->

@@ -41,14 +41,58 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.frequency) renderFrequencyChart(data.frequency);
 
-            // 테이블 렌더링 추가
-            if (data.recent_draws) renderRecentTable(data.recent_draws);
+            // 최근 결과 테이블 렌더링
+            if (data.recent_draws) {
+                renderRecentTable(data.recent_draws);
+                // 각 차트 옆 미니 테이블 렌더링 (최근 5회만)
+                renderMiniTables(data.recent_draws.slice(0, 5));
+            }
         })
         .catch(err => console.error('Data load failed:', err));
 
-    // 내 번호 복원 (생략...)
     restoreMyNumbers();
 });
+
+function renderMiniTables(draws) {
+    const config = [
+        { id: 'odd-even-mini-body', key: 'odd_even' },
+        { id: 'period-1-mini-body', key: 'period_1' },
+        { id: 'neighbor-mini-body', key: 'neighbor' },
+        { id: 'consecutive-mini-body', key: 'consecutive' },
+        { id: 'prime-mini-body', key: 'prime' },
+        { id: 'composite-mini-body', key: 'composite' },
+        { id: 'multiple-3-mini-body', key: 'multiple_3' },
+        { id: 'sum-mini-body', key: 'sum' }
+    ];
+
+    config.forEach(item => {
+        const tbody = document.getElementById(item.id);
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        draws.forEach(draw => {
+            const tr = document.createElement('tr');
+            const ballsHtml = draw.nums.map(n => 
+                `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`
+            ).join('');
+
+            // composite와 multiple_3는 draw 객체에 이미 계산되어 있어야 함
+            // 만약 analyze_data.py에서 안했다면 여기서 계산 (현재는 analyze_data.py에서 일부 빠진것 확인됨)
+            let val = draw[item.key];
+            if (val === undefined) {
+                if (item.key === 'composite') val = draw.nums.filter(n => n > 1 && ![2,3,5,7,11,13,17,19,23,29,31,37,41,43].includes(n)).length;
+                if (item.key === 'multiple_3') val = draw.nums.filter(n => n % 3 === 0).length;
+            }
+
+            tr.innerHTML = `
+                <td>${draw.no}</td>
+                <td><div class="table-nums">${ballsHtml}</div></td>
+                <td><strong>${val}</strong></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    });
+}
 
 function renderRecentTable(draws) {
     const tbody = document.getElementById('recent-results-body');
@@ -57,8 +101,6 @@ function renderRecentTable(draws) {
 
     draws.forEach(draw => {
         const tr = document.createElement('tr');
-        
-        // 번호 구슬 HTML 생성
         const ballsHtml = draw.nums.map(n => 
             `<div class="table-ball ${getBallColorClass(n)}">${n}</div>`
         ).join('');
@@ -88,7 +130,7 @@ function renderDistChart(elementId, distData, unit = '개') {
         const bar = document.createElement('div');
         bar.className = 'dist-bar';
         bar.style.height = `${Math.max(height, 5)}%`;
-        const displayLabel = label.includes(':') || label.includes('-') ? label : label + unit;
+        const displayLabel = label.includes(':') || label.includes('-') || label.includes(' ') ? label : label + unit;
         bar.innerHTML = `<span class="dist-value">${value}</span><span class="dist-label">${displayLabel}</span>`;
         container.appendChild(bar);
     });
