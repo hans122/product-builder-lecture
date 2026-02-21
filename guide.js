@@ -10,7 +10,7 @@ function updateGuideStats(data) {
     const dists = data.distributions;
     const total = data.total_draws;
 
-    // 1. 총합 요약 업데이트
+    // 1. 총합 요약
     const sumBox = document.getElementById('sum-stat-box');
     if (dists.sum) {
         const sortedSum = Object.entries(dists.sum).sort((a, b) => b[1] - a[1]);
@@ -59,6 +59,25 @@ function updateGuideStats(data) {
         carryBox.innerHTML = `데이터 분석 결과, 이월수가 1개 이상 포함될 확률은 <strong>${carryProb}%</strong>에 달합니다. 즉, 10번 중 7~8번은 전회차 번호가 다시 나옵니다.`;
     }
 
+    // 4. 특수 번호 및 패턴 통합 분석 (추가/수정)
+    const combinedStat = document.getElementById('combined-special-stat');
+    if (dists.prime && dists.multiple_3 && dists.square && dists.multiple_5 && dists.double_num) {
+        const getProb = (dist) => (100 - ((dist["0"] || 0) / total * 100)).toFixed(1);
+        
+        const pPrime = getProb(dists.prime);
+        const pM3 = getProb(dists.multiple_3);
+        const pSquare = getProb(dists.square);
+        const pM5 = getProb(dists.multiple_5);
+        const pDouble = getProb(dists.double_num);
+
+        combinedStat.innerHTML = `
+            <strong>실시간 데이터 요약:</strong><br>
+            • 소수 출현 확률: ${pPrime}% | 3배수 출현 확률: ${pM3}%<br>
+            • 제곱수 출현 확률: ${pSquare}% | 5배수 출현 확률: ${pM5}% | 쌍수 출현 확률: ${pDouble}%<br>
+            <small>※ 위 수치는 전체 ${total}회차 중 각 번호군이 1개 이상 포함된 비율입니다.</small>
+        `;
+    }
+
     // 5. 연속번호 요약
     const conBox = document.getElementById('consecutive-stat');
     if (dists.consecutive) {
@@ -72,30 +91,12 @@ function updateGuideStats(data) {
     if (dists.same_end && dists.end_sum) {
         const same_1 = dists.same_end["1"] || 0;
         const hasSameEndProb = (100 - (same_1 / total * 100)).toFixed(1);
-        
-        // 끝수 합 평균 계산
         const sortedEndSum = Object.entries(dists.end_sum).sort((a, b) => b[1] - a[1]);
         const topEndSum = sortedEndSum[0][0];
 
         endDigitStat.innerHTML = `
             동끝수가 1개 이상 출현할 확률은 <strong>${hasSameEndProb}%</strong>이며, 
             끝수 총합은 <strong>${topEndSum}</strong> 부근에서 가장 많이 발생합니다.
-        `;
-    }
-
-    // 7. 특수 패턴 요약
-    const specialStat = document.getElementById('special-pattern-stat');
-    if (dists.square && dists.multiple_5 && dists.double_num) {
-        const square_0 = dists.square["0"] || 0;
-        const m5_0 = dists.multiple_5["0"] || 0;
-        const double_0 = dists.double_num["0"] || 0;
-        const squareProb = (100 - (square_0 / total * 100)).toFixed(1);
-        const m5Prob = (100 - (m5_0 / total * 100)).toFixed(1);
-        const doubleProb = (100 - (double_0 / total * 100)).toFixed(1);
-        specialStat.innerHTML = `
-            제곱수 출현 확률: <strong>${squareProb}%</strong>, 
-            5의 배수 출현 확률: <strong>${m5Prob}%</strong>, 
-            쌍수 출현 확률: <strong>${doubleProb}%</strong>로 분석되었습니다.
         `;
     }
 }
