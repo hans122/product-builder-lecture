@@ -105,10 +105,24 @@ def analyze():
     recent_table_data.reverse()
     recent_table_data = recent_table_data[:30]
 
+    # 총합 구간 분포 계산 (7개 구간으로 조정)
     sum_range_dist = Counter()
     for s in sum_dist:
-        range_key = (s // 10) * 10
-        sum_range_dist[f"{range_key}-{range_key+9}"] += 1
+        if s < 100:
+            range_key = "100 미만"
+        elif s < 120:
+            range_key = "100-119"
+        elif s < 140:
+            range_key = "120-139"
+        elif s < 160:
+            range_key = "140-159"
+        elif s < 180:
+            range_key = "160-179"
+        elif s < 200:
+            range_key = "180-199"
+        else:
+            range_key = "200 이상"
+        sum_range_dist[range_key] += 1
 
     result = {
         "frequency": {str(i): frequency.get(i, 0) for i in range(1, 46)},

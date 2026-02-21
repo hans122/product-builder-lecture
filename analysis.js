@@ -28,7 +28,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dists.composite) renderDistChart('composite-chart', Object.fromEntries(Object.entries(dists.composite).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.multiple_3) renderDistChart('multiple-3-chart', Object.fromEntries(Object.entries(dists.multiple_3).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.sum) {
-                    const sortedSum = Object.fromEntries(Object.entries(dists.sum).sort((a, b) => parseInt(a[0].split('-')[0]) - parseInt(b[0].split('-')[0])));
+                    const order = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
+                    const sortedSum = {};
+                    order.forEach(range => {
+                        if (dists.sum[range] !== undefined) {
+                            sortedSum[range] = dists.sum[range];
+                        }
+                    });
                     renderDistChart('sum-chart', sortedSum, '');
                 }
             }
