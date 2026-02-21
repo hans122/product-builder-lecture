@@ -237,7 +237,11 @@ function runDetailedAnalysis() {
 function addReportRow(label, value, status, opinion) {
     const tbody = document.getElementById('analysis-report-body');
     const tr = document.createElement('tr');
-    const statusClass = status === '최적' ? 'text-success' : (status === '주의' ? 'text-danger' : '');
+    
+    let statusClass = 'normal';
+    if (status === '최적') statusClass = 'optimal';
+    else if (status === '주의') statusClass = 'warning';
+
     tr.innerHTML = `
         <td><strong>${label}</strong></td>
         <td>${value}</td>
