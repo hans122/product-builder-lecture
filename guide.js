@@ -103,4 +103,22 @@ function updateGuideStats(data) {
             끝수 총합은 <strong>${topEndSum}</strong> 부근에서 가장 많이 발생합니다.
         `;
     }
+
+    // 7. 구간별 출현 분석 요약
+    const bucketStat = document.getElementById('bucket-stat');
+    if (dists.bucket_3) {
+        const sortedBucket = Object.entries(dists.bucket_3).sort((a, b) => b[1] - a[1]);
+        const topBucketCount = sortedBucket[0][0];
+        const topBucketFreq = sortedBucket[0][1];
+        const bucketPerc = ((topBucketFreq / total) * 100).toFixed(1);
+        bucketStat.innerHTML = `전체 회차 중 <strong>${topBucketCount}개 구간</strong>에 번호가 분산되어 나온 경우가 ${bucketPerc}%로 가장 많습니다.`;
+    }
+
+    // 8. 용지 패턴 분석 요약
+    const patternStat = document.getElementById('pattern-stat');
+    if (dists.pattern_corner && dists.pattern_triangle) {
+        const pTri0 = dists.pattern_triangle["0"] || 0;
+        const hasTriProb = (100 - (pTri0 / total * 100)).toFixed(1);
+        patternStat.innerHTML = `중앙 삼각형 영역에 번호가 1개 이상 포함될 확률은 <strong>${hasTriProb}%</strong>로 매우 일반적인 패턴입니다.`;
+    }
 }

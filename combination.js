@@ -1,6 +1,17 @@
 let statsData = null;
 let selectedNumbers = [];
 
+function isPrime(num) {
+    if (num <= 1) return false;
+    const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43];
+    return primes.includes(num);
+}
+
+function isComposite(num) {
+    if (num <= 1) return false;
+    return !isPrime(num);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     initNumberSelector();
     loadStatsData();
@@ -8,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('auto-select-btn').addEventListener('click', autoSelect);
     document.getElementById('reset-btn').addEventListener('click', resetSelection);
     document.getElementById('analyze-my-btn').addEventListener('click', runDetailedAnalysis);
+
+    // 최근 당첨번호 분석 버튼 이벤트
+    document.getElementById('analyze-last-draw-btn').addEventListener('click', analyzeLastDraw);
+    document.getElementById('analyze-selected-draw-btn').addEventListener('click', analyzeSelectedDraw);
 });
 
 function loadStatsData() {
@@ -16,11 +31,54 @@ function loadStatsData() {
         .then(data => {
             statsData = data;
             console.log('Stats loaded for analysis');
+            populateRecentDrawsSelect();
         });
+}
+
+function populateRecentDrawsSelect() {
+    const select = document.getElementById('recent-draw-select');
+    if (!statsData || !statsData.recent_draws) return;
+
+    statsData.recent_draws.slice(0, 10).forEach(draw => {
+        const option = document.createElement('option');
+        option.value = draw.no;
+        option.innerText = `${draw.no}회 (${draw.date})`;
+        select.appendChild(option);
+    });
+}
+
+function analyzeLastDraw() {
+    if (!statsData || !statsData.last_draw_numbers) return;
+    applyNumbersToSelector(statsData.last_draw_numbers);
+    runDetailedAnalysis();
+}
+
+function analyzeSelectedDraw() {
+    const select = document.getElementById('recent-draw-select');
+    const drawNo = select.value;
+    if (!drawNo || !statsData) return;
+
+    const draw = statsData.recent_draws.find(d => d.no == drawNo);
+    if (draw) {
+        applyNumbersToSelector(draw.nums);
+        runDetailedAnalysis();
+    }
+}
+
+function applyNumbersToSelector(numbers) {
+    resetSelection();
+    numbers.forEach(num => {
+        selectedNumbers.push(num);
+        const btns = document.querySelectorAll('.select-ball');
+        btns[num - 1].classList.add('selected');
+    });
+    updateSelectedBallsDisplay();
 }
 
 function initNumberSelector() {
     const selector = document.getElementById('number-selector');
+    if (!selector) return;
+    selector.innerHTML = '';
     for (let i = 1; i <= 45; i++) {
         const btn = document.createElement('button');
         btn.className = 'select-ball';
@@ -139,7 +197,7 @@ function runDetailedAnalysis() {
     }
     addReportRow('고:저', highLowRatio, hlStatus, hlOpinion);
 
-    // 2-3. 끝수 분석 (추가)
+    // 2-3. 끝수 분석
     const endDigits = nums.map(n => n % 10);
     const endSum = endDigits.reduce((a, b) => a + b, 0);
     const digitCounts = {};
@@ -159,7 +217,7 @@ function runDetailedAnalysis() {
     }
     addReportRow('동끝수', `${maxSameEnd}개`, seStatus, seOpinion);
 
-    // 2-4. 특수 패턴 분석 (추가)
+    // 2-4. 특수 패턴 분석
     const squares = [1, 4, 9, 16, 25, 36];
     const squareCount = nums.filter(n => squares.includes(n)).length;
     addReportRow('제곱수', `${squareCount}개`, '보통', '1, 4, 9, 16, 25, 36 포함 개수입니다.');
@@ -170,6 +228,17 @@ function runDetailedAnalysis() {
     const doubles = [11, 22, 33, 44];
     const doubleCount = nums.filter(n => doubles.includes(n)).length;
     addReportRow('쌍수', `${doubleCount}개`, '보통', '11, 22, 33, 44 포함 개수 분석입니다.');
+
+    // 2-5. 추가 항목: 소수, 합성수, 3배수
+    const primeCount = nums.filter(isPrime).length;
+    let pStatus = (primeCount >= 2 && primeCount <= 3) ? '최적' : '보통';
+    addReportRow('소수', `${primeCount}개`, pStatus, '2, 3, 5, 7, 11... 등 소수 포함 개수입니다.');
+
+    const compositeCount = nums.filter(isComposite).length;
+    addReportRow('합성수', `${compositeCount}개`, '보통', '1과 소수를 제외한 합성수 포함 개수입니다.');
+
+    const m3Count = nums.filter(n => n % 3 === 0).length;
+    addReportRow('3배수', `${m3Count}개`, '보통', '3의 배수 포함 개수 분석입니다.');
 
     // 3. 연속번호 분석
     let consecutive = 0;
@@ -217,6 +286,19 @@ function runDetailedAnalysis() {
         totalScore -= 5;
     }
     addReportRow('이웃수', `${neighborCount}개`, nStatus, nOpinion);
+
+    // 6. 심화 분석: 구간 및 용지 패턴
+    const b3Count = new Set(nums.map(n => Math.floor((n-1)/3))).size;
+    let b3Status = (b3Count >= 5) ? '최적' : '보통';
+    addReportRow('출현구간', `${b3Count}구간`, b3Status, '번호가 얼마나 다양한 구간에 분포하는지 분석합니다.');
+
+    const corners = new Set([1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42]);
+    const triangle = new Set([4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32]);
+    const pCornerCnt = nums.filter(n => corners.has(n)).length;
+    const pTriCnt = nums.filter(n => triangle.has(n)).length;
+    
+    addReportRow('모서리패턴', `${pCornerCnt}개`, '보통', '용지 모서리 영역 포함 개수입니다.');
+    addReportRow('삼각형패턴', `${pTriCnt}개`, '보통', '용지 중앙 삼각형 영역 포함 개수입니다.');
 
     // 최종 등급 계산
     let grade = 'A';
