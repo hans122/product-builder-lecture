@@ -125,8 +125,8 @@ function analyzeNumbers(numbers) {
     if (b3Target) b3Target.innerText = `${b3Count}구간`;
 
     // 용지 패턴 (모서리, 삼각형)
-    const corners = {1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42};
-    const triangle = {4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32};
+    const corners = new Set([1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42]);
+    const triangle = new Set([4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32]);
     const pCornerCnt = numbers.filter(n => corners.has(n)).length;
     const pTriCnt = numbers.filter(n => triangle.has(n)).length;
     

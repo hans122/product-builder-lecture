@@ -158,13 +158,14 @@ body:not(.analysis-page) {
 .description { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 1.5rem; line-height: 1.6; }
 .group-header { margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold; font-size: 1.1rem; }
 
-.analysis-content-wrapper { display: grid; grid-template-columns: 1fr 360px; gap: 15px; align-items: start; }
-.mini-table-wrapper { background: white; padding: 12px; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+.analysis-content-wrapper { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; margin-top: 1rem; }
+.mini-table-wrapper { background: white; padding: 10px 15px 15px 15px; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+.mini-table-wrapper h4 { margin-top: 0; margin-bottom: 12px; font-size: 0.9rem; color: #2c3e50; display: flex; align-items: center; gap: 5px; }
 .mini-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: center; }
 .mini-table th { background: #f7fafc; padding: 8px 4px; border-bottom: 2px solid #edf2f7; color: #718096; }
 .mini-table td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
 
-.dist-bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 180px; margin-top: 1rem; padding-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 35px; overflow-x: auto; }
+.dist-bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 180px; padding-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 35px; overflow-x: auto; }
 .dist-bar { flex: 0 0 auto; background: #3498db; border-radius: 4px 4px 0 0; position: relative; min-width: 40px; display: flex; flex-direction: column; align-items: center; }
 .dist-value { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: bold; color: #2c3e50; }
 .dist-label { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: #7f8c8d; font-weight: bold; }
