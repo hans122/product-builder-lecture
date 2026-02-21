@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로또 회차별 분석 히스토리</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .history-table th { font-size: 0.8rem; padding: 10px 5px; }
+        .history-table td { font-size: 0.85rem; padding: 10px 5px; }
+        .stat-val { font-weight: bold; }
+        .optimal-text { color: #27ae60; }
+        .warning-text { color: #e74c3c; }
+    </style>
+</head>
+<body class="analysis-page">
+    <!-- 상단 고정 헤더 -->
+    <header class="sticky-header">
+        <div class="header-inner">
+            <div class="nav-links">
+                <a href="index.html" class="nav-btn small">🏠 메인</a>
+                <a href="analysis.html" class="nav-btn small">📊 통계</a>
+                <a href="combination.html" class="nav-btn small">🎯 조합분석</a>
+                <a href="guide.html" class="nav-btn small">📖 가이드</a>
+            </div>
+            <h1>📋 회차별 분석 히스토리</h1>
+        </div>
+    </header>
+
+    <div class="container wide">
+        <p class="subtitle">최근 당첨번호들의 통계 지표를 한눈에 비교 분석합니다</p>
+
+        <section class="analysis-card">
+            <div class="table-responsive">
+                <table class="results-table history-table">
+                    <thead>
+                        <tr>
+                            <th>회차</th>
+                            <th>당첨번호</th>
+                            <th>합계</th>
+                            <th>홀:짝</th>
+                            <th>고:저</th>
+                            <th>이월</th>
+                            <th>이웃</th>
+                            <th>연속</th>
+                            <th>소수</th>
+                            <th>구간</th>
+                            <th>끝수합</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-analysis-body">
+                        <!-- JS에서 동적 생성 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="footer-nav">
+            <p class="disclaimer">※ 이월 및 이웃수는 직전 회차 당첨번호와 비교한 결과입니다.</p>
+        </div>
+    </div>
+    <script src="history.js"></script>
+</body>
+</html>

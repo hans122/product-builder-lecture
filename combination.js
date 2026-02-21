@@ -19,10 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('auto-select-btn').addEventListener('click', autoSelect);
     document.getElementById('reset-btn').addEventListener('click', resetSelection);
     document.getElementById('analyze-my-btn').addEventListener('click', runDetailedAnalysis);
-
-    // 최근 당첨번호 분석 버튼 이벤트
-    document.getElementById('analyze-last-draw-btn').addEventListener('click', analyzeLastDraw);
-    document.getElementById('analyze-selected-draw-btn').addEventListener('click', analyzeSelectedDraw);
 });
 
 function loadStatsData() {
@@ -31,48 +27,7 @@ function loadStatsData() {
         .then(data => {
             statsData = data;
             console.log('Stats loaded for analysis');
-            populateRecentDrawsSelect();
         });
-}
-
-function populateRecentDrawsSelect() {
-    const select = document.getElementById('recent-draw-select');
-    if (!statsData || !statsData.recent_draws) return;
-
-    statsData.recent_draws.slice(0, 10).forEach(draw => {
-        const option = document.createElement('option');
-        option.value = draw.no;
-        option.innerText = `${draw.no}회 (${draw.date})`;
-        select.appendChild(option);
-    });
-}
-
-function analyzeLastDraw() {
-    if (!statsData || !statsData.last_draw_numbers) return;
-    applyNumbersToSelector(statsData.last_draw_numbers);
-    runDetailedAnalysis();
-}
-
-function analyzeSelectedDraw() {
-    const select = document.getElementById('recent-draw-select');
-    const drawNo = select.value;
-    if (!drawNo || !statsData) return;
-
-    const draw = statsData.recent_draws.find(d => d.no == drawNo);
-    if (draw) {
-        applyNumbersToSelector(draw.nums);
-        runDetailedAnalysis();
-    }
-}
-
-function applyNumbersToSelector(numbers) {
-    resetSelection();
-    numbers.forEach(num => {
-        selectedNumbers.push(num);
-        const btns = document.querySelectorAll('.select-ball');
-        btns[num - 1].classList.add('selected');
-    });
-    updateSelectedBallsDisplay();
 }
 
 function initNumberSelector() {
