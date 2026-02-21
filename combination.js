@@ -99,6 +99,16 @@ function resetSelection() {
     document.getElementById('report-section').style.display = 'none';
 }
 
+function calculate_ac(nums) {
+    const diffs = new Set();
+    for (let i = 0; i < nums.length; i++) {
+        for (let j = i + 1; j < nums.length; j++) {
+            diffs.add(Math.abs(nums[i] - nums[j]));
+        }
+    }
+    return diffs.size - (nums.length - 1);
+}
+
 function runDetailedAnalysis() {
     if (!statsData || selectedNumbers.length !== 6) return;
 
@@ -194,6 +204,15 @@ function runDetailedAnalysis() {
 
     const m3Count = nums.filter(n => n % 3 === 0).length;
     addReportRow('3배수', `${m3Count}개`, '보통', '3의 배수 포함 개수 분석입니다.');
+
+    // 2-6. 신규 전문 지표: AC값, Span
+    const acVal = calculate_ac(nums);
+    let acStatus = (acVal >= 7) ? '최적' : (acVal >= 6 ? '보통' : '주의');
+    addReportRow('AC값', acVal, acStatus, '산술적 복잡도입니다. 7~10 사이가 가장 이상적인 무작위 조합입니다.');
+
+    const spanVal = nums[5] - nums[0];
+    let spanStatus = (spanVal >= 25 && spanVal <= 40) ? '최적' : '보통';
+    addReportRow('Span', spanVal, spanStatus, '최대 번호와 최소 번호의 차이입니다. 번호의 분산 정도를 나타냅니다.');
 
     // 3. 연속번호 분석
     let consecutive = 0;

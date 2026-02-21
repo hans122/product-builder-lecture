@@ -31,7 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dists.pattern_corner) renderDistChart('pattern-corner-chart', Object.fromEntries(Object.entries(dists.pattern_corner).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.pattern_triangle) renderDistChart('pattern-triangle-chart', Object.fromEntries(Object.entries(dists.pattern_triangle).sort((a,b)=>a[0]-b[0])), '개');
 
-                // 5. 기존 항목들
+                // 5. 전문 기술적 지표
+                if (dists.ac) renderDistChart('ac-chart', Object.fromEntries(Object.entries(dists.ac).sort((a,b)=>a[0]-b[0])), '');
+                if (dists.span) renderDistChart('span-chart', Object.fromEntries(Object.entries(dists.span).sort((a,b)=>a[0]-b[0])), '');
+
+                // 6. 기존 항목들
                 if (dists.period_1) {
                     const sortedPeriod1 = {};
                     for(let i=0; i<=6; i++) if (dists.period_1[i] !== undefined) sortedPeriod1[i] = dists.period_1[i];
@@ -78,6 +82,8 @@ function renderMiniTables(draws) {
         { id: 'bucket-3-mini-body', key: 'b3' },
         { id: 'pattern-corner-mini-body', key: 'p_corner' },
         { id: 'pattern-triangle-mini-body', key: 'p_tri' },
+        { id: 'ac-mini-body', key: 'ac' },
+        { id: 'span-mini-body', key: 'span' },
         { id: 'period-1-mini-body', key: 'period_1' },
         { id: 'neighbor-mini-body', key: 'neighbor' },
         { id: 'consecutive-mini-body', key: 'consecutive' },

@@ -5,6 +5,13 @@ from collections import Counter
 def is_prime(n):
     return n in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]
 
+def calculate_ac(nums):
+    diffs = set()
+    for i in range(len(nums)):
+        for j in range(i + 1, len(nums)):
+            diffs.add(abs(nums[i] - nums[j]))
+    return len(diffs) - (len(nums) - 1)
+
 def analyze():
     frequency = Counter()
     current_max_draw = 0
@@ -34,6 +41,10 @@ def analyze():
     pattern_triangle_dist = Counter()
     pattern_row_dist = Counter()
     pattern_col_dist = Counter()
+    
+    # --- 추가 전문 지표 ---
+    ac_dist = Counter()
+    span_dist = Counter()
 
     # 패턴 정의
     corners = {1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42}
@@ -95,7 +106,6 @@ def analyze():
             
         end_digits = [n % 10 for n in nums_list]
         es_val = sum(end_digits)
-        # 끝수 총합 구간화 (ES Range)
         if es_val < 15: es_range = "15 미만"
         elif es_val < 20: es_range = "15-19"
         elif es_val < 25: es_range = "20-24"
@@ -129,6 +139,11 @@ def analyze():
         col_cnt = len(set((n-1)%7 for n in nums_list))
         pattern_col_dist[col_cnt] += 1
         
+        ac_val = calculate_ac(nums_list)
+        ac_dist[ac_val] += 1
+        span_val = nums_list[-1] - nums_list[0]
+        span_dist[span_val] += 1
+        
         recent_table_data.append({
             "no": draw_no, "date": draw['date'], "nums": nums_list, "sum": total_sum,
             "odd_even": odd_even_val, "high_low": high_low_val, "consecutive": consecutive,
@@ -136,10 +151,8 @@ def analyze():
             "end_sum": es_val, "same_end": max_same_end, "square": square_count,
             "m5": m5_count, "double": double_count,
             "b3": len(set((n-1)//3 for n in nums_list)),
-            "b5": len(set((n-1)//5 for n in nums_list)),
-            "b9": len(set((n-1)//9 for n in nums_list)),
-            "b15": len(set((n-1)//15 for n in nums_list)),
-            "p_corner": corner_cnt, "p_tri": tri_cnt, "p_row": row_cnt, "p_col": col_cnt
+            "p_corner": corner_cnt, "p_tri": tri_cnt,
+            "ac": ac_val, "span": span_val
         })
         prev_nums = nums_set
 
@@ -171,7 +184,8 @@ def analyze():
             "bucket_3": dict(bucket_3_dist), "bucket_5": dict(bucket_5_dist),
             "bucket_9": dict(bucket_9_dist), "bucket_15": dict(bucket_15_dist),
             "pattern_corner": dict(pattern_corner_dist), "pattern_triangle": dict(pattern_triangle_dist),
-            "pattern_row": dict(pattern_row_dist), "pattern_col": dict(pattern_col_dist)
+            "pattern_row": dict(pattern_row_dist), "pattern_col": dict(pattern_col_dist),
+            "ac": dict(ac_dist), "span": dict(span_dist)
         },
         "total_draws": current_max_draw,
         "last_draw_numbers": draws[-1]['nums'],
@@ -180,7 +194,7 @@ def analyze():
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    print(f"Success: End-sum grouped into ranges up to draw {current_max_draw}")
+    print(f"Success: Updated stats with AC and Span up to draw {current_max_draw}")
 
 if __name__ == "__main__":
     analyze()
