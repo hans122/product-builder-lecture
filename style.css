@@ -60,12 +60,16 @@ body:not(.analysis-page) {
 
 .analysis-page .my-numbers-banner {
     background: #f1f5f9;
-    padding: 8px 20px;
+    padding: 6px 18px;
     border-radius: 50px;
     display: flex;
     align-items: center;
     gap: 12px;
     border: 1px solid #e2e8f0;
+}
+
+.analysis-page .my-numbers-banner .ball-container {
+    margin-bottom: 0;
 }
 
 .banner-label {
