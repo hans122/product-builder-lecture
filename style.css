@@ -147,7 +147,7 @@ h1 { margin-bottom: 0.5rem; color: #2c3e50; }
 /* 조합 분석기 전용 스타일 */
 .number-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    grid-template-columns: repeat(7, 1fr); /* 한 줄에 7개씩 고정 */
     gap: 10px;
     margin-bottom: 2rem;
     padding: 15px;
