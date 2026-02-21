@@ -26,16 +26,14 @@ def analyze():
     double_num_dist = Counter()
 
     # --- 신규 심화 분포 추가 ---
-    # 구간별 출현 구간 개수 (멸구간 분석용)
     bucket_3_dist = Counter()
     bucket_5_dist = Counter()
     bucket_9_dist = Counter()
     bucket_15_dist = Counter()
-    # 용지 패턴
     pattern_corner_dist = Counter()
     pattern_triangle_dist = Counter()
-    pattern_row_dist = Counter() # 가로줄 출현 개수
-    pattern_col_dist = Counter() # 세로줄 출현 개수
+    pattern_row_dist = Counter()
+    pattern_col_dist = Counter()
 
     # 패턴 정의
     corners = {1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42}
@@ -63,7 +61,7 @@ def analyze():
         if draw_no > current_max_draw: current_max_draw = draw_no
         for n in nums_list: frequency[n] += 1
         
-        # [기존 분석 생략 없이 수행]
+        # 분석 항목 계산
         odds = len([n for n in nums_list if n % 2 != 0])
         odd_even_val = f"{odds}:{6-odds}"
         odd_even_dist[odd_even_val] += 1
@@ -82,6 +80,7 @@ def analyze():
         multiple_3_dist[m3s] += 1
         total_sum = sum(nums_list)
         sum_dist.append(total_sum)
+        
         period_1_val = 0
         neighbor_val = 0
         if prev_nums is not None:
@@ -93,9 +92,19 @@ def analyze():
                 if n < 45: neighbors.add(n+1)
             neighbor_val = len(nums_set.intersection(neighbors))
             neighbor_dist[neighbor_val] += 1
+            
         end_digits = [n % 10 for n in nums_list]
-        end_sum = sum(end_digits)
-        end_sum_dist[end_sum] += 1
+        es_val = sum(end_digits)
+        # 끝수 총합 구간화 (ES Range)
+        if es_val < 15: es_range = "15 미만"
+        elif es_val < 20: es_range = "15-19"
+        elif es_val < 25: es_range = "20-24"
+        elif es_val < 30: es_range = "25-29"
+        elif es_val < 35: es_range = "30-34"
+        elif es_val < 40: es_range = "35-39"
+        else: es_range = "40 이상"
+        end_sum_dist[es_range] += 1
+        
         max_same_end = Counter(end_digits).most_common(1)[0][1]
         same_end_dist[max_same_end] += 1
         square_count = len([n for n in nums_list if n in [1,4,9,16,25,36]])
@@ -105,20 +114,16 @@ def analyze():
         double_count = len([n for n in nums_list if n in [11,22,33,44]])
         double_num_dist[double_count] += 1
 
-        # --- 신규 분석 항목 계산 ---
-        # 구간별 (번호가 들어있는 구간의 개수)
         bucket_3_dist[len(set((n-1)//3 for n in nums_list))] += 1
         bucket_5_dist[len(set((n-1)//5 for n in nums_list))] += 1
         bucket_9_dist[len(set((n-1)//9 for n in nums_list))] += 1
         bucket_15_dist[len(set((n-1)//15 for n in nums_list))] += 1
         
-        # 용지 패턴
         corner_cnt = len([n for n in nums_list if n in corners])
         pattern_corner_dist[corner_cnt] += 1
         tri_cnt = len([n for n in nums_list if n in triangle])
         pattern_triangle_dist[tri_cnt] += 1
         
-        # 가로/세로 줄 (출현한 줄의 개수)
         row_cnt = len(set((n-1)//7 for n in nums_list))
         pattern_row_dist[row_cnt] += 1
         col_cnt = len(set((n-1)%7 for n in nums_list))
@@ -128,7 +133,7 @@ def analyze():
             "no": draw_no, "date": draw['date'], "nums": nums_list, "sum": total_sum,
             "odd_even": odd_even_val, "high_low": high_low_val, "consecutive": consecutive,
             "prime": primes, "neighbor": neighbor_val, "period_1": period_1_val,
-            "end_sum": end_sum, "same_end": max_same_end, "square": square_count,
+            "end_sum": es_val, "same_end": max_same_end, "square": square_count,
             "m5": m5_count, "double": double_count,
             "b3": len(set((n-1)//3 for n in nums_list)),
             "b5": len(set((n-1)//5 for n in nums_list)),
@@ -163,7 +168,6 @@ def analyze():
             "end_sum": dict(end_sum_dist), "same_end": dict(same_end_dist),
             "square": dict(square_dist), "multiple_5": dict(multiple_5_dist),
             "double_num": dict(double_num_dist),
-            # 신규 데이터 포함
             "bucket_3": dict(bucket_3_dist), "bucket_5": dict(bucket_5_dist),
             "bucket_9": dict(bucket_9_dist), "bucket_15": dict(bucket_15_dist),
             "pattern_corner": dict(pattern_corner_dist), "pattern_triangle": dict(pattern_triangle_dist),
@@ -176,7 +180,7 @@ def analyze():
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    print(f"Success: Deep analysis complete up to draw {current_max_draw}")
+    print(f"Success: End-sum grouped into ranges up to draw {current_max_draw}")
 
 if __name__ == "__main__":
     analyze()

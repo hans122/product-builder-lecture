@@ -13,7 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dists.high_low) renderDistChart('high-low-chart', Object.fromEntries(Object.entries(dists.high_low).sort()), ' : ');
                 
                 // 2. 끝수 및 특수 패턴
-                if (dists.end_sum) renderDistChart('end-sum-chart', Object.fromEntries(Object.entries(dists.end_sum).sort((a,b)=>a[0]-b[0])), '');
+                if (dists.end_sum) {
+                    const esOrder = ["15 미만", "15-19", "20-24", "25-29", "30-34", "35-39", "40 이상"];
+                    const sortedES = {};
+                    esOrder.forEach(range => { if (dists.end_sum[range] !== undefined) sortedES[range] = dists.end_sum[range]; });
+                    renderDistChart('end-sum-chart', sortedES, '');
+                }
                 if (dists.same_end) renderDistChart('same-end-chart', Object.fromEntries(Object.entries(dists.same_end).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.square) renderDistChart('square-chart', Object.fromEntries(Object.entries(dists.square).sort((a,b)=>a[0]-b[0])), '개');
                 if (dists.multiple_5) renderDistChart('multiple-5-chart', Object.fromEntries(Object.entries(dists.multiple_5).sort((a,b)=>a[0]-b[0])), '개');
