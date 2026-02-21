@@ -14,6 +14,7 @@ def analyze():
     consecutive_dist = Counter()
     prime_dist = Counter()
     composite_dist = Counter() # 합성수 추가
+    multiple_3_dist = Counter() # 3배수 추가
     period_1_dist = Counter()
     sum_dist = []
 
@@ -59,6 +60,10 @@ def analyze():
         composites = len([n for n in nums_list if n > 1 and not is_prime(n)])
         composite_dist[composites] += 1
         
+        # 3배수 계산
+        m3s = len([n for n in nums_list if n % 3 == 0])
+        multiple_3_dist[m3s] += 1
+        
         sum_dist.append(sum(nums_list))
 
         if prev_nums is not None:
@@ -80,6 +85,7 @@ def analyze():
             "consecutive": dict(consecutive_dist),
             "prime": dict(prime_dist),
             "composite": dict(composite_dist), # 합성수 데이터 포함
+            "multiple_3": dict(multiple_3_dist), # 3배수 데이터 포함
             "period_1": dict(period_1_dist),
             "sum": dict(sum_range_dist)
         },

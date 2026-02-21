@@ -25,10 +25,14 @@
             <!-- 실시간 분석 영역: 클릭 시 과거 데이터 페이지로 이동 -->
             <div class="realtime-analysis-section">
                 <h3>📊 실시간 분석 결과 (클릭 시 역대 통계 확인)</h3>
+                <div id="last-draw-info" class="last-draw-info" style="margin-bottom: 1.5rem; display: none;">
+                    <span class="label">직전 회차 당첨 번호:</span>
+                    <div id="last-draw-balls" class="ball-container mini" style="margin-bottom: 0;"></div>
+                </div>
                 <div class="analysis-grid-horizontal">
                     <a href="analysis.html#period-1-section" class="analysis-item-link">
                         <div class="analysis-item clickable">
-                            <span class="label">1회기 통계</span>
+                            <span class="label">직전 회차 출현</span>
                             <span id="period-1-count" class="value">-</span>
                         </div>
                     </a>
@@ -54,6 +58,12 @@
                         <div class="analysis-item clickable">
                             <span class="label">합성수</span>
                             <span id="composite-count" class="value">-</span>
+                        </div>
+                    </a>
+                    <a href="analysis.html#multiple-3-section" class="analysis-item-link">
+                        <div class="analysis-item clickable">
+                            <span class="label">3배수</span>
+                            <span id="multiple-3-count" class="value">-</span>
                         </div>
                     </a>
                     <a href="analysis.html#sum-section" class="analysis-item-link">

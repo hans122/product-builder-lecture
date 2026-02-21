@@ -27,6 +27,26 @@ document.addEventListener('DOMContentLoaded', function() {
             statsData = data;
             console.log('Stats loaded successfully');
             
+            // 직전 회차 정보 표시
+            if (data.last_draw_numbers && data.total_draws) {
+                const infoContainer = document.getElementById('last-draw-info');
+                const ballContainer = document.getElementById('last-draw-balls');
+                if (infoContainer && ballContainer) {
+                    infoContainer.style.display = 'flex';
+                    infoContainer.style.flexDirection = 'column';
+                    infoContainer.style.alignItems = 'center';
+                    ballContainer.innerHTML = '';
+                    data.last_draw_numbers.forEach(num => {
+                        const ball = document.createElement('div');
+                        ball.classList.add('ball', 'mini', getBallColorClass(num));
+                        ball.innerText = num;
+                        ballContainer.appendChild(ball);
+                    });
+                    const label = infoContainer.querySelector('.label');
+                    if (label) label.innerText = `직전 ${data.total_draws}회차 당첨 번호:`;
+                }
+            }
+
             // 데이터 로드 후 저장된 번호가 있다면 분석 실행
             const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
             if (savedNumbers) {
@@ -46,7 +66,7 @@ function analyzeNumbers(numbers) {
         return;
     }
 
-    // 1. 1회기 통계 (전회차 중복)
+    // 1. 직전 회차 출현 (전회차 중복)
     if (statsData.last_draw_numbers) {
         const lastDraw = new Set(statsData.last_draw_numbers);
         const currentDraw = new Set(numbers);
@@ -79,7 +99,14 @@ function analyzeNumbers(numbers) {
         compositeTarget.innerText = `${compositeCount}개`;
     }
 
-    // 6. 총합
+    // 6. 3배수
+    const multiple3Target = document.getElementById('multiple-3-count');
+    if (multiple3Target) {
+        const m3Count = numbers.filter(n => n % 3 === 0).length;
+        multiple3Target.innerText = `${m3Count}개`;
+    }
+
+    // 7. 총합
     const sumTarget = document.getElementById('total-sum');
     if (sumTarget) sumTarget.innerText = numbers.reduce((a, b) => a + b, 0);
 }
