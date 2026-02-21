@@ -69,19 +69,33 @@ function updateGuideStats(data) {
 
     // 6. 끝수 분석 요약
     const endDigitStat = document.getElementById('end-digit-stat');
-    if (dists.same_end) {
+    if (dists.same_end && dists.end_sum) {
         const same_1 = dists.same_end["1"] || 0;
         const hasSameEndProb = (100 - (same_1 / total * 100)).toFixed(1);
-        endDigitStat.innerHTML = `역대 데이터 중 <strong>${hasSameEndProb}%</strong>의 회차에서 최소 한 쌍 이상의 동끝수(같은 일의 자리)가 출현했습니다.`;
+        
+        // 끝수 합 평균 계산
+        const sortedEndSum = Object.entries(dists.end_sum).sort((a, b) => b[1] - a[1]);
+        const topEndSum = sortedEndSum[0][0];
+
+        endDigitStat.innerHTML = `
+            동끝수가 1개 이상 출현할 확률은 <strong>${hasSameEndProb}%</strong>이며, 
+            끝수 총합은 <strong>${topEndSum}</strong> 부근에서 가장 많이 발생합니다.
+        `;
     }
 
     // 7. 특수 패턴 요약
     const specialStat = document.getElementById('special-pattern-stat');
-    if (dists.square && dists.multiple_5) {
+    if (dists.square && dists.multiple_5 && dists.double_num) {
         const square_0 = dists.square["0"] || 0;
         const m5_0 = dists.multiple_5["0"] || 0;
+        const double_0 = dists.double_num["0"] || 0;
         const squareProb = (100 - (square_0 / total * 100)).toFixed(1);
         const m5Prob = (100 - (m5_0 / total * 100)).toFixed(1);
-        specialStat.innerHTML = `완전제곱수는 전체의 <strong>${squareProb}%</strong>에서, 5의 배수는 <strong>${m5Prob}%</strong>의 확률로 최소 1개 이상 포함되고 있습니다.`;
+        const doubleProb = (100 - (double_0 / total * 100)).toFixed(1);
+        specialStat.innerHTML = `
+            제곱수 출현 확률: <strong>${squareProb}%</strong>, 
+            5의 배수 출현 확률: <strong>${m5Prob}%</strong>, 
+            쌍수 출현 확률: <strong>${doubleProb}%</strong>로 분석되었습니다.
+        `;
     }
 }

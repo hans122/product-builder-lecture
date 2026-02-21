@@ -124,7 +124,7 @@ function runDetailedAnalysis() {
     }
     addReportRow('홀:짝', oddEvenRatio, oeStatus, oeOpinion);
 
-    // 2-2. 고저 분석 (추가)
+    // 2-2. 고저 분석
     const lows = nums.filter(n => n <= 22).length;
     const highLowRatio = `${lows}:${6-lows}`;
     let hlStatus = '보통';
@@ -138,6 +138,38 @@ function runDetailedAnalysis() {
         totalScore -= 15;
     }
     addReportRow('고:저', highLowRatio, hlStatus, hlOpinion);
+
+    // 2-3. 끝수 분석 (추가)
+    const endDigits = nums.map(n => n % 10);
+    const endSum = endDigits.reduce((a, b) => a + b, 0);
+    const digitCounts = {};
+    endDigits.forEach(d => digitCounts[d] = (digitCounts[d] || 0) + 1);
+    const maxSameEnd = Math.max(...Object.values(digitCounts));
+    
+    let esStatus = '보통';
+    let esOpinion = '끝수 합이 적절합니다.';
+    if (endSum >= 15 && endSum <= 35) esStatus = '최적';
+    addReportRow('끝수합', endSum, esStatus, '끝수(일의자리)의 합계 분석입니다.');
+
+    let seStatus = '보통';
+    let seOpinion = '동끝수가 적절히 포함되었습니다.';
+    if (maxSameEnd >= 2 && maxSameEnd <= 3) {
+        seStatus = '최적';
+        seOpinion = '동끝수가 2~3개 포함되는 것은 당첨번호의 흔한 특징입니다.';
+    }
+    addReportRow('동끝수', `${maxSameEnd}개`, seStatus, seOpinion);
+
+    // 2-4. 특수 패턴 분석 (추가)
+    const squares = [1, 4, 9, 16, 25, 36];
+    const squareCount = nums.filter(n => squares.includes(n)).length;
+    addReportRow('제곱수', `${squareCount}개`, '보통', '1, 4, 9, 16, 25, 36 포함 개수입니다.');
+
+    const m5Count = nums.filter(n => n % 5 === 0).length;
+    addReportRow('5의배수', `${m5Count}개`, '보통', '5의 배수 포함 개수 분석입니다.');
+
+    const doubles = [11, 22, 33, 44];
+    const doubleCount = nums.filter(n => doubles.includes(n)).length;
+    addReportRow('쌍수', `${doubleCount}개`, '보통', '11, 22, 33, 44 포함 개수 분석입니다.');
 
     // 3. 연속번호 분석
     let consecutive = 0;
