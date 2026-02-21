@@ -102,6 +102,44 @@ body:not(.analysis-page) {
     margin-top: 2px;
 }
 
+/* 로또 구슬 공통 스타일 복구 */
+.ball-container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 12px; 
+    align-items: center; 
+    justify-content: center; 
+    margin-bottom: 2.5rem; 
+}
+.ball {
+    width: 50px; 
+    height: 50px; 
+    border-radius: 50%; 
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    color: white;
+    font-weight: bold; 
+    font-size: 1.1rem; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.ball.mini { width: 32px; height: 32px; font-size: 0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+/* 구슬 색상 클래스 */
+.yellow { background-color: #fbc02d !important; }
+.blue { background-color: #1e88e5 !important; }
+.red { background-color: #e53935 !important; }
+.gray { background-color: #757575 !important; }
+.green { background-color: #43a047 !important; }
+
+.banner-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #64748b;
+    white-space: nowrap;
+}
+
 .analysis-card { background: #fcfcfc; border: 1px solid #eee; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; }
 .analysis-card h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.15rem; color: #2c3e50; }
 .description { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 1.5rem; line-height: 1.6; }
