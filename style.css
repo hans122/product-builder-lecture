@@ -15,6 +15,7 @@ body:not(.analysis-page) {
 
 .main-wrapper.centered {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -144,6 +145,21 @@ body:not(.analysis-page) {
 
 .footer-nav { margin-top: 4rem; padding-top: 2rem; border-top: 2px solid #f1f1f1; text-align: center; }
 .nav-btn.large { display: inline-block; padding: 1.2rem 2.5rem; background: #27ae60; color: white; text-decoration: none; font-weight: bold; border-radius: 15px; }
+
+/* 공통 표준 푸터 스타일 */
+.standard-footer {
+    margin-top: 2rem;
+    padding: 1.5rem 20px 3rem;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.disclaimer {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    line-height: 1.7;
+    word-break: keep-all;
+}
 
 /* 조합 분석기 전용 스타일 (로또 용지 디자인) */
 .lotto-paper-wrapper {
