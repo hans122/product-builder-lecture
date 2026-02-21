@@ -10,27 +10,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body class="analysis-page">
-    <!-- 상단 고정 헤더 영역 -->
-    <div class="sticky-header">
-        <div class="container wide" style="padding: 0 40px; box-shadow: none; background: transparent;">
+    <!-- 상단 고정 헤더 -->
+    <header class="sticky-header">
+        <div class="header-inner">
             <div class="nav-links">
-                <a href="index.html" class="nav-btn small">⬅️ 메인으로 돌아가기</a>
+                <a href="index.html" class="nav-btn small">⬅️ 메인으로</a>
             </div>
             <h1>📊 항목별 역대 통계 분석</h1>
-            <div id="my-numbers-section" class="my-numbers-banner" style="display: none;">
+            <div id="my-numbers-section" class="my-numbers-banner">
                 <span class="banner-label">내 최근 번호:</span>
                 <div id="my-numbers-list" class="ball-container mini"></div>
             </div>
         </div>
-    </div>
+    </header>
 
     <div class="container wide">
-        <p class="subtitle" style="margin-top: 20px;">유사한 성격의 통계 항목끼리 그룹화되어 있습니다</p>
+        <p class="subtitle">유사한 성격의 통계 항목끼리 그룹화되어 있습니다</p>
 
         <!-- [그룹 1: 기본 균형] -->
-        <div class="group-header" style="margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold;">
-            📍 기본 균형 분석 (홀짝 & 고저)
-        </div>
+        <div class="group-header">📍 기본 균형 분석 (홀짝 & 고저)</div>
         <section id="odd-even-section" class="analysis-card">
             <h3>⚖️ 역대 홀:짝 비율 분포</h3>
             <p class="description">당첨번호 6개 중 홀수와 짝수가 어떤 비율로 섞여 나왔는지 보여줍니다. 보통 3:3 배합이 가장 빈번합니다.</p>
@@ -61,12 +59,9 @@
         </section>
 
         <!-- [그룹 2: 끝수 분석] -->
-        <div class="group-header" style="margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold;">
-            📍 끝수 분석 (일의 자리 패턴)
-        </div>
+        <div class="group-header">📍 끝수 분석 (일의 자리 패턴)</div>
         <section id="end-sum-section" class="analysis-card">
             <h3>🔢 역대 끝수(일의 자리) 총합 분포</h3>
-            <p class="description">당첨번호 6개의 일의 자리 숫자들을 모두 더한 값의 분포입니다.</p>
             <div class="analysis-content-wrapper">
                 <div id="end-sum-chart" class="dist-bar-chart"></div>
                 <div class="mini-table-wrapper">
@@ -80,7 +75,6 @@
         </section>
         <section id="same-end-section" class="analysis-card">
             <h3>👯 역대 동끝수(같은 일의 자리) 출현 분포</h3>
-            <p class="description">일의 자리가 같은 번호가 몇 개나 포함되었는지 분석합니다.</p>
             <div class="analysis-content-wrapper">
                 <div id="same-end-chart" class="dist-bar-chart"></div>
                 <div class="mini-table-wrapper">
@@ -94,9 +88,7 @@
         </section>
 
         <!-- [그룹 3: 특수 번호군] -->
-        <div class="group-header" style="margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold;">
-            📍 특수 번호군 분석 (소수, 배수, 제곱수 등)
-        </div>
+        <div class="group-header">📍 특수 번호군 분석 (소수, 배수, 제곱수 등)</div>
         <section id="prime-section" class="analysis-card">
             <h3>🔢 역대 소수(Prime) 포함 개수</h3>
             <div class="analysis-content-wrapper">
@@ -177,9 +169,7 @@
         </section>
 
         <!-- [그룹 4: 회차 간 상관관계] -->
-        <div class="group-header" style="margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold;">
-            📍 회차 간 상관관계 (이월, 이웃, 연속)
-        </div>
+        <div class="group-header">📍 회차 간 상관관계 (이월, 이웃, 연속)</div>
         <section id="period-1-section" class="analysis-card">
             <h3>🔄 역대 직전 회차 출현 개수 분포</h3>
             <div class="analysis-content-wrapper">
@@ -221,9 +211,7 @@
         </section>
 
         <!-- [그룹 5: 용지 패턴 및 구간] -->
-        <div class="group-header" style="margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold;">
-            📍 용지 패턴 및 구간 분석
-        </div>
+        <div class="group-header">📍 용지 패턴 및 구간 분석</div>
         <section id="bucket-section" class="analysis-card">
             <h3>📦 역대 구간별(3단위) 출현 분포</h3>
             <div class="analysis-content-wrapper">
@@ -262,9 +250,7 @@
         </section>
 
         <!-- [그룹 6: 총합 및 기타] -->
-        <div class="group-header" style="margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold;">
-            📍 총합 및 로우 데이터
-        </div>
+        <div class="group-header">📍 총합 및 로우 데이터</div>
         <section id="sum-section" class="analysis-card">
             <h3>📈 역대 총합(Sum) 범위 분포</h3>
             <div class="analysis-content-wrapper">
