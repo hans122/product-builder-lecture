@@ -177,11 +177,6 @@ body:not(.analysis-page) {
 .dist-label { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: #7f8c8d; font-weight: bold; }
 
 .table-responsive { overflow-x: auto; margin-top: 1rem; }
-.results-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: center; }
-.results-table th { background: #f8f9fa; color: #4a5568; padding: 12px 8px; border-bottom: 2px solid #edf2f7; }
-.results-table td { padding: 12px 8px; border-bottom: 1px solid #edf2f7; }
-.table-nums { display: flex; justify-content: center; gap: 4px; }
-.table-ball { width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 0.7rem; font-weight: bold; }
 
 /* 상태 배지 스타일 */
 .status-badge {
@@ -197,6 +192,7 @@ body:not(.analysis-page) {
 .status-badge.normal { background-color: #f39c12; box-shadow: 0 2px 4px rgba(243, 156, 18, 0.2); }
 .status-badge.warning { background-color: #e74c3c; box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2); }
 
+#frequency-section { max-width: 600px; margin-left: 0; }
 .frequency-chart { display: flex; align-items: flex-end; gap: 2px; height: 280px; margin-top: 2rem; padding-top: 20px; padding-bottom: 40px; border-bottom: 2px solid #eee; overflow-x: auto; }
 .bar-wrapper { flex: 0 0 22px; min-width: 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; }
 .bar-value { font-size: 0.65rem; color: #2c3e50; font-weight: bold; margin-bottom: 5px; }
