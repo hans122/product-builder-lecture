@@ -262,9 +262,20 @@ function runDetailedAnalysis() {
     addReportRow('이웃수', `${neighborCount}개`, nStatus, nOpinion);
 
     // 6. 심화 분석: 구간 및 용지 패턴
+    const b15Count = new Set(nums.map(n => Math.floor((n-1)/15))).size;
+    addReportRow('3분할(15개씩)', `${b15Count}구간`, b15Count >= 2 ? '최적' : '보통', '15개씩 3개 구간 중 포함된 구간 수입니다.');
+
+    const b9Count = new Set(nums.map(n => Math.floor((n-1)/9))).size;
+    addReportRow('5분할(9개씩)', `${b9Count}구간`, b9Count >= 3 ? '최적' : '보통', '9개씩 5개 구간 중 포함된 구간 수입니다.');
+
+    const b5Count = new Set(nums.map(n => Math.floor((n-1)/5))).size;
+    addReportRow('9분할(5개씩)', `${b5Count}구간`, b5Count >= 4 ? '최적' : '보통', '5개씩 9개 구간 중 포함된 구간 수입니다.');
+
     const b3Count = new Set(nums.map(n => Math.floor((n-1)/3))).size;
-    let b3Status = (b3Count >= 5) ? '최적' : '보통';
-    addReportRow('출현구간', `${b3Count}구간`, b3Status, '번호가 얼마나 다양한 구간에 분포하는지 분석합니다.');
+    addReportRow('15분할(3개씩)', `${b3Count}구간`, b3Count >= 5 ? '최적' : '보통', '3개씩 15개 구간 중 포함된 구간 수입니다.');
+
+    const colorCnt = new Set(nums.map(getBallColorClass)).size;
+    addReportRow('색상분할', `${colorCnt}색상`, colorCnt >= 3 ? '최적' : '보통', '번호대별 5가지 색상 중 포함된 색상 수입니다.');
 
     const corners = new Set([1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42]);
     const triangle = new Set([4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32]);

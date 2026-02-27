@@ -26,6 +26,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // 3. 심화 분석: 구간
                 if (dists.bucket_3) renderDistChart('bucket-3-chart', Object.fromEntries(Object.entries(dists.bucket_3).sort((a,b)=>a[0]-b[0])), '구간');
+                if (dists.bucket_5) renderDistChart('bucket-5-chart', Object.fromEntries(Object.entries(dists.bucket_5).sort((a,b)=>a[0]-b[0])), '구간');
+                if (dists.bucket_9) renderDistChart('bucket-9-chart', Object.fromEntries(Object.entries(dists.bucket_9).sort((a,b)=>a[0]-b[0])), '구간');
+                if (dists.bucket_15) renderDistChart('bucket-15-chart', Object.fromEntries(Object.entries(dists.bucket_15).sort((a,b)=>a[0]-b[0])), '구간');
+                if (dists.color) renderDistChart('color-chart', Object.fromEntries(Object.entries(dists.color).sort((a,b)=>a[0]-b[0])), '색상');
 
                 // 4. 심화 분석: 용지 패턴
                 if (dists.pattern_corner) renderDistChart('pattern-corner-chart', Object.fromEntries(Object.entries(dists.pattern_corner).sort((a,b)=>a[0]-b[0])), '개');
@@ -99,6 +103,10 @@ function renderMiniTables(draws) {
         { id: 'multiple-5-mini-body', key: 'm5' },
         { id: 'double-mini-body', key: 'double' },
         { id: 'bucket-3-mini-body', key: 'b3' },
+        { id: 'bucket-5-mini-body', key: 'b5' },
+        { id: 'bucket-9-mini-body', key: 'b9' },
+        { id: 'bucket-15-mini-body', key: 'b15' },
+        { id: 'color-mini-body', key: 'color' },
         { id: 'pattern-corner-mini-body', key: 'p_corner' },
         { id: 'pattern-triangle-mini-body', key: 'p_tri' },
         { id: 'ac-mini-body', key: 'ac' },

@@ -33,12 +33,13 @@ function renderHistoryTable(draws) {
             <td class="stat-val">${draw.high_low}</td>
             <td class="stat-val">${draw.ac}</td>
             <td class="stat-val">${draw.span}</td>
-            <td class="stat-val" title="직전 회차와 중복된 번호">${draw.period_1}개</td>
-            <td class="stat-val" title="직전 회차의 ±1 번호">${draw.neighbor}개</td>
+            <td class="stat-val">${draw.period_1}개</td>
             <td class="stat-val">${draw.consecutive}쌍</td>
-            <td class="stat-val">${draw.prime}개</td>
+            <td class="stat-val">${draw.b15}구간</td>
+            <td class="stat-val">${draw.b9}구간</td>
+            <td class="stat-val">${draw.b5}구간</td>
             <td class="stat-val">${draw.b3}구간</td>
-            <td class="stat-val">${draw.end_sum}</td>
+            <td class="stat-val">${draw.color}색상</td>
         `;
         tbody.appendChild(tr);
     });

@@ -158,12 +158,28 @@ function analyzeNumbers(numbers) {
     if (doubleTarget) updateAnalysisItem(doubleTarget, `${doubleCount}개`, 'normal');
 
     // 3. 심화 분석: 구간 및 패턴
+    const b15Count = new Set(numbers.map(n => Math.floor((n-1)/15))).size;
+    const b15Target = document.getElementById('bucket-15-count');
+    if (b15Target) updateAnalysisItem(b15Target, `${b15Count}구간`, b15Count >= 2 ? 'optimal' : 'normal');
+
+    const b9Count = new Set(numbers.map(n => Math.floor((n-1)/9))).size;
+    const b9Target = document.getElementById('bucket-9-count');
+    if (b9Target) updateAnalysisItem(b9Target, `${b9Count}구간`, b9Count >= 3 ? 'optimal' : 'normal');
+
+    const b5Count = new Set(numbers.map(n => Math.floor((n-1)/5))).size;
+    const b5Target = document.getElementById('bucket-5-count');
+    if (b5Target) updateAnalysisItem(b5Target, `${b5Count}구간`, b5Count >= 4 ? 'optimal' : 'normal');
+
     const b3Count = new Set(numbers.map(n => Math.floor((n-1)/3))).size;
     const b3Target = document.getElementById('bucket-3-count');
     if (b3Target) {
         let status = (b3Count >= 5) ? 'optimal' : 'normal';
         updateAnalysisItem(b3Target, `${b3Count}구간`, status);
     }
+
+    const colorCnt = new Set(numbers.map(getBallColorClass)).size;
+    const colorTarget = document.getElementById('color-count');
+    if (colorTarget) updateAnalysisItem(colorTarget, `${colorCnt}색상`, colorCnt >= 3 ? 'optimal' : 'normal');
 
     const corners = new Set([1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42]);
     const triangle = new Set([4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32]);

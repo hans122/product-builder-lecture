@@ -37,6 +37,7 @@ def analyze():
     bucket_5_dist = Counter()
     bucket_9_dist = Counter()
     bucket_15_dist = Counter()
+    color_dist = Counter()
     pattern_corner_dist = Counter()
     pattern_triangle_dist = Counter()
     pattern_row_dist = Counter()
@@ -124,11 +125,26 @@ def analyze():
         double_count = len([n for n in nums_list if n in [11,22,33,44]])
         double_num_dist[double_count] += 1
 
-        bucket_3_dist[len(set((n-1)//3 for n in nums_list))] += 1
-        bucket_5_dist[len(set((n-1)//5 for n in nums_list))] += 1
-        bucket_9_dist[len(set((n-1)//9 for n in nums_list))] += 1
-        bucket_15_dist[len(set((n-1)//15 for n in nums_list))] += 1
+        bucket_3_cnt = len(set((n-1)//3 for n in nums_list))
+        bucket_5_cnt = len(set((n-1)//5 for n in nums_list))
+        bucket_9_cnt = len(set((n-1)//9 for n in nums_list))
+        bucket_15_cnt = len(set((n-1)//15 for n in nums_list))
         
+        bucket_3_dist[bucket_3_cnt] += 1
+        bucket_5_dist[bucket_5_cnt] += 1
+        bucket_9_dist[bucket_9_cnt] += 1
+        bucket_15_dist[bucket_15_cnt] += 1
+        
+        colors = set()
+        for n in nums_list:
+            if n <= 10: colors.add('yellow')
+            elif n <= 20: colors.add('blue')
+            elif n <= 30: colors.add('red')
+            elif n <= 40: colors.add('gray')
+            else: colors.add('green')
+        color_count = len(colors)
+        color_dist[color_count] += 1
+
         corner_cnt = len([n for n in nums_list if n in corners])
         pattern_corner_dist[corner_cnt] += 1
         tri_cnt = len([n for n in nums_list if n in triangle])
@@ -150,7 +166,8 @@ def analyze():
             "prime": primes, "neighbor": neighbor_val, "period_1": period_1_val,
             "end_sum": es_val, "same_end": max_same_end, "square": square_count,
             "m5": m5_count, "double": double_count,
-            "b3": len(set((n-1)//3 for n in nums_list)),
+            "b3": bucket_3_cnt, "b5": bucket_5_cnt, "b9": bucket_9_cnt, "b15": bucket_15_cnt,
+            "color": color_count,
             "p_corner": corner_cnt, "p_tri": tri_cnt,
             "ac": ac_val, "span": span_val
         })
@@ -183,6 +200,7 @@ def analyze():
             "double_num": dict(double_num_dist),
             "bucket_3": dict(bucket_3_dist), "bucket_5": dict(bucket_5_dist),
             "bucket_9": dict(bucket_9_dist), "bucket_15": dict(bucket_15_dist),
+            "color": dict(color_dist),
             "pattern_corner": dict(pattern_corner_dist), "pattern_triangle": dict(pattern_triangle_dist),
             "pattern_row": dict(pattern_row_dist), "pattern_col": dict(pattern_col_dist),
             "ac": dict(ac_dist), "span": dict(span_dist)
@@ -194,7 +212,7 @@ def analyze():
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    print(f"Success: Updated stats with AC and Span up to draw {current_max_draw}")
+    print(f"Success: Updated stats with comprehensive metrics up to draw {current_max_draw}")
 
 if __name__ == "__main__":
     analyze()
