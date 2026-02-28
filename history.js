@@ -12,14 +12,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function renderHistorySummary(data) {
     const container = document.getElementById('history-p1-cum-container');
-    if (!container || !data.distributions.period_1_cum) return;
+    if (!container || !data.distributions.period_1_3) return;
 
-    const cumData = data.distributions.period_1_cum;
+    const statsData = data.distributions.period_1_3;
     const total = data.total_draws;
     
     container.innerHTML = '';
     
-    Object.entries(cumData).forEach(([label, count]) => {
+    // 1~3회차 합집합과의 매칭 분포 요약
+    Object.entries(statsData).sort((a,b)=>a[0]-b[0]).forEach(([label, count]) => {
         const prob = ((count / total) * 100).toFixed(1);
         const item = document.createElement('div');
         item.style.cssText = `
@@ -34,7 +35,7 @@ function renderHistorySummary(data) {
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         `;
         item.innerHTML = `
-            <span style="font-size: 0.7rem; color: #64748b; margin-bottom: 2px;">${label}개 출현</span>
+            <span style="font-size: 0.7rem; color: #64748b; margin-bottom: 2px;">1~3회전 ${label}개</span>
             <span style="font-size: 0.9rem; font-weight: bold; color: #1e293b;">${prob}%</span>
         `;
         container.appendChild(item);
@@ -57,10 +58,10 @@ function renderHistoryTable(draws) {
         const oeParts = draw.odd_even.split(':').map(Number);
         const oeClass = (oeParts[0] >= 2 && oeParts[0] <= 4) ? 'optimal-text' : '';
         
-        // 이월수 누적 범위 체크 (O 대신 개수 표시)
+        // 윈도우 기반 매칭 개수 표시
         const p1 = draw.period_1 || 0;
-        const val1_2 = (p1 >= 1 && p1 <= 2) ? `<span class="optimal-text">${p1}</span>` : '-';
-        const val1_3 = (p1 >= 1 && p1 <= 3) ? `<span class="optimal-text">${p1}</span>` : '-';
+        const p1_2 = draw.period_1_2 || 0;
+        const p1_3 = draw.period_1_3 || 0;
 
         tr.innerHTML = `
             <td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
@@ -71,8 +72,8 @@ function renderHistoryTable(draws) {
             <td class="stat-val">${draw.ac}</td>
             <td class="stat-val">${draw.span}</td>
             <td class="stat-val">${p1}개</td>
-            <td class="stat-val">${val1_2}</td>
-            <td class="stat-val">${val1_3}</td>
+            <td class="stat-val">${p1_2}개</td>
+            <td class="stat-val">${p1_3}개</td>
             <td class="stat-val">${draw.consecutive}쌍</td>
             <td class="stat-val">${draw.b15}구간</td>
             <td class="stat-val">${draw.b9}구간</td>
