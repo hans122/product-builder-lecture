@@ -214,6 +214,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         else if (elementId.includes('bucket-15')) myCurrentVal = new Set(nums.map(n => Math.floor((n-1)/15))).size;
         else if (elementId.includes('bucket-3')) myCurrentVal = new Set(nums.map(n => Math.floor((n-1)/3))).size;
         else if (elementId.includes('color')) myCurrentVal = new Set(nums.map(getBallColorClass)).size;
+        else if (elementId.includes('end-sum')) myCurrentVal = nums.reduce((a, b) => a + (b % 10), 0);
     }
 
     const points = entries.map((e, i) => {
@@ -226,6 +227,26 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
+    // 경계값 계산 (레이블 표시 필터링용)
+    const boundaries = new Set();
+    if (statSummary) {
+        const mu = statSummary.mean;
+        const sd = statSummary.std;
+        const targets = [mu - 2 * sd, mu - sd, mu, mu + sd, mu + 2 * sd];
+        targets.forEach(t => {
+            let closest = entries[0];
+            let minDiff = Math.abs(parseFloat(entries[0][0]) - t);
+            entries.forEach(e => {
+                const val = parseFloat(e[0].includes('-') ? e[0].split('-')[0] : e[0]);
+                const diff = Math.abs(val - t);
+                if (diff < minDiff) { minDiff = diff; closest = e; }
+            });
+            boundaries.add(closest[0]);
+        });
+    }
+    boundaries.add(entries[0][0]);
+    boundaries.add(entries[entries.length - 1][0]);
+
     // 1. 세이프 존 (Safe Zone: ±2σ, 95% 범위)
     if (statSummary) {
         const safePoints = points.filter(p => {
@@ -236,10 +257,9 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
             const sPathData = `M ${safePoints[0].x},${baselineY} ` + safePoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${safePoints[safePoints.length-1].x},${baselineY} Z`;
             const sPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
             sPath.setAttribute("d", sPathData);
-            sPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)"); // 세이프 존 (연한 파랑)
+            sPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)");
             svg.appendChild(sPath);
 
-            // 세이프 존 텍스트 라벨 추가
             const safeLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
             safeLabel.setAttribute("x", safePoints[0].x + 5);
             safeLabel.setAttribute("y", 25);
@@ -266,10 +286,9 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         const gPathData = `M ${optimalPoints[0].x},${baselineY} ` + optimalPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${optimalPoints[optimalPoints.length-1].x},${baselineY} Z`;
         const gPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
         gPath.setAttribute("d", gPathData);
-        gPath.setAttribute("fill", "rgba(46, 204, 113, 0.2)"); // 옵티멀 존 (연한 녹색)
+        gPath.setAttribute("fill", "rgba(46, 204, 113, 0.2)");
         svg.appendChild(gPath);
 
-        // 옵티멀 존 텍스트 라벨 추가
         const optLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
         optLabel.setAttribute("x", optimalPoints[0].x + 5);
         optLabel.setAttribute("y", 15);
@@ -306,21 +325,35 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         }
     }
 
-    // 5. 포인트 및 마커
+    // 5. 포인트 및 레이블
     points.forEach(p => {
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
         circle.setAttribute("fill", "#3498db");
         svg.appendChild(circle);
 
-        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
-        txt.setAttribute("fill", "#7f8c8d"); txt.style.fontSize = "0.6rem"; txt.style.fontWeight = "bold";
-        txt.textContent = p.label + (isNaN(p.label) ? "" : unit);
-        svg.appendChild(txt);
+        if (entries.length <= 10 || boundaries.has(p.label)) {
+            const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
+            
+            // 경계값에 따라 글자색 변경
+            let color = "#7f8c8d";
+            if (statSummary) {
+                const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
+                if (Math.abs(val - statSummary.mean) <= statSummary.std) color = "#27ae60"; // Optimal
+                else if (Math.abs(val - statSummary.mean) <= statSummary.std * 2) color = "#2980b9"; // Safe
+                else color = "#e74c3c"; // Danger
+            }
+            
+            txt.setAttribute("fill", color);
+            txt.style.fontSize = "0.6rem";
+            txt.style.fontWeight = "bold";
+            txt.textContent = p.label + (isNaN(p.label) ? "" : unit);
+            svg.appendChild(txt);
+        }
     });
 
-    // 내 위치 마커 최상단
+    // 내 위치 마커
     points.forEach(p => {
         let isMine = false;
         if (myCurrentVal !== null) {
