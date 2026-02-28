@@ -13,7 +13,18 @@
         .logic-card { background: white; padding: 2rem; border-radius: 15px; border: 1px solid #eee; margin-bottom: 2rem; }
         .logic-card h3 { color: #3498db; margin-top: 0; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px; }
         .stat-highlight { background: #ebf5ff; padding: 1rem; border-radius: 10px; border-left: 4px solid #3498db; margin: 10px 0; font-weight: bold; color: #2980b9; font-size: 0.9rem; }
-        .sub-item-label { font-weight: bold; color: #475569; margin-top: 15px; display: block; font-size: 0.95rem; }
+        .sub-item-label { font-weight: bold; color: #475569; margin-top: 25px; display: block; font-size: 1rem; }
+        .strategy-tip { 
+            background: #fff9db; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            border-left: 4px solid #f1c40f; 
+            margin-top: 8px; 
+            font-size: 0.85rem; 
+            color: #856404; 
+            line-height: 1.5;
+        }
+        .strategy-tip strong { color: #e67e22; }
     </style>
 </head>
 <body class="analysis-page">
@@ -36,81 +47,130 @@
         <!-- [G1] 기본 균형 -->
         <section class="logic-card">
             <h3>📍 [G1] 기본 균형 및 합계</h3>
+            
             <span class="sub-item-label">1. 총합(Sum) 분포</span>
             <div id="sum-stat-container"></div>
+            <p id="sum-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">2. 홀:짝 비율</span>
             <div id="oe-stat-container"></div>
+            <p id="oe-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">3. 고:저 비율</span>
             <div id="hl-stat-container"></div>
-            <p id="sum-tip" style="margin-top:20px; font-size:0.9rem; color:#64748b;">※ 중앙 수렴 경향이 가장 강한 지표들로, 옵티멀 존 유지가 필수적입니다.</p>
+            <p id="hl-tip" class="strategy-tip"></p>
         </section>
 
         <!-- [G2] 회차 상관관계 -->
         <section class="logic-card">
             <h3>📍 [G2] 회차 상관관계 (이월/연속)</h3>
+            
             <span class="sub-item-label">1. 직전 1회차 매칭 (이월수)</span>
             <div id="carry-stat-container"></div>
+            <p id="carry-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">2. 이웃수 (직전회차 ±1)</span>
             <div id="carry-neighbor-stat-container"></div>
+            <p id="carry-neighbor-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">3. 1~2회전 윈도우 합계</span>
             <div id="carry-2-stat-container"></div>
+            <p id="carry-2-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">4. 1~3회전 윈도우 합계</span>
             <div id="carry-3-stat-container"></div>
+            <p id="carry-3-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">5. 연속번호 쌍 (Consecutive)</span>
             <div id="consecutive-stat-container"></div>
+            <p id="consecutive-tip" class="strategy-tip"></p>
         </section>
 
         <!-- [G3] 특수 번호군 -->
         <section class="logic-card">
             <h3>📍 [G3] 특수 번호군 분석</h3>
+            
             <span class="sub-item-label">1. 소수(Prime) 포함</span>
             <div id="special-stat-container"></div>
+            <p id="special-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">2. 합성수(Composite) 포함</span>
             <div id="special-composite-stat-container"></div>
+            <p id="special-composite-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">3. 3의 배수 포함</span>
             <div id="special-3-stat-container"></div>
+            <p id="special-3-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">4. 5의 배수 포함</span>
             <div id="special-5-stat-container"></div>
+            <p id="special-5-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">5. 제곱수 포함</span>
             <div id="special-square-stat-container"></div>
+            <p id="special-square-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">6. 쌍수(11,22..) 포함</span>
             <div id="special-double-stat-container"></div>
+            <p id="special-double-tip" class="strategy-tip"></p>
         </section>
 
         <!-- [G4] 구간 및 패턴 -->
         <section class="logic-card">
             <h3>📍 [G4] 구간 및 패턴 분석</h3>
+            
             <span class="sub-item-label">1. 3분할(15개씩) 점유</span>
             <div id="bucket-15-stat-container"></div>
+            <p id="bucket-15-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">2. 5분할(9개씩) 점유</span>
             <div id="bucket-9-stat-container"></div>
+            <p id="bucket-9-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">3. 9분할(5개씩) 점유</span>
             <div id="bucket-5-stat-container"></div>
+            <p id="bucket-5-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">4. 15분할(3개씩) 점유</span>
             <div id="bucket-3-stat-container"></div>
+            <p id="bucket-3-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">5. 포함된 색상 수</span>
             <div id="pattern-color-stat-container"></div>
+            <p id="pattern-color-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">6. 모서리 영역 포함</span>
             <div id="pattern-stat-container"></div>
+            <p id="pattern-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">7. 삼각형 영역 포함</span>
             <div id="pattern-triangle-stat-container"></div>
+            <p id="pattern-triangle-tip" class="strategy-tip"></p>
         </section>
 
         <!-- [G5] 전문지표 -->
         <section class="logic-card">
             <h3>📍 [G5] 끝수 및 전문지표</h3>
+            
             <span class="sub-item-label">1. 끝수 합계 (End-Sum)</span>
             <div id="pattern-endsum-stat-container"></div>
+            <p id="pattern-endsum-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">2. 동끝수 출현 (Same-End)</span>
             <div id="end-digit-stat-container"></div>
+            <p id="end-digit-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">3. AC값 (산술적 복잡도)</span>
             <div id="pattern-ac-stat-container"></div>
+            <p id="pattern-ac-tip" class="strategy-tip"></p>
+
             <span class="sub-item-label">4. Span (번호 간격)</span>
             <div id="pattern-span-stat-container"></div>
+            <p id="pattern-span-tip" class="strategy-tip"></p>
         </section>
 
         <footer class="standard-footer">
-            <p class="disclaimer">※ 본 가이드는 역대 1,212회차까지의 데이터를 분석한 결과입니다.</p>
+            <p class="disclaimer">※ 본 가이드는 역대 당첨 데이터를 분석한 통계적 권장 수치입니다.</p>
         </footer>
     </div>
     <script src="guide.js"></script>
