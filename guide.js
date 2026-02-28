@@ -66,10 +66,21 @@ function updateGuideStats(data) {
                 </div>`;
             }
 
-            // 2. 공략 팁 업데이트 (세이프 범위 명시 유지)
+            // 2. 공략 팁 업데이트 (요청하신 압축 형식)
             if (tipElem) {
-                const originalTip = tipElem.innerHTML.split('<br>')[0].split('(')[0].trim();
-                tipElem.innerHTML = `${originalTip} <br><span class="text-safe" style="font-weight:bold; font-size:0.85rem;">(권장 세이프 범위: ${info.safe})</span>`;
+                const subjects = {
+                    'sum': '합계 수치는',
+                    'oe': '홀수 개수는',
+                    'hl': '저번호 개수는',
+                    'carry': '이월수(1~3회전) 중복 개수는',
+                    'special': '소수 포함 개수는',
+                    'consecutive': '연번 쌍의 개수는',
+                    'end-digit': '동끝수 출현 개수는',
+                    'bucket': '구간 점유 개수는',
+                    'pattern': '모서리 영역 포함 개수는'
+                };
+                const subject = subjects[idPrefix] || '해당 지표는';
+                tipElem.innerHTML = `<strong>공략 팁:</strong> ${subject} 권장 세이프 <strong>"${info.safe}"</strong> 이 좋습니다.`;
             }
         }
     };
