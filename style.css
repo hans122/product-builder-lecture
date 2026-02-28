@@ -359,77 +359,67 @@ body:not(.analysis-page) {
 .mini-table td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
 
 .dist-bar-chart { 
-    display: flex; 
-    align-items: flex-end; 
-    gap: 2px; /* 간격을 매우 좁게 하여 분포 곡선 느낌 강조 */
-    height: 200px; 
+    width: 100%;
+    height: 220px; 
     padding-top: 40px; 
-    border-bottom: 2px solid #e2e8f0; 
-    padding-bottom: 40px; 
-    overflow-x: auto; 
+    padding-bottom: 20px;
     position: relative;
-    background: linear-gradient(to right, transparent 15%, rgba(46, 204, 113, 0.05) 15%, rgba(46, 204, 113, 0.05) 85%, transparent 85%); /* Golden Zone 가이드 배경 */
+    overflow: visible; /* 툴팁 및 포인터 노출을 위해 */
 }
 
-.dist-bar { 
-    flex: 1; 
-    background: #bdc3c7; /* 기본 색상은 회색계열 */
-    border-radius: 2px 2px 0 0; 
-    position: relative; 
-    min-width: 25px; 
-    max-width: 50px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    transition: all 0.3s ease;
+/* 곡선 차트 내 SVG 스타일 */
+.dist-curve-svg {
+    width: 100%;
+    height: 100%;
 }
 
-/* 정규분포의 핵심 영역(Golden Zone) 강조 */
-.dist-bar.golden-zone {
-    background: linear-gradient(to top, #3498db, #5dade2);
-    box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+.curve-path {
+    fill: none;
+    stroke: #3498db;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-/* 평균값 지점 표시 */
-.dist-bar.is-mean {
-    background: linear-gradient(to top, #27ae60, #2ecc71) !important;
+.area-path {
+    fill: rgba(52, 152, 219, 0.1);
 }
 
-/* 현재 내 번호 위치 표시기 */
-.dist-bar.current-pos::before {
-    content: "▼";
-    position: absolute;
-    top: -45px;
-    color: #e74c3c;
-    font-size: 1.2rem;
-    animation: bounce 1s infinite;
+.golden-zone-path {
+    fill: rgba(46, 204, 113, 0.2);
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+.curve-point {
+    fill: white;
+    stroke: #3498db;
+    stroke-width: 2;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.dist-value { 
-    position: absolute; 
-    top: -28px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    font-size: 0.65rem; 
-    font-weight: bold; 
-    color: #34495e; 
-    white-space: nowrap;
+.curve-point:hover {
+    r: 6;
+    fill: #3498db;
 }
 
-.dist-label { 
-    position: absolute; 
-    bottom: -35px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    font-size: 0.6rem; 
-    color: #7f8c8d; 
-    font-weight: bold; 
-    white-space: nowrap; 
+/* 현재 내 위치 포인터 */
+.my-pos-marker {
+    fill: #e74c3c;
+    stroke: white;
+    stroke-width: 2;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.axis-label {
+    font-size: 0.65rem;
+    fill: #7f8c8d;
+    font-weight: bold;
 }
 
 .table-responsive { overflow-x: auto; margin-top: 1rem; }

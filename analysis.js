@@ -7,51 +7,51 @@ document.addEventListener('DOMContentLoaded', function() {
             const total = data.total_draws;
             const stats = data.stats_summary || {};
 
-            // 1. 기본 및 합계 (정규분포 적용)
+            // 1. 기본 및 합계 (정규분포 곡선 적용)
             if (dists.sum) {
                 const sumOrder = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
                 const sortedSum = {};
                 sumOrder.forEach(range => { if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range]; });
-                renderDistChart('sum-chart', sortedSum, '', false, stats.sum);
+                renderCurveChart('sum-chart', sortedSum, '', stats.sum);
             }
-            if (dists.odd_even) renderDistChart('odd-even-chart', dists.odd_even, ' : ', true);
-            if (dists.high_low) renderDistChart('high-low-chart', dists.high_low, ' : ', true);
+            if (dists.odd_even) renderCurveChart('odd-even-chart', dists.odd_even, ' : ');
+            if (dists.high_low) renderCurveChart('high-low-chart', dists.high_low, ' : ');
 
             // 2. 특수 번호 및 끝수
-            if (dists.prime) renderDistChart('prime-chart', dists.prime, '개', true);
-            if (dists.composite) renderDistChart('composite-chart', dists.composite, '개', true);
-            if (dists.multiple_3) renderDistChart('multiple-3-chart', dists.multiple_3, '개', true);
-            if (dists.multiple_5) renderDistChart('multiple-5-chart', dists.multiple_5, '개', true);
-            if (dists.square) renderDistChart('square-chart', dists.square, '개', true);
-            if (dists.double_num) renderDistChart('double-chart', dists.double_num, '개', true);
-            if (dists.same_end) renderDistChart('same-end-chart', dists.same_end, '개', true);
+            if (dists.prime) renderCurveChart('prime-chart', dists.prime, '개');
+            if (dists.composite) renderCurveChart('composite-chart', dists.composite, '개');
+            if (dists.multiple_3) renderCurveChart('multiple-3-chart', dists.multiple_3, '개');
+            if (dists.multiple_5) renderCurveChart('multiple-5-chart', dists.multiple_5, '개');
+            if (dists.square) renderCurveChart('square-chart', dists.square, '개');
+            if (dists.double_num) renderCurveChart('double-chart', dists.double_num, '개');
+            if (dists.same_end) renderCurveChart('same-end-chart', dists.same_end, '개');
 
-            // 3. 상관관계 (이월, 1~2회전, 1~3회전)
-            if (dists.period_1) renderDistChart('period-1-chart', dists.period_1, '개', true);
+            // 3. 상관관계
+            if (dists.period_1) renderCurveChart('period-1-chart', dists.period_1, '개');
             if (dists.period_1_2) {
                 const data1_2 = Object.entries(dists.period_1_2).map(([k, v]) => [`${k}개`, v, `${((v/total)*100).toFixed(1)}%`]);
-                renderDistChart('period-1-2-chart', data1_2, '회');
+                renderCurveChart('period-1-2-chart', data1_2, '회');
             }
             if (dists.period_1_3) {
                 const data1_3 = Object.entries(dists.period_1_3).map(([k, v]) => [`${k}개`, v, `${((v/total)*100).toFixed(1)}%`]);
-                renderDistChart('period-1-3-chart', data1_3, '회');
+                renderCurveChart('period-1-3-chart', data1_3, '회');
             }
-            if (dists.neighbor) renderDistChart('neighbor-chart', dists.neighbor, '개', true);
-            if (dists.consecutive) renderDistChart('consecutive-chart', dists.consecutive, '쌍', true);
+            if (dists.neighbor) renderCurveChart('neighbor-chart', dists.neighbor, '개');
+            if (dists.consecutive) renderCurveChart('consecutive-chart', dists.consecutive, '쌍');
 
             // 4. 구간 및 패턴
-            if (dists.bucket_15) renderDistChart('bucket-15-chart', dists.bucket_15, '구간', true);
-            if (dists.bucket_9) renderDistChart('bucket-9-chart', dists.bucket_9, '구간', true);
-            if (dists.bucket_5) renderDistChart('bucket-5-chart', dists.bucket_5, '구간', true);
-            if (dists.bucket_3) renderDistChart('bucket-3-chart', dists.bucket_3, '구간', true);
-            if (dists.color) renderDistChart('color-chart', dists.color, '색상', true);
-            if (dists.pattern_corner) renderDistChart('pattern-corner-chart', dists.pattern_corner, '개', true);
-            if (dists.pattern_triangle) renderDistChart('pattern-triangle-chart', dists.pattern_triangle, '개', true);
+            if (dists.bucket_15) renderCurveChart('bucket-15-chart', dists.bucket_15, '구간');
+            if (dists.bucket_9) renderCurveChart('bucket-9-chart', dists.bucket_9, '구간');
+            if (dists.bucket_5) renderCurveChart('bucket-5-chart', dists.bucket_5, '구간');
+            if (dists.bucket_3) renderCurveChart('bucket-3-chart', dists.bucket_3, '구간');
+            if (dists.color) renderCurveChart('color-chart', dists.color, '색상');
+            if (dists.pattern_corner) renderCurveChart('pattern-corner-chart', dists.pattern_corner, '개');
+            if (dists.pattern_triangle) renderCurveChart('pattern-triangle-chart', dists.pattern_triangle, '개');
 
-            // 5. 전문 지표 (AC, Span 정규분포 적용)
-            if (dists.ac) renderDistChart('ac-chart', dists.ac, '', true, stats.ac);
-            if (dists.span) renderDistChart('span-chart', dists.span, '', true, stats.span);
-            if (dists.end_sum) renderDistChart('end-sum-chart', dists.end_sum, '', true);
+            // 5. 전문 지표 (AC, Span 곡선 적용)
+            if (dists.ac) renderCurveChart('ac-chart', dists.ac, '', stats.ac);
+            if (dists.span) renderCurveChart('span-chart', dists.span, '', stats.span);
+            if (dists.end_sum) renderCurveChart('end-sum-chart', dists.end_sum, '');
 
             // 공통: 최근 6회차 미니 테이블
             if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));
@@ -107,20 +107,34 @@ function renderMiniTables(draws) {
     });
 }
 
-function renderDistChart(elementId, distData, unit = '개', autoSort = false, statSummary = null) {
+/**
+ * SVG 곡선 차트 렌더러
+ */
+function renderCurveChart(elementId, distData, unit = '개', statSummary = null) {
     const container = document.getElementById(elementId);
     if (!container) return;
     container.innerHTML = '';
-    
-    let entries = Array.isArray(distData) ? distData : Object.entries(distData);
-    if (autoSort && !Array.isArray(distData)) {
-        entries.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
+
+    const entries = Array.isArray(distData) ? distData : Object.entries(distData);
+    // 숫자형 라벨 정렬
+    if (!Array.isArray(distData)) {
+        entries.sort((a, b) => {
+            const valA = parseFloat(a[0].includes('-') ? a[0].split('-')[0] : a[0]);
+            const valB = parseFloat(b[0].includes('-') ? b[0].split('-')[0] : b[0]);
+            return valA - valB;
+        });
     }
+
+    const width = container.clientWidth || 600;
+    const height = 180;
+    const padding = 40;
+    const chartWidth = width - padding * 2;
+    const chartHeight = height - 40;
 
     const values = entries.map(e => e[1]);
     const maxVal = Math.max(...values, 1);
-    
-    // 로컬 스토리지에서 내 최근 번호 분석 값 가져오기
+
+    // 내 위치 값 계산
     const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
     let myCurrentVal = null;
     if (savedNumbers) {
@@ -130,41 +144,96 @@ function renderDistChart(elementId, distData, unit = '개', autoSort = false, st
         else if (elementId.includes('span')) myCurrentVal = nums[5] - nums[0];
     }
 
-    entries.forEach(([label, value, percentage]) => {
-        const height = (value / maxVal) * 85;
-        const bar = document.createElement('div');
-        bar.className = 'dist-bar';
-        
-        // 정규분포 골든존 및 평균 하이라이트
-        if (statSummary) {
-            const val = parseFloat(label);
-            if (!isNaN(val)) {
-                const diff = Math.abs(val - statSummary.mean);
-                if (diff <= statSummary.std) bar.classList.add('golden-zone');
-                if (diff < statSummary.std * 0.2) bar.classList.add('is-mean');
-                
-                // 내 위치 표시
-                if (myCurrentVal !== null) {
-                    // 범위형 라벨(Sum 등) 처리
-                    if (label.includes('-')) {
-                        const [min, max] = label.split('-').map(Number);
-                        if (myCurrentVal >= min && myCurrentVal <= max) bar.classList.add('current-pos');
-                    } else if (Math.round(myCurrentVal) === Math.round(val)) {
-                        bar.classList.add('current-pos');
-                    }
-                }
-            }
-        } else {
-            bar.classList.add('golden-zone'); // 일반 지표는 기본 강조
-        }
-
-        bar.style.height = `${Math.max(height, 5)}%`;
-        const displayVal = percentage ? `${value}<br><small style="font-size:0.6rem">${percentage}</small>` : value;
-        const displayLabel = (label.includes(':') || label.includes('회전') || label.includes('개') || label.includes(' ') || isNaN(label) ? label : label + unit);
-        
-        bar.innerHTML = `<span class="dist-value">${displayVal}</span><span class="dist-label">${displayLabel}</span>`;
-        container.appendChild(bar);
+    // 좌표 계산
+    const points = entries.map((e, i) => {
+        const x = padding + (i / (entries.length - 1)) * chartWidth;
+        const y = (height - 20) - (e[1] / maxVal) * chartHeight;
+        return { x, y, label: e[0], value: e[1], percentage: e[2] };
     });
+
+    // SVG 생성
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("class", "dist-curve-svg");
+
+    // 1. 영역 채우기 (Area)
+    const areaPathData = `M ${points[0].x},${height - 20} ` + 
+        points.map(p => `L ${p.x},${p.y}`).join(' ') + 
+        ` L ${points[points.length-1].x},${height - 20} Z`;
+    
+    const areaPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    areaPath.setAttribute("d", areaPathData);
+    areaPath.setAttribute("class", "area-path");
+    svg.appendChild(areaPath);
+
+    // 2. 골든존 채우기 (정규분포 요약이 있을 경우)
+    if (statSummary) {
+        const goldenPoints = points.filter(p => {
+            const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
+            return Math.abs(val - statSummary.mean) <= statSummary.std;
+        });
+        if (goldenPoints.length > 1) {
+            const goldenPathData = `M ${goldenPoints[0].x},${height - 20} ` + 
+                goldenPoints.map(p => `L ${p.x},${p.y}`).join(' ') + 
+                ` L ${goldenPoints[goldenPoints.length-1].x},${height - 20} Z`;
+            const goldenPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            goldenPath.setAttribute("d", goldenPathData);
+            goldenPath.setAttribute("class", "golden-zone-path");
+            svg.appendChild(goldenPath);
+        }
+    }
+
+    // 3. 곡선 (Curve)
+    const curvePathData = `M ${points[0].x},${points[0].y} ` + 
+        points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
+    const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    curvePath.setAttribute("d", curvePathData);
+    curvePath.setAttribute("class", "curve-path");
+    svg.appendChild(curvePath);
+
+    // 4. 포인트 및 라벨
+    points.forEach((p, i) => {
+        // 포인트 마커
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", p.x);
+        circle.setAttribute("cy", p.y);
+        circle.setAttribute("r", 4);
+        circle.setAttribute("class", "curve-point");
+        
+        // 내 위치 마커 체크
+        if (myCurrentVal !== null) {
+            let isMine = false;
+            if (p.label.includes('-')) {
+                const [min, max] = p.label.split('-').map(Number);
+                if (myCurrentVal >= min && myCurrentVal <= max) isMine = true;
+            } else if (Math.round(myCurrentVal) === Math.round(parseFloat(p.label))) {
+                isMine = true;
+            }
+            if (isMine) circle.setAttribute("class", "curve-point my-pos-marker");
+        }
+        svg.appendChild(circle);
+
+        // 데이터 값 라벨 (상단)
+        const textVal = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textVal.setAttribute("x", p.x);
+        textVal.setAttribute("y", p.y - 10);
+        textVal.setAttribute("text-anchor", "middle");
+        textVal.setAttribute("class", "axis-label");
+        textVal.style.fontSize = "0.55rem";
+        textVal.textContent = p.value;
+        svg.appendChild(textVal);
+
+        // X축 라벨 (하단)
+        const textLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textLabel.setAttribute("x", p.x);
+        textLabel.setAttribute("y", height - 2);
+        textLabel.setAttribute("text-anchor", "middle");
+        textLabel.setAttribute("class", "axis-label");
+        textLabel.textContent = p.label + (isNaN(p.label) ? "" : unit);
+        svg.appendChild(textLabel);
+    });
+
+    container.appendChild(svg);
 }
 
 function calculate_ac(nums) {
