@@ -52,31 +52,32 @@ function updateGuideStats(data) {
     };
 
     // 하이라이트 박스 및 팁 업데이트 함수
-    const updateSection = (idPrefix, statKey, distKey) => {
+    const updateSection = (idPrefix, statKey, distKey, subLabel = '') => {
         const container = document.getElementById(`${idPrefix}-stat-container`);
         const tipElem = document.getElementById(`${idPrefix}-tip`);
         const info = getZoneInfo(statKey, stats[statKey], dists[distKey]);
 
         if (info) {
-            // 1. 통계 하이라이트 업데이트 (요청하신 한 줄 형식)
+            // 1. 통계 하이라이트 업데이트
             if (container) {
+                const title = subLabel ? `📊 ${subLabel} 결과:` : `📊 실제 통계 결과:`;
                 container.innerHTML = `<div class="stat-highlight" style="line-height:1.8;">
-                    📊 실제 통계 결과: 통계적 <span class="text-optimal">옵티멀 존은 "${info.optimal}" ${formatStat(info.optHits, total)}</span>, 
+                    ${title} 통계적 <span class="text-optimal">옵티멀 존은 "${info.optimal}" ${formatStat(info.optHits, total)}</span>, 
                     <span class="text-safe">세이프 존은 "${info.safe}" ${formatStat(info.safeHits, total)}</span>
                 </div>`;
             }
 
-            // 2. 공략 팁 업데이트 (요청하신 압축 형식)
-            if (tipElem) {
+            // 2. 공략 팁 업데이트 (메인 항목에 대해서만)
+            if (tipElem && !subLabel) {
                 const subjects = {
                     'sum': '합계 수치는',
                     'oe': '홀수 개수는',
                     'hl': '저번호 개수는',
-                    'carry': '이월수(1~3회전) 중복 개수는',
+                    'carry': '이월수(직전 1회차) 중복 개수는',
                     'special': '소수 포함 개수는',
                     'consecutive': '연번 쌍의 개수는',
                     'end-digit': '동끝수 출현 개수는',
-                    'bucket': '구간 점유 개수는',
+                    'bucket-15': '구간 점유 개수는',
                     'pattern': '모서리 영역 포함 개수는'
                 };
                 const subject = subjects[idPrefix] || '해당 지표는';
@@ -89,10 +90,26 @@ function updateGuideStats(data) {
     updateSection('sum', 'sum', 'sum');
     updateSection('oe', 'odd_count', 'odd_even');
     updateSection('hl', 'low_count', 'high_low');
-    updateSection('carry', 'period_1', 'period_1');
-    updateSection('special', 'prime', 'prime');
+    
+    // 이월수 및 1~3회전
+    updateSection('carry', 'period_1', 'period_1', '이월수(직전 1회차)');
+    updateSection('carry-3', 'period_1_3', 'period_1_3', '최근 1~3회전 합계');
+    
+    // 특수번호
+    updateSection('special', 'prime', 'prime', '소수(Prime) 개수');
+    updateSection('special-3', 'multiple_3', 'multiple_3', '3의 배수 개수');
+    
     updateSection('consecutive', 'consecutive', 'consecutive');
     updateSection('end-digit', 'same_end', 'same_end');
-    updateSection('bucket', 'bucket_15', 'bucket_15');
-    updateSection('pattern', 'pattern_corner', 'pattern_corner');
+    
+    // 다단계 구간
+    updateSection('bucket-15', 'bucket_15', 'bucket_15', '15분할(3개씩) 점유');
+    updateSection('bucket-9', 'bucket_9', 'bucket_9', '9분할(5개씩) 점유');
+    updateSection('bucket-3', 'bucket_3', 'bucket_3', '3분할(15개씩) 점유');
+    
+    // 용지 패턴 및 인덱스
+    updateSection('pattern', 'pattern_corner', 'pattern_corner', '모서리 영역 포함');
+    updateSection('pattern-ac', 'ac', 'ac', 'AC(산술적 복잡도)');
+    updateSection('pattern-span', 'span', 'span', 'Span(번호 간격)');
+    updateSection('pattern-color', 'color', 'color', '포함된 색상 수');
 }
