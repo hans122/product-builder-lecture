@@ -51,7 +51,7 @@ function renderHistoryTable(draws) {
         const tr = document.createElement('tr');
         const ballsHtml = draw.nums.map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
         
-        // 데이터 누락 방지를 위한 기본값 처리
+        // 데이터 누락 방지를 위한 기본값 처리 및 매핑 확인
         const p1 = draw.period_1 !== undefined ? draw.period_1 : '-';
         const p1_2 = draw.period_1_2 !== undefined ? draw.period_1_2 : '-';
         const p1_3 = draw.period_1_3 !== undefined ? draw.period_1_3 : '-';
@@ -63,8 +63,10 @@ function renderHistoryTable(draws) {
         const double = draw.double !== undefined ? draw.double : '-';
         const ac = draw.ac !== undefined ? draw.ac : '-';
         const span = draw.span !== undefined ? draw.span : '-';
-        const b3 = draw.b15 !== undefined ? draw.b15 : '-'; // 3분할(15개씩)
-        const b15 = draw.b3 !== undefined ? draw.b3 : '-'; // 15분할(3개씩)
+        
+        // DATA_SCHEMA v1.4 기준: b15는 3분할, b3는 15분할
+        const div3 = draw.b15 !== undefined ? draw.b15 : '-';
+        const div15 = draw.b3 !== undefined ? draw.b3 : '-';
         const color = draw.color !== undefined ? draw.color : '-';
 
         tr.innerHTML = `
@@ -84,8 +86,8 @@ function renderHistoryTable(draws) {
             <td class="stat-val">${double}</td>
             <td class="stat-val">${ac}</td>
             <td class="stat-val">${span}</td>
-            <td class="stat-val">${b3}</td>
-            <td class="stat-val">${b15}</td>
+            <td class="stat-val">${div3}</td>
+            <td class="stat-val">${div15}</td>
             <td class="stat-val">${color}</td>
         `;
         tbody.appendChild(tr);

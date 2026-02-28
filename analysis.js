@@ -21,9 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dists.composite) renderDistChart('composite-chart', dists.composite, '개', true);
             if (dists.multiple_3) renderDistChart('multiple-3-chart', dists.multiple_3, '개', true);
             if (dists.multiple_5) renderDistChart('multiple-5-chart', dists.multiple_5, '개', true);
+            if (dists.square) renderDistChart('square-chart', dists.square, '개', true);
+            if (dists.double_num) renderDistChart('double-chart', dists.double_num, '개', true);
             if (dists.same_end) renderDistChart('same-end-chart', dists.same_end, '개', true);
 
-            // 3. 상관관계
+            // 3. 상관관계 (이월, 1~2회전, 1~3회전)
             if (dists.period_1) renderDistChart('period-1-chart', dists.period_1, '개', true);
             if (dists.period_1_2) {
                 const data1_2 = Object.entries(dists.period_1_2).map(([k, v]) => [`${k}개`, v, `${((v/total)*100).toFixed(1)}%`]);
@@ -33,6 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data1_3 = Object.entries(dists.period_1_3).map(([k, v]) => [`${k}개`, v, `${((v/total)*100).toFixed(1)}%`]);
                 renderDistChart('period-1-3-chart', data1_3, '회');
             }
+            if (dists.neighbor) renderDistChart('neighbor-chart', dists.neighbor, '개', true);
+            if (dists.consecutive) renderDistChart('consecutive-chart', dists.consecutive, '쌍', true);
 
             // 4. 구간 및 패턴
             if (dists.bucket_15) renderDistChart('bucket-15-chart', dists.bucket_15, '구간', true);
@@ -86,10 +90,14 @@ function renderMiniTables(draws) {
         { id: 'composite-mini-body', key: 'composite' },
         { id: 'multiple-3-mini-body', key: 'multiple_3' },
         { id: 'multiple-5-mini-body', key: 'm5' },
+        { id: 'square-mini-body', key: 'square' },
+        { id: 'double-mini-body', key: 'double' },
         { id: 'same-end-mini-body', key: 'same_end' },
         { id: 'period-1-mini-body', key: 'period_1' },
         { id: 'period-1-2-mini-body', key: 'period_1_2' },
         { id: 'period-1-3-mini-body', key: 'period_1_3' },
+        { id: 'neighbor-mini-body', key: 'neighbor' },
+        { id: 'consecutive-mini-body', key: 'consecutive' },
         { id: 'bucket-15-mini-body', key: 'b15' },
         { id: 'bucket-9-mini-body', key: 'b9' },
         { id: 'bucket-5-mini-body', key: 'b5' },
@@ -136,8 +144,8 @@ function renderDistChart(elementId, distData, unit = '개', autoSort = false) {
         const bar = document.createElement('div');
         bar.className = 'dist-bar';
         bar.style.height = `${Math.max(height, 5)}%`;
-        const displayVal = percentage ? `${value}<br><small>${percentage}</small>` : value;
-        const displayLabel = (label.includes(':') || label.includes('회전') || label.includes(' ') || isNaN(label) ? label : label + unit);
+        const displayVal = percentage ? `${value}<br><small style="font-size:0.6rem">${percentage}</small>` : value;
+        const displayLabel = (label.includes(':') || label.includes('회전') || label.includes('개') || isNaN(label) ? label : label + unit);
         bar.innerHTML = `<span class="dist-value">${displayVal}</span><span class="dist-label">${displayLabel}</span>`;
         container.appendChild(bar);
     });
