@@ -112,7 +112,7 @@ function analyzeNumbers(numbers) {
         // 이월수 누적 출현 분석 업데이트
         const totalDraws = statsData.total_draws;
         const cumData = statsData.distributions.period_1_cum;
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 2; i <= 3; i++) {
             const target = document.getElementById(`p1-cum-${i}`);
             if (target && cumData) {
                 const count = cumData[`1~${i}`] || 0;

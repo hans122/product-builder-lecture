@@ -253,7 +253,7 @@ function runDetailedAnalysis() {
         const cum3Count = cumData["1~3"] || 0;
         const cum3Prob = ((cum3Count / totalDraws) * 100).toFixed(1);
         if (period1Count >= 1 && period1Count <= 3) {
-            addReportRow('이월수 누적', '1~3개 범위', '최적', `역대 당첨의 ${cum3Prob}%가 이 범위에 해당하여 매우 안정적입니다.`);
+            addReportRow('이월수 누적', '1~3개 범위', '최적', `역대 당첨의 ${cum3Prob}%가 1~3개 범위에 해당하여 매우 안정적입니다.`);
         } else {
             addReportRow('이월수 누적', '범위 외', '주의', `역대 당첨의 대부분(${cum3Prob}%)이 1~3개 범위에서 발생합니다.`);
         }
