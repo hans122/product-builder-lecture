@@ -98,16 +98,50 @@ function updateSelectedBallsDisplay() {
     analyzeBtn.disabled = selectedNumbers.length !== 6;
 }
 
+function getZones(frequency) {
+    const sortedFreq = Object.entries(frequency)
+        .map(([num, freq]) => ({ num: parseInt(num), freq }))
+        .sort((a, b) => b.freq - a.freq);
+    
+    return {
+        gold: sortedFreq.slice(0, 9).map(x => x.num),
+        silver: sortedFreq.slice(9, 23).map(x => x.num),
+        normal: sortedFreq.slice(23, 36).map(x => x.num),
+        cold: sortedFreq.slice(36).map(x => x.num)
+    };
+}
+
+function getRandomFrom(array, count) {
+    const shuffled = [...array].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
 function autoSelect() {
     resetSelection();
     const btns = document.querySelectorAll('.select-ball');
-    while (selectedNumbers.length < 6) {
-        const num = Math.floor(Math.random() * 45) + 1;
-        if (!selectedNumbers.includes(num)) {
-            selectedNumbers.push(num);
-            btns[num-1].classList.add('selected');
+    
+    if (!statsData || !statsData.frequency) {
+        while (selectedNumbers.length < 6) {
+            const num = Math.floor(Math.random() * 45) + 1;
+            if (!selectedNumbers.includes(num)) {
+                selectedNumbers.push(num);
+            }
         }
+    } else {
+        const zones = getZones(statsData.frequency);
+        selectedNumbers = [
+            ...getRandomFrom(zones.gold, 2),
+            ...getRandomFrom(zones.silver, 2),
+            ...getRandomFrom(zones.normal, 1),
+            ...getRandomFrom(zones.cold, 1)
+        ];
     }
+
+    selectedNumbers.forEach(num => {
+        const btn = btns[num-1];
+        if (btn) btn.classList.add('selected');
+    });
+    
     updateSelectedBallsDisplay();
 }
 
@@ -128,6 +162,19 @@ function runDetailedAnalysis() {
     
     let totalScore = 100;
     const nums = [...selectedNumbers].sort((a, b) => a - b);
+
+    // [G0] 파레토 영역 분석 (추가된 부분)
+    if (statsData.frequency) {
+        const zones = getZones(statsData.frequency);
+        const gCnt = nums.filter(n => zones.gold.includes(n)).length;
+        const sCnt = nums.filter(n => zones.silver.includes(n)).length;
+        const nCnt = nums.filter(n => zones.normal.includes(n)).length;
+        const cCnt = nums.filter(n => zones.cold.includes(n)).length;
+        
+        addReportRow('[G0] 파레토 영역', `G:${gCnt}/S:${sCnt}/N:${nCnt}/C:${cCnt}`, 
+            (gCnt >= 1 && gCnt <= 3) ? '최적' : '보통', 
+            `골드(${gCnt}), 실버(${sCnt}) 비중 분석입니다. (추천: 2:2:1:1)`);
+    }
 
     // [G1] 기본 균형
     const sum = nums.reduce((a, b) => a + b, 0);

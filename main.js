@@ -178,12 +178,46 @@ function renderNumbers(numbers, useAnimation = true) {
     });
 }
 
+function getZones(frequency) {
+    const sortedFreq = Object.entries(frequency)
+        .map(([num, freq]) => ({ num: parseInt(num), freq }))
+        .sort((a, b) => b.freq - a.freq);
+    
+    return {
+        gold: sortedFreq.slice(0, 9).map(x => x.num),
+        silver: sortedFreq.slice(9, 23).map(x => x.num),
+        normal: sortedFreq.slice(23, 36).map(x => x.num),
+        cold: sortedFreq.slice(36).map(x => x.num)
+    };
+}
+
+function getRandomFrom(array, count) {
+    const shuffled = [...array].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
 document.getElementById('generate-btn')?.addEventListener('click', function() {
-    const numbers = [];
-    while(numbers.length < 6) {
-        const num = Math.floor(Math.random() * 45) + 1;
-        if(!numbers.includes(num)) numbers.push(num);
+    if (!statsData || !statsData.frequency) {
+        // 데이터가 없으면 기존 방식(랜덤)으로 생성
+        const numbers = [];
+        while(numbers.length < 6) {
+            const num = Math.floor(Math.random() * 45) + 1;
+            if(!numbers.includes(num)) numbers.push(num);
+        }
+        numbers.sort((a, b) => a - b);
+        localStorage.setItem('lastGeneratedNumbers', JSON.stringify(numbers));
+        renderNumbers(numbers, true);
+        return;
     }
+
+    const zones = getZones(statsData.frequency);
+    let numbers = [
+        ...getRandomFrom(zones.gold, 2),
+        ...getRandomFrom(zones.silver, 2),
+        ...getRandomFrom(zones.normal, 1),
+        ...getRandomFrom(zones.cold, 1)
+    ];
+
     numbers.sort((a, b) => a - b);
     localStorage.setItem('lastGeneratedNumbers', JSON.stringify(numbers));
     renderNumbers(numbers, true);

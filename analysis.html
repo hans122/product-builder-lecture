@@ -29,17 +29,34 @@
             </div>
             <div class="intro-text-section">
                 <p class="subtitle">5대 표준 분류 체계에 따른 역대 당첨 데이터 정밀 분석</p>
+                <div class="header-legend">
+                    <span class="legend-item"><span class="legend-box golden"></span> <strong>골드 존 (Gold):</strong> 상위 20% 이내 핵심</span>
+                    <span class="legend-item"><span class="legend-box silver"></span> <strong>실버 존 (Silver):</strong> 상위 50% 이내 확장</span>
+                    <span class="legend-item"><span class="legend-box danger"></span> <strong>위험 구간:</strong> 통계적 희귀 구간</span>
+                </div>
             </div>
         </div>
     </header>
 
     <div class="container wide">
-        <!-- 차트 범례 안내 -->
-        <div class="analysis-legend-card">
-            <div class="legend-item golden-txt"><span class="legend-box golden"></span> <strong>골든 존(Golden Zone):</strong> 역대 당첨 데이터의 약 68%가 밀집된 고확률 구간 (평균 ± 1표준편차)</div>
-            <div class="legend-item danger-txt"><span class="legend-box danger"></span> <strong>위험 구간:</strong> 출현 빈도가 극히 낮은 통계적 희귀 구간</div>
-            <div class="legend-item my-pos-txt"><span class="legend-box my-pos"></span> <strong>내 번호:</strong> 현재 생성된 번호의 통계적 위치 (깜빡이는 빨간 점)</div>
-        </div>
+        <!-- [G0] 파레토 분포 -->
+        <div class="group-header">📍 [G0] 파레토 법칙 (빈도 집중도)</div>
+        <section class="analysis-card" id="pareto-section">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>📊 영역별 출현 빈도 (Pareto Distribution)</h3>
+                    <div id="pareto-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <h4>💡 분석 가이드</h4>
+                    <div class="analysis-guide-text">
+                        <p><strong>골드존 (9개):</strong> 상위 20% 번호군이 전체 당첨의 약 22%를 점유합니다.</p>
+                        <p><strong>실버존 (14개):</strong> 골드존을 포함한 상위 50% 번호군이 전체의 54%를 점유합니다.</p>
+                        <p>추천 조합 비중: <strong>2:2:1:1</strong> (골드:실버:일반:콜드)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- [G1] 기본 균형 -->
         <div class="group-header">📍 [G1] 기본 균형 및 합계</div>

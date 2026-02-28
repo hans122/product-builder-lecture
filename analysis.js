@@ -7,6 +7,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const total = data.total_draws;
             const stats = data.stats_summary || {};
 
+            // 0. 파레토 분포 차트 (추가)
+            if (data.frequency) {
+                renderParetoChart(data.frequency);
+            }
+
+            // 0. 파레토 분포 차트 (추가)
+            if (data.frequency) {
+                renderParetoChart(data.frequency);
+            }
+
             // 1. 기본 및 합계
             if (dists.sum) {
                 const sumOrder = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
@@ -64,6 +74,78 @@ document.addEventListener('DOMContentLoaded', function() {
 
     restoreMyNumbers();
 });
+
+function getZones(frequency) {
+    const sortedFreq = Object.entries(frequency)
+        .map(([num, freq]) => ({ num: parseInt(num), freq }))
+        .sort((a, b) => b.freq - a.freq);
+    
+    return {
+        gold: sortedFreq.slice(0, 9),
+        silver: sortedFreq.slice(9, 23),
+        normal: sortedFreq.slice(23, 36),
+        cold: sortedFreq.slice(36)
+    };
+}
+
+function renderParetoChart(frequency) {
+    const container = document.getElementById('pareto-chart');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const zones = getZones(frequency);
+    const zoneData = [
+        { label: 'Gold (Top 20%)', count: zones.gold.length, hits: zones.gold.reduce((a, b) => a + b.freq, 0), color: 'rgba(241, 196, 15, 0.7)' },
+        { label: 'Silver (Next 30%)', count: zones.silver.length, hits: zones.silver.reduce((a, b) => a + b.freq, 0), color: 'rgba(52, 152, 219, 0.7)' },
+        { label: 'Normal (Next 30%)', count: zones.normal.length, hits: zones.normal.reduce((a, b) => a + b.freq, 0), color: 'rgba(149, 165, 166, 0.7)' },
+        { label: 'Cold (Bottom 20%)', count: zones.cold.length, hits: zones.cold.reduce((a, b) => a + b.freq, 0), color: 'rgba(231, 76, 60, 0.7)' }
+    ];
+
+    const totalHits = zoneData.reduce((a, b) => a + b.hits, 0);
+    const maxHits = Math.max(...zoneData.map(d => d.hits));
+
+    zoneData.forEach(data => {
+        const percentage = ((data.hits / totalHits) * 100).toFixed(1);
+        const barWrapper = document.createElement('div');
+        barWrapper.className = 'bar-wrapper horizontal';
+        barWrapper.style.display = 'flex';
+        barWrapper.style.alignItems = 'center';
+        barWrapper.style.marginBottom = '10px';
+        barWrapper.style.width = '100%';
+
+        const label = document.createElement('div');
+        label.style.width = '120px';
+        label.style.fontSize = '0.8rem';
+        label.style.fontWeight = 'bold';
+        label.innerText = data.label;
+
+        const track = document.createElement('div');
+        track.style.flex = '1';
+        track.style.height = '24px';
+        track.style.backgroundColor = '#ecf0f1';
+        track.style.borderRadius = '12px';
+        track.style.overflow = 'hidden';
+        track.style.margin = '0 15px';
+
+        const bar = document.createElement('div');
+        bar.style.height = '100%';
+        bar.style.width = `${(data.hits / maxHits) * 100}%`;
+        bar.style.backgroundColor = data.color;
+        bar.style.transition = 'width 1s ease-out';
+        track.appendChild(bar);
+
+        const val = document.createElement('div');
+        val.style.width = '80px';
+        val.style.fontSize = '0.85rem';
+        val.style.fontWeight = 'bold';
+        val.innerText = `${percentage}%`;
+
+        barWrapper.appendChild(label);
+        barWrapper.appendChild(track);
+        barWrapper.appendChild(val);
+        container.appendChild(barWrapper);
+    });
+}
 
 function renderMiniTables(draws) {
     const config = [
@@ -177,14 +259,22 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    // 1. 배경 위험 구간 (연한 빨강)
-    const dangerRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    dangerRect.setAttribute("x", padding); dangerRect.setAttribute("y", baselineY - chartHeight);
-    dangerRect.setAttribute("width", chartWidth); dangerRect.setAttribute("height", chartHeight);
-    dangerRect.setAttribute("fill", "rgba(231, 76, 60, 0.08)");
-    svg.appendChild(dangerRect);
+    // 1. 실버 존 (±2σ, 95% 범위)
+    if (statSummary) {
+        const silverPoints = points.filter(p => {
+            const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
+            return !isNaN(val) && Math.abs(val - statSummary.mean) <= statSummary.std * 2;
+        });
+        if (silverPoints.length > 1) {
+            const sPathData = `M ${silverPoints[0].x},${baselineY} ` + silverPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${silverPoints[silverPoints.length-1].x},${baselineY} Z`;
+            const sPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            sPath.setAttribute("d", sPathData);
+            sPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)"); // 매우 연한 파랑
+            svg.appendChild(sPath);
+        }
+    }
 
-    // 2. 골든 존 영역 (Green Area)
+    // 2. 골드 존 (±1σ, 68% 범위)
     let goldenPoints = [];
     if (statSummary) {
         goldenPoints = points.filter(p => {
@@ -192,7 +282,6 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
             return !isNaN(val) && Math.abs(val - statSummary.mean) <= statSummary.std;
         });
     } else {
-        // 수치 요약이 없는 경우(범주형), 상위 50% 이상 값을 가진 포인트들을 골든존으로 간주
         goldenPoints = points.filter(p => p.value >= maxVal * 0.5);
     }
 
@@ -200,7 +289,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         const gPathData = `M ${goldenPoints[0].x},${baselineY} ` + goldenPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${goldenPoints[goldenPoints.length-1].x},${baselineY} Z`;
         const gPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
         gPath.setAttribute("d", gPathData);
-        gPath.setAttribute("fill", "rgba(39, 174, 96, 0.35)");
+        gPath.setAttribute("fill", "rgba(241, 196, 15, 0.2)"); // 매우 연한 금색
         svg.appendChild(gPath);
     }
 
@@ -230,7 +319,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         }
     }
 
-    // 5. 포인트 및 마커 (내 위치는 마지막에 그려서 가장 위에 오도록 함)
+    // 5. 포인트 및 마커
     points.forEach(p => {
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
@@ -244,7 +333,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         svg.appendChild(txt);
     });
 
-    // 내 위치 마커를 별도로 한 번 더 그림 (Z-index 최상단 효과)
+    // 내 위치 마커 최상단
     points.forEach(p => {
         let isMine = false;
         if (myCurrentVal !== null) {
@@ -261,7 +350,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
             const myCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             myCircle.setAttribute("cx", p.x); myCircle.setAttribute("cy", p.y);
             myCircle.setAttribute("r", 8);
-            myCircle.setAttribute("class", "my-pos-marker"); // CSS 애니메이션 적용
+            myCircle.setAttribute("class", "my-pos-marker");
             svg.appendChild(myCircle);
 
             const myLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");

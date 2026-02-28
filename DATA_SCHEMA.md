@@ -1,21 +1,21 @@
-# DATA_SCHEMA.md - Variable & Data Structures (v3.1)
+# DATA_SCHEMA.md - Variable & Data Structures (v3.2)
 
 ## 1. 통계 시각화 정책 (Scientific Visualization)
-모든 통계 지표는 역대 당첨 데이터의 확률 분포를 곡선형(Area Chart)으로 보여주며, 사용자의 번호가 통계적으로 어느 지점에 위치하는지 실시간으로 추적한다.
+모든 통계 지표는 역대 당첨 데이터의 확률 분포를 곡선형(Area Chart) 및 파레토 분포형(Horizontal Bar)으로 보여주며, 사용자의 번호가 통계적으로 어느 지점에 위치하는지 실시간으로 추적한다.
 
 ### 시각 요소 및 범례 정의
-- **골든 존(Golden Zone) - [Green]:**
-    - 의미: 역대 당첨 데이터의 약 68%가 집중된 고출현 구간.
-    - 기준: 
-        - 연속형(G1 합계, G5 AC/Span 등): 평균($\mu$) $\pm$ 1표준편차($\sigma$) 범위.
-        - 범주형(G1 홀짝, G3 소수 등): 역대 출현 빈도 상위 50% 이상의 핵심 구간.
-- **위험 구간(Danger Zone) - [Pale Red]:**
-    - 의미: 출현 확률이 매우 낮은 통계적 극단값(Outliers) 구간.
-- **내 번호 위치(My Position) - [Red Circle]:**
+- **골드 존 (Gold) - [Golden]:**
+    - 의미: 파레토 법칙에 따른 출현 빈도 상위 20% 핵심 번호군.
+    - 확률 점유: 전체 당첨의 약 22% 집중.
+- **실버 존 (Silver) - [Blue]:**
+    - 의미: 골드존을 포함한 상위 50% 확장 번호군.
+    - 확률 점유: 전체 당첨의 약 54% 이상 점유.
+- **위험 구간 (Danger Zone) - [Red]:**
+    - 의미: 출현 확률이 매우 낮은 통계적 극단값 또는 콜드 번호 구간.
+- **내 번호 위치 (My Position) - [Pulse Red Circle]:**
     - 의미: 현재 사용자가 생성한 번호 조합의 지표별 통계적 위치.
-    - 특징: 각 차트의 X축 기준이 다르므로 지표마다 위치가 유동적으로 변함(정상적인 분석 결과).
 
-## 2. 실시간 분석 엔진 (analysis.js)
-- `renderCurveChart()`: 전체 데이터 렌더링 후 '내 번호' 마커를 최상단 레이어에 배치.
-- 애니메이션: `.my-pos-marker` 클래스를 통해 깜빡이는(Pulse) 효과 적용.
-- 상단 고정 범례: 사용자가 스크롤 중에도 구간의 의미를 잊지 않도록 하이브리드 고정 레이아웃 사용.
+## 2. 실시간 분석 엔진 (analysis.js / main.js)
+- `getZones()`: 최신 빈도 데이터를 기반으로 4단계 파레토 영역(Gold, Silver, Normal, Cold) 실시간 산출.
+- `renderParetoChart()`: 영역별 확률 점유 비중을 수평 막대 차트로 시각화.
+- `autoSelect()`: 2:2:1:1 비중 기반의 전략적 번호 자동 추출 알고리즘.
