@@ -246,6 +246,19 @@ function runDetailedAnalysis() {
     }
     addReportRow('이월수', `${period1Count}개`, p1Status, p1Opinion);
 
+    // 이월수 누적 통계 의견 추가
+    const cumData = statsData.distributions.period_1_cum;
+    if (cumData) {
+        const totalDraws = statsData.total_draws;
+        const cum3Count = cumData["1~3"] || 0;
+        const cum3Prob = ((cum3Count / totalDraws) * 100).toFixed(1);
+        if (period1Count >= 1 && period1Count <= 3) {
+            addReportRow('이월수 누적', '1~3개 범위', '최적', `역대 당첨의 ${cum3Prob}%가 이 범위에 해당하여 매우 안정적입니다.`);
+        } else {
+            addReportRow('이월수 누적', '범위 외', '주의', `역대 당첨의 대부분(${cum3Prob}%)이 1~3개 범위에서 발생합니다.`);
+        }
+    }
+
     // 5. 이웃수 분석 (주변번호)
     const neighbors = new Set();
     statsData.last_draw_numbers.forEach(n => {

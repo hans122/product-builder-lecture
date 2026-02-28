@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (!data) return;
             const dists = data.distributions;
+            const total = data.total_draws;
 
             if (dists) {
                 // 1. 기본 비율
@@ -37,13 +38,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // 5. 전문 기술적 지표
                 if (dists.ac) {
-                    const acGrouped = {"6 이하": 0, "7": 0, "8": 0, "9": 0, "10": 0};
-                    Object.entries(dists.ac).forEach(([val, count]) => {
-                        const v = parseInt(val);
-                        if (v <= 6) acGrouped["6 이하"] += count;
-                        else if (acGrouped[val] !== undefined) acGrouped[val] = count;
+                    const order = ["6 이하", "7", "8", "9", "10"];
+                    const acData = order.map(label => {
+                        let count = 0;
+                        if (label === "6 이하") {
+                            Object.entries(dists.ac).forEach(([v, c]) => { if (parseInt(v) <= 6) count += c; });
+                        } else {
+                            count = dists.ac[label] || 0;
+                        }
+                        return [label, count];
                     });
-                    renderDistChart('ac-chart', acGrouped, '');
+                    renderDistChart('ac-chart', acData, '');
                 }
                 if (dists.span) {
                     const spanGrouped = {"25 미만": 0, "25-29": 0, "30-34": 0, "35-39": 0, "40 이상": 0};
@@ -58,11 +63,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     renderDistChart('span-chart', spanGrouped, '');
                 }
 
-                // 6. 기존 항목들
+                // 6. 기존 항목들 및 누적 이월수
                 if (dists.period_1) {
                     const sortedPeriod1 = {};
                     for(let i=0; i<=6; i++) if (dists.period_1[i] !== undefined) sortedPeriod1[i] = dists.period_1[i];
                     renderDistChart('period-1-chart', sortedPeriod1, '개');
+                }
+                if (dists.period_1_cum) {
+                    const cumData = Object.entries(dists.period_1_cum).map(([label, val]) => {
+                        const prob = ((val / total) * 100).toFixed(1);
+                        return [label, val, `${prob}%`];
+                    });
+                    renderDistChart('period-1-cum-chart', cumData, '회');
                 }
                 if (dists.neighbor) {
                     const sortedNeighbor = {};
@@ -163,14 +175,23 @@ function renderDistChart(elementId, distData, unit = '개') {
     const container = document.getElementById(elementId);
     if(!container) return;
     container.innerHTML = '';
-    const entries = Object.entries(distData);
-    const maxVal = Math.max(...Object.values(distData), 1);
-    entries.forEach(([label, value]) => {
+    
+    let entries, values;
+    if (Array.isArray(distData)) {
+        entries = distData;
+        values = distData.map(e => e[1]);
+    } else {
+        entries = Object.entries(distData);
+        values = Object.values(distData);
+    }
+    
+    const maxVal = Math.max(...values, 1);
+    entries.forEach(([label, value, extraLabel]) => {
         const height = (value / maxVal) * 80;
         const bar = document.createElement('div');
         bar.className = 'dist-bar';
         bar.style.height = `${Math.max(height, 5)}%`;
-        const displayLabel = label.includes(':') || label.includes('-') || label.includes(' ') ? label : label + unit;
+        const displayLabel = extraLabel || (label.includes(':') || label.includes('-') || label.includes(' ') || isNaN(label) ? label : label + unit);
         bar.innerHTML = `<span class="dist-value">${value}</span><span class="dist-label">${displayLabel}</span>`;
         container.appendChild(bar);
     });

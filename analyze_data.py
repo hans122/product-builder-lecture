@@ -187,13 +187,21 @@ def analyze():
         else: rk = "200 이상"
         sum_range_dist[rk] += 1
 
+    # 누계 데이터 생성 (이월수 누적 통계)
+    period_1_cum = {}
+    for i in range(1, 6):
+        cum_val = sum(period_1_dist.get(j, 0) for j in range(1, i + 1))
+        period_1_cum[f"1~{i}"] = cum_val
+
     result = {
         "frequency": {str(i): frequency.get(i, 0) for i in range(1, 46)},
         "distributions": {
             "odd_even": dict(odd_even_dist), "high_low": dict(high_low_dist),
             "consecutive": dict(consecutive_dist), "prime": dict(prime_dist),
             "composite": dict(composite_dist), "multiple_3": dict(multiple_3_dist),
-            "period_1": dict(period_1_dist), "neighbor": dict(neighbor_dist),
+            "period_1": dict(period_1_dist), 
+            "period_1_cum": period_1_cum,
+            "neighbor": dict(neighbor_dist),
             "sum": dict(sum_range_dist),
             "end_sum": dict(end_sum_dist), "same_end": dict(same_end_dist),
             "square": dict(square_dist), "multiple_5": dict(multiple_5_dist),

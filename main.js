@@ -84,9 +84,10 @@ function analyzeNumbers(numbers) {
     const currentDraw = new Set(numbers);
 
     // 1. 직전 회차 출현 (이월수)
+    let common = 0;
     if (statsData.last_draw_numbers) {
         const lastDraw = new Set(statsData.last_draw_numbers);
-        const common = [...currentDraw].filter(x => lastDraw.has(x)).length;
+        common = [...currentDraw].filter(x => lastDraw.has(x)).length;
         const target = document.getElementById('period-1-count');
         if (target) {
             let status = 'normal';
@@ -106,6 +107,28 @@ function analyzeNumbers(numbers) {
             let status = 'normal';
             if (neighborCommon >= 1 && neighborCommon <= 2) status = 'optimal';
             updateAnalysisItem(neighborTarget, `${neighborCommon}개`, status);
+        }
+
+        // 이월수 누적 출현 분석 업데이트
+        const totalDraws = statsData.total_draws;
+        const cumData = statsData.distributions.period_1_cum;
+        for (let i = 1; i <= 5; i++) {
+            const target = document.getElementById(`p1-cum-${i}`);
+            if (target && cumData) {
+                const count = cumData[`1~${i}`] || 0;
+                const prob = ((count / totalDraws) * 100).toFixed(1);
+                const valSpan = target.querySelector('.value');
+                if (valSpan) valSpan.innerText = `${prob}%`;
+                
+                // 현재 생성된 번호가 이 구간에 해당하면 강조
+                if (common >= 1 && common <= i) {
+                    target.classList.add('optimal');
+                    target.classList.remove('normal', 'warning');
+                } else {
+                    target.classList.add('normal');
+                    target.classList.remove('optimal', 'warning');
+                }
+            }
         }
     }
 

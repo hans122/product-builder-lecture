@@ -53,10 +53,16 @@ function updateGuideStats(data) {
 
     // 3. 이월수/이웃수 요약
     const carryBox = document.getElementById('carry-neighbor-stat');
-    if (dists.period_1) {
+    if (dists.period_1 && dists.period_1_cum) {
         const p1_0 = dists.period_1["0"] || 0;
         const carryProb = (100 - (p1_0 / total * 100)).toFixed(1);
-        carryBox.innerHTML = `데이터 분석 결과, 이월수가 1개 이상 포함될 확률은 <strong>${carryProb}%</strong>에 달합니다. 즉, 10번 중 7~8번은 전회차 번호가 다시 나옵니다.`;
+        const cum3Count = dists.period_1_cum["1~3"] || 0;
+        const cum3Prob = ((cum3Count / total) * 100).toFixed(1);
+        
+        carryBox.innerHTML = `
+            데이터 분석 결과, 이월수가 1개 이상 포함될 확률은 <strong>${carryProb}%</strong>에 달합니다.<br>
+            특히 이월수가 <strong>1~3개 사이</strong>로 포함될 확률은 약 <strong>${cum3Prob}%</strong>로 가장 이상적인 선택 범위입니다.
+        `;
     }
 
     // 4. 특수 번호 및 패턴 통합 분석
@@ -106,12 +112,20 @@ function updateGuideStats(data) {
 
     // 7. 구간별 출현 분석 요약
     const bucketStat = document.getElementById('bucket-stat');
-    if (dists.bucket_3) {
-        const sortedBucket = Object.entries(dists.bucket_3).sort((a, b) => b[1] - a[1]);
-        const topBucketCount = sortedBucket[0][0];
-        const topBucketFreq = sortedBucket[0][1];
-        const bucketPerc = ((topBucketFreq / total) * 100).toFixed(1);
-        bucketStat.innerHTML = `전체 회차 중 <strong>${topBucketCount}개 구간</strong>에 번호가 분산되어 나온 경우가 ${bucketPerc}%로 가장 많습니다.`;
+    if (dists.bucket_3 && dists.bucket_5 && dists.bucket_9 && dists.bucket_15) {
+        const getTop = (dist) => Object.entries(dist).sort((a, b) => b[1] - a[1])[0];
+        const top3 = getTop(dists.bucket_15);
+        const top5 = getTop(dists.bucket_9);
+        const top9 = getTop(dists.bucket_5);
+        const top15 = getTop(dists.bucket_3);
+
+        bucketStat.innerHTML = `
+            <strong>실시간 구간 분석 데이터:</strong><br>
+            • 3분할: ${top3[0]}개 구간 출현이 가장 많음 (${((top3[1]/total)*100).toFixed(1)}%)<br>
+            • 5분할: ${top5[0]}개 구간 출현이 가장 많음 (${((top5[1]/total)*100).toFixed(1)}%)<br>
+            • 9분할: ${top9[0]}개 구간 출현이 가장 많음 (${((top9[1]/total)*100).toFixed(1)}%)<br>
+            • 15분할: ${top15[0]}개 구간 출현이 가장 많음 (${((top15[1]/total)*100).toFixed(1)}%)
+        `;
     }
 
     // 8. 용지 패턴 분석 요약
