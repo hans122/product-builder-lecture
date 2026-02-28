@@ -72,9 +72,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dists.period_1_cum) {
                     const cumData = Object.entries(dists.period_1_cum).map(([label, val]) => {
                         const prob = ((val / total) * 100).toFixed(1);
-                        return [label, val, `${prob}%`];
+                        // [라벨, 실제값(높이용), 표시용라벨, 상단표시값]
+                        return [label, parseFloat(prob), `${label}개`, `${prob}%`];
                     });
-                    renderDistChart('period-1-cum-chart', cumData, '회');
+                    renderDistChart('period-1-cum-chart', cumData, '%');
                 }
                 if (dists.neighbor) {
                     const sortedNeighbor = {};
