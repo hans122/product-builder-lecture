@@ -213,8 +213,11 @@ function runDetailedAnalysis() {
     if (!statsData || selectedNumbers.length !== 6) return;
 
     const reportBody = document.getElementById('analysis-report-body');
-    if (!reportBody) return;
+    const reportSection = document.getElementById('report-section');
+    if (!reportBody || !reportSection) return;
+    
     reportBody.innerHTML = '';
+    reportSection.style.display = 'block';
     
     let totalScore = 100;
     const nums = [...selectedNumbers].sort((a, b) => a - b);
@@ -264,13 +267,13 @@ function runDetailedAnalysis() {
 
     const scoreElem = document.getElementById('combination-score');
     const gradeElem = document.getElementById('combination-grade');
-    const reportSection = document.getElementById('report-section');
     if (scoreElem) scoreElem.innerText = totalScore;
     if (gradeElem) gradeElem.innerText = totalScore >= 90 ? 'A등급' : (totalScore >= 80 ? 'B등급' : 'C등급');
-    if (reportSection) {
-        reportSection.style.display = 'block';
+    
+    // 렌더링 후 스크롤
+    setTimeout(() => {
         reportSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    }, 100);
 }
 
 function addReportRow(label, value, status, opinion) {
