@@ -36,6 +36,7 @@
 - `analyze_data.py`: **Single Source of Truth** for statistics. Must generate `period_1_2`, `period_1_3`, `composite`, `square`, `multiple_5`, `double_num` keys.
 - `advanced_stats.json`: Uses `last_3_draws` (Array of Arrays) for past context.
 - `main.js`: Main dashboard logic. Uses `statsData.last_3_draws[0]` for P1 matching.
+- `analysis.js`: Handles deep-dive visuals. **Crucial**: Map bucket fields carefully (`b15` for 3-div, `b3` for 15-div in mini-tables).
 - `combination.js`: Detailed grading. Must handle window matching (1~3 draws) for scoring.
 
 ## 5. Coding Conventions
