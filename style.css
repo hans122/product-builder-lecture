@@ -256,7 +256,14 @@ body:not(.analysis-page) {
     color: #1e293b; 
 }
 
-.analysis-card { background: #fcfcfc; border: 1px solid #eee; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; }
+.analysis-card { 
+    background: #fcfcfc; 
+    border: 1px solid #eee; 
+    padding: 1.5rem; 
+    border-radius: 15px; 
+    margin-bottom: 2rem; 
+    scroll-margin-top: 30vh; /* 앵커 이동 시 화면 중앙 부근에 배치 */
+}
 .analysis-card h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.15rem; color: #2c3e50; }
 .description { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 1.5rem; line-height: 1.6; }
 .group-header { margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; color: #3498db; font-weight: bold; font-size: 1.1rem; }
