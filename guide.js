@@ -26,25 +26,29 @@ function updateGuideStats(data) {
         sumBox.innerHTML = `<div class="stat-highlight">실제 통계 결과: "${topRange}" 구간이 ${formatStat(topCount, total)}의 가장 높은 빈도를 보이고 있습니다.</div>`;
     }
 
-    // 2. 홀짝 비율 리스트
+    // 2. 홀짝 비율 리스트 (4:2, 3:3, 2:4 합계 강조)
     const oeList = document.getElementById('oe-stat-list');
     if (oeList && dists.odd_even) {
-        const sortedOE = Object.entries(dists.odd_even).sort((a, b) => b[1] - a[1]).slice(0, 3);
-        const topOE = sortedOE[0];
-        oeList.innerHTML = `<div class="stat-highlight">실제 통계 결과: 홀짝 "${topOE[0]}" 비율이 ${formatStat(topOE[1], total)}로 가장 많이 출현했습니다.</div>` + 
+        const sortedOE = Object.entries(dists.odd_even).sort((a, b) => b[1] - a[1]);
+        const coreRatios = ["4:2", "3:3", "2:4"];
+        const coreCount = coreRatios.reduce((acc, r) => acc + (dists.odd_even[r] || 0), 0);
+        
+        oeList.innerHTML = `<div class="stat-highlight">실제 통계 결과: 주요 비율(4:2, 3:3, 2:4)의 합계가 전체의 ${formatStat(coreCount, total)}를 차지합니다.</div>` + 
             `<ul class="top-logic-list">` + 
-            sortedOE.map(([label, count]) => `<li><span>홀짝 ${label}</span> ${formatStat(count, total)}</li>`).join('') + 
+            sortedOE.slice(0, 3).map(([label, count]) => `<li><span>홀짝 ${label}</span> ${formatStat(count, total)}</li>`).join('') + 
             `</ul>`;
     }
 
-    // 3. 고저 비율 리스트
+    // 3. 고저 비율 리스트 (4:2, 3:3, 2:4 합계 강조)
     const hlList = document.getElementById('hl-stat-list');
     if (hlList && dists.high_low) {
-        const sortedHL = Object.entries(dists.high_low).sort((a, b) => b[1] - a[1]).slice(0, 3);
-        const topHL = sortedHL[0];
-        hlList.innerHTML = `<div class="stat-highlight">실제 통계 결과: 고저 "${topHL[0]}" 비율이 ${formatStat(topHL[1], total)}로 가장 많이 출현했습니다.</div>` + 
+        const sortedHL = Object.entries(dists.high_low).sort((a, b) => b[1] - a[1]);
+        const coreRatios = ["4:2", "3:3", "2:4"];
+        const coreCount = coreRatios.reduce((acc, r) => acc + (dists.high_low[r] || 0), 0);
+
+        hlList.innerHTML = `<div class="stat-highlight">실제 통계 결과: 주요 비율(4:2, 3:3, 2:4)의 합계가 전체의 ${formatStat(coreCount, total)}를 차지합니다.</div>` + 
             `<ul class="top-logic-list">` + 
-            sortedHL.map(([label, count]) => `<li><span>고저 ${label}</span> ${formatStat(count, total)}</li>`).join('') + 
+            sortedHL.slice(0, 3).map(([label, count]) => `<li><span>고저 ${label}</span> ${formatStat(count, total)}</li>`).join('') + 
             `</ul>`;
     }
 
