@@ -33,6 +33,9 @@ function getBallColorClass(num) {
 document.addEventListener('DOMContentLoaded', function() {
     initNumberSelector();
     loadStatsData();
+    
+    // 저장된 번호 불러오기
+    loadSavedSelection();
 
     document.getElementById('semi-auto-btn')?.addEventListener('click', semiAutoSelect);
     document.getElementById('reset-btn')?.addEventListener('click', resetSelection);
@@ -56,10 +59,47 @@ function initNumberSelector() {
     for (let i = 1; i <= 45; i++) {
         const btn = document.createElement('button');
         btn.className = 'select-ball';
+        btn.id = `select-ball-${i}`;
         btn.innerText = i;
         btn.type = 'button';
         btn.addEventListener('click', () => toggleNumber(i, btn));
         selector.appendChild(btn);
+    }
+}
+
+// 번호 상태 저장 함수
+function saveSelection() {
+    const data = {
+        manual: Array.from(manualNumbers),
+        auto: Array.from(autoNumbers)
+    };
+    localStorage.setItem('combination_saved_picks', JSON.stringify(data));
+}
+
+// 저장된 번호 불러오기 및 UI 동기화
+function loadSavedSelection() {
+    const saved = localStorage.getItem('combination_saved_picks');
+    if (!saved) return;
+
+    try {
+        const data = JSON.parse(saved);
+        manualNumbers = new Set(data.manual || []);
+        autoNumbers = new Set(data.auto || []);
+        
+        // UI 마킹 동기화 (DOM 생성 후 실행되도록 약간의 지연 필요할 수 있음)
+        setTimeout(() => {
+            manualNumbers.forEach(num => {
+                const btn = document.getElementById(`select-ball-${num}`);
+                if (btn) btn.classList.add('selected-manual');
+            });
+            autoNumbers.forEach(num => {
+                const btn = document.getElementById(`select-ball-${num}`);
+                if (btn) btn.classList.add('selected');
+            });
+            updateSelectedBallsDisplay();
+        }, 50);
+    } catch (e) {
+        console.error('Failed to load saved picks:', e);
     }
 }
 
@@ -78,6 +118,7 @@ function toggleNumber(num, btn) {
         manualNumbers.add(num);
         btn.classList.add('selected-manual');
     }
+    saveSelection(); // 상태 저장
     updateSelectedBallsDisplay();
 }
 
@@ -160,9 +201,10 @@ function semiAutoSelect() {
         }
     }
     autoNumbers.forEach(num => {
-        const btn = btns[num-1];
+        const btn = document.getElementById(`select-ball-${num}`);
         if (btn) btn.classList.add('selected');
     });
+    saveSelection(); // 상태 저장
     updateSelectedBallsDisplay();
 }
 
@@ -170,6 +212,7 @@ function resetSelection() {
     manualNumbers.clear();
     autoNumbers.clear();
     document.querySelectorAll('.select-ball').forEach(btn => btn.classList.remove('selected', 'selected-manual'));
+    localStorage.removeItem('combination_saved_picks'); // 저장된 데이터 삭제
     updateSelectedBallsDisplay();
     const reportSection = document.getElementById('report-section');
     if (reportSection) reportSection.style.display = 'none';
