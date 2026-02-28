@@ -353,14 +353,18 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
                     color = "#e74c3c"; // Danger
                 }
 
-                // 총합 차트 전용 레이블 커스텀
+                // 총합 차트 전용 레이블 커스텀 (최소, 세이프, 옵티, 평균, 최대)
                 if (elementId.includes('sum-chart')) {
-                    if (p.label === "120-139" || p.label === "140-159" || p.label === "160-179") labelText = "옵티멀";
-                    else if (p.label === "100-119" || p.label === "180-199") labelText = "세이프";
-                    else labelText = "위험";
-                    
-                    // 숫자 병기 (가독성 위해 아래에 작게 추가하거나 텍스트 합침)
-                    labelText += "(" + p.label.split(' ')[0] + ")";
+                    const labelMap = {
+                        "100 미만": "최소(<100)",
+                        "100-119": "세이프(100~)",
+                        "120-139": "옵티(120~)",
+                        "140-159": "평균(140~)",
+                        "160-179": "옵티(160~)",
+                        "180-199": "세이프(180~)",
+                        "200 이상": "최대(200~)"
+                    };
+                    labelText = labelMap[p.label] || p.label;
                 }
             }
             
