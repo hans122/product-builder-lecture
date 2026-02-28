@@ -363,18 +363,22 @@ body:not(.analysis-page) {
 .mini-table th { background: #f7fafc; padding: 8px 4px; border-bottom: 2px solid #edf2f7; color: #718096; }
 .mini-table td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
 
-/* 분석 범례 안내 카드 */
+/* 분석 범례 안내 카드 (상단 고정) */
 .analysis-legend-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 15px 20px;
-    margin-bottom: 20px;
+    padding: 12px 20px;
+    margin-bottom: 25px;
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 110px; /* 헤더 바로 아래 고정 */
+    z-index: 2500;
 }
 
 .legend-item {
@@ -382,19 +386,23 @@ body:not(.analysis-page) {
     align-items: center;
     gap: 8px;
     font-size: 0.8rem;
-    color: #475569;
+    font-weight: bold;
 }
 
+.legend-item.golden-txt { color: #27ae60; } /* 골든존 이름 색상 */
+.legend-item.danger-txt { color: #e74c3c; opacity: 0.8; } /* 위험구간 이름 색상 */
+.legend-item.my-pos-txt { color: #e74c3c; } /* 내 번호 이름 색상 */
+
 .legend-box {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
     flex-shrink: 0;
 }
 
 .legend-box.golden { background-color: rgba(39, 174, 96, 0.35); border: 1px solid #27ae60; }
 .legend-box.danger { background-color: rgba(231, 76, 60, 0.08); border: 1px solid rgba(231, 76, 60, 0.3); }
-.legend-box.my-pos { background-color: #e74c3c; border: 2px solid white; border-radius: 50%; }
+.legend-box.my-pos { background-color: #e74c3c; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5); }
 
 /* 곡선 차트 내 안내선 및 레이블 */
 .guide-line {
