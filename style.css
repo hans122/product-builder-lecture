@@ -262,7 +262,7 @@ body:not(.analysis-page) {
     padding: 1.5rem; 
     border-radius: 15px; 
     margin-bottom: 2rem; 
-    scroll-margin-top: 30vh; /* 앵커 이동 시 화면 중앙 부근에 배치 */
+    scroll-margin-top: 50vh; /* 앵커 이동 시 제목이 화면 상하 정중앙에 위치하도록 설정 */
 }
 .analysis-card h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.15rem; color: #2c3e50; }
 .description { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 1.5rem; line-height: 1.6; }

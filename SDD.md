@@ -1,8 +1,8 @@
-# 로또 번호 분석 및 추천 서비스 SDD (v1.9)
+# 로또 번호 분석 및 추천 서비스 SDD (v2.0)
 
-## 1. 정밀 내비게이션 설계
-- **Centering Policy**: 앵커 이동 시 해당 항목이 화면 상단에 가려지지 않고 시각적 주목도를 높이기 위해 `scroll-margin-top: 30vh`를 적용. 이를 통해 항목의 제목과 차트가 뷰포트 중앙 부근에 오도록 배치함.
-- **Smooth Anchor Scrolling**: `html { scroll-behavior: smooth; }`를 통해 페이지 내 이동 시 부드러운 스크롤 효과 제공.
+## 1. 정밀 내비게이션 설계 (Vertical Centering)
+- **Centering Policy**: 앵커 이동 시 사용자 시선의 분산을 막고 가독성을 극대화하기 위해 `scroll-margin-top: 50vh`를 적용. 이를 통해 항목의 제목과 핵심 데이터가 뷰포트의 상하 정중앙에 위치하도록 배치함.
+- **Header Conflict Resolution**: 상단 고정 헤더(Sticky Header)와 상관없이 콘텐츠가 항상 화면 중심에 보이도록 CSS 스크롤 마진을 통해 구조적으로 해결.
 
 ## 2. UI/UX 일관성
-- 메인 화면(`index.html`)의 모든 실시간 분석 항목은 `analysis.html`의 고유한 섹션 ID와 1:1로 매핑되어 있으며, 클릭 시 즉시 상세 통계로 연결됨.
+- 메인 화면의 실시간 분석 카드를 클릭하면 통계 화면의 해당 섹션이 즉시 화면 정중앙에 정렬되어 나타남으로써 정보 탐색의 편의성을 극대화함.
