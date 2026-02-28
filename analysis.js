@@ -7,12 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const total = data.total_draws;
             const stats = data.stats_summary || {};
 
-            // 0. 파레토 분포 차트 (추가)
-            if (data.frequency) {
-                renderParetoChart(data.frequency);
-            }
-
-            // 0. 파레토 분포 차트 (추가)
+            // 0. 파레토 분포 차트 (영역별 출현 빈도)
             if (data.frequency) {
                 renderParetoChart(data.frequency);
             }
@@ -110,39 +105,50 @@ function renderParetoChart(frequency) {
         barWrapper.className = 'bar-wrapper horizontal';
         barWrapper.style.display = 'flex';
         barWrapper.style.alignItems = 'center';
-        barWrapper.style.marginBottom = '10px';
+        barWrapper.style.marginBottom = '15px'; // 간격 약간 확대
         barWrapper.style.width = '100%';
 
         const label = document.createElement('div');
-        label.style.width = '120px';
-        label.style.fontSize = '0.8rem';
+        label.style.width = '140px';
+        label.style.fontSize = '0.85rem';
         label.style.fontWeight = 'bold';
+        label.style.color = '#34495e';
         label.innerText = data.label;
 
         const track = document.createElement('div');
         track.style.flex = '1';
-        track.style.height = '24px';
+        track.style.height = '28px'; // 높이 약간 확대
         track.style.backgroundColor = '#ecf0f1';
-        track.style.borderRadius = '12px';
+        track.style.borderRadius = '14px';
         track.style.overflow = 'hidden';
         track.style.margin = '0 15px';
+        track.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.1)';
 
         const bar = document.createElement('div');
         bar.style.height = '100%';
         bar.style.width = `${(data.hits / maxHits) * 100}%`;
         bar.style.backgroundColor = data.color;
-        bar.style.transition = 'width 1s ease-out';
+        bar.style.transition = 'width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        bar.style.display = 'flex';
+        bar.style.alignItems = 'center';
+        bar.style.justifyContent = 'flex-end';
+        bar.style.paddingRight = '10px';
+        bar.style.color = 'white';
+        bar.style.fontSize = '0.75rem';
+        bar.style.fontWeight = 'bold';
+        bar.innerText = percentage + '%';
         track.appendChild(bar);
 
-        const val = document.createElement('div');
-        val.style.width = '80px';
-        val.style.fontSize = '0.85rem';
-        val.style.fontWeight = 'bold';
-        val.innerText = `${percentage}%`;
+        const detail = document.createElement('div');
+        detail.style.width = '100px';
+        detail.style.fontSize = '0.8rem';
+        detail.style.color = '#7f8c8d';
+        detail.style.textAlign = 'right';
+        detail.innerText = `${data.hits}회 출현`;
 
         barWrapper.appendChild(label);
         barWrapper.appendChild(track);
-        barWrapper.appendChild(val);
+        barWrapper.appendChild(detail);
         container.appendChild(barWrapper);
     });
 }
