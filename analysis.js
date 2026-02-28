@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 4. 구간 및 패턴
             if (dists.bucket_15) renderCurveChart('bucket-15-chart', dists.bucket_15, '구간');
             if (dists.bucket_9) renderCurveChart('bucket-9-chart', dists.bucket_9, '구간');
+            if (dists.bucket_5) renderCurveChart('bucket-5-chart', dists.bucket_5, '구간');
             if (dists.bucket_3) renderCurveChart('bucket-3-chart', dists.bucket_3, '구간');
             if (dists.color) renderCurveChart('color-chart', dists.color, '색상');
             if (dists.pattern_corner) renderCurveChart('pattern-corner-chart', dists.pattern_corner, '개');
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dists.span) renderCurveChart('span-chart', dists.span, '', stats.span);
             if (dists.end_sum) renderCurveChart('end-sum-chart', dists.end_sum, '');
 
-            // 미니 테이블 렌더링 (안정성을 위해 별도 지연 호출 고려)
+            // 미니 테이블 렌더링
             setTimeout(() => {
                 if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));
             }, 100);
@@ -82,6 +83,7 @@ function renderMiniTables(draws) {
         { id: 'double-mini-body', key: 'double' },
         { id: 'bucket-15-mini-body', key: 'b15' },
         { id: 'bucket-9-mini-body', key: 'b9' },
+        { id: 'bucket-5-mini-body', key: 'b5' },
         { id: 'bucket-3-mini-body', key: 'b3' },
         { id: 'color-mini-body', key: 'color' },
         { id: 'pattern-corner-mini-body', key: 'p_corner' },
@@ -112,7 +114,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     container.innerHTML = '';
 
     const entries = Array.isArray(distData) ? distData : Object.entries(distData);
-    if (entries.length < 2) return; // 데이터가 부족하면 곡선을 그릴 수 없음
+    if (entries.length < 2) return;
 
     if (!Array.isArray(distData)) {
         entries.sort((a, b) => {
@@ -127,6 +129,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     const padding = 40;
     const chartWidth = width - padding * 2;
     const chartHeight = height - 40;
+    const baselineY = height - 20;
 
     const values = entries.map(e => e[1]);
     const maxVal = Math.max(...values, 1);
@@ -142,7 +145,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
 
     const points = entries.map((e, i) => {
         const x = padding + (i / (entries.length - 1)) * chartWidth;
-        const y = (height - 20) - (e[1] / maxVal) * chartHeight;
+        const y = baselineY - (e[1] / maxVal) * chartHeight;
         return { x, y, label: e[0], value: e[1], percentage: e[2] };
     });
 
@@ -150,29 +153,39 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    // Area Fill
-    const areaPathData = `M ${points[0].x},${height - 20} ` + points.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${points[points.length-1].x},${height - 20} Z`;
-    const areaPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    areaPath.setAttribute("d", areaPathData);
-    areaPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)");
-    svg.appendChild(areaPath);
+    // 1. 배경 위험 구간 (Light Red)
+    const dangerRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    dangerRect.setAttribute("x", padding); dangerRect.setAttribute("y", baselineY - chartHeight);
+    dangerRect.setAttribute("width", chartWidth); dangerRect.setAttribute("height", chartHeight);
+    dangerRect.setAttribute("fill", "rgba(231, 76, 60, 0.03)");
+    svg.appendChild(dangerRect);
 
-    // Golden Zone Fill
+    // 2. 골든 존 영역 (Green Area)
     if (statSummary) {
         const goldenPoints = points.filter(p => {
             const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
             return !isNaN(val) && Math.abs(val - statSummary.mean) <= statSummary.std;
         });
         if (goldenPoints.length > 1) {
-            const gPathData = `M ${goldenPoints[0].x},${height - 20} ` + goldenPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${goldenPoints[goldenPoints.length-1].x},${height - 20} Z`;
+            const gPathData = `M ${goldenPoints[0].x},${baselineY} ` + goldenPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${goldenPoints[goldenPoints.length-1].x},${baselineY} Z`;
             const gPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
             gPath.setAttribute("d", gPathData);
-            gPath.setAttribute("fill", "rgba(46, 204, 113, 0.2)");
+            gPath.setAttribute("fill", "rgba(46, 204, 113, 0.25)");
             svg.appendChild(gPath);
+
+            // 골든존 텍스트 라벨
+            const gText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            gText.setAttribute("x", (goldenPoints[0].x + goldenPoints[goldenPoints.length-1].x) / 2);
+            gText.setAttribute("y", baselineY - 5);
+            gText.setAttribute("text-anchor", "middle");
+            gText.setAttribute("fill", "#27ae60");
+            gText.style.fontSize = "0.6rem"; gText.style.fontWeight = "bold";
+            gText.textContent = "GOLDEN ZONE";
+            svg.appendChild(gText);
         }
     }
 
-    // Curve Line
+    // 3. 곡선 라인
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     curvePath.setAttribute("d", curvePathData);
@@ -181,29 +194,63 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     curvePath.setAttribute("stroke-width", "3");
     svg.appendChild(curvePath);
 
-    // Points & Labels
+    // 4. 수직 가이드라인 (평균선)
+    if (statSummary) {
+        // 평균 지점 x 좌표 근사 계산
+        const meanIdx = entries.findIndex(e => {
+            const val = parseFloat(e[0].includes('-') ? e[0].split('-')[0] : e[0]);
+            return val >= statSummary.mean;
+        });
+        if (meanIdx !== -1) {
+            const meanX = padding + (meanIdx / (entries.length - 1)) * chartWidth;
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", meanX); line.setAttribute("y1", baselineY);
+            line.setAttribute("x2", meanX); line.setAttribute("y2", baselineY - chartHeight - 10);
+            line.setAttribute("stroke", "#27ae60"); line.setAttribute("stroke-width", "2");
+            line.setAttribute("stroke-dasharray", "4 2");
+            svg.appendChild(line);
+
+            const mLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            mLabel.setAttribute("x", meanX); mLabel.setAttribute("y", baselineY - chartHeight - 15);
+            mLabel.setAttribute("text-anchor", "middle"); mLabel.setAttribute("fill", "#27ae60");
+            mLabel.style.fontSize = "0.6rem"; mLabel.style.fontWeight = "bold";
+            mLabel.textContent = `평균: ${statSummary.mean}`;
+            svg.appendChild(mLabel);
+        }
+    }
+
+    // 5. 포인트 및 내 위치 마커
     points.forEach(p => {
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
         circle.setAttribute("fill", "#3498db");
         
+        let isMine = false;
         if (myCurrentVal !== null) {
-            let isMine = false;
             if (p.label.includes('-')) {
                 const [min, max] = p.label.split('-').map(Number);
                 if (myCurrentVal >= min && myCurrentVal <= max) isMine = true;
             } else if (Math.round(myCurrentVal) === Math.round(parseFloat(p.label))) {
                 isMine = true;
             }
-            if (isMine) {
-                circle.setAttribute("r", 6);
-                circle.setAttribute("fill", "#e74c3c");
-                circle.setAttribute("stroke", "white");
-                circle.setAttribute("stroke-width", "2");
-            }
+        }
+
+        if (isMine) {
+            circle.setAttribute("r", 7);
+            circle.setAttribute("fill", "#e74c3c");
+            circle.setAttribute("stroke", "white");
+            circle.setAttribute("stroke-width", "2");
+            
+            const myLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            myLabel.setAttribute("x", p.x); myLabel.setAttribute("y", p.y - 15);
+            myLabel.setAttribute("text-anchor", "middle"); myLabel.setAttribute("fill", "#e74c3c");
+            myLabel.style.fontSize = "0.7rem"; myLabel.style.fontWeight = "bold";
+            myLabel.textContent = "내 번호";
+            svg.appendChild(myLabel);
         }
         svg.appendChild(circle);
 
+        // X축 라벨
         const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
         txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
         txt.setAttribute("fill", "#7f8c8d"); txt.style.fontSize = "0.6rem"; txt.style.fontWeight = "bold";
@@ -228,9 +275,10 @@ function renderFrequencyChart(data) {
     const container = document.getElementById('full-frequency-chart');
     if(!container) return;
     container.innerHTML = '';
+    const freqs = Object.values(data);
+    const maxFreq = Math.max(...freqs, 1);
     for (let i = 1; i <= 45; i++) {
         const f = data[i] || 0;
-        const maxFreq = Math.max(...Object.values(data), 1);
         const h = (f / maxFreq) * 85;
         const w = document.createElement('div');
         w.className = 'bar-wrapper';
