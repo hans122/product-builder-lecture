@@ -19,44 +19,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 sumOrder.forEach(range => { if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range]; });
                 renderCurveChart('sum-chart', sortedSum, '', stats.sum);
             }
-            if (dists.odd_even) renderCurveChart('odd-even-chart', dists.odd_even, ' : ');
-            if (dists.high_low) renderCurveChart('high-low-chart', dists.high_low, ' : ');
+            if (dists.odd_even) renderCurveChart('odd-even-chart', dists.odd_even, ' : ', stats.odd_count);
+            if (dists.high_low) renderCurveChart('high-low-chart', dists.high_low, ' : ', stats.low_count);
 
             // 2. 특수 번호 및 끝수
-            if (dists.prime) renderCurveChart('prime-chart', dists.prime, '개');
-            if (dists.composite) renderCurveChart('composite-chart', dists.composite, '개');
-            if (dists.multiple_3) renderCurveChart('multiple-3-chart', dists.multiple_3, '개');
-            if (dists.multiple_5) renderCurveChart('multiple-5-chart', dists.multiple_5, '개');
-            if (dists.square) renderCurveChart('square-chart', dists.square, '개');
-            if (dists.double_num) renderCurveChart('double-chart', dists.double_num, '개');
-            if (dists.same_end) renderCurveChart('same-end-chart', dists.same_end, '개');
+            if (dists.prime) renderCurveChart('prime-chart', dists.prime, '개', stats.prime);
+            if (dists.composite) renderCurveChart('composite-chart', dists.composite, '개', stats.composite);
+            if (dists.multiple_3) renderCurveChart('multiple-3-chart', dists.multiple_3, '개', stats.multiple_3);
+            if (dists.multiple_5) renderCurveChart('multiple-5-chart', dists.multiple_5, '개', stats.multiple_5);
+            if (dists.square) renderCurveChart('square-chart', dists.square, '개', stats.square);
+            if (dists.double_num) renderCurveChart('double-chart', dists.double_num, '개', stats.double_num);
+            if (dists.same_end) renderCurveChart('same-end-chart', dists.same_end, '개', stats.same_end);
 
             // 3. 상관관계
-            if (dists.period_1) renderCurveChart('period-1-chart', dists.period_1, '개');
-            if (dists.period_1_2) {
-                const data1_2 = Object.entries(dists.period_1_2).map(([k, v]) => [`${k}개`, v, `${((v/total)*100).toFixed(1)}%`]);
-                renderCurveChart('period-1-2-chart', data1_2, '회');
-            }
-            if (dists.period_1_3) {
-                const data1_3 = Object.entries(dists.period_1_3).map(([k, v]) => [`${k}개`, v, `${((v/total)*100).toFixed(1)}%`]);
-                renderCurveChart('period-1-3-chart', data1_3, '회');
-            }
-            if (dists.neighbor) renderCurveChart('neighbor-chart', dists.neighbor, '개');
-            if (dists.consecutive) renderCurveChart('consecutive-chart', dists.consecutive, '쌍');
+            if (dists.period_1) renderCurveChart('period-1-chart', dists.period_1, '개', stats.period_1);
+            if (dists.period_1_2) renderCurveChart('period-1-2-chart', dists.period_1_2, '개', stats.period_1_2);
+            if (dists.period_1_3) renderCurveChart('period-1-3-chart', dists.period_1_3, '개', stats.period_1_3);
+            if (dists.neighbor) renderCurveChart('neighbor-chart', dists.neighbor, '개', stats.neighbor);
+            if (dists.consecutive) renderCurveChart('consecutive-chart', dists.consecutive, '쌍', stats.consecutive);
 
             // 4. 구간 및 패턴
-            if (dists.bucket_15) renderCurveChart('bucket-15-chart', dists.bucket_15, '구간');
-            if (dists.bucket_9) renderCurveChart('bucket-9-chart', dists.bucket_9, '구간');
-            if (dists.bucket_5) renderCurveChart('bucket-5-chart', dists.bucket_5, '구간');
-            if (dists.bucket_3) renderCurveChart('bucket-3-chart', dists.bucket_3, '구간');
-            if (dists.color) renderCurveChart('color-chart', dists.color, '색상');
-            if (dists.pattern_corner) renderCurveChart('pattern-corner-chart', dists.pattern_corner, '개');
-            if (dists.pattern_triangle) renderCurveChart('pattern-triangle-chart', dists.pattern_triangle, '개');
+            if (dists.bucket_15) renderCurveChart('bucket-15-chart', dists.bucket_15, '구간', stats.bucket_15);
+            if (dists.bucket_9) renderCurveChart('bucket-9-chart', dists.bucket_9, '구간', stats.bucket_9);
+            if (dists.bucket_5) renderCurveChart('bucket-5-chart', dists.bucket_5, '구간', stats.bucket_5);
+            if (dists.bucket_3) renderCurveChart('bucket-3-chart', dists.bucket_3, '구간', stats.bucket_3);
+            if (dists.color) renderCurveChart('color-chart', dists.color, '색상', stats.color);
+            if (dists.pattern_corner) renderCurveChart('pattern-corner-chart', dists.pattern_corner, '개', stats.pattern_corner);
+            if (dists.pattern_triangle) renderCurveChart('pattern-triangle-chart', dists.pattern_triangle, '개', stats.pattern_triangle);
 
             // 5. 전문 지표
             if (dists.ac) renderCurveChart('ac-chart', dists.ac, '', stats.ac);
             if (dists.span) renderCurveChart('span-chart', dists.span, '', stats.span);
-            if (dists.end_sum) renderCurveChart('end-sum-chart', dists.end_sum, '');
+            if (dists.end_sum) renderCurveChart('end-sum-chart', dists.end_sum, '', stats.end_sum);
 
             // 미니 테이블 렌더링
             setTimeout(() => {
