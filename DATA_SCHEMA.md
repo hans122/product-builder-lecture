@@ -1,30 +1,27 @@
 # DATA_SCHEMA.md - Variable & Data Structures (v1.5)
 
-## 1. `advanced_stats.json` 구조
-| Key | Type | Description |
-|:--- |:--- |:---|
-| `frequency` | Object | { "1": count, ... } - 번호별 누적 출현 빈도 |
-| `distributions` | Object | 항목별 역대 통계 분포 (차트용) |
-| `total_draws` | Number | 전체 회차 수 |
-| `last_3_draws` | Array[Array] | 최근 3개 회차 번호 리스트 |
-| `recent_draws` | Array[Object] | 최근 30회차 상세 분석 (히스토리용) |
+이 문서는 통계 항목의 **5대 표준 분류**와 데이터 키 매핑을 정의합니다.
 
-## 2. 미니 테이블 ID 매핑 규칙 (analysis.html)
-JS(`renderMiniTables`)가 데이터를 주입하는 대상 ID 목록입니다.
-- `odd-even-mini-body`: 홀짝 비율
-- `high-low-mini-body`: 고저 비율
-- `multiple-3-mini-body`: 3의 배수 개수
-- `prime-mini-body`: 소수 개수
-- `period-1-mini-body`: 이월수 개수
-- `period-1-2-mini-body`: 1~2회전 매칭
-- `period-1-3-mini-body`: 1~3회전 매칭
-- `bucket-15-mini-body`: 3분할(15개씩) 점유
-- `bucket-3-mini-body`: 15분할(3개씩) 점유
+## 1. 표준 분류 체계 (Categorization)
+모든 화면은 아래 순서와 그룹명을 준수한다.
 
-## 3. 실시간 분석 필드 (main.js)
-번호 생성 시 즉시 계산되는 ID 목록입니다.
-- `square-count`: 완전제곱수 (1,4,9,16,25,36)
-- `double-count`: 쌍수 (11,22,33,44)
-- `pattern-corner-count`: 모서리 패턴
-- `pattern-triangle-count`: 삼각형 패턴
-- `color-count`: 5색 분할 점유수
+### G1. 기본 균형 (Basic Balance)
+- `sum`, `odd_even`, `high_low`
+
+### G2. 회차 상관관계 (Correlation)
+- `period_1` (직전 1회차), `period_1_2` (1~2회전), `period_1_3` (1~3회전), `neighbor`, `consecutive`
+
+### G3. 특수 번호군 (Special Numbers)
+- `prime`, `composite`, `multiple_3`, `multiple_5`, `square`, `double_num`
+
+### G4. 구간 및 패턴 (Sections & Patterns)
+- `bucket_15` (3분할), `bucket_9` (5분할), `bucket_5` (9분할), `bucket_3` (15분할), `color`, `pattern_corner`, `pattern_triangle`
+
+### G5. 끝수 및 전문지표 (Advanced Metrics)
+- `end_sum`, `same_end`, `ac`, `span`
+
+## 2. JSON Root 구조
+- `frequency`: 번호별 빈도
+- `distributions`: 위 5대 그룹 데이터 (Object)
+- `last_3_draws`: 최근 3회차 번호 (Array)
+- `recent_draws`: 히스토리용 상세 데이터 (Array)

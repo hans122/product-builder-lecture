@@ -8,14 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <meta name="description" content="과학적 통계 기반의 로또 번호 분석 및 추천 서비스입니다. 역대 당첨 데이터, 홀짝 비율, 끝수 분석 등 다양한 지표를 활용하여 최적의 번호 조합을 무료로 제공합니다.">
-    <meta name="keywords" content="로또번호추천, 로또분석, 로또당첨번호, 무료로또, 로또조합기, 로또통계">
     <meta name="google-adsense-account" content="ca-pub-9576362527820452">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9576362527820452"
-     crossorigin="anonymous"></script>
 </head>
 <body class="analysis-page">
-    <!-- 상단 고정 헤더 -->
     <header class="sticky-header">
         <div class="header-inner">
             <div class="header-top-row">
@@ -32,228 +27,85 @@
     </header>
 
     <div class="main-wrapper centered">
-        <!-- 중앙 메인 컨테이너 -->
         <div class="container main-content">
-            <p class="subtitle">행운의 번호를 생성하고 다양한 분석 지표를 확인하세요</p>
+            <p class="subtitle">행운의 번호를 생성하고 5대 표준 지표를 확인하세요</p>
             
-            <!-- SEO 및 콘텐츠 보강을 위한 텍스트 섹션 -->
-            <div class="intro-text-section" style="background: #f8fafc; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
-                <h2 style="font-size: 1.2rem; color: #2d3748; margin-top: 0;">🎲 과학적인 로또 번호 추천 시스템</h2>
-                <p style="font-size: 0.95rem; color: #4a5568; line-height: 1.6; margin-bottom: 0;">
-                    단순한 무작위 생성이 아닙니다. 본 서비스는 <strong>역대 당첨 번호 빅데이터</strong>를 기반으로 
-                    <a href="analysis.html" style="color: #3182ce; text-decoration: none;">홀짝 비율</a>, 
-                    <a href="analysis.html#sum-section" style="color: #3182ce; text-decoration: none;">총합 구간</a>, 
-                    <a href="analysis.html#consecutive-section" style="color: #3182ce; text-decoration: none;">연속 번호 패턴</a> 등 
-                    당첨 확률이 높은 통계적 패턴을 분석하여 번호를 추천합니다. 
-                    지금 바로 아래 버튼을 눌러 당신만의 행운 조합을 만들어보세요.
-                </p>
-            </div>
-
             <div id="lotto-container" class="ball-container main-balls">
                 <div class="placeholder">번호를 생성해주세요</div>
             </div>
 
             <button id="generate-btn">번호 생성하기</button>
 
-            <!-- 실시간 분석 영역 -->
             <div class="realtime-analysis-section">
-                <h3>📊 실시간 분석 결과 (항목 클릭 시 역대 통계 확인)</h3>
-                <div id="last-draw-info" class="last-draw-info" style="margin-bottom: 1.5rem; display: none;">
-                    <span class="label">직전 회차 당첨 번호:</span>
-                    <div id="last-draw-balls" class="ball-container mini" style="margin-bottom: 0;"></div>
+                <h3>📊 실시간 5대 표준 분석 결과</h3>
+                <div id="last-draw-info" class="last-draw-info" style="display: none;">
+                    <span class="label">직전 회차:</span>
+                    <div id="last-draw-balls" class="ball-container mini"></div>
                 </div>
 
-                <div class="analysis-row">
-                    <div class="analysis-group">
-                        <div class="group-sub-title">📍 기본 균형 분석</div>
-                        <div class="analysis-grid-horizontal">
-                            <a href="analysis.html#odd-even-section" class="analysis-item-link">
-                                <div class="analysis-item clickable">
-                                    <span class="label">⚖️ 홀:짝 비율</span>
-                                    <span id="odd-even-ratio" class="value">-</span>
-                                </div>
-                            </a>
-                            <a href="analysis.html#high-low-section" class="analysis-item-link">
-                                <div class="analysis-item clickable">
-                                    <span class="label">↕️ 고:저 비율</span>
-                                    <span id="high-low-ratio" class="value">-</span>
-                                </div>
-                            </a>
-                            <a href="analysis.html#sum-section" class="analysis-item-link">
-                                <div class="analysis-item clickable">
-                                    <span class="label">📈 총합(Sum)</span>
-                                    <span id="total-sum" class="value">-</span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="analysis-group">
-                        <div class="group-sub-title">📍 회차 상관관계</div>
-                        <div class="analysis-grid-horizontal">
-                            <a href="analysis.html#period-1-section" class="analysis-item-link">
-                                <div class="analysis-item clickable">
-                                    <span class="label">🔄 직전회차 출현</span>
-                                    <span id="period-1-count" class="value">-</span>
-                                </div>
-                            </a>
-                            <a href="analysis.html#period-1-window-section" class="analysis-item-link">
-                                <div class="analysis-item clickable" id="p1-cum-2">
-                                    <span class="label">🔄 1~2회전 매칭</span>
-                                    <span class="value">-</span>
-                                </div>
-                            </a>
-                            <a href="analysis.html#period-1-window-section" class="analysis-item-link">
-                                <div class="analysis-item clickable" id="p1-cum-3">
-                                    <span class="label">🔄 1~3회전 매칭</span>
-                                    <span class="value">-</span>
-                                </div>
-                            </a>
-                            <a href="analysis.html#neighbor-section" class="analysis-item-link">
-                                <div class="analysis-item clickable">
-                                    <span class="label">🏠 주변번호 출현</span>
-                                    <span id="neighbor-count" class="value">-</span>
-                                </div>
-                            </a>
-                            <a href="analysis.html#consecutive-section" class="analysis-item-link">
-                                <div class="analysis-item clickable">
-                                    <span class="label">🔗 연속번호 쌍</span>
-                                    <span id="consecutive-count" class="value">-</span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- G1. 기본 균형 -->
                 <div class="analysis-group full-width">
-                    <div class="group-sub-title">📍 끝수 및 특수수</div>
+                    <div class="group-sub-title">📍 [G1] 기본 균형 분석</div>
                     <div class="analysis-grid-horizontal">
-                        <a href="analysis.html#end-sum-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">🔢 끝수 총합</span>
-                                <span id="end-sum-value" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#same-end-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">👯 동끝수 개수</span>
-                                <span id="same-end-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#prime-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">🔢 소수 포함</span>
-                                <span id="prime-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#composite-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">🧮 합성수 포함</span>
-                                <span id="composite-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#multiple-3-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">✖️ 3배수 포함</span>
-                                <span id="multiple-3-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#multiple-5-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">🖐️ 5의배수 포함</span>
-                                <span id="multiple-5-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#square-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">🟦 완전제곱수</span>
-                                <span id="square-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#double-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">👥 쌍수 포함</span>
-                                <span id="double-count" class="value">-</span>
-                            </div>
-                        </a>
+                        <div class="analysis-item" id="total-sum-item"><span class="label">📈 총합(Sum)</span><span id="total-sum" class="value">-</span></div>
+                        <div class="analysis-item" id="odd-even-item"><span class="label">⚖️ 홀:짝 비율</span><span id="odd-even-ratio" class="value">-</span></div>
+                        <div class="analysis-item" id="high-low-item"><span class="label">↕️ 고:저 비율</span><span id="high-low-ratio" class="value">-</span></div>
                     </div>
                 </div>
 
+                <!-- G2. 회차 상관관계 -->
                 <div class="analysis-group full-width">
-                    <div class="group-sub-title">📍 전문 지표 및 패턴</div>
+                    <div class="group-sub-title">📍 [G2] 회차 상관관계 (이월 매칭)</div>
                     <div class="analysis-grid-horizontal">
-                        <a href="analysis.html#ac-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">🔢 AC값</span>
-                                <span id="ac-value" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#span-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">↔️ Span</span>
-                                <span id="span-value" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#pattern-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">📐 모서리패턴</span>
-                                <span id="pattern-corner-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#pattern-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">📐 삼각형패턴</span>
-                                <span id="pattern-triangle-count" class="value">-</span>
-                            </div>
-                        </a>
+                        <div class="analysis-item"><span class="label">🔄 직전 1회차</span><span id="period-1-count" class="value">-</span></div>
+                        <div class="analysis-item" id="p1-cum-2"><span class="label">🔄 1~2회전</span><span class="value">-</span></div>
+                        <div class="analysis-item" id="p1-cum-3"><span class="label">🔄 1~3회전</span><span class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">🏠 이웃수</span><span id="neighbor-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">🔗 연속번호</span><span id="consecutive-count" class="value">-</span></div>
                     </div>
                 </div>
 
+                <!-- G3. 특수 번호군 -->
                 <div class="analysis-group full-width">
-                    <div class="group-sub-title">📍 구간 및 분할 분석</div>
+                    <div class="group-sub-title">📍 [G3] 특수 번호군 분석</div>
                     <div class="analysis-grid-horizontal">
-                        <a href="analysis.html#bucket-15-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">📦 3분할(15개씩)</span>
-                                <span id="bucket-15-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#bucket-9-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">📦 5분할(9개씩)</span>
-                                <span id="bucket-9-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#bucket-5-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">📦 9분할(5개씩)</span>
-                                <span id="bucket-5-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#bucket-3-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">📦 15분할(3개씩)</span>
-                                <span id="bucket-3-count" class="value">-</span>
-                            </div>
-                        </a>
-                        <a href="analysis.html#color-section" class="analysis-item-link">
-                            <div class="analysis-item clickable">
-                                <span class="label">🎨 색상분할(5색)</span>
-                                <span id="color-count" class="value">-</span>
-                            </div>
-                        </a>
+                        <div class="analysis-item"><span class="label">🔢 소수</span><span id="prime-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">🧮 합성수</span><span id="composite-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">✖️ 3배수</span><span id="multiple-3-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">🖐️ 5배수</span><span id="multiple-5-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">🟦 제곱수</span><span id="square-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">👥 쌍수</span><span id="double-count" class="value">-</span></div>
+                    </div>
+                </div>
+
+                <!-- G4. 구간 및 패턴 -->
+                <div class="analysis-group full-width">
+                    <div class="group-sub-title">📍 [G4] 구간 및 패턴 분석</div>
+                    <div class="analysis-grid-horizontal">
+                        <div class="analysis-item"><span class="label">📦 3분할</span><span id="bucket-15-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">📦 5분할</span><span id="bucket-9-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">📦 15분할</span><span id="bucket-3-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">🎨 색상수</span><span id="color-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">📐 모서리</span><span id="pattern-corner-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">📐 삼각형</span><span id="pattern-triangle-count" class="value">-</span></div>
+                    </div>
+                </div>
+
+                <!-- G5. 끝수 및 전문지표 -->
+                <div class="analysis-group full-width">
+                    <div class="group-sub-title">📍 [G5] 끝수 및 전문지표</div>
+                    <div class="analysis-grid-horizontal">
+                        <div class="analysis-item"><span class="label">🔢 끝수합</span><span id="end-sum-value" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">👯 동끝수</span><span id="same-end-count" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">🔢 AC값</span><span id="ac-value" class="value">-</span></div>
+                        <div class="analysis-item"><span class="label">↔️ Span</span><span id="span-value" class="value">-</span></div>
                     </div>
                 </div>
             </div>
         </div>
         
         <footer class="standard-footer">
-            <p class="disclaimer">
-                <a href="privacy.html" style="color: #3498db; text-decoration: none; font-weight: bold;">개인정보처리방침</a> | 
-                <a href="guide.html" style="color: #718096; text-decoration: none;">이용 가이드</a><br>
-                ※ 본 번호 추천 및 실시간 분석은 역대 데이터를 바탕으로 한 통계적 분석 결과이며,<br>
-                실제 당첨을 보장하지 않습니다. 복권은 소액으로 즐겁게 참여하세요.
-            </p>
+            <p class="disclaimer">※ 본 결과는 통계적 분석이며 당첨을 보장하지 않습니다.</p>
         </footer>
     </div>
     <script src="main.js?v=1.0.1"></script>
