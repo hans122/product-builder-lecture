@@ -109,17 +109,19 @@ function analyzeNumbers(numbers) {
             updateAnalysisItem(neighborTarget, `${neighborCommon}개`, status);
         }
 
-        // 이월수 개별 출현 분석 업데이트
-        const statsDataItems = statsData.distributions.period_1_stats;
-        for (let i = 1; i <= 3; i++) {
-            const target = document.getElementById(`p1-stats-${i}`);
-            if (target && statsDataItems) {
-                const count = statsDataItems[String(i)] || 0;
+        // 이월수 누적 출현 분석 업데이트
+        const totalDraws = statsData.total_draws;
+        const cumData = statsData.distributions.period_1_cum;
+        for (let i = 2; i <= 3; i++) {
+            const target = document.getElementById(`p1-cum-${i}`);
+            if (target && cumData) {
+                const count = cumData[`1~${i}`] || 0;
+                const prob = ((count / totalDraws) * 100).toFixed(1);
                 const valSpan = target.querySelector('.value');
-                if (valSpan) valSpan.innerText = `${count}회`;
+                if (valSpan) valSpan.innerText = `${prob}%`;
                 
-                // 현재 생성된 번호가 정확히 이 개수이면 강조
-                if (common === i) {
+                // 현재 생성된 번호가 이 구간에 해당하면 강조
+                if (common >= 1 && common <= i) {
                     target.classList.add('optimal');
                     target.classList.remove('normal', 'warning');
                 } else {
