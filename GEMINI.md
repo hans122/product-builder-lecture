@@ -33,12 +33,10 @@
 - **Green**: 41-45
 
 ## 4. File Structure & Responsibilities
-- `analyze_data.py`: **Single Source of Truth** for statistics. Must generate `period_1_2`, `period_1_3` keys.
-- `advanced_stats.json`: The bridge between Py and JS.
-- `main.js`: Main dashboard logic, real-time number generation & grading.
-- `analysis.js`: Deep dive charts & mini-tables.
-- `history.js`: Historical table rendering with window-based carry-over counts.
-- `guide.js`: Explanatory text updates based on stats.
+- `analyze_data.py`: **Single Source of Truth** for statistics. Must generate `period_1_2`, `period_1_3`, `composite`, `square`, `multiple_5`, `double_num` keys.
+- `advanced_stats.json`: Uses `last_3_draws` (Array of Arrays) for past context.
+- `main.js`: Main dashboard logic. Uses `statsData.last_3_draws[0]` for P1 matching.
+- `combination.js`: Detailed grading. Must handle window matching (1~3 draws) for scoring.
 
 ## 5. Coding Conventions
 - **Styling**: `style.css` is the only styling source. Use Flexbox/Grid. Keep it responsive (Mobile-first).

@@ -1,42 +1,23 @@
-# 로또 번호 분석 및 추천 서비스 SDD (v1.1)
+# 로또 번호 분석 및 추천 서비스 SDD (v1.2)
 
-## 1. 시스템 아키텍처
-본 시스템은 별도의 백엔드 서버 없이, 빌드 타임에 데이터를 처리하는 **Data-Driven Static Site** 구조를 가집니다.
+## 1. 데이터 파이프라인
+- **Extraction**: Python `analyze_data.py`가 CSV를 읽어 분석.
+- **Window Matching Logic**: 
+    - `period_1`: `set(current) & set(draws[-1])`
+    - `period_1_2`: `set(current) & (set(draws[-1]) | set(draws[-2]))`
+    - `period_1_3`: `set(current) & (set(draws[-1]) | set(draws[-2]) | set(draws[-3]))`
+- **Output**: `advanced_stats.json`
 
-- **Data Source**: `lt645.csv` (역대 당첨 내역)
-- **Pre-processor**: `analyze_data.py` (Python)
-- **Data Store**: `advanced_stats.json` (전처리된 통계 데이터)
-- **Client Logic**: Vanilla JS를 활용한 동적 분석 및 UI 렌더링.
+## 2. 주요 비즈니스 로직
+### 2.1. 실시간 등급 판정 (Grading)
+- `main.js`와 `combination.js`에서 각 지표별 `optimal` 점수 부여.
+- 최종 점수 기반 A~D 등급 산출.
 
-## 2. 데이터 파이프라인 및 구조
-### 2.1. `advanced_stats.json` 주요 필드
-- `distributions`: 모든 지표의 역대 출현 빈도 저장.
-    - `period_1_cum`: 이월수 누적 출현 데이터 (`{"1~2": 450, "1~3": 680}`).
-    - `bucket_3` ~ `bucket_15`: 구간별 점유율 분포 데이터.
-- `recent_draws`: 최근 30회차의 상세 분석 지표 리스트.
+### 2.2. 통계 렌더링
+- `renderDistChart` 함수를 일원화하여 모든 분포 차트 시각화.
+- 확률(%) 계산 로직을 JS에 내장하여 차트 상단에 표시.
 
-### 2.2. 구간 분석 매핑 알고리즘
-- **3분할**: `floor((n-1)/15)` -> [1-15, 16-30, 31-45]
-- **5분할**: `floor((n-1)/9)` -> [1-9, 10-18, 19-27, 28-36, 37-45]
-- **9분할**: `floor((n-1)/5)` -> [1-5, 6-10, ..., 41-45]
-- **15분할**: `floor((n-1)/3)` -> [1-3, 4-6, ..., 43-45]
-- **색상 분석**: 번호대별 5개 그룹 매핑 (노랑, 파랑, 빨강, 회색, 초록).
-
-## 3. 핵심 비즈니스 로직
-### 3.1. 이월수 분석 (Carry-over Logic)
-- **개별 카운트**: 생성된 번호와 직전 회차 당첨 번호의 교집합 개수 계산.
-- **누적 확률 분석**:
-    - `1~2개` 범위: 개수가 1 또는 2인 경우.
-    - `1~3개` 범위: 개수가 1, 2, 또는 3인 경우.
-- **UI 반영**: 메인 화면에서는 확률(%)로, 히스토리 화면에서는 실제 개수(Number)로 표시.
-
-### 3.2. 실시간 등급 판정 (Grading)
-- 각 지표가 '이상적 범위'에 포함되는지에 따라 UI 클래스 부여:
-    - `optimal`: 녹색 강조 (이상적)
-    - `normal`: 기본색 (보통)
-    - `warning`: 적색 강조 (주의가 필요한 극단적 확률)
-
-## 4. UI/UX 컴포넌트 설계
-- **Chart Component**: `analysis.js`의 `renderDistChart` 함수를 통해 막대 차트 생성. 비율 기반 높이 조절 및 텍스트 레이블 자동화.
-- **History Table**: `history.js`에서 각 셀의 통계적 적합성을 실시간으로 계산하여 시각적 힌트(O/-) 제공.
-- **Responsive Design**: 모바일 우선 순위의 Flex/Grid 레이아웃 적용.
+## 3. 화면별 데이터 활용
+- **메인**: `last_3_draws[0]`을 사용하여 직전 당첨번호 시각화 및 실시간 윈도우 매칭 계산.
+- **통계**: `distributions` 객체의 전 필드를 순회하며 차트 및 미니 테이블 생성.
+- **정밀분석**: `statsData.last_3_draws`를 활용하여 사용자 선택 번호의 과거 회차 간 매칭률 분석.
