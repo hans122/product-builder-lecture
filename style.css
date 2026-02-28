@@ -81,22 +81,12 @@ body:not(.analysis-page) {
     margin-top: 5px;
 }
 
-.header-legend .legend-item {
-    font-size: 0.75rem;
-    color: #64748b;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+.header-legend .legend-item.optimal-txt { color: #27ae60; }
+.header-legend .legend-item.safe-txt { color: #2980b9; }
+.header-legend .legend-item.danger-txt { color: #e74c3c; }
 
-.header-legend .legend-box {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-}
-
-.header-legend .legend-box.golden { background-color: rgba(241, 196, 15, 0.8); border: 1px solid #f1c40f; }
-.header-legend .legend-box.silver { background-color: rgba(52, 152, 219, 0.8); border: 1px solid #3498db; }
+.header-legend .legend-box.optimal { background-color: rgba(46, 204, 113, 0.8); border: 1px solid #2ecc71; }
+.header-legend .legend-box.safe { background-color: rgba(52, 152, 219, 0.8); border: 1px solid #3498db; }
 .header-legend .legend-box.danger { background-color: #e74c3c; }
 
 .header-top-row {

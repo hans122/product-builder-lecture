@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // 0. 파레토 영역 데이터 처리
             if (data.frequency && data.recent_draws) {
-                renderParetoMiniTable(data.frequency, data.recent_draws.slice(0, 6));
+                renderParetoMiniTable(data, data.recent_draws.slice(0, 6));
             }
 
             // 1. 기본 및 합계
@@ -70,25 +70,31 @@ document.addEventListener('DOMContentLoaded', function() {
     restoreMyNumbers();
 });
 
-function getZones(frequency) {
-    const sortedFreq = Object.entries(frequency)
-        .map(([num, freq]) => ({ num: parseInt(num), freq }))
-        .sort((a, b) => b.freq - a.freq);
-    
+function getZones(data) {
+    const freq = data.frequency || {};
+    const recentFreq = data.recent_20_frequency || {};
+    const scores = [];
+    for (let i = 1; i <= 45; i++) {
+        const cumulative = freq[i] || 0;
+        const recent = recentFreq[i] || 0;
+        const totalScore = (cumulative * 0.4) + (recent * 25.0 * 0.6); 
+        scores.push({ num: i, score: totalScore });
+    }
+    scores.sort((a, b) => b.score - a.score);
     return {
-        gold: sortedFreq.slice(0, 9).map(x => x.num),
-        silver: sortedFreq.slice(9, 23).map(x => x.num),
-        normal: sortedFreq.slice(23, 36).map(x => x.num),
-        cold: sortedFreq.slice(36).map(x => x.num)
+        gold: scores.slice(0, 9).map(x => x.num),
+        silver: scores.slice(9, 23).map(x => x.num),
+        normal: scores.slice(23, 36).map(x => x.num),
+        cold: scores.slice(36).map(x => x.num)
     };
 }
 
-function renderParetoMiniTable(frequency, recentDraws) {
+function renderParetoMiniTable(data, recentDraws) {
     const tbody = document.getElementById('pareto-mini-body');
-    if (!tbody) return;
+    if (!tbody || !data) return;
     tbody.innerHTML = '';
 
-    const zones = getZones(frequency);
+    const zones = getZones(data);
 
     recentDraws.forEach(draw => {
         const nums = draw.nums || [];
@@ -226,37 +232,37 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    // 1. 실버 존 (±2σ, 95% 범위)
+    // 1. 세이프 존 (Safe Zone: ±2σ, 95% 범위)
     if (statSummary) {
-        const silverPoints = points.filter(p => {
+        const safePoints = points.filter(p => {
             const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
             return !isNaN(val) && Math.abs(val - statSummary.mean) <= statSummary.std * 2;
         });
-        if (silverPoints.length > 1) {
-            const sPathData = `M ${silverPoints[0].x},${baselineY} ` + silverPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${silverPoints[silverPoints.length-1].x},${baselineY} Z`;
+        if (safePoints.length > 1) {
+            const sPathData = `M ${safePoints[0].x},${baselineY} ` + safePoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${safePoints[safePoints.length-1].x},${baselineY} Z`;
             const sPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
             sPath.setAttribute("d", sPathData);
-            sPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)"); // 매우 연한 파랑
+            sPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)"); // 세이프 존 (연한 파랑)
             svg.appendChild(sPath);
         }
     }
 
-    // 2. 골드 존 (±1σ, 68% 범위)
-    let goldenPoints = [];
+    // 2. 옵티멀 존 (Optimal Zone: ±1σ, 68% 범위)
+    let optimalPoints = [];
     if (statSummary) {
-        goldenPoints = points.filter(p => {
+        optimalPoints = points.filter(p => {
             const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
             return !isNaN(val) && Math.abs(val - statSummary.mean) <= statSummary.std;
         });
     } else {
-        goldenPoints = points.filter(p => p.value >= maxVal * 0.5);
+        optimalPoints = points.filter(p => p.value >= maxVal * 0.5);
     }
 
-    if (goldenPoints.length > 1) {
-        const gPathData = `M ${goldenPoints[0].x},${baselineY} ` + goldenPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${goldenPoints[goldenPoints.length-1].x},${baselineY} Z`;
+    if (optimalPoints.length > 1) {
+        const gPathData = `M ${optimalPoints[0].x},${baselineY} ` + optimalPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${optimalPoints[optimalPoints.length-1].x},${baselineY} Z`;
         const gPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
         gPath.setAttribute("d", gPathData);
-        gPath.setAttribute("fill", "rgba(241, 196, 15, 0.2)"); // 매우 연한 금색
+        gPath.setAttribute("fill", "rgba(46, 204, 113, 0.2)"); // 옵티멀 존 (연한 녹색)
         svg.appendChild(gPath);
     }
 

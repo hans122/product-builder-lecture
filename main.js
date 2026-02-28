@@ -74,10 +74,10 @@ function analyzeNumbers(numbers) {
 
     // 정규분포 기반 상태 판정 함수
     const getZScoreStatus = (val, stat) => {
-        if (!stat) return 'normal';
+        if (!stat) return 'safe';
         const z = Math.abs(val - stat.mean) / stat.std;
-        if (z <= 1.0) return 'optimal'; // Golden Zone (68%)
-        if (z <= 2.0) return 'normal';  // Normal Zone (95%)
+        if (z <= 1.0) return 'optimal'; // Optimal Zone (68%)
+        if (z <= 2.0) return 'safe';    // Safe Zone (95%)
         return 'warning';              // Extreme Zone
     };
 
@@ -85,20 +85,20 @@ function analyzeNumbers(numbers) {
     if (statsData.last_3_draws) {
         const prev1 = new Set(statsData.last_3_draws[0]);
         const p1_cnt = [...currentDraw].filter(x => prev1.has(x)).length;
-        updateAnalysisItem(document.getElementById('period-1-count'), `${p1_cnt}개`, (p1_cnt >= 1 && p1_cnt <= 2) ? 'optimal' : (p1_cnt >= 3 ? 'warning' : 'normal'));
+        updateAnalysisItem(document.getElementById('period-1-count'), `${p1_cnt}개`, (p1_cnt >= 1 && p1_cnt <= 2) ? 'optimal' : (p1_cnt >= 3 ? 'warning' : 'safe'));
 
         const prev1_2 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1] || [])]);
         const p1_2_cnt = [...currentDraw].filter(x => prev1_2.has(x)).length;
-        updateAnalysisItem(document.querySelector('#p1-cum-2 .value'), `${p1_2_cnt}개`, (p1_2_cnt >= 2 && p1_2_cnt <= 4) ? 'optimal' : 'normal');
+        updateAnalysisItem(document.querySelector('#p1-cum-2 .value'), `${p1_2_cnt}개`, (p1_2_cnt >= 2 && p1_2_cnt <= 4) ? 'optimal' : 'safe');
 
         const prev1_3 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1] || []), ...(statsData.last_3_draws[2] || [])]);
         const p1_3_cnt = [...currentDraw].filter(x => prev1_3.has(x)).length;
-        updateAnalysisItem(document.querySelector('#p1-cum-3 .value'), `${p1_3_cnt}개`, (p1_3_cnt >= 3 && p1_3_cnt <= 5) ? 'optimal' : 'normal');
+        updateAnalysisItem(document.querySelector('#p1-cum-3 .value'), `${p1_3_cnt}개`, (p1_3_cnt >= 3 && p1_3_cnt <= 5) ? 'optimal' : 'safe');
 
         const neighbors = new Set();
         statsData.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
         const nCnt = [...currentDraw].filter(x => neighbors.has(x)).length;
-        updateAnalysisItem(document.getElementById('neighbor-count'), `${nCnt}개`, (nCnt >= 1 && nCnt <= 2) ? 'optimal' : 'normal');
+        updateAnalysisItem(document.getElementById('neighbor-count'), `${nCnt}개`, (nCnt >= 1 && nCnt <= 2) ? 'optimal' : 'safe');
     }
 
     // 2. 기본 균형 (정규분포 적용)
@@ -106,24 +106,24 @@ function analyzeNumbers(numbers) {
     updateAnalysisItem(document.getElementById('total-sum'), totalSum, getZScoreStatus(totalSum, summary.sum));
 
     const odds = numbers.filter(n => n % 2 !== 0).length;
-    updateAnalysisItem(document.getElementById('odd-even-ratio'), `${odds}:${6 - odds}`, (odds >= 2 && odds <= 4) ? 'optimal' : 'normal');
+    updateAnalysisItem(document.getElementById('odd-even-ratio'), `${odds}:${6 - odds}`, (odds >= 2 && odds <= 4) ? 'optimal' : 'safe');
 
     const lows = numbers.filter(n => n <= 22).length;
-    updateAnalysisItem(document.getElementById('high-low-ratio'), `${lows}:${6 - lows}`, (lows >= 2 && lows <= 4) ? 'optimal' : 'normal');
+    updateAnalysisItem(document.getElementById('high-low-ratio'), `${lows}:${6 - lows}`, (lows >= 2 && lows <= 4) ? 'optimal' : 'safe');
 
     // 3. 특수수
-    updateAnalysisItem(document.getElementById('prime-count'), `${numbers.filter(isPrime).length}개`, 'normal');
-    updateAnalysisItem(document.getElementById('composite-count'), `${numbers.filter(isComposite).length}개`, 'normal');
-    updateAnalysisItem(document.getElementById('multiple-3-count'), `${numbers.filter(n => n % 3 === 0).length}개`, 'normal');
-    updateAnalysisItem(document.getElementById('multiple-5-count'), `${numbers.filter(n => n % 5 === 0).length}개`, 'normal');
-    updateAnalysisItem(document.getElementById('square-count'), `${numbers.filter(n => [1,4,9,16,25,36].includes(n)).length}개`, 'normal');
-    updateAnalysisItem(document.getElementById('double-count'), `${numbers.filter(n => [11,22,33,44].includes(n)).length}개`, 'normal');
+    updateAnalysisItem(document.getElementById('prime-count'), `${numbers.filter(isPrime).length}개`, 'safe');
+    updateAnalysisItem(document.getElementById('composite-count'), `${numbers.filter(isComposite).length}개`, 'safe');
+    updateAnalysisItem(document.getElementById('multiple-3-count'), `${numbers.filter(n => n % 3 === 0).length}개`, 'safe');
+    updateAnalysisItem(document.getElementById('multiple-5-count'), `${numbers.filter(n => n % 5 === 0).length}개`, 'safe');
+    updateAnalysisItem(document.getElementById('square-count'), `${numbers.filter(n => [1,4,9,16,25,36].includes(n)).length}개`, 'safe');
+    updateAnalysisItem(document.getElementById('double-count'), `${numbers.filter(n => [11,22,33,44].includes(n)).length}개`, 'safe');
 
     // 4. 구간/패턴
-    updateAnalysisItem(document.getElementById('bucket-15-count'), `${new Set(numbers.map(n => Math.floor((n-1)/15))).size}구간`, 'normal');
-    updateAnalysisItem(document.getElementById('bucket-9-count'), `${new Set(numbers.map(n => Math.floor((n-1)/9))).size}구간`, 'normal');
-    updateAnalysisItem(document.getElementById('bucket-3-count'), `${new Set(numbers.map(n => Math.floor((n-1)/3))).size}구간`, 'normal');
-    updateAnalysisItem(document.getElementById('color-count'), `${new Set(numbers.map(getBallColorClass)).size}색`, 'normal');
+    updateAnalysisItem(document.getElementById('bucket-15-count'), `${new Set(numbers.map(n => Math.floor((n-1)/15))).size}구간`, 'safe');
+    updateAnalysisItem(document.getElementById('bucket-9-count'), `${new Set(numbers.map(n => Math.floor((n-1)/9))).size}구간`, 'safe');
+    updateAnalysisItem(document.getElementById('bucket-3-count'), `${new Set(numbers.map(n => Math.floor((n-1)/3))).size}구간`, 'safe');
+    updateAnalysisItem(document.getElementById('color-count'), `${new Set(numbers.map(getBallColorClass)).size}색`, 'safe');
 
     // 5. 전문지표 (정규분포 적용)
     const acVal = calculate_ac(numbers);
@@ -133,15 +133,15 @@ function analyzeNumbers(numbers) {
     updateAnalysisItem(document.getElementById('span-value'), spanVal, getZScoreStatus(spanVal, summary.span));
 
     const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
-    updateAnalysisItem(document.getElementById('end-sum-value'), endSum, 'normal');
+    updateAnalysisItem(document.getElementById('end-sum-value'), endSum, 'safe');
 
     const endDigits = numbers.map(n => n % 10);
     const maxSameEnd = Math.max(...Object.values(Counter(endDigits)));
-    updateAnalysisItem(document.getElementById('same-end-count'), `${maxSameEnd}개`, 'normal');
+    updateAnalysisItem(document.getElementById('same-end-count'), `${maxSameEnd}개`, 'safe');
 
     let consecutive = 0;
     for (let i = 0; i < numbers.length - 1; i++) if (numbers[i] + 1 === numbers[i + 1]) consecutive++;
-    updateAnalysisItem(document.getElementById('consecutive-count'), `${consecutive}쌍`, 'normal');
+    updateAnalysisItem(document.getElementById('consecutive-count'), `${consecutive}쌍`, 'safe');
 }
 
 function Counter(array) {
@@ -178,16 +178,23 @@ function renderNumbers(numbers, useAnimation = true) {
     });
 }
 
-function getZones(frequency) {
-    const sortedFreq = Object.entries(frequency)
-        .map(([num, freq]) => ({ num: parseInt(num), freq }))
-        .sort((a, b) => b.freq - a.freq);
-    
+function getZones(data) {
+    const freq = data.frequency || {};
+    const recentFreq = data.recent_20_frequency || {};
+    const scores = [];
+    for (let i = 1; i <= 45; i++) {
+        const cumulative = freq[i] || 0;
+        const recent = recentFreq[i] || 0;
+        // 최근 20회차 빈도에 가중치 60% 부여 (약 25배 가중치로 밸런싱)
+        const totalScore = (cumulative * 0.4) + (recent * 25.0 * 0.6); 
+        scores.push({ num: i, score: totalScore });
+    }
+    scores.sort((a, b) => b.score - a.score);
     return {
-        gold: sortedFreq.slice(0, 9).map(x => x.num),
-        silver: sortedFreq.slice(9, 23).map(x => x.num),
-        normal: sortedFreq.slice(23, 36).map(x => x.num),
-        cold: sortedFreq.slice(36).map(x => x.num)
+        gold: scores.slice(0, 9).map(x => x.num),
+        silver: scores.slice(9, 23).map(x => x.num),
+        normal: scores.slice(23, 36).map(x => x.num),
+        cold: scores.slice(36).map(x => x.num)
     };
 }
 
@@ -198,24 +205,23 @@ function getRandomFrom(array, count) {
 
 document.getElementById('generate-btn')?.addEventListener('click', function() {
     if (!statsData || !statsData.frequency) {
-        // 데이터가 없으면 기존 방식(랜덤)으로 생성
+        // 데이터가 없으면 기존 방식(무작위)
         const numbers = [];
         while(numbers.length < 6) {
             const num = Math.floor(Math.random() * 45) + 1;
             if(!numbers.includes(num)) numbers.push(num);
         }
         numbers.sort((a, b) => a - b);
-        localStorage.setItem('lastGeneratedNumbers', JSON.stringify(numbers));
         renderNumbers(numbers, true);
         return;
     }
 
-    const zones = getZones(statsData.frequency);
+    const zones = getZones(statsData);
+    // 최근 적중률이 높은 실버존 비중 강화 (2:3:1 조합)
     let numbers = [
         ...getRandomFrom(zones.gold, 2),
-        ...getRandomFrom(zones.silver, 2),
-        ...getRandomFrom(zones.normal, 1),
-        ...getRandomFrom(zones.cold, 1)
+        ...getRandomFrom(zones.silver, 3),
+        ...getRandomFrom(zones.normal, 1)
     ];
 
     numbers.sort((a, b) => a - b);

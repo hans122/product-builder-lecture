@@ -178,8 +178,15 @@ def analyze():
     all_acs = [d['ac'] for d in processed_data]
     all_spans = [d['span'] for d in processed_data]
 
+    # 최근 20회차 빈도 산출 (흐름을 더 민감하게 반영)
+    recent_20_freq = Counter()
+    for d in draws[-20:]:
+        for n in d['nums']:
+            recent_20_freq[n] += 1
+
     result = {
         "frequency": {str(k): v for k, v in frequency.items()},
+        "recent_20_frequency": {str(k): v for k, v in recent_20_freq.items()},
         "distributions": {k: dict(v) for k, v in distributions.items()},
         "stats_summary": {
             "sum": get_stats(all_sums),

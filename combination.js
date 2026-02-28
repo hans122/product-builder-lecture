@@ -98,16 +98,22 @@ function updateSelectedBallsDisplay() {
     analyzeBtn.disabled = selectedNumbers.length !== 6;
 }
 
-function getZones(frequency) {
-    const sortedFreq = Object.entries(frequency)
-        .map(([num, freq]) => ({ num: parseInt(num), freq }))
-        .sort((a, b) => b.freq - a.freq);
-    
+function getZones(data) {
+    const freq = data.frequency || {};
+    const recentFreq = data.recent_20_frequency || {};
+    const scores = [];
+    for (let i = 1; i <= 45; i++) {
+        const cumulative = freq[i] || 0;
+        const recent = recentFreq[i] || 0;
+        const totalScore = (cumulative * 0.4) + (recent * 25.0 * 0.6); 
+        scores.push({ num: i, score: totalScore });
+    }
+    scores.sort((a, b) => b.score - a.score);
     return {
-        gold: sortedFreq.slice(0, 9).map(x => x.num),
-        silver: sortedFreq.slice(9, 23).map(x => x.num),
-        normal: sortedFreq.slice(23, 36).map(x => x.num),
-        cold: sortedFreq.slice(36).map(x => x.num)
+        gold: scores.slice(0, 9).map(x => x.num),
+        silver: scores.slice(9, 23).map(x => x.num),
+        normal: scores.slice(23, 36).map(x => x.num),
+        cold: scores.slice(36).map(x => x.num)
     };
 }
 
@@ -128,12 +134,11 @@ function autoSelect() {
             }
         }
     } else {
-        const zones = getZones(statsData.frequency);
+        const zones = getZones(statsData);
         selectedNumbers = [
             ...getRandomFrom(zones.gold, 2),
-            ...getRandomFrom(zones.silver, 2),
-            ...getRandomFrom(zones.normal, 1),
-            ...getRandomFrom(zones.cold, 1)
+            ...getRandomFrom(zones.silver, 3),
+            ...getRandomFrom(zones.normal, 1)
         ];
     }
 
@@ -163,9 +168,9 @@ function runDetailedAnalysis() {
     let totalScore = 100;
     const nums = [...selectedNumbers].sort((a, b) => a - b);
 
-    // [G0] 파레토 영역 분석 (추가된 부분)
+    // [G0] 파레토 영역 분석
     if (statsData.frequency) {
-        const zones = getZones(statsData.frequency);
+        const zones = getZones(statsData);
         const gCnt = nums.filter(n => zones.gold.includes(n)).length;
         const sCnt = nums.filter(n => zones.silver.includes(n)).length;
         const nCnt = nums.filter(n => zones.normal.includes(n)).length;
@@ -173,12 +178,12 @@ function runDetailedAnalysis() {
         
         addReportRow('[G0] 파레토 영역', `G:${gCnt}/S:${sCnt}/N:${nCnt}/C:${cCnt}`, 
             (gCnt >= 1 && gCnt <= 3) ? '최적' : '보통', 
-            `골드(${gCnt}), 실버(${sCnt}) 비중 분석입니다. (추천: 2:2:1:1)`);
+            `골드(${gCnt}), 실버(${sCnt}) 비중 분석입니다. (추천: 2:3:1:0)`);
     }
 
     // [G1] 기본 균형
     const sum = nums.reduce((a, b) => a + b, 0);
-    addReportRow('[G1] 총합', sum, (sum >= 120 && sum <= 180) ? '최적' : '보통', '가장 빈번한 120~180 구간 분석입니다.');
+    addReportRow('[G1] 총합', sum, (sum >= 120 && sum <= 180) ? '최적' : '보통', '평균 ±1σ 이내의 옵티멀 구간 분석입니다.');
     const odds = nums.filter(n => n % 2 !== 0).length;
     addReportRow('[G1] 홀:짝', `${odds}:${6-odds}`, (odds >= 2 && odds <= 4) ? '최적' : '주의', '홀수와 짝수의 균형입니다.');
     const lows = nums.filter(n => n <= 22).length;
@@ -210,7 +215,7 @@ function runDetailedAnalysis() {
     const acVal = calculate_ac(nums);
     addReportRow('[G5] AC값', acVal, acVal >= 7 ? '최적' : '주의', '무작위성 검증 지표입니다.');
     const spanVal = nums[5] - nums[0];
-    addReportRow('[G5] Span', spanVal, (spanVal >= 25 && spanVal <= 40) ? '최적' : '보통', '번호 간 최대 간격 분석입니다.');
+    addReportRow('[G5] Span', spanVal, (spanVal >= 25 && spanVal <= 40) ? '최적' : '보통', '옵티멀 구간 내의 번호 간 최대 간격 분석입니다.');
 
     // 최종 결과 출력
     const scoreElem = document.getElementById('combination-score');
@@ -228,7 +233,7 @@ function addReportRow(label, value, status, opinion) {
     const tbody = document.getElementById('analysis-report-body');
     if (!tbody) return;
     const tr = document.createElement('tr');
-    let statusClass = (status === '최적') ? 'optimal' : (status === '주의' ? 'warning' : 'normal');
-    tr.innerHTML = `<td><strong>${label}</strong></td><td>${value}</td><td><span class="status-badge ${statusClass}">${status}</span></td><td class="text-left">${opinion}</td>`;
+    let statusClass = (status === '최적') ? 'optimal' : (status === '주의' ? 'warning' : 'safe');
+    tr.innerHTML = `<td><strong>${label}</strong></td><td>${value}</td><td><span class="status-badge ${statusClass}">${status === '보통' ? '세이프' : status}</span></td><td class="text-left">${opinion}</td>`;
     tbody.appendChild(tr);
 }
