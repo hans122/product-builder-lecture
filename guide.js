@@ -63,8 +63,8 @@ function updateGuideStats(data) {
                     <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(0,0,0,0.05);">
                         <span class="text-safe" style="font-size:0.9rem;">✔ 세이프 존 적중률: ${formatStat(info.safeHits, total)}</span>
                         <div style="margin-top:5px; display:flex; gap:15px; font-size:0.8rem; opacity:0.8;">
-                            <span>● 옵티멀 범위($\pm 1\sigma$): ${info.optimal}</span>
-                            <span>● 세이프 범위($\pm 2\sigma$): ${info.safe}</span>
+                            <span>● 옵티멀 범위: ${info.optimal}</span>
+                            <span>● 세이프 범위: ${info.safe}</span>
                         </div>
                     </div>
                 </div>`;
