@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (!data) return;
             const dists = data.distributions;
+            const total = data.total_draws;
 
             if (dists) {
                 // 1. 기본 비율 및 끝수
@@ -22,10 +23,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dists.multiple_5) renderDistChart('multiple-5-chart', dists.multiple_5, '개', true);
                 if (dists.double_num) renderDistChart('double-chart', dists.double_num, '개', true);
 
-                // 2. 이월 및 윈도우 기반 분포
+                // 2. 이월 및 윈도우 기반 분포 (1~2, 1~3)
                 if (dists.period_1) renderDistChart('period-1-chart', dists.period_1, '개', true);
-                if (dists.period_1_2) renderDistChart('period-1-2-chart', dists.period_1_2, '개', true);
-                if (dists.period_1_3) renderDistChart('period-1-3-chart', dists.period_1_3, '개', true);
+                
+                // [수정] 1~2회전 매칭 차트
+                if (dists.period_1_2) {
+                    const data1_2 = Object.entries(dists.period_1_2).map(([k, v]) => {
+                        const prob = ((v / total) * 100).toFixed(1);
+                        return [`${k}개`, v, `${prob}%`];
+                    });
+                    renderDistChart('period-1-2-chart', data1_2, '회');
+                }
+                
+                // [수정] 1~3회전 매칭 차트
+                if (dists.period_1_3) {
+                    const data1_3 = Object.entries(dists.period_1_3).map(([k, v]) => {
+                        const prob = ((v / total) * 100).toFixed(1);
+                        return [`${k}개`, v, `${prob}%`];
+                    });
+                    renderDistChart('period-1-3-chart', data1_3, '회');
+                }
+
                 if (dists.neighbor) renderDistChart('neighbor-chart', dists.neighbor, '개', true);
                 if (dists.consecutive) renderDistChart('consecutive-chart', dists.consecutive, '쌍', true);
 
@@ -145,13 +163,17 @@ function renderDistChart(elementId, distData, unit = '개', autoSort = false) {
     const values = entries.map(e => e[1]);
     const maxVal = Math.max(...values, 1);
     
-    entries.forEach(([label, value]) => {
+    entries.forEach(([label, value, percentage]) => {
         const height = (value / maxVal) * 80;
         const bar = document.createElement('div');
         bar.className = 'dist-bar';
         bar.style.height = `${Math.max(height, 5)}%`;
+        
+        // 퍼센트 데이터가 있으면 상단에 표시
+        const displayVal = percentage ? `${value}<br><small style="font-size:0.65rem">${percentage}</small>` : value;
         const displayLabel = (label.includes(':') || label.includes('-') || label.includes(' ') || isNaN(label) ? label : label + unit);
-        bar.innerHTML = `<span class="dist-value">${value}</span><span class="dist-label">${displayLabel}</span>`;
+        
+        bar.innerHTML = `<span class="dist-value">${displayVal}</span><span class="dist-label">${displayLabel}</span>`;
         container.appendChild(bar);
     });
 }
