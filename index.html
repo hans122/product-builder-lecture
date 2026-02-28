@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로또 번호 분석 및 추천</title>
+    <title>로또 행운 번호 생성 및 분석</title>
     <link rel="stylesheet" href="style.css?v=1.0.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <meta name="google-adsense-account" content="ca-pub-9576362527820452">
 </head>
-<title>로또 행운 번호 생성 및 분석</title>
-...
-<header class="sticky-header">
-    <div class="header-inner">
-        <div class="header-top-row">
-            <h1>🏠 행운의 번호 생성</h1>
-            <div class="nav-links">
-                <a href="index.html" class="nav-btn small">🏠 번호 생성</a>
-                <a href="guide.html" class="nav-btn small">📖 지표 가이드</a>
-                <a href="history.html" class="nav-btn small">📋 당첨 히스토리</a>
-                <a href="combination.html" class="nav-btn small">🎯 조합 분석</a>
-                <a href="analysis.html" class="nav-btn small">📊 빅데이터 통계</a>
+<body class="analysis-page">
+    <header class="sticky-header">
+        <div class="header-inner">
+            <div class="header-top-row">
+                <h1>🏠 행운의 번호 생성</h1>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-btn small">🏠 번호 생성</a>
+                    <a href="guide.html" class="nav-btn small">📖 지표 가이드</a>
+                    <a href="history.html" class="nav-btn small">📋 당첨 히스토리</a>
+                    <a href="combination.html" class="nav-btn small">🎯 조합 분석</a>
+                    <a href="analysis.html" class="nav-btn small">📊 빅데이터 통계</a>
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
     <div class="main-wrapper centered">
         <div class="container main-content">
@@ -48,13 +47,13 @@
                 <div class="analysis-group full-width">
                     <div class="group-sub-title">📍 [G1] 기본 균형 분석</div>
                     <div class="analysis-grid-horizontal">
-                        <a href="analysis.html#sum-section" class="analysis-item-link" data-tip="역대 당첨 70% 이상이 총합 120~180 사이에서 출현합니다.">
+                        <a href="analysis.html#sum-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item" id="total-sum-item"><span class="label">📈 총합(Sum)</span><span id="total-sum" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#odd-even-section" class="analysis-item-link" data-tip="3:3 비율이 가장 빈번하며, 2:4 ~ 4:2 사이가 안정적입니다.">
+                        <a href="analysis.html#odd-even-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item" id="odd-even-item"><span class="label">⚖️ 홀:짝 비율</span><span id="odd-even-ratio" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#high-low-section" class="analysis-item-link" data-tip="저번호(1~22)와 고번호(23~45)가 골고루 섞이는 것이 유리합니다.">
+                        <a href="analysis.html#high-low-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item" id="high-low-item"><span class="label">↕️ 고:저 비율</span><span id="high-low-ratio" class="value">-</span></div>
                         </a>
                     </div>
@@ -62,21 +61,21 @@
 
                 <!-- G2. 회차 상관관계 -->
                 <div class="analysis-group full-width">
-                    <div class="group-sub-title">📍 [G2] 회차 상관관계 (이월 매칭)</div>
+                    <div class="group-sub-title">📍 [G2] 회차 상관관계</div>
                     <div class="analysis-grid-horizontal">
-                        <a href="analysis.html#period-1-section" class="analysis-item-link" data-tip="직전 회차 번호가 1~2개 다시 나올 확률이 매우 높습니다.">
+                        <a href="analysis.html#period-1-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🔄 직전 1회차</span><span id="period-1-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#period-window-section" class="analysis-item-link" data-tip="최근 2개 회차 합집합 중 2~4개가 포함되는 경우가 많습니다.">
-                            <div class="analysis-item" id="p1-cum-2"><span class="label">🔄 1~2회전</span><span class="value">-</span></div>
-                        </a>
-                        <a href="analysis.html#period-window-3-section" class="analysis-item-link" data-tip="최근 3개 회차 합집합 중 3~5개가 포함되는 조합이 강력합니다.">
-                            <div class="analysis-item" id="p1-cum-3"><span class="label">🔄 1~3회전</span><span class="value">-</span></div>
-                        </a>
-                        <a href="analysis.html#neighbor-section" class="analysis-item-link" data-tip="직전 회차 번호의 앞뒤 번호(이웃수)가 1~2개 포함되는 경향이 있습니다.">
+                        <a href="analysis.html#neighbor-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🏠 이웃수</span><span id="neighbor-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#consecutive-section" class="analysis-item-link" data-tip="전체 당첨의 절반 이상에서 최소 한 쌍 이상의 연번이 출현합니다.">
+                        <a href="analysis.html#period-window-section" class="analysis-item-link" data-tip="">
+                            <div class="analysis-item" id="p1-cum-2"><span class="label">🔄 1~2회전</span><span class="value">-</span></div>
+                        </a>
+                        <a href="analysis.html#period-window-3-section" class="analysis-item-link" data-tip="">
+                            <div class="analysis-item" id="p1-cum-3"><span class="label">🔄 1~3회전</span><span class="value">-</span></div>
+                        </a>
+                        <a href="analysis.html#consecutive-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🔗 연속번호</span><span id="consecutive-count" class="value">-</span></div>
                         </a>
                     </div>
@@ -86,22 +85,22 @@
                 <div class="analysis-group full-width">
                     <div class="group-sub-title">📍 [G3] 특수 번호군 분석</div>
                     <div class="analysis-grid-horizontal">
-                        <a href="analysis.html#prime-section" class="analysis-item-link" data-tip="2, 3, 5, 7 등 소수가 2~3개 포함되는 조합이 통계적으로 흔합니다.">
+                        <a href="analysis.html#prime-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🔢 소수</span><span id="prime-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#composite-section" class="analysis-item-link" data-tip="합성수는 보통 3~4개 정도 포함되어 조합의 균형을 맞춥니다.">
+                        <a href="analysis.html#composite-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🧮 합성수</span><span id="composite-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#multiple-3-section" class="analysis-item-link" data-tip="3의 배수는 매 회차 평균 2개 내외로 꾸준히 출현합니다.">
+                        <a href="analysis.html#multiple-3-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">✖️ 3배수</span><span id="multiple-3-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#multiple-5-section" class="analysis-item-link" data-tip="5, 10, 15 등 5의 배수가 1개 정도 포함되는 경우가 많습니다.">
+                        <a href="analysis.html#multiple-5-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🖐️ 5배수</span><span id="multiple-5-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#square-section" class="analysis-item-link" data-tip="1, 4, 9 등 제곱수는 0~1개 정도 가볍게 포함시키는 것이 좋습니다.">
+                        <a href="analysis.html#square-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🟦 제곱수</span><span id="square-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#double-section" class="analysis-item-link" data-tip="11, 22 등 쌍수는 매 회차 나오지는 않지만 1개 정도 포함 시 독특한 조합이 됩니다.">
+                        <a href="analysis.html#double-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">👥 쌍수</span><span id="double-count" class="value">-</span></div>
                         </a>
                     </div>
@@ -111,22 +110,25 @@
                 <div class="analysis-group full-width">
                     <div class="group-sub-title">📍 [G4] 구간 및 패턴 분석</div>
                     <div class="analysis-grid-horizontal">
-                        <a href="analysis.html#bucket-15-section" class="analysis-item-link" data-tip="번호가 특정 15개 단위 구간에 몰리지 않고 2~3개 구간에 분산되어야 합니다.">
+                        <a href="analysis.html#bucket-15-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">📦 3분할</span><span id="bucket-15-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#bucket-9-section" class="analysis-item-link" data-tip="9개 단위 구간 중 3~4개 구간에서 번호가 나오는 것이 이상적입니다.">
+                        <a href="analysis.html#bucket-9-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">📦 5분할</span><span id="bucket-9-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#bucket-3-section" class="analysis-item-link" data-tip="3개 단위 촘촘한 구간 중 5~6개 이상이 점유되는 조합이 확률이 높습니다.">
+                        <a href="analysis.html#bucket-5-section" class="analysis-item-link" data-tip="">
+                            <div class="analysis-item"><span class="label">📦 9분할</span><span id="bucket-5-count" class="value">-</span></div>
+                        </a>
+                        <a href="analysis.html#bucket-3-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">📦 15분할</span><span id="bucket-3-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#color-section" class="analysis-item-link" data-tip="5가지 공 색상 중 최소 3가지 이상의 색상이 섞이는 것이 좋습니다.">
+                        <a href="analysis.html#color-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🎨 색상수</span><span id="color-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#pattern-corner-section" class="analysis-item-link" data-tip="용지 모서리 16개 번호 중 2~3개 정도 출현하는 패턴이 빈번합니다.">
+                        <a href="analysis.html#pattern-corner-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">📐 모서리</span><span id="pattern-corner-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#pattern-triangle-section" class="analysis-item-link" data-tip="용지 중앙 삼각형 영역에 번호가 1~2개 포함되면 균형이 잡힙니다.">
+                        <a href="analysis.html#pattern-triangle-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">📐 삼각형</span><span id="pattern-triangle-count" class="value">-</span></div>
                         </a>
                     </div>
@@ -136,16 +138,16 @@
                 <div class="analysis-group full-width">
                     <div class="group-sub-title">📍 [G5] 끝수 및 전문지표</div>
                     <div class="analysis-grid-horizontal">
-                        <a href="analysis.html#end-sum-section" class="analysis-item-link" data-tip="일의 자리 합계는 보통 15~35 사이에서 가장 많이 형성됩니다.">
+                        <a href="analysis.html#end-sum-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🔢 끝수합</span><span id="end-sum-value" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#same-end-section" class="analysis-item-link" data-tip="동끝수가 하나도 없는 조합보다 한 쌍(2개) 정도 포함된 조합이 더 유리합니다.">
+                        <a href="analysis.html#same-end-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">👯 동끝수</span><span id="same-end-count" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#ac-section" class="analysis-item-link" data-tip="산술적 복잡도(AC)는 7 이상일 때 실제 무작위 번호에 가깝습니다.">
+                        <a href="analysis.html#ac-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">🔢 AC값</span><span id="ac-value" class="value">-</span></div>
                         </a>
-                        <a href="analysis.html#span-section" class="analysis-item-link" data-tip="가장 큰 수와 작은 수의 차이(Span)는 25~40 사이가 가장 많습니다.">
+                        <a href="analysis.html#span-section" class="analysis-item-link" data-tip="">
                             <div class="analysis-item"><span class="label">↔️ Span</span><span id="span-value" class="value">-</span></div>
                         </a>
                     </div>

@@ -1,8 +1,8 @@
-# 로또 번호 분석 및 추천 서비스 SDD (v3.11)
+# 로또 번호 분석 및 추천 서비스 SDD (v3.12)
 
 ## 1. 헤더 및 내비게이션 고도화
 - **Unified Menu & Title Sync**: 상단 이동 버튼명과 각 화면의 `<h1>`, `<title>`을 동일하게 매칭하여 사용자 인지 부하 최소화.
-    - `🏠 번호 생성`, `📖 지표 가이드`, `📋 당첨 히스토리`, `🎯 조합 분석`, `📊 빅데이터 통계`
+- **Header Alignment Fix**: `sticky-header` 내부의 `header-inner` 및 `header-top-row` 구조를 전 HTML에 적용하여 제목과 내비게이션의 상단 중앙 정렬 완성.
 - **Vertical Legend & Color Sync**: 범례 텍스트 색상을 차트 영역 색상과 1:1 매칭.
 - **Cross-Page Unified Style**: 전 서비스 화면 통합 상태 클래스(`.optimal`, `.safe`, `.warning`) 및 배지 디자인 적용.
 

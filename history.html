@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로또 회차별 분석 히스토리</title>
+    <title>로또 역대 당첨 히스토리 및 분석</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,26 +14,24 @@
         .history-table th { font-size: 0.72rem; padding: 10px 2px; white-space: nowrap; }
         .history-table td { font-size: 0.8rem; padding: 10px 2px; }
         .stat-val { font-weight: bold; }
-        /* 가로 스크롤 시 첫 두 컬럼 고정 (선택 사항, 여기서는 전체 스크롤 강조) */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
-<title>로또 역대 당첨 히스토리 및 분석</title>
-...
-<header class="sticky-header">
-    <div class="header-inner">
-        <div class="header-top-row">
-            <h1>📋 역대 당첨 히스토리</h1>
-            <div class="nav-links">
-                <a href="index.html" class="nav-btn small">🏠 번호 생성</a>
-                <a href="guide.html" class="nav-btn small">📖 지표 가이드</a>
-                <a href="history.html" class="nav-btn small">📋 당첨 히스토리</a>
-                <a href="combination.html" class="nav-btn small">🎯 조합 분석</a>
-                <a href="analysis.html" class="nav-btn small">📊 빅데이터 통계</a>
+<body class="analysis-page">
+    <header class="sticky-header">
+        <div class="header-inner">
+            <div class="header-top-row">
+                <h1>📋 역대 당첨 히스토리</h1>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-btn small">🏠 번호 생성</a>
+                    <a href="guide.html" class="nav-btn small">📖 지표 가이드</a>
+                    <a href="history.html" class="nav-btn small">📋 당첨 히스토리</a>
+                    <a href="combination.html" class="nav-btn small">🎯 조합 분석</a>
+                    <a href="analysis.html" class="nav-btn small">📊 빅데이터 통계</a>
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
     <div class="container wide">
         <p class="subtitle">최근 당첨번호들의 22대 통계 지표를 한눈에 비교 분석합니다</p>
