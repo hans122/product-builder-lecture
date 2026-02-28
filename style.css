@@ -54,7 +54,23 @@ body:not(.analysis-page) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
+}
+
+/* 헤더 내 안내 문구 스타일 최적화 */
+.analysis-page .intro-text-section {
+    width: 100%;
+    margin: 0;
+    padding: 4px 0;
+    border-top: 1px solid #f1f5f9;
+    text-align: center;
+}
+
+.analysis-page .intro-text-section .subtitle {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: bold;
 }
 
 .header-top-row {
