@@ -134,44 +134,59 @@ function runDetailedAnalysis() {
 
     // 1. 총합 분석
     const sum = nums.reduce((a, b) => a + b, 0);
-    let sumStatus = (sum >= 120 && sum <= 180) ? '최적' : '보통';
-    addReportRow('총합', sum, sumStatus, '역대 가장 많이 당첨된 120~180 구간 분석입니다.');
+    addReportRow('총합', sum, (sum >= 120 && sum <= 180) ? '최적' : '보통', '역대 가장 많이 당첨된 120~180 구간 분석입니다.');
 
-    // 2. 홀짝 분석
+    // 2. 비율 분석
     const odds = nums.filter(n => n % 2 !== 0).length;
     addReportRow('홀:짝', `${odds}:${6-odds}`, (odds >= 2 && odds <= 4) ? '최적' : '주의', '홀수와 짝수의 균형 분석입니다.');
+    const lows = nums.filter(n => n <= 22).length;
+    addReportRow('고:저', `${lows}:${6-lows}`, (lows >= 2 && lows <= 4) ? '최적' : '주의', '저번호와 고번호의 균형 분석입니다.');
 
-    // 3. 이월수 분석 (윈도우 기반)
+    // 3. 특수수 분석
+    const primeCnt = nums.filter(isPrime).length;
+    addReportRow('소수 포함', `${primeCnt}개`, (primeCnt >= 2 && primeCnt <= 3) ? '최적' : '보통', '2, 3, 5, 7, 11 등 소수 개수입니다.');
+    const compositeCnt = nums.filter(isComposite).length;
+    addReportRow('합성수 포함', `${compositeCnt}개`, '보통', '1과 소수를 제외한 합성수 개수입니다.');
+    const m3Cnt = nums.filter(n => n % 3 === 0).length;
+    addReportRow('3배수 포함', `${m3Cnt}개`, '보통', '3의 배수 포함 개수 분석입니다.');
+    const m5Cnt = nums.filter(n => n % 5 === 0).length;
+    addReportRow('5배수 포함', `${m5Cnt}개`, '보통', '5의 배수 포함 개수 분석입니다.');
+    const squares = [1, 4, 9, 16, 25, 36];
+    const squareCnt = nums.filter(n => squares.includes(n)).length;
+    addReportRow('제곱수 포함', `${squareCnt}개`, '보통', '완전제곱수 포함 개수 분석입니다.');
+    const doubles = [11, 22, 33, 44];
+    const doubleCnt = nums.filter(n => doubles.includes(n)).length;
+    addReportRow('쌍수 포함', `${doubleCnt}개`, '보통', '쌍수 포함 개수 분석입니다.');
+
+    // 4. 이월수 분석 (윈도우)
     if (statsData.last_3_draws) {
         const prev1 = new Set(statsData.last_3_draws[0]);
         const p1 = nums.filter(n => prev1.has(n)).length;
         addReportRow('이월수(1회전)', `${p1}개`, (p1 >= 1 && p1 <= 2) ? '최적' : '보통', '직전 회차 번호와의 중복도입니다.');
-
         const prev1_3 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[]), ...(statsData.last_3_draws[2]||[])]);
         const p1_3 = nums.filter(n => prev1_3.has(n)).length;
         addReportRow('1~3회전 매칭', `${p1_3}개`, (p1_3 >= 3 && p1_3 <= 5) ? '최적' : '보통', '최근 3개 회차 합집합과의 중복도입니다.');
     }
 
-    // 4. 구간 분석 (3/5/9/15분할)
+    // 5. 구간 및 전문 지표
     const b15 = new Set(nums.map(n => Math.floor((n-1)/15))).size;
     const b3 = new Set(nums.map(n => Math.floor((n-1)/3))).size;
     addReportRow('3분할 점유', `${b15}구간`, b15 >= 2 ? '최적' : '주의', '15개씩 3개 구간 중 포함된 구간 수입니다.');
     addReportRow('15분할 점유', `${b3}구간`, b3 >= 5 ? '최적' : '보통', '3개씩 15개 구간 중 포함된 구간 수입니다.');
+    const colorCnt = new Set(nums.map(getBallColorClass)).size;
+    addReportRow('색상 분할', `${colorCnt}색`, colorCnt >= 3 ? '최적' : '보통', '5가지 색상 그룹 점유 분석입니다.');
 
-    // 5. 전문 지표
     const acVal = calculate_ac(nums);
     addReportRow('AC값', acVal, acVal >= 7 ? '최적' : '주의', '산술적 복잡도입니다. 7 이상을 권장합니다.');
-
-    const primeCnt = nums.filter(isPrime).length;
-    addReportRow('소수 포함', `${primeCnt}개`, (primeCnt >= 2 && primeCnt <= 3) ? '최적' : '보통', '2, 3, 5, 7, 11 등 소수 개수입니다.');
+    const spanVal = nums[5] - nums[0];
+    addReportRow('Span', spanVal, (spanVal >= 25 && spanVal <= 40) ? '최적' : '보통', '번호 간 분산도를 나타내는 Span 지표입니다.');
 
     // 최종 결과 출력
     const scoreElem = document.getElementById('combination-score');
     const gradeElem = document.getElementById('combination-grade');
     const reportSection = document.getElementById('report-section');
-    
     if (scoreElem) scoreElem.innerText = totalScore;
-    if (gradeElem) gradeElem.innerText = totalScore >= 90 ? 'A등급' : 'B등급';
+    if (gradeElem) gradeElem.innerText = totalScore >= 90 ? 'A등급' : (totalScore >= 80 ? 'B등급' : 'C등급');
     if (reportSection) {
         reportSection.style.display = 'block';
         reportSection.scrollIntoView({ behavior: 'smooth' });

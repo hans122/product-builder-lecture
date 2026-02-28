@@ -165,7 +165,6 @@ function analyzeNumbers(numbers) {
     const m5Target = document.getElementById('multiple-5-count');
     if (m5Target) updateAnalysisItem(m5Target, `${m5Count}개`, 'normal');
 
-    // [신규 추가 항목들]
     const squares = [1, 4, 9, 16, 25, 36];
     const squareCount = numbers.filter(n => squares.includes(n)).length;
     const squareTarget = document.getElementById('square-count');

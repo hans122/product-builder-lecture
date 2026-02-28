@@ -49,37 +49,44 @@ function renderHistoryTable(draws) {
 
     draws.forEach(draw => {
         const tr = document.createElement('tr');
-        
-        // 번호 구슬 생성
         const ballsHtml = draw.nums.map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
         
-        // 각 지표별 최적 상태 체크 (시각적 도움)
-        const sumClass = (draw.sum >= 120 && draw.sum <= 180) ? 'optimal-text' : '';
-        const oeParts = draw.odd_even.split(':').map(Number);
-        const oeClass = (oeParts[0] >= 2 && oeParts[0] <= 4) ? 'optimal-text' : '';
-        
-        // 윈도우 기반 매칭 개수 표시
-        const p1 = draw.period_1 || 0;
-        const p1_2 = draw.period_1_2 || 0;
-        const p1_3 = draw.period_1_3 || 0;
+        // 데이터 누락 방지를 위한 기본값 처리
+        const p1 = draw.period_1 !== undefined ? draw.period_1 : '-';
+        const p1_2 = draw.period_1_2 !== undefined ? draw.period_1_2 : '-';
+        const p1_3 = draw.period_1_3 !== undefined ? draw.period_1_3 : '-';
+        const prime = draw.prime !== undefined ? draw.prime : '-';
+        const composite = draw.composite !== undefined ? draw.composite : '-';
+        const m3 = draw.multiple_3 !== undefined ? draw.multiple_3 : '-';
+        const m5 = draw.m5 !== undefined ? draw.m5 : (draw.multiple_5 !== undefined ? draw.multiple_5 : '-');
+        const square = draw.square !== undefined ? draw.square : '-';
+        const double = draw.double !== undefined ? draw.double : '-';
+        const ac = draw.ac !== undefined ? draw.ac : '-';
+        const span = draw.span !== undefined ? draw.span : '-';
+        const b3 = draw.b15 !== undefined ? draw.b15 : '-'; // 3분할(15개씩)
+        const b15 = draw.b3 !== undefined ? draw.b3 : '-'; // 15분할(3개씩)
+        const color = draw.color !== undefined ? draw.color : '-';
 
         tr.innerHTML = `
             <td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
             <td><div class="table-nums">${ballsHtml}</div></td>
-            <td class="stat-val ${sumClass}">${draw.sum}</td>
-            <td class="stat-val ${oeClass}">${draw.odd_even}</td>
+            <td class="stat-val">${draw.sum}</td>
+            <td class="stat-val">${draw.odd_even}</td>
             <td class="stat-val">${draw.high_low}</td>
-            <td class="stat-val">${draw.ac}</td>
-            <td class="stat-val">${draw.span}</td>
-            <td class="stat-val">${p1}개</td>
-            <td class="stat-val">${p1_2}개</td>
-            <td class="stat-val">${p1_3}개</td>
-            <td class="stat-val">${draw.consecutive}쌍</td>
-            <td class="stat-val">${draw.b15}구간</td>
-            <td class="stat-val">${draw.b9}구간</td>
-            <td class="stat-val">${draw.b5}구간</td>
-            <td class="stat-val">${draw.b3}구간</td>
-            <td class="stat-val">${draw.color}색상</td>
+            <td class="stat-val">${p1}</td>
+            <td class="stat-val">${p1_2}</td>
+            <td class="stat-val">${p1_3}</td>
+            <td class="stat-val">${prime}</td>
+            <td class="stat-val">${composite}</td>
+            <td class="stat-val">${m3}</td>
+            <td class="stat-val">${m5}</td>
+            <td class="stat-val">${square}</td>
+            <td class="stat-val">${double}</td>
+            <td class="stat-val">${ac}</td>
+            <td class="stat-val">${span}</td>
+            <td class="stat-val">${b3}</td>
+            <td class="stat-val">${b15}</td>
+            <td class="stat-val">${color}</td>
         `;
         tbody.appendChild(tr);
     });
