@@ -37,14 +37,12 @@ document.addEventListener('DOMContentLoaded', function() {
             statsData = data;
             console.log('Stats loaded successfully');
             
-            // 직전 회차 정보 표시 (첫 번째 직전 회차만 메인에 시각화)
+            // 직전 회차 정보 표시
             if (data.last_3_draws && data.last_3_draws.length > 0) {
                 const infoContainer = document.getElementById('last-draw-info');
                 const ballContainer = document.getElementById('last-draw-balls');
                 if (infoContainer && ballContainer) {
                     infoContainer.style.display = 'flex';
-                    infoContainer.style.flexDirection = 'column';
-                    infoContainer.style.alignItems = 'center';
                     ballContainer.innerHTML = '';
                     data.last_3_draws[0].forEach(num => {
                         const ball = document.createElement('div');
@@ -52,183 +50,104 @@ document.addEventListener('DOMContentLoaded', function() {
                         ball.innerText = num;
                         ballContainer.appendChild(ball);
                     });
-                    const label = infoContainer.querySelector('.label');
-                    if (label) {
-                        label.innerText = `직전 ${data.total_draws}회차 당첨 번호:`;
-                    }
                 }
             }
 
-            // 데이터 로드 후 저장된 번호가 있다면 분석 실행
+            // 저장된 번호 분석
             const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
             if (savedNumbers) {
                 renderNumbers(JSON.parse(savedNumbers), false);
             }
         })
-        .catch(err => {
-            console.error('Stats load failed:', err);
-        });
+        .catch(err => console.error('Stats load failed:', err));
 });
 
 function analyzeNumbers(numbers) {
     if (!statsData) {
-        console.warn('Stats data not yet loaded. Retrying in 100ms...');
+        console.warn('Stats data not yet loaded.');
         setTimeout(() => analyzeNumbers(numbers), 100);
         return;
     }
 
     const currentDraw = new Set(numbers);
+    const summary = statsData.stats_summary || {};
 
-    // 1. 회차 윈도우 기반 매칭 분석 (이월, 1~2, 1~3)
+    // 정규분포 기반 상태 판정 함수
+    const getZScoreStatus = (val, stat) => {
+        if (!stat) return 'normal';
+        const z = Math.abs(val - stat.mean) / stat.std;
+        if (z <= 1.0) return 'optimal'; // Golden Zone (68%)
+        if (z <= 2.0) return 'normal';  // Normal Zone (95%)
+        return 'warning';              // Extreme Zone
+    };
+
+    // 1. 회차 상관관계
     if (statsData.last_3_draws) {
-        // [이월]: 직전 1개 회차 비교
         const prev1 = new Set(statsData.last_3_draws[0]);
         const p1_cnt = [...currentDraw].filter(x => prev1.has(x)).length;
-        const p1_target = document.getElementById('period-1-count');
-        if (p1_target) {
-            let status = (p1_cnt >= 1 && p1_cnt <= 2) ? 'optimal' : (p1_cnt >= 3 ? 'warning' : 'normal');
-            updateAnalysisItem(p1_target, `${p1_cnt}개`, status);
-        }
+        updateAnalysisItem(document.getElementById('period-1-count'), `${p1_cnt}개`, (p1_cnt >= 1 && p1_cnt <= 2) ? 'optimal' : (p1_cnt >= 3 ? 'warning' : 'normal'));
 
-        // [1~2]: 직전 1+2회차 합집합 비교
         const prev1_2 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1] || [])]);
         const p1_2_cnt = [...currentDraw].filter(x => prev1_2.has(x)).length;
-        const p1_2_target = document.querySelector('#p1-cum-2 .value');
-        if (p1_2_target) {
-            let status = (p1_2_cnt >= 2 && p1_2_cnt <= 4) ? 'optimal' : 'normal';
-            updateAnalysisItem(p1_2_target, `${p1_2_cnt}개`, status);
-        }
+        updateAnalysisItem(document.querySelector('#p1-cum-2 .value'), `${p1_2_cnt}개`, (p1_2_cnt >= 2 && p1_2_cnt <= 4) ? 'optimal' : 'normal');
 
-        // [1~3]: 직전 1+2+3회차 합집합 비교
-        const prev1_3 = new Set([
-            ...statsData.last_3_draws[0], 
-            ...(statsData.last_3_draws[1] || []),
-            ...(statsData.last_3_draws[2] || [])
-        ]);
+        const prev1_3 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1] || []), ...(statsData.last_3_draws[2] || [])]);
         const p1_3_cnt = [...currentDraw].filter(x => prev1_3.has(x)).length;
-        const p1_3_target = document.querySelector('#p1-cum-3 .value');
-        if (p1_3_target) {
-            let status = (p1_3_cnt >= 3 && p1_3_cnt <= 5) ? 'optimal' : 'normal';
-            updateAnalysisItem(p1_3_target, `${p1_3_cnt}개`, status);
-        }
+        updateAnalysisItem(document.querySelector('#p1-cum-3 .value'), `${p1_3_cnt}개`, (p1_3_cnt >= 3 && p1_3_cnt <= 5) ? 'optimal' : 'normal');
 
-        // 이웃수 (직전 1회차 기준 ±1)
         const neighbors = new Set();
-        statsData.last_3_draws[0].forEach(n => {
-            if (n > 1) neighbors.add(n - 1);
-            if (n < 45) neighbors.add(n + 1);
-        });
-        const neighborCommon = [...currentDraw].filter(x => neighbors.has(x)).length;
-        const neighborTarget = document.getElementById('neighbor-count');
-        if (neighborTarget) {
-            let status = (neighborCommon >= 1 && neighborCommon <= 2) ? 'optimal' : 'normal';
-            updateAnalysisItem(neighborTarget, `${neighborCommon}개`, status);
-        }
+        statsData.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
+        const nCnt = [...currentDraw].filter(x => neighbors.has(x)).length;
+        updateAnalysisItem(document.getElementById('neighbor-count'), `${nCnt}개`, (nCnt >= 1 && nCnt <= 2) ? 'optimal' : 'normal');
     }
 
-    // 2. 기본 비율 분석
+    // 2. 기본 균형 (정규분포 적용)
+    const totalSum = numbers.reduce((a, b) => a + b, 0);
+    updateAnalysisItem(document.getElementById('total-sum'), totalSum, getZScoreStatus(totalSum, summary.sum));
+
     const odds = numbers.filter(n => n % 2 !== 0).length;
-    const oddEvenTarget = document.getElementById('odd-even-ratio');
-    if (oddEvenTarget) {
-        let status = (odds >= 2 && odds <= 4) ? 'optimal' : 'normal';
-        updateAnalysisItem(oddEvenTarget, `${odds}:${6 - odds}`, status);
-    }
+    updateAnalysisItem(document.getElementById('odd-even-ratio'), `${odds}:${6 - odds}`, (odds >= 2 && odds <= 4) ? 'optimal' : 'normal');
 
     const lows = numbers.filter(n => n <= 22).length;
-    const hlTarget = document.getElementById('high-low-ratio');
-    if (hlTarget) {
-        let status = (lows >= 2 && lows <= 4) ? 'optimal' : 'normal';
-        updateAnalysisItem(hlTarget, `${lows}:${6 - lows}`, status);
-    }
+    updateAnalysisItem(document.getElementById('high-low-ratio'), `${lows}:${6 - lows}`, (lows >= 2 && lows <= 4) ? 'optimal' : 'normal');
 
-    const totalSum = numbers.reduce((a, b) => a + b, 0);
-    const sumTarget = document.getElementById('total-sum');
-    if (sumTarget) {
-        let status = (totalSum >= 120 && totalSum <= 180) ? 'optimal' : 'warning';
-        updateAnalysisItem(sumTarget, totalSum, status);
-    }
+    // 3. 특수수
+    updateAnalysisItem(document.getElementById('prime-count'), `${numbers.filter(isPrime).length}개`, 'normal');
+    updateAnalysisItem(document.getElementById('composite-count'), `${numbers.filter(isComposite).length}개`, 'normal');
+    updateAnalysisItem(document.getElementById('multiple-3-count'), `${numbers.filter(n => n % 3 === 0).length}개`, 'normal');
+    updateAnalysisItem(document.getElementById('multiple-5-count'), `${numbers.filter(n => n % 5 === 0).length}개`, 'normal');
+    updateAnalysisItem(document.getElementById('square-count'), `${numbers.filter(n => [1,4,9,16,25,36].includes(n)).length}개`, 'normal');
+    updateAnalysisItem(document.getElementById('double-count'), `${numbers.filter(n => [11,22,33,44].includes(n)).length}개`, 'normal');
 
-    // [추가] 실시간 분석 누락 지표들
-    const primeCount = numbers.filter(isPrime).length;
-    const primeTarget = document.getElementById('prime-count');
-    if (primeTarget) updateAnalysisItem(primeTarget, `${primeCount}개`, (primeCount >= 2 && primeCount <= 3) ? 'optimal' : 'normal');
+    // 4. 구간/패턴
+    updateAnalysisItem(document.getElementById('bucket-15-count'), `${new Set(numbers.map(n => Math.floor((n-1)/15))).size}구간`, 'normal');
+    updateAnalysisItem(document.getElementById('bucket-9-count'), `${new Set(numbers.map(n => Math.floor((n-1)/9))).size}구간`, 'normal');
+    updateAnalysisItem(document.getElementById('bucket-3-count'), `${new Set(numbers.map(n => Math.floor((n-1)/3))).size}구간`, 'normal');
+    updateAnalysisItem(document.getElementById('color-count'), `${new Set(numbers.map(getBallColorClass)).size}색`, 'normal');
 
-    const compositeCount = numbers.filter(isComposite).length;
-    const compositeTarget = document.getElementById('composite-count');
-    if (compositeTarget) updateAnalysisItem(compositeTarget, `${compositeCount}개`, 'normal');
-
-    const m3Count = numbers.filter(n => n % 3 === 0).length;
-    const m3Target = document.getElementById('multiple-3-count');
-    if (m3Target) updateAnalysisItem(m3Target, `${m3Count}개`, 'normal');
-
-    const m5Count = numbers.filter(n => n % 5 === 0).length;
-    const m5Target = document.getElementById('multiple-5-count');
-    if (m5Target) updateAnalysisItem(m5Target, `${m5Count}개`, 'normal');
-
-    const squares = [1, 4, 9, 16, 25, 36];
-    const squareCount = numbers.filter(n => squares.includes(n)).length;
-    const squareTarget = document.getElementById('square-count');
-    if (squareTarget) updateAnalysisItem(squareTarget, `${squareCount}개`, 'normal');
-
-    const doubles = [11, 22, 33, 44];
-    const doubleCount = numbers.filter(n => doubles.includes(n)).length;
-    const doubleTarget = document.getElementById('double-count');
-    if (doubleTarget) updateAnalysisItem(doubleTarget, `${doubleCount}개`, 'normal');
-
-    const corners = new Set([1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42]);
-    const triangle = new Set([4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32]);
-    const pCornerCnt = numbers.filter(n => corners.has(n)).length;
-    const pTriCnt = numbers.filter(n => triangle.has(n)).length;
-    
-    const pcTarget = document.getElementById('pattern-corner-count');
-    if (pcTarget) updateAnalysisItem(pcTarget, `${pCornerCnt}개`, 'normal');
-    const ptTarget = document.getElementById('pattern-triangle-count');
-    if (ptTarget) updateAnalysisItem(ptTarget, `${pTriCnt}개`, 'normal');
-
-    const colorCnt = new Set(numbers.map(getBallColorClass)).size;
-    const colorTarget = document.getElementById('color-count');
-    if (colorTarget) updateAnalysisItem(colorTarget, `${colorCnt}색상`, colorCnt >= 3 ? 'optimal' : 'normal');
-
-    const b15Count = new Set(numbers.map(n => Math.floor((n-1)/15))).size;
-    const b15Target = document.getElementById('bucket-15-count');
-    if (b15Target) updateAnalysisItem(b15Target, `${b15Count}구간`, b15Count >= 2 ? 'optimal' : 'normal');
-
-    const b9Count = new Set(numbers.map(n => Math.floor((n-1)/9))).size;
-    const b9Target = document.getElementById('bucket-9-count');
-    if (b9Target) updateAnalysisItem(b9Target, `${b9Count}구간`, b9Count >= 3 ? 'optimal' : 'normal');
-
-    const b5Count = new Set(numbers.map(n => Math.floor((n-1)/5))).size;
-    const b5Target = document.getElementById('bucket-5-count');
-    if (b5Target) updateAnalysisItem(b5Target, `${b5Count}구간`, b5Count >= 4 ? 'optimal' : 'normal');
-
-    const b3Count = new Set(numbers.map(n => Math.floor((n-1)/3))).size;
-    const b3Target = document.getElementById('bucket-3-count');
-    if (b3Target) updateAnalysisItem(b3Target, `${b3Count}구간`, b3Count >= 5 ? 'optimal' : 'normal');
-
-    // (기타 지표들 생략/유지)
-    const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
-    const endSumTarget = document.getElementById('end-sum-value');
-    if (endSumTarget) updateAnalysisItem(endSumTarget, endSum, (endSum >= 15 && endSum <= 35) ? 'optimal' : 'normal');
-
-    const endDigits = numbers.map(n => n % 10);
-    const digitCounts = {};
-    endDigits.forEach(d => digitCounts[d] = (digitCounts[d] || 0) + 1);
-    const maxSameEnd = Math.max(...Object.values(digitCounts));
-    const sameEndTarget = document.getElementById('same-end-count');
-    if (sameEndTarget) updateAnalysisItem(sameEndTarget, `${maxSameEnd}개`, (maxSameEnd >= 2 && maxSameEnd <= 3) ? 'optimal' : 'normal');
-
+    // 5. 전문지표 (정규분포 적용)
     const acVal = calculate_ac(numbers);
-    const acTarget = document.getElementById('ac-value');
-    if (acTarget) updateAnalysisItem(acTarget, acVal, (acVal >= 7) ? 'optimal' : 'normal');
+    updateAnalysisItem(document.getElementById('ac-value'), acVal, getZScoreStatus(acVal, summary.ac));
 
     const spanVal = numbers[numbers.length - 1] - numbers[0];
-    const spanTarget = document.getElementById('span-value');
-    if (spanTarget) updateAnalysisItem(spanTarget, spanVal, (spanVal >= 25 && spanVal <= 40) ? 'optimal' : 'normal');
+    updateAnalysisItem(document.getElementById('span-value'), spanVal, getZScoreStatus(spanVal, summary.span));
+
+    const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
+    updateAnalysisItem(document.getElementById('end-sum-value'), endSum, 'normal');
+
+    const endDigits = numbers.map(n => n % 10);
+    const maxSameEnd = Math.max(...Object.values(Counter(endDigits)));
+    updateAnalysisItem(document.getElementById('same-end-count'), `${maxSameEnd}개`, 'normal');
 
     let consecutive = 0;
     for (let i = 0; i < numbers.length - 1; i++) if (numbers[i] + 1 === numbers[i + 1]) consecutive++;
-    const consecutiveTarget = document.getElementById('consecutive-count');
-    if (consecutiveTarget) updateAnalysisItem(consecutiveTarget, `${consecutive}쌍`, (consecutive >= 1 && consecutive <= 2) ? 'optimal' : 'normal');
+    updateAnalysisItem(document.getElementById('consecutive-count'), `${consecutive}쌍`, 'normal');
+}
+
+function Counter(array) {
+    const counts = {};
+    array.forEach(x => counts[x] = (counts[x] || 0) + 1);
+    return counts;
 }
 
 function updateAnalysisItem(element, text, status) {

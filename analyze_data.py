@@ -166,9 +166,26 @@ def analyze():
 
     recent_table = processed_data[::-1][:30]
     
+    # 통계적 요약 (정규분포 분석용)
+    def get_stats(values):
+        if not values: return {"mean": 0, "std": 0}
+        n = len(values)
+        mean = sum(values) / n
+        variance = sum((x - mean) ** 2 for x in values) / n
+        return {"mean": round(mean, 2), "std": round(variance ** 0.5, 2)}
+
+    all_sums = [d['sum'] for d in processed_data]
+    all_acs = [d['ac'] for d in processed_data]
+    all_spans = [d['span'] for d in processed_data]
+
     result = {
         "frequency": {str(k): v for k, v in frequency.items()},
         "distributions": {k: dict(v) for k, v in distributions.items()},
+        "stats_summary": {
+            "sum": get_stats(all_sums),
+            "ac": get_stats(all_acs),
+            "span": get_stats(all_spans)
+        },
         "total_draws": len(draws),
         "last_3_draws": [d['nums'] for d in draws[-3:][::-1]],
         "recent_draws": recent_table
@@ -176,7 +193,7 @@ def analyze():
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    print(f"Success: Updated stats with comprehensive metrics up to draw {draws[-1]['no']}")
+    print(f"Success: Updated stats with normal distribution metrics up to draw {draws[-1]['no']}")
 
 if __name__ == "__main__":
     analyze()

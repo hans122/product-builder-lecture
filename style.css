@@ -358,10 +358,79 @@ body:not(.analysis-page) {
 .mini-table th { background: #f7fafc; padding: 8px 4px; border-bottom: 2px solid #edf2f7; color: #718096; }
 .mini-table td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
 
-.dist-bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 180px; padding-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 35px; overflow-x: auto; }
-.dist-bar { flex: 1; background: #3498db; border-radius: 4px 4px 0 0; position: relative; min-width: 40px; max-width: 80px; display: flex; flex-direction: column; align-items: center; }
-.dist-value { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: bold; color: #2c3e50; }
-.dist-label { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: #7f8c8d; font-weight: bold; white-space: nowrap; }
+.dist-bar-chart { 
+    display: flex; 
+    align-items: flex-end; 
+    gap: 2px; /* 간격을 매우 좁게 하여 분포 곡선 느낌 강조 */
+    height: 200px; 
+    padding-top: 40px; 
+    border-bottom: 2px solid #e2e8f0; 
+    padding-bottom: 40px; 
+    overflow-x: auto; 
+    position: relative;
+    background: linear-gradient(to right, transparent 15%, rgba(46, 204, 113, 0.05) 15%, rgba(46, 204, 113, 0.05) 85%, transparent 85%); /* Golden Zone 가이드 배경 */
+}
+
+.dist-bar { 
+    flex: 1; 
+    background: #bdc3c7; /* 기본 색상은 회색계열 */
+    border-radius: 2px 2px 0 0; 
+    position: relative; 
+    min-width: 25px; 
+    max-width: 50px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    transition: all 0.3s ease;
+}
+
+/* 정규분포의 핵심 영역(Golden Zone) 강조 */
+.dist-bar.golden-zone {
+    background: linear-gradient(to top, #3498db, #5dade2);
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+}
+
+/* 평균값 지점 표시 */
+.dist-bar.is-mean {
+    background: linear-gradient(to top, #27ae60, #2ecc71) !important;
+}
+
+/* 현재 내 번호 위치 표시기 */
+.dist-bar.current-pos::before {
+    content: "▼";
+    position: absolute;
+    top: -45px;
+    color: #e74c3c;
+    font-size: 1.2rem;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.dist-value { 
+    position: absolute; 
+    top: -28px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    font-size: 0.65rem; 
+    font-weight: bold; 
+    color: #34495e; 
+    white-space: nowrap;
+}
+
+.dist-label { 
+    position: absolute; 
+    bottom: -35px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    font-size: 0.6rem; 
+    color: #7f8c8d; 
+    font-weight: bold; 
+    white-space: nowrap; 
+}
 
 .table-responsive { overflow-x: auto; margin-top: 1rem; }
 

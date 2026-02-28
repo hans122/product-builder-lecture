@@ -5,16 +5,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!data) return;
             const dists = data.distributions;
             const total = data.total_draws;
+            const stats = data.stats_summary || {};
 
-            // 1. 기본 및 합계
-            if (dists.odd_even) renderDistChart('odd-even-chart', dists.odd_even, ' : ', true);
-            if (dists.high_low) renderDistChart('high-low-chart', dists.high_low, ' : ', true);
+            // 1. 기본 및 합계 (정규분포 적용)
             if (dists.sum) {
                 const sumOrder = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
                 const sortedSum = {};
                 sumOrder.forEach(range => { if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range]; });
-                renderDistChart('sum-chart', sortedSum, '');
+                renderDistChart('sum-chart', sortedSum, '', false, stats.sum);
             }
+            if (dists.odd_even) renderDistChart('odd-even-chart', dists.odd_even, ' : ', true);
+            if (dists.high_low) renderDistChart('high-low-chart', dists.high_low, ' : ', true);
 
             // 2. 특수 번호 및 끝수
             if (dists.prime) renderDistChart('prime-chart', dists.prime, '개', true);
@@ -44,31 +45,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dists.bucket_5) renderDistChart('bucket-5-chart', dists.bucket_5, '구간', true);
             if (dists.bucket_3) renderDistChart('bucket-3-chart', dists.bucket_3, '구간', true);
             if (dists.color) renderDistChart('color-chart', dists.color, '색상', true);
+            if (dists.pattern_corner) renderDistChart('pattern-corner-chart', dists.pattern_corner, '개', true);
+            if (dists.pattern_triangle) renderDistChart('pattern-triangle-chart', dists.pattern_triangle, '개', true);
 
-            // 5. 전문 지표
-            if (dists.ac) {
-                const acOrder = ["6 이하", "7", "8", "9", "10"];
-                const acData = acOrder.map(label => {
-                    let count = 0;
-                    if (label === "6 이하") {
-                        Object.entries(dists.ac).forEach(([v, c]) => { if (parseInt(v) <= 6) count += c; });
-                    } else { count = dists.ac[label] || 0; }
-                    return [label, count];
-                });
-                renderDistChart('ac-chart', acData, '');
-            }
-            if (dists.span) {
-                const spanGrouped = {"25 미만": 0, "25-29": 0, "30-34": 0, "35-39": 0, "40 이상": 0};
-                Object.entries(dists.span).forEach(([val, count]) => {
-                    const v = parseInt(val);
-                    if (v < 25) spanGrouped["25 미만"] += count;
-                    else if (v <= 29) spanGrouped["25-29"] += count;
-                    else if (v <= 34) spanGrouped["30-34"] += count;
-                    else if (v <= 39) spanGrouped["35-39"] += count;
-                    else spanGrouped["40 이상"] += count;
-                });
-                renderDistChart('span-chart', spanGrouped, '');
-            }
+            // 5. 전문 지표 (AC, Span 정규분포 적용)
+            if (dists.ac) renderDistChart('ac-chart', dists.ac, '', true, stats.ac);
+            if (dists.span) renderDistChart('span-chart', dists.span, '', true, stats.span);
+            if (dists.end_sum) renderDistChart('end-sum-chart', dists.end_sum, '', true);
 
             // 공통: 최근 6회차 미니 테이블
             if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));
@@ -83,26 +66,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function renderMiniTables(draws) {
     const config = [
+        { id: 'sum-mini-body', key: 'sum' },
         { id: 'odd-even-mini-body', key: 'odd_even' },
         { id: 'high-low-mini-body', key: 'high_low' },
-        { id: 'sum-mini-body', key: 'sum' },
+        { id: 'period-1-mini-body', key: 'period_1' },
+        { id: 'period-1-2-mini-body', key: 'period_1_2' },
+        { id: 'period-1-3-mini-body', key: 'period_1_3' },
+        { id: 'neighbor-mini-body', key: 'neighbor' },
+        { id: 'consecutive-mini-body', key: 'consecutive' },
         { id: 'prime-mini-body', key: 'prime' },
         { id: 'composite-mini-body', key: 'composite' },
         { id: 'multiple-3-mini-body', key: 'multiple_3' },
         { id: 'multiple-5-mini-body', key: 'm5' },
         { id: 'square-mini-body', key: 'square' },
         { id: 'double-mini-body', key: 'double' },
-        { id: 'same-end-mini-body', key: 'same_end' },
-        { id: 'period-1-mini-body', key: 'period_1' },
-        { id: 'period-1-2-mini-body', key: 'period_1_2' },
-        { id: 'period-1-3-mini-body', key: 'period_1_3' },
-        { id: 'neighbor-mini-body', key: 'neighbor' },
-        { id: 'consecutive-mini-body', key: 'consecutive' },
         { id: 'bucket-15-mini-body', key: 'b15' },
         { id: 'bucket-9-mini-body', key: 'b9' },
         { id: 'bucket-5-mini-body', key: 'b5' },
         { id: 'bucket-3-mini-body', key: 'b3' },
         { id: 'color-mini-body', key: 'color' },
+        { id: 'pattern-corner-mini-body', key: 'p_corner' },
+        { id: 'pattern-triangle-mini-body', key: 'p_tri' },
+        { id: 'end-sum-mini-body', key: 'end_sum' },
+        { id: 'same-end-mini-body', key: 'same_end' },
         { id: 'ac-mini-body', key: 'ac' },
         { id: 'span-mini-body', key: 'span' }
     ];
@@ -121,34 +107,74 @@ function renderMiniTables(draws) {
     });
 }
 
-function renderDistChart(elementId, distData, unit = '개', autoSort = false) {
+function renderDistChart(elementId, distData, unit = '개', autoSort = false, statSummary = null) {
     const container = document.getElementById(elementId);
     if (!container) return;
     container.innerHTML = '';
     
     let entries = Array.isArray(distData) ? distData : Object.entries(distData);
     if (autoSort && !Array.isArray(distData)) {
-        entries.sort((a, b) => {
-            const keyA = isNaN(a[0]) ? a[0] : parseFloat(a[0]);
-            const keyB = isNaN(b[0]) ? b[0] : parseFloat(b[0]);
-            if (typeof keyA === 'number' && typeof keyB === 'number') return keyA - keyB;
-            return String(keyA).localeCompare(String(keyB));
-        });
+        entries.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
     }
 
     const values = entries.map(e => e[1]);
     const maxVal = Math.max(...values, 1);
     
+    // 로컬 스토리지에서 내 최근 번호 분석 값 가져오기
+    const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
+    let myCurrentVal = null;
+    if (savedNumbers) {
+        const nums = JSON.parse(savedNumbers);
+        if (elementId.includes('sum')) myCurrentVal = nums.reduce((a,b)=>a+b, 0);
+        else if (elementId.includes('ac')) myCurrentVal = calculate_ac(nums);
+        else if (elementId.includes('span')) myCurrentVal = nums[5] - nums[0];
+    }
+
     entries.forEach(([label, value, percentage]) => {
-        const height = (value / maxVal) * 80;
+        const height = (value / maxVal) * 85;
         const bar = document.createElement('div');
         bar.className = 'dist-bar';
+        
+        // 정규분포 골든존 및 평균 하이라이트
+        if (statSummary) {
+            const val = parseFloat(label);
+            if (!isNaN(val)) {
+                const diff = Math.abs(val - statSummary.mean);
+                if (diff <= statSummary.std) bar.classList.add('golden-zone');
+                if (diff < statSummary.std * 0.2) bar.classList.add('is-mean');
+                
+                // 내 위치 표시
+                if (myCurrentVal !== null) {
+                    // 범위형 라벨(Sum 등) 처리
+                    if (label.includes('-')) {
+                        const [min, max] = label.split('-').map(Number);
+                        if (myCurrentVal >= min && myCurrentVal <= max) bar.classList.add('current-pos');
+                    } else if (Math.round(myCurrentVal) === Math.round(val)) {
+                        bar.classList.add('current-pos');
+                    }
+                }
+            }
+        } else {
+            bar.classList.add('golden-zone'); // 일반 지표는 기본 강조
+        }
+
         bar.style.height = `${Math.max(height, 5)}%`;
         const displayVal = percentage ? `${value}<br><small style="font-size:0.6rem">${percentage}</small>` : value;
-        const displayLabel = (label.includes(':') || label.includes('회전') || label.includes('개') || isNaN(label) ? label : label + unit);
+        const displayLabel = (label.includes(':') || label.includes('회전') || label.includes('개') || label.includes(' ') || isNaN(label) ? label : label + unit);
+        
         bar.innerHTML = `<span class="dist-value">${displayVal}</span><span class="dist-label">${displayLabel}</span>`;
         container.appendChild(bar);
     });
+}
+
+function calculate_ac(nums) {
+    const diffs = new Set();
+    for (let i = 0; i < nums.length; i++) {
+        for (let j = i + 1; j < nums.length; j++) {
+            diffs.add(Math.abs(nums[i] - nums[j]));
+        }
+    }
+    return diffs.size - (nums.length - 1);
 }
 
 function renderFrequencyChart(data) {
