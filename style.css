@@ -318,14 +318,14 @@ body:not(.analysis-page) {
 }
 
 /* 실시간 분석 항목 상태 색상 */
-.analysis-item.optimal { background-color: #f0fdf4; border-color: #86efac; }
-.analysis-item.optimal .value { color: #166534; }
+.analysis-item.optimal, .stat-val.optimal { background-color: #f0fdf4; border-color: #86efac; color: #166534; }
+.analysis-item.safe, .stat-val.safe { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.analysis-item.warning, .stat-val.warning { background-color: #fef2f2; border-color: #fca5a5; color: #991b1b; }
 
-.analysis-item.normal { background-color: #fffbeb; border-color: #fde047; }
-.analysis-item.normal .value { color: #854d0e; }
-
-.analysis-item.warning { background-color: #fef2f2; border-color: #fca5a5; }
-.analysis-item.warning .value { color: #991b1b; }
+/* 텍스트 전용 색상 (히스토리 테이블 등) */
+.text-optimal { color: #27ae60 !important; font-weight: bold; }
+.text-safe { color: #2980b9 !important; font-weight: bold; }
+.text-warning { color: #e74c3c !important; font-weight: bold; }
 
 .label { 
     display: block; 

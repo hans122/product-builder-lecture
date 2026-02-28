@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
             if (data) {
-                if (data.recent_draws) renderHistoryTable(data.recent_draws);
+                if (data.recent_draws) renderHistoryTable(data.recent_draws, data.stats_summary);
                 renderHistorySummary(data);
             }
         })
@@ -42,7 +42,15 @@ function renderHistorySummary(data) {
     });
 }
 
-function renderHistoryTable(draws) {
+function getZoneClass(val, stat) {
+    if (!stat || typeof val !== 'number') return '';
+    const z = Math.abs(val - stat.mean) / stat.std;
+    if (z <= 1.0) return 'text-optimal'; // Optimal (68%)
+    if (z <= 2.0) return 'text-safe';    // Safe (95%)
+    return 'text-warning';              // Danger
+}
+
+function renderHistoryTable(draws, statsSummary) {
     const tbody = document.getElementById('history-analysis-body');
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -51,55 +59,56 @@ function renderHistoryTable(draws) {
         const tr = document.createElement('tr');
         const ballsHtml = (draw.nums || []).map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
         
-        // 데이터 누락 방지를 위한 안전한 매핑
-        const p1 = draw.period_1 !== undefined ? draw.period_1 : '-';
-        const p1_2 = draw.period_1_2 !== undefined ? draw.period_1_2 : '-';
-        const p1_3 = draw.period_1_3 !== undefined ? draw.period_1_3 : '-';
-        const neighbor = draw.neighbor !== undefined ? draw.neighbor : '-';
-        const prime = draw.prime !== undefined ? draw.prime : '-';
-        const composite = draw.composite !== undefined ? draw.composite : '-';
-        const m3 = draw.multiple_3 !== undefined ? draw.multiple_3 : '-';
-        const m5 = draw.m5 !== undefined ? draw.m5 : (draw.multiple_5 !== undefined ? draw.multiple_5 : '-');
-        const square = draw.square !== undefined ? draw.square : '-';
-        const double = draw.double !== undefined ? draw.double : '-';
-        
-        // G4 & G5
-        const div3 = draw.b15 !== undefined ? draw.b15 : '-';
-        const div5 = draw.b9 !== undefined ? draw.b9 : '-';
-        const div15 = draw.b3 !== undefined ? draw.b3 : '-';
-        const pCorner = draw.p_corner !== undefined ? draw.p_corner : '-';
-        const ac = draw.ac !== undefined ? draw.ac : '-';
-        const span = draw.span !== undefined ? draw.span : '-';
-        const color = draw.color !== undefined ? draw.color : '-';
+        // 데이터 매핑 및 상태 클래스 적용
+        const ac = draw.ac;
+        const span = draw.span;
+        const color = draw.color;
+        const sum = draw.sum;
+        const odd_cnt = parseInt(draw.odd_even.split(':')[0]);
+        const low_cnt = parseInt(draw.high_low.split(':')[0]);
+        const prime = draw.prime;
+        const composite = draw.composite;
+        const m3 = draw.multiple_3;
+        const m5 = draw.m5 !== undefined ? draw.m5 : draw.multiple_5;
+        const square = draw.square;
+        const double = draw.double;
+        const p1 = draw.period_1;
+        const p1_2 = draw.period_1_2;
+        const p1_3 = draw.period_1_3;
+        const neighbor = draw.neighbor;
+        const div3 = draw.b15;
+        const div5 = draw.b9;
+        const div15 = draw.b3;
+        const pCorner = draw.p_corner;
 
         tr.innerHTML = `
             <td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
             <td><div class="table-nums">${ballsHtml}</div></td>
             <!-- G1 -->
-            <td class="stat-val">${draw.sum}</td>
-            <td class="stat-val">${draw.odd_even}</td>
-            <td class="stat-val">${draw.high_low}</td>
+            <td class="stat-val ${getZoneClass(sum, statsSummary.sum)}">${sum}</td>
+            <td class="stat-val ${getZoneClass(odd_cnt, statsSummary.odd_count)}">${draw.odd_even}</td>
+            <td class="stat-val ${getZoneClass(low_cnt, statsSummary.low_count)}">${draw.high_low}</td>
             <!-- G2 -->
-            <td class="stat-val">${p1}</td>
-            <td class="stat-val">${p1_2}</td>
-            <td class="stat-val">${p1_3}</td>
-            <td class="stat-val">${neighbor}</td>
+            <td class="stat-val ${getZoneClass(p1, statsSummary.period_1)}">${p1}</td>
+            <td class="stat-val ${getZoneClass(p1_2, statsSummary.period_1_2)}">${p1_2}</td>
+            <td class="stat-val ${getZoneClass(p1_3, statsSummary.period_1_3)}">${p1_3}</td>
+            <td class="stat-val ${getZoneClass(neighbor, statsSummary.neighbor)}">${neighbor}</td>
             <!-- G3 -->
-            <td class="stat-val">${prime}</td>
-            <td class="stat-val">${composite}</td>
-            <td class="stat-val">${m3}</td>
-            <td class="stat-val">${m5}</td>
-            <td class="stat-val">${square}</td>
-            <td class="stat-val">${double}</td>
+            <td class="stat-val ${getZoneClass(prime, statsSummary.prime)}">${prime}</td>
+            <td class="stat-val ${getZoneClass(composite, statsSummary.composite)}">${composite}</td>
+            <td class="stat-val ${getZoneClass(m3, statsSummary.multiple_3)}">${m3}</td>
+            <td class="stat-val ${getZoneClass(m5, statsSummary.multiple_5)}">${m5}</td>
+            <td class="stat-val ${getZoneClass(square, statsSummary.square)}">${square}</td>
+            <td class="stat-val ${getZoneClass(double, statsSummary.double_num)}">${double}</td>
             <!-- G4 -->
-            <td class="stat-val">${div3}</td>
-            <td class="stat-val">${div5}</td>
-            <td class="stat-val">${div15}</td>
-            <td class="stat-val">${pCorner}</td>
+            <td class="stat-val ${getZoneClass(div3, statsSummary.bucket_15)}">${div3}</td>
+            <td class="stat-val ${getZoneClass(div5, statsSummary.bucket_9)}">${div5}</td>
+            <td class="stat-val ${getZoneClass(div15, statsSummary.bucket_3)}">${div15}</td>
+            <td class="stat-val ${getZoneClass(pCorner, statsSummary.pattern_corner)}">${pCorner}</td>
             <!-- G5 -->
-            <td class="stat-val" style="color:#2980b9">${ac}</td>
-            <td class="stat-val" style="color:#2980b9">${span}</td>
-            <td class="stat-val" style="color:#2980b9">${color}</td>
+            <td class="stat-val ${getZoneClass(ac, statsSummary.ac)}">${ac}</td>
+            <td class="stat-val ${getZoneClass(span, statsSummary.span)}">${span}</td>
+            <td class="stat-val ${getZoneClass(color, statsSummary.color)}">${color}</td>
         `;
         tbody.appendChild(tr);
     });

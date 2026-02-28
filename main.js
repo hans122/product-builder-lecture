@@ -76,56 +76,51 @@ function analyzeNumbers(numbers) {
     const getZScoreStatus = (val, stat) => {
         if (!stat) return 'safe';
         const z = Math.abs(val - stat.mean) / stat.std;
-        if (z <= 1.0) return 'optimal'; // Optimal Zone (68%)
-        if (z <= 2.0) return 'safe';    // Safe Zone (95%)
-        return 'warning';              // Extreme Zone
+        if (z <= 1.0) return 'optimal'; // Optimal (68%)
+        if (z <= 2.0) return 'safe';    // Safe (95%)
+        return 'warning';              // Danger
     };
 
     // 1. 회차 상관관계
-    if (statsData.last_3_draws) {
-        const prev1 = new Set(statsData.last_3_draws[0]);
-        const p1_cnt = [...currentDraw].filter(x => prev1.has(x)).length;
-        updateAnalysisItem(document.getElementById('period-1-count'), `${p1_cnt}개`, (p1_cnt >= 1 && p1_cnt <= 2) ? 'optimal' : (p1_cnt >= 3 ? 'warning' : 'safe'));
+    const p1_cnt = [...currentDraw].filter(x => new Set(statsData.last_3_draws[0]).has(x)).length;
+    updateAnalysisItem(document.getElementById('period-1-count'), `${p1_cnt}개`, getZScoreStatus(p1_cnt, summary.period_1));
 
-        const prev1_2 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1] || [])]);
-        const p1_2_cnt = [...currentDraw].filter(x => prev1_2.has(x)).length;
-        updateAnalysisItem(document.querySelector('#p1-cum-2 .value'), `${p1_2_cnt}개`, (p1_2_cnt >= 2 && p1_2_cnt <= 4) ? 'optimal' : 'safe');
+    const p1_2_cnt = [...currentDraw].filter(x => new Set([...statsData.last_3_draws[0], ...statsData.last_3_draws[1]]).has(x)).length;
+    updateAnalysisItem(document.querySelector('#p1-cum-2 .value'), `${p1_2_cnt}개`, getZScoreStatus(p1_2_cnt, summary.period_1_2));
 
-        const prev1_3 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1] || []), ...(statsData.last_3_draws[2] || [])]);
-        const p1_3_cnt = [...currentDraw].filter(x => prev1_3.has(x)).length;
-        updateAnalysisItem(document.querySelector('#p1-cum-3 .value'), `${p1_3_cnt}개`, (p1_3_cnt >= 3 && p1_3_cnt <= 5) ? 'optimal' : 'safe');
+    const p1_3_cnt = [...currentDraw].filter(x => new Set([...statsData.last_3_draws[0], ...statsData.last_3_draws[1], ...statsData.last_3_draws[2]]).has(x)).length;
+    updateAnalysisItem(document.querySelector('#p1-cum-3 .value'), `${p1_3_cnt}개`, getZScoreStatus(p1_3_cnt, summary.period_1_3));
 
-        const neighbors = new Set();
-        statsData.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
-        const nCnt = [...currentDraw].filter(x => neighbors.has(x)).length;
-        updateAnalysisItem(document.getElementById('neighbor-count'), `${nCnt}개`, (nCnt >= 1 && nCnt <= 2) ? 'optimal' : 'safe');
-    }
+    const neighbors = new Set();
+    statsData.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
+    const nCnt = [...currentDraw].filter(x => neighbors.has(x)).length;
+    updateAnalysisItem(document.getElementById('neighbor-count'), `${nCnt}개`, getZScoreStatus(nCnt, summary.neighbor));
 
-    // 2. 기본 균형 (정규분포 적용)
+    // 2. 기본 균형
     const totalSum = numbers.reduce((a, b) => a + b, 0);
     updateAnalysisItem(document.getElementById('total-sum'), totalSum, getZScoreStatus(totalSum, summary.sum));
 
     const odds = numbers.filter(n => n % 2 !== 0).length;
-    updateAnalysisItem(document.getElementById('odd-even-ratio'), `${odds}:${6 - odds}`, (odds >= 2 && odds <= 4) ? 'optimal' : 'safe');
+    updateAnalysisItem(document.getElementById('odd-even-ratio'), `${odds}:${6 - odds}`, getZScoreStatus(odds, summary.odd_count));
 
     const lows = numbers.filter(n => n <= 22).length;
-    updateAnalysisItem(document.getElementById('high-low-ratio'), `${lows}:${6 - lows}`, (lows >= 2 && lows <= 4) ? 'optimal' : 'safe');
+    updateAnalysisItem(document.getElementById('high-low-ratio'), `${lows}:${6 - lows}`, getZScoreStatus(lows, summary.low_count));
 
     // 3. 특수수
-    updateAnalysisItem(document.getElementById('prime-count'), `${numbers.filter(isPrime).length}개`, 'safe');
-    updateAnalysisItem(document.getElementById('composite-count'), `${numbers.filter(isComposite).length}개`, 'safe');
-    updateAnalysisItem(document.getElementById('multiple-3-count'), `${numbers.filter(n => n % 3 === 0).length}개`, 'safe');
-    updateAnalysisItem(document.getElementById('multiple-5-count'), `${numbers.filter(n => n % 5 === 0).length}개`, 'safe');
-    updateAnalysisItem(document.getElementById('square-count'), `${numbers.filter(n => [1,4,9,16,25,36].includes(n)).length}개`, 'safe');
-    updateAnalysisItem(document.getElementById('double-count'), `${numbers.filter(n => [11,22,33,44].includes(n)).length}개`, 'safe');
+    updateAnalysisItem(document.getElementById('prime-count'), `${numbers.filter(isPrime).length}개`, getZScoreStatus(numbers.filter(isPrime).length, summary.prime));
+    updateAnalysisItem(document.getElementById('composite-count'), `${numbers.filter(isComposite).length}개`, getZScoreStatus(numbers.filter(isComposite).length, summary.composite));
+    updateAnalysisItem(document.getElementById('multiple-3-count'), `${numbers.filter(n => n % 3 === 0).length}개`, getZScoreStatus(numbers.filter(n => n % 3 === 0).length, summary.multiple_3));
+    updateAnalysisItem(document.getElementById('multiple-5-count'), `${numbers.filter(n => n % 5 === 0).length}개`, getZScoreStatus(numbers.filter(n => n % 5 === 0).length, summary.multiple_5));
+    updateAnalysisItem(document.getElementById('square-count'), `${numbers.filter(n => [1,4,9,16,25,36].includes(n)).length}개`, getZScoreStatus(numbers.filter(n => [1,4,9,16,25,36].includes(n)).length, summary.square));
+    updateAnalysisItem(document.getElementById('double-count'), `${numbers.filter(n => [11,22,33,44].includes(n)).length}개`, getZScoreStatus(numbers.filter(n => [11,22,33,44].includes(n)).length, summary.double_num));
 
     // 4. 구간/패턴
-    updateAnalysisItem(document.getElementById('bucket-15-count'), `${new Set(numbers.map(n => Math.floor((n-1)/15))).size}구간`, 'safe');
-    updateAnalysisItem(document.getElementById('bucket-9-count'), `${new Set(numbers.map(n => Math.floor((n-1)/9))).size}구간`, 'safe');
-    updateAnalysisItem(document.getElementById('bucket-3-count'), `${new Set(numbers.map(n => Math.floor((n-1)/3))).size}구간`, 'safe');
-    updateAnalysisItem(document.getElementById('color-count'), `${new Set(numbers.map(getBallColorClass)).size}색`, 'safe');
+    updateAnalysisItem(document.getElementById('bucket-15-count'), `${new Set(numbers.map(n => Math.floor((n-1)/15))).size}구간`, getZScoreStatus(new Set(numbers.map(n => Math.floor((n-1)/15))).size, summary.bucket_15));
+    updateAnalysisItem(document.getElementById('bucket-9-count'), `${new Set(numbers.map(n => Math.floor((n-1)/9))).size}구간`, getZScoreStatus(new Set(numbers.map(n => Math.floor((n-1)/9))).size, summary.bucket_9));
+    updateAnalysisItem(document.getElementById('bucket-3-count'), `${new Set(numbers.map(n => Math.floor((n-1)/3))).size}구간`, getZScoreStatus(new Set(numbers.map(n => Math.floor((n-1)/3))).size, summary.bucket_3));
+    updateAnalysisItem(document.getElementById('color-count'), `${new Set(numbers.map(getBallColorClass)).size}색`, getZScoreStatus(new Set(numbers.map(getBallColorClass)).size, summary.color));
 
-    // 5. 전문지표 (정규분포 적용)
+    // 5. 전문지표
     const acVal = calculate_ac(numbers);
     updateAnalysisItem(document.getElementById('ac-value'), acVal, getZScoreStatus(acVal, summary.ac));
 
@@ -133,15 +128,15 @@ function analyzeNumbers(numbers) {
     updateAnalysisItem(document.getElementById('span-value'), spanVal, getZScoreStatus(spanVal, summary.span));
 
     const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
-    updateAnalysisItem(document.getElementById('end-sum-value'), endSum, 'safe');
+    updateAnalysisItem(document.getElementById('end-sum-value'), endSum, getZScoreStatus(endSum, summary.end_sum));
 
     const endDigits = numbers.map(n => n % 10);
     const maxSameEnd = Math.max(...Object.values(Counter(endDigits)));
-    updateAnalysisItem(document.getElementById('same-end-count'), `${maxSameEnd}개`, 'safe');
+    updateAnalysisItem(document.getElementById('same-end-count'), `${maxSameEnd}개`, getZScoreStatus(maxSameEnd, summary.same_end));
 
     let consecutive = 0;
     for (let i = 0; i < numbers.length - 1; i++) if (numbers[i] + 1 === numbers[i + 1]) consecutive++;
-    updateAnalysisItem(document.getElementById('consecutive-count'), `${consecutive}쌍`, 'safe');
+    updateAnalysisItem(document.getElementById('consecutive-count'), `${consecutive}쌍`, getZScoreStatus(consecutive, summary.consecutive));
 }
 
 function Counter(array) {
@@ -155,7 +150,7 @@ function updateAnalysisItem(element, text, status) {
     element.innerText = text;
     const parent = element.closest('.analysis-item');
     if (parent) {
-        parent.classList.remove('optimal', 'normal', 'warning');
+        parent.classList.remove('optimal', 'safe', 'warning', 'normal');
         parent.classList.add(status);
     }
 }
