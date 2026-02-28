@@ -336,19 +336,38 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
             const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
             txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
             
-            // 경계값에 따라 글자색 변경
+            // 경계값에 따라 글자색 변경 및 레이블 텍스트 최적화
             let color = "#7f8c8d";
+            let labelText = p.label + (isNaN(p.label) ? "" : unit);
+
             if (statSummary) {
-                const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
-                if (Math.abs(val - statSummary.mean) <= statSummary.std) color = "#27ae60"; // Optimal
-                else if (Math.abs(val - statSummary.mean) <= statSummary.std * 2) color = "#2980b9"; // Safe
-                else color = "#e74c3c"; // Danger
+                const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : (p.label.includes(' 미만') ? 0 : (p.label.includes(' 이상') ? 200 : p.label)));
+                const z = Math.abs(val - statSummary.mean) / statSummary.std;
+                
+                if (z <= 1.0) {
+                    color = "#27ae60"; // Optimal
+                    if (elementId.includes('sum-chart')) labelText = "옵티멀(" + p.label.replace('1', '').replace('0', '').replace('-', '') + ")"; // 요약 시도
+                } else if (z <= 2.0) {
+                    color = "#2980b9"; // Safe
+                } else {
+                    color = "#e74c3c"; // Danger
+                }
+
+                // 총합 차트 전용 레이블 커스텀
+                if (elementId.includes('sum-chart')) {
+                    if (p.label === "120-139" || p.label === "140-159" || p.label === "160-179") labelText = "옵티멀";
+                    else if (p.label === "100-119" || p.label === "180-199") labelText = "세이프";
+                    else labelText = "위험";
+                    
+                    // 숫자 병기 (가독성 위해 아래에 작게 추가하거나 텍스트 합침)
+                    labelText += "(" + p.label.split(' ')[0] + ")";
+                }
             }
             
             txt.setAttribute("fill", color);
             txt.style.fontSize = "0.6rem";
             txt.style.fontWeight = "bold";
-            txt.textContent = p.label + (isNaN(p.label) ? "" : unit);
+            txt.textContent = labelText;
             svg.appendChild(txt);
         }
     });
