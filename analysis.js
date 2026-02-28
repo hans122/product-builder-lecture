@@ -52,13 +52,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dists.span) renderCurveChart('span-chart', dists.span, '', stats.span);
             if (dists.end_sum) renderCurveChart('end-sum-chart', dists.end_sum, '');
 
-            // 최근 6회차 미니 테이블 (중요: 데이터 렌더링 후 호출)
-            if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));
+            // 미니 테이블 렌더링 (안정성을 위해 별도 지연 호출 고려)
+            setTimeout(() => {
+                if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));
+            }, 100);
             
-            // 번호별 빈도 차트
             if (data.frequency) renderFrequencyChart(data.frequency);
         })
-        .catch(err => console.error('Stats load failed:', err));
+        .catch(err => console.error('Stats flow failed:', err));
 
     restoreMyNumbers();
 });
@@ -111,6 +112,8 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     container.innerHTML = '';
 
     const entries = Array.isArray(distData) ? distData : Object.entries(distData);
+    if (entries.length < 2) return; // 데이터가 부족하면 곡선을 그릴 수 없음
+
     if (!Array.isArray(distData)) {
         entries.sort((a, b) => {
             const valA = parseFloat(a[0].includes('-') ? a[0].split('-')[0] : a[0]);
@@ -138,7 +141,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     }
 
     const points = entries.map((e, i) => {
-        const x = padding + (i / Math.max(entries.length - 1, 1)) * chartWidth;
+        const x = padding + (i / (entries.length - 1)) * chartWidth;
         const y = (height - 20) - (e[1] / maxVal) * chartHeight;
         return { x, y, label: e[0], value: e[1], percentage: e[2] };
     });
@@ -147,14 +150,14 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    // Area
+    // Area Fill
     const areaPathData = `M ${points[0].x},${height - 20} ` + points.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${points[points.length-1].x},${height - 20} Z`;
     const areaPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     areaPath.setAttribute("d", areaPathData);
     areaPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)");
     svg.appendChild(areaPath);
 
-    // Golden Zone
+    // Golden Zone Fill
     if (statSummary) {
         const goldenPoints = points.filter(p => {
             const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
@@ -169,7 +172,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         }
     }
 
-    // Curve
+    // Curve Line
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     curvePath.setAttribute("d", curvePathData);
@@ -178,7 +181,7 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     curvePath.setAttribute("stroke-width", "3");
     svg.appendChild(curvePath);
 
-    // Points & Markers
+    // Points & Labels
     points.forEach(p => {
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
@@ -201,7 +204,6 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         }
         svg.appendChild(circle);
 
-        // Labels
         const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
         txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
         txt.setAttribute("fill", "#7f8c8d"); txt.style.fontSize = "0.6rem"; txt.style.fontWeight = "bold";
@@ -226,10 +228,9 @@ function renderFrequencyChart(data) {
     const container = document.getElementById('full-frequency-chart');
     if(!container) return;
     container.innerHTML = '';
-    const freqs = Object.values(data);
-    const maxFreq = Math.max(...freqs, 1);
     for (let i = 1; i <= 45; i++) {
         const f = data[i] || 0;
+        const maxFreq = Math.max(...Object.values(data), 1);
         const h = (f / maxFreq) * 85;
         const w = document.createElement('div');
         w.className = 'bar-wrapper';
