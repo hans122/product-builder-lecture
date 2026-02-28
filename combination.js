@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initNumberSelector();
     loadStatsData();
 
-    document.getElementById('auto-select-btn')?.addEventListener('click', autoSelect);
     document.getElementById('semi-auto-btn')?.addEventListener('click', semiAutoSelect);
     document.getElementById('reset-btn')?.addEventListener('click', resetSelection);
     document.getElementById('analyze-my-btn')?.addEventListener('click', runDetailedAnalysis);

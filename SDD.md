@@ -1,4 +1,4 @@
-# 로또 번호 분석 및 추천 서비스 SDD (v3.6)
+# 로또 번호 분석 및 추천 서비스 SDD (v3.7)
 
 ## 1. 헤더 및 내비게이션 고도화
 - **Vertical Legend & Color Sync**: 범례 텍스트 색상을 차트 영역 색상과 1:1 매칭.
@@ -6,10 +6,13 @@
 
 ## 2. 분석 엔진 및 알고리즘
 - **Precision Data Key Mapping**: `combination.js` 내의 Z-score 산출 로직이 `stats_summary`의 정확한 원시 데이터 키(`odd_count`, `low_count`, `period_1_3` 등)를 참조하도록 매핑 고도화.
-- **Manual vs Auto UI Logic**: 
-    - `manualNumbers`와 `autoNumbers`를 별도의 Set으로 관리하여 반자동 선택 시 수동 번호 보존.
-    - 수동 선택 시 `.selected-manual` 및 `.ball.manual` 클래스 동적 부여.
-- **Intelligent Semi-auto Logic**: 가중치 기반 파레토 영역에서 무작위 추출 및 자동 마킹 처리.
+- **Unified Selection Logic**: 
+    - `semiAutoSelect()` 함수를 통해 자동/반자동 기능을 단일 버튼(`semi-auto-btn`)으로 통합.
+    - `manualNumbers`가 비어있으면 전체 자동, 존재하면 차집합 영역에 대한 가중치 추출 수행.
+- **Premium Button Styles**: 
+    - `.btn-gen`: Blue Gradient (#3498db -> #2980b9)
+    - `.btn-analyze`: Gold Border with Black Gradient (#2c3e50 -> #000000)
+    - `.btn-reset`: Neutral Slate Gray (#f1f5f9)
 
 ## 3. UI 레이아웃 및 시각화
 - **Unified Analysis Report UI**: 리포트 내의 모든 항목에 정규분포 임계값($\pm 1\sigma, \pm 2\sigma$)을 적용한 컬러 배지 연동.

@@ -737,6 +737,72 @@ body:not(.analysis-page) {
     border-top: 1px dashed #cbd5e0;
 }
 
+/* [추가] 조합 분석기 전용 버튼 디자인 고도화 */
+.btn-group-center {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-gen, .btn-reset, .btn-analyze {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* 자동/반자동 버튼: 그라디언트 블루 */
+.btn-gen {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+.btn-gen:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+    filter: brightness(1.1);
+}
+
+/* 초기화 버튼: 차분한 그레이/네이비 */
+.btn-reset {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+}
+.btn-reset:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+/* 조합 분석 실행 버튼: 강렬한 골드/오렌지 프리미엄 */
+.btn-analyze {
+    background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+    color: #f1c40f; /* 골드 텍스트 */
+    border: 1px solid #f1c40f;
+}
+.btn-analyze:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    filter: brightness(1.2);
+}
+.btn-analyze:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    border-color: #cbd5e0;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 @media (max-width: 850px) {
     .nav-links { position: static; margin-top: 10px; transform: none; }
 }
