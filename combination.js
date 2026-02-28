@@ -175,6 +175,11 @@ function semiAutoSelect() {
     });
     
     updateSelectedBallsDisplay();
+    
+    // 6개가 완성되면 즉시 분석 실행
+    if (selectedNumbers.length === 6) {
+        runDetailedAnalysis();
+    }
 }
 
 function autoSelect() {
@@ -203,6 +208,9 @@ function autoSelect() {
     });
     
     updateSelectedBallsDisplay();
+    
+    // 즉시 분석 실행
+    runDetailedAnalysis();
 }
 
 function resetSelection() {
