@@ -96,7 +96,6 @@ function updateSelectedBallsDisplay() {
         container.appendChild(ball);
     });
 
-    // 6개일 때만 분석 버튼 활성화 (사용자가 직접 누르도록 유도)
     analyzeBtn.disabled = selectedNumbers.length !== 6;
 }
 
@@ -170,7 +169,6 @@ function semiAutoSelect() {
     });
     
     updateSelectedBallsDisplay();
-    // 자동 실행 트리거 제거 (사용자가 직접 버튼을 누르도록 함)
 }
 
 function autoSelect() {
@@ -198,7 +196,6 @@ function autoSelect() {
     });
     
     updateSelectedBallsDisplay();
-    // 자동 실행 트리거 제거
 }
 
 function resetSelection() {
@@ -219,14 +216,13 @@ function runDetailedAnalysis() {
     reportBody.innerHTML = '';
     reportSection.style.display = 'block';
     
-    let totalScore = 100;
     const nums = [...selectedNumbers].sort((a, b) => a - b);
     const summary = statsData.stats_summary || {};
 
-    // 정규분포 기반 상태 판정 헬퍼
+    // 상태 판정 헬퍼 (Z-score 기반)
     const getStatus = (val, statKey) => {
         const stat = summary[statKey];
-        if (!stat) return 'safe';
+        if (!stat || stat.std === 0) return 'safe';
         const z = Math.abs(val - stat.mean) / stat.std;
         if (z <= 1.0) return 'optimal';
         if (z <= 2.0) return 'safe';
@@ -234,17 +230,12 @@ function runDetailedAnalysis() {
     };
 
     // [G0] 파레토 영역 분석
-    if (statsData.frequency) {
-        const zones = getZones(statsData);
-        const gCnt = nums.filter(n => zones.gold.includes(n)).length;
-        const sCnt = nums.filter(n => zones.silver.includes(n)).length;
-        const nCnt = nums.filter(n => zones.normal.includes(n)).length;
-        const cCnt = nums.filter(n => zones.cold.includes(n)).length;
-        
-        addReportRow('[G0] 파레토 영역', `G:${gCnt}/S:${sCnt}/N:${nCnt}/C:${cCnt}`, 
-            (gCnt >= 1 && gCnt <= 3) ? 'optimal' : 'safe', 
-            `골드(${gCnt}), 실버(${sCnt}) 비중 분석입니다. (추천: 2:3:1:0)`);
-    }
+    const zones = getZones(statsData);
+    const gCnt = nums.filter(n => zones.gold.includes(n)).length;
+    const sCnt = nums.filter(n => zones.silver.includes(n)).length;
+    const nCnt = nums.filter(n => zones.normal.includes(n)).length;
+    const cCnt = nums.filter(n => zones.cold.includes(n)).length;
+    addReportRow('[G0] 파레토 영역', `G:${gCnt}/S:${sCnt}/N:${nCnt}/C:${cCnt}`, (gCnt >= 1 && gCnt <= 3) ? 'optimal' : 'safe', `골드(${gCnt}), 실버(${sCnt}) 비중 분석입니다.`);
 
     // [G1] 기본 균형
     const sumVal = nums.reduce((a, b) => a + b, 0);
@@ -256,43 +247,37 @@ function runDetailedAnalysis() {
     const lowCnt = nums.filter(n => n <= 22).length;
     addReportRow('[G1] 고:저', `${lowCnt}:${6-lowCnt}`, getStatus(lowCnt, 'low_count'), '저번호와 고번호의 균형입니다.');
 
-    // [G2] 회차 상관관계
+    // [G2] 상관관계
     if (statsData.last_3_draws) {
-        const prev1 = new Set(statsData.last_3_draws[0]);
-        const p1 = nums.filter(n => prev1.has(n)).length;
-        addReportRow('[G2] 직전 1회차', `${p1}개`, getStatus(p1, 'period_1'), '직전 회차 번호 중복 분석입니다.');
+        const p1 = nums.filter(n => new Set(statsData.last_3_draws[0]).has(n)).length;
+        addReportRow('[G2] 직전 1회차', `${p1}개`, getStatus(p1, 'period_1'), '직전 회차 중복 분석입니다.');
         
-        const prev1_3 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[]), ...(statsData.last_3_draws[2]||[])]);
-        const p1_3 = nums.filter(n => prev1_3.has(n)).length;
-        addReportRow('[G2] 1~3회전 매칭', `${p1_3}개`, getStatus(p1_3, 'period_1_3'), '최근 3개 회차 합집합과의 중복 분석입니다.');
+        const p1_3_set = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[]), ...(statsData.last_3_draws[2]||[])]);
+        const p1_3 = nums.filter(n => p1_3_set.has(n)).length;
+        addReportRow('[G2] 1~3회전 매칭', `${p1_3}개`, getStatus(p1_3, 'period_1_3'), '최근 3회차 합집합 중복 분석입니다.');
     }
 
-    // [G3] 특수 번호군
+    // [G3] 특수수
     const primeCnt = nums.filter(isPrime).length;
-    addReportRow('[G3] 소수 포함', `${primeCnt}개`, getStatus(primeCnt, 'prime'), '역대 소수 출현 빈도 기반 분석입니다.');
+    addReportRow('[G3] 소수 포함', `${primeCnt}개`, getStatus(primeCnt, 'prime'), '소수 출현 빈도 분석입니다.');
     
     const m3Cnt = nums.filter(n => n % 3 === 0).length;
-    addReportRow('[G3] 3배수 포함', `${m3Cnt}개`, getStatus(m3Cnt, 'multiple_3'), '3의 배수 포함 균형 분석입니다.');
+    addReportRow('[G3] 3배수 포함', `${m3Cnt}개`, getStatus(m3Cnt, 'multiple_3'), '3의 배수 포함 분석입니다.');
 
-    // [G4] 구간 및 패턴
+    // [G4] 구간/패턴
     const b15 = new Set(nums.map(n => Math.floor((n-1)/15))).size;
-    addReportRow('[G4] 3분할 점유', `${b15}구간`, getStatus(b15, 'bucket_15'), '15개 단위 구간 분산도 분석입니다.');
+    addReportRow('[G4] 3분할 점유', `${b15}구간`, getStatus(b15, 'bucket_15'), '구간별 분산도 분석입니다.');
     
     const colorCnt = new Set(nums.map(getBallColorClass)).size;
-    addReportRow('[G4] 색상 분할', `${colorCnt}색`, getStatus(colorCnt, 'color'), '5가지 색상 그룹 점유 분석입니다.');
+    addReportRow('[G4] 색상 분할', `${colorCnt}색`, getStatus(colorCnt, 'color'), '색상 그룹 점유 분석입니다.');
 
-    // [G5] 끝수 및 전문지표
+    // [G5] 전문지표
     const acVal = calculate_ac(nums);
-    addReportRow('[G5] AC값', acVal, getStatus(acVal, 'ac'), '산술적 복잡도(AC) 검증 지표입니다.');
+    addReportRow('[G5] AC값', acVal, getStatus(acVal, 'ac'), '산술적 복잡도 검증입니다.');
     
     const spanVal = nums[5] - nums[0];
-    addReportRow('[G5] Span', spanVal, getStatus(spanVal, 'span'), '번호 간 최대 간격(차이) 분석입니다.');
+    addReportRow('[G5] Span', spanVal, getStatus(spanVal, 'span'), '번호 간 최대 간격 분석입니다.');
 
-    const scoreElem = document.getElementById('combination-score');
-    const gradeElem = document.getElementById('combination-grade');
-    if (scoreElem) scoreElem.innerText = totalScore;
-    if (gradeElem) gradeElem.innerText = totalScore >= 90 ? 'A등급' : (totalScore >= 80 ? 'B등급' : 'C등급');
-    
     setTimeout(() => {
         reportSection.scrollIntoView({ behavior: 'smooth' });
     }, 100);
