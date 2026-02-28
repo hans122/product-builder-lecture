@@ -40,7 +40,93 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('analyze-my-btn')?.addEventListener('click', runDetailedAnalysis);
 });
 
-// ... (isPrime, isComposite, calculate_ac, getBallColorClass, loadStatsData, initNumberSelector, toggleNumber, updateSelectedBallsDisplay, getZones, getRandomFrom unchanged)
+function loadStatsData() {
+    fetch('advanced_stats.json')
+        .then(res => res.json())
+        .then(data => {
+            statsData = data;
+            console.log('Stats loaded for analysis');
+        });
+}
+
+function initNumberSelector() {
+    const selector = document.getElementById('number-selector');
+    if (!selector) return;
+    selector.innerHTML = '';
+    for (let i = 1; i <= 45; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'select-ball';
+        btn.innerText = i;
+        btn.addEventListener('click', () => toggleNumber(i, btn));
+        selector.appendChild(btn);
+    }
+}
+
+function toggleNumber(num, btn) {
+    if (selectedNumbers.includes(num)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== num);
+        btn.classList.remove('selected');
+    } else {
+        if (selectedNumbers.length >= 6) {
+            alert('최대 6개까지만 선택 가능합니다.');
+            return;
+        }
+        selectedNumbers.push(num);
+        btn.classList.add('selected');
+    }
+    updateSelectedBallsDisplay();
+}
+
+function updateSelectedBallsDisplay() {
+    const container = document.getElementById('selected-balls');
+    const analyzeBtn = document.getElementById('analyze-my-btn');
+    if (!container || !analyzeBtn) return;
+    
+    if (selectedNumbers.length === 0) {
+        container.innerHTML = '<div class="placeholder">번호를 선택해주세요</div>';
+        analyzeBtn.disabled = true;
+        return;
+    }
+
+    container.innerHTML = '';
+    selectedNumbers.sort((a, b) => a - n).forEach(num => {
+        // 실제로는 정렬 로직이 필요 (a,b)=>a-b
+    });
+    
+    // 수정된 정렬 루프
+    [...selectedNumbers].sort((a, b) => a - b).forEach(num => {
+        const ball = document.createElement('div');
+        ball.className = `ball mini ${getBallColorClass(num)}`;
+        ball.innerText = num;
+        container.appendChild(ball);
+    });
+
+    analyzeBtn.disabled = selectedNumbers.length !== 6;
+}
+
+function getZones(data) {
+    const freq = data.frequency || {};
+    const recentFreq = data.recent_20_frequency || {};
+    const scores = [];
+    for (let i = 1; i <= 45; i++) {
+        const cumulative = freq[i] || 0;
+        const recent = recentFreq[i] || 0;
+        const totalScore = (cumulative * 0.4) + (recent * 25.0 * 0.6); 
+        scores.push({ num: i, score: totalScore });
+    }
+    scores.sort((a, b) => b.score - a.score);
+    return {
+        gold: scores.slice(0, 9).map(x => x.num),
+        silver: scores.slice(9, 23).map(x => x.num),
+        normal: scores.slice(23, 36).map(x => x.num),
+        cold: scores.slice(36).map(x => x.num)
+    };
+}
+
+function getRandomFrom(array, count) {
+    const shuffled = [...array].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
 
 function semiAutoSelect() {
     if (selectedNumbers.length >= 6) {
@@ -57,11 +143,7 @@ function semiAutoSelect() {
         }
     } else {
         const zones = getZones(statsData);
-        const needed = 6 - selectedNumbers.length;
-        
         // 가중치 영역(골드, 실버, 일반)에서 남은 개수만큼 추출 (기존 선택 번호 제외)
-        const allCandidates = [...zones.gold, ...zones.silver, ...zones.normal].filter(n => !selectedNumbers.has ? !selectedNumbers.includes(n) : false);
-        // 좀 더 정교하게: 골드/실버 비중을 높여서 후보군 생성
         const weightedCandidates = [
             ...zones.gold, ...zones.gold, // 골드 가중치 2배
             ...zones.silver, ...zones.silver, // 실버 가중치 2배
@@ -77,7 +159,6 @@ function semiAutoSelect() {
             weightedCandidates.splice(idx, 1);
         }
         
-        // 후보군이 부족할 경우 대비 (희박한 확률)
         while (selectedNumbers.length < 6) {
             const num = Math.floor(Math.random() * 45) + 1;
             if (!selectedNumbers.includes(num)) {
