@@ -244,6 +244,16 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
             sPath.setAttribute("d", sPathData);
             sPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)"); // 세이프 존 (연한 파랑)
             svg.appendChild(sPath);
+
+            // 세이프 존 텍스트 라벨 추가
+            const safeLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            safeLabel.setAttribute("x", safePoints[0].x + 5);
+            safeLabel.setAttribute("y", 25);
+            safeLabel.setAttribute("fill", "#2980b9");
+            safeLabel.style.fontSize = "0.65rem";
+            safeLabel.style.fontWeight = "bold";
+            safeLabel.textContent = "Safe Zone (95%)";
+            svg.appendChild(safeLabel);
         }
     }
 
@@ -264,6 +274,16 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         gPath.setAttribute("d", gPathData);
         gPath.setAttribute("fill", "rgba(46, 204, 113, 0.2)"); // 옵티멀 존 (연한 녹색)
         svg.appendChild(gPath);
+
+        // 옵티멀 존 텍스트 라벨 추가
+        const optLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        optLabel.setAttribute("x", optimalPoints[0].x + 5);
+        optLabel.setAttribute("y", 15);
+        optLabel.setAttribute("fill", "#27ae60");
+        optLabel.style.fontSize = "0.65rem";
+        optLabel.style.fontWeight = "bold";
+        optLabel.textContent = "Optimal Zone (68%)";
+        svg.appendChild(optLabel);
     }
 
     // 3. 곡선 라인
