@@ -57,10 +57,11 @@ function renderHistoryTable(draws) {
         const oeParts = draw.odd_even.split(':').map(Number);
         const oeClass = (oeParts[0] >= 2 && oeParts[0] <= 4) ? 'optimal-text' : '';
         
-        // 이월수 누적 범위 체크
+        // 이월수 개별 개수 체크
         const p1 = draw.period_1 || 0;
-        const isCum2 = (p1 >= 1 && p1 <= 2) ? '<span class="optimal-text">O</span>' : '-';
-        const isCum3 = (p1 >= 1 && p1 <= 3) ? '<span class="optimal-text">O</span>' : '-';
+        const is1 = (p1 === 1) ? '<span class="optimal-text">O</span>' : '-';
+        const is2 = (p1 === 2) ? '<span class="optimal-text">O</span>' : '-';
+        const is3 = (p1 === 3) ? '<span class="optimal-text">O</span>' : '-';
 
         tr.innerHTML = `
             <td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
@@ -71,8 +72,9 @@ function renderHistoryTable(draws) {
             <td class="stat-val">${draw.ac}</td>
             <td class="stat-val">${draw.span}</td>
             <td class="stat-val">${p1}개</td>
-            <td class="stat-val">${isCum2}</td>
-            <td class="stat-val">${isCum3}</td>
+            <td class="stat-val">${is1}</td>
+            <td class="stat-val">${is2}</td>
+            <td class="stat-val">${is3}</td>
             <td class="stat-val">${draw.consecutive}쌍</td>
             <td class="stat-val">${draw.b15}구간</td>
             <td class="stat-val">${draw.b9}구간</td>
