@@ -44,16 +44,20 @@
         <section class="analysis-card" id="pareto-section">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
-                    <h3>📊 영역별 출현 빈도 (Pareto Distribution)</h3>
-                    <div id="pareto-chart" class="dist-bar-chart"></div>
+                    <h3>💡 파레토 분석 가이드</h3>
+                    <div class="analysis-guide-text">
+                        <p style="font-size: 1.1rem; line-height: 1.8;"><strong>골드존 (상위 20% - 9개):</strong> 전체 당첨의 약 22%가 집중되는 초고확률 핵심 구간입니다.</p>
+                        <p style="font-size: 1.1rem; line-height: 1.8;"><strong>실버존 (상위 50% - 14개):</strong> 골드존을 포함하여 전체 당첨의 54% 이상을 점유하는 유효 확장 구간입니다.</p>
+                        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f1c40f; border-radius: 4px;">
+                            <p style="margin: 0; font-weight: bold; color: #2c3e50;">🎯 추천 조합 전략: <span style="color: #e67e22; font-size: 1.2rem;">2 : 2 : 1 : 1</span> (골드 : 실버 : 일반 : 콜드)</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>💡 분석 가이드</h4>
-                    <div class="analysis-guide-text">
-                        <p><strong>골드존 (9개):</strong> 상위 20% 번호군이 전체 당첨의 약 22%를 점유합니다.</p>
-                        <p><strong>실버존 (14개):</strong> 골드존을 포함한 상위 50% 번호군이 전체의 54%를 점유합니다.</p>
-                        <p>추천 조합 비중: <strong>2:2:1:1</strong> (골드:실버:일반:콜드)</p>
-                    </div>
+                    <h4>🕒 최근 영역 분포</h4>
+                    <table class="mini-table">
+                        <tbody id="pareto-mini-body"></tbody>
+                    </table>
                 </div>
             </div>
         </section>

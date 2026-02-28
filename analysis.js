@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const total = data.total_draws;
             const stats = data.stats_summary || {};
 
-            // 0. 파레토 분포 차트 (영역별 출현 빈도)
-            if (data.frequency) {
-                renderParetoChart(data.frequency);
+            // 0. 파레토 영역 데이터 처리
+            if (data.frequency && data.recent_draws) {
+                renderParetoMiniTable(data.frequency, data.recent_draws.slice(0, 6));
             }
 
             // 1. 기본 및 합계
@@ -76,80 +76,41 @@ function getZones(frequency) {
         .sort((a, b) => b.freq - a.freq);
     
     return {
-        gold: sortedFreq.slice(0, 9),
-        silver: sortedFreq.slice(9, 23),
-        normal: sortedFreq.slice(23, 36),
-        cold: sortedFreq.slice(36)
+        gold: sortedFreq.slice(0, 9).map(x => x.num),
+        silver: sortedFreq.slice(9, 23).map(x => x.num),
+        normal: sortedFreq.slice(23, 36).map(x => x.num),
+        cold: sortedFreq.slice(36).map(x => x.num)
     };
 }
 
-function renderParetoChart(frequency) {
-    const container = document.getElementById('pareto-chart');
-    if (!container) return;
-    container.innerHTML = '';
+function renderParetoMiniTable(frequency, recentDraws) {
+    const tbody = document.getElementById('pareto-mini-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
     const zones = getZones(frequency);
-    const zoneData = [
-        { label: 'Gold (Top 20%)', count: zones.gold.length, hits: zones.gold.reduce((a, b) => a + b.freq, 0), color: 'rgba(241, 196, 15, 0.7)' },
-        { label: 'Silver (Next 30%)', count: zones.silver.length, hits: zones.silver.reduce((a, b) => a + b.freq, 0), color: 'rgba(52, 152, 219, 0.7)' },
-        { label: 'Normal (Next 30%)', count: zones.normal.length, hits: zones.normal.reduce((a, b) => a + b.freq, 0), color: 'rgba(149, 165, 166, 0.7)' },
-        { label: 'Cold (Bottom 20%)', count: zones.cold.length, hits: zones.cold.reduce((a, b) => a + b.freq, 0), color: 'rgba(231, 76, 60, 0.7)' }
-    ];
 
-    const totalHits = zoneData.reduce((a, b) => a + b.hits, 0);
-    const maxHits = Math.max(...zoneData.map(d => d.hits));
+    recentDraws.forEach(draw => {
+        const nums = draw.nums || [];
+        const g = nums.filter(n => zones.gold.includes(n)).length;
+        const s = nums.filter(n => zones.silver.includes(n)).length;
+        const n = nums.filter(n => zones.normal.includes(n)).length;
+        const c = nums.filter(n => zones.cold.includes(n)).length;
 
-    zoneData.forEach(data => {
-        const percentage = ((data.hits / totalHits) * 100).toFixed(1);
-        const barWrapper = document.createElement('div');
-        barWrapper.className = 'bar-wrapper horizontal';
-        barWrapper.style.display = 'flex';
-        barWrapper.style.alignItems = 'center';
-        barWrapper.style.marginBottom = '15px'; // 간격 약간 확대
-        barWrapper.style.width = '100%';
+        const tr = document.createElement('tr');
+        const ballsHtml = nums.map(num => {
+            let zoneClass = '';
+            if (zones.gold.includes(num)) zoneClass = 'golden';
+            else if (zones.silver.includes(num)) zoneClass = 'silver';
+            return `<div class="table-ball mini ${getBallColorClass(num)} ${zoneClass}">${num}</div>`;
+        }).join('');
 
-        const label = document.createElement('div');
-        label.style.width = '140px';
-        label.style.fontSize = '0.85rem';
-        label.style.fontWeight = 'bold';
-        label.style.color = '#34495e';
-        label.innerText = data.label;
-
-        const track = document.createElement('div');
-        track.style.flex = '1';
-        track.style.height = '28px'; // 높이 약간 확대
-        track.style.backgroundColor = '#ecf0f1';
-        track.style.borderRadius = '14px';
-        track.style.overflow = 'hidden';
-        track.style.margin = '0 15px';
-        track.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.1)';
-
-        const bar = document.createElement('div');
-        bar.style.height = '100%';
-        bar.style.width = `${(data.hits / maxHits) * 100}%`;
-        bar.style.backgroundColor = data.color;
-        bar.style.transition = 'width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        bar.style.display = 'flex';
-        bar.style.alignItems = 'center';
-        bar.style.justifyContent = 'flex-end';
-        bar.style.paddingRight = '10px';
-        bar.style.color = 'white';
-        bar.style.fontSize = '0.75rem';
-        bar.style.fontWeight = 'bold';
-        bar.innerText = percentage + '%';
-        track.appendChild(bar);
-
-        const detail = document.createElement('div');
-        detail.style.width = '100px';
-        detail.style.fontSize = '0.8rem';
-        detail.style.color = '#7f8c8d';
-        detail.style.textAlign = 'right';
-        detail.innerText = `${data.hits}회 출현`;
-
-        barWrapper.appendChild(label);
-        barWrapper.appendChild(track);
-        barWrapper.appendChild(detail);
-        container.appendChild(barWrapper);
+        tr.innerHTML = `
+            <td>${draw.no}회</td>
+            <td><div class="table-nums">${ballsHtml}</div></td>
+            <td><strong style="color:#2c3e50;">${g}:${s}:${n}:${c}</strong></td>
+        `;
+        tbody.appendChild(tr);
     });
 }
 

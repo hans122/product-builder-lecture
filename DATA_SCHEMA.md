@@ -1,22 +1,19 @@
-# DATA_SCHEMA.md - Variable & Data Structures (v3.3)
+# DATA_SCHEMA.md - Variable & Data Structures (v3.4)
 
 ## 1. 통계 시각화 정책 (Scientific Visualization)
-모든 통계 지표는 역대 당첨 데이터의 확률 분포를 곡선형(Area Chart) 및 파레토 분포형(Horizontal Bar)으로 보여주며, 사용자의 번호가 통계적으로 어느 지점에 위치하는지 실시간으로 추적한다.
+모든 통계 지표는 역대 당첨 데이터의 확률 분포를 곡선형(Area Chart) 및 영역별 분포 테이블로 보여주며, 사용자의 번호가 통계적으로 어느 지점에 위치하는지 실시간으로 추적한다.
 
 ### 시각 요소 및 범례 정의
-- **골드 존 (Gold) - [Golden]:**
+- **골드 존 (Gold) - [Golden Border]:**
     - 의미: 파레토 법칙에 따른 출현 빈도 상위 20% 핵심 번호군.
     - 확률 점유: 전체 당첨의 약 22% 집중.
-- **실버 존 (Silver) - [Blue]:**
+- **실버 존 (Silver) - [Blue Border]:**
     - 의미: 골드존을 포함한 상위 50% 확장 번호군.
     - 확률 점유: 전체 당첨의 약 54% 이상 점유.
-- **위험 구간 (Danger Zone) - [Red]:**
-    - 의미: 출현 확률이 매우 낮은 통계적 극단값 또는 콜드 번호 구간.
-- **범례 레이아웃 (Header Legend):**
-    - 구조: 상단 고정 헤더 내 세로형 리스트 배치.
-    - 목적: 스크롤 시에도 각 색상 코드가 의미하는 바를 즉시 확인 가능하도록 함.
+- **G5 전문 지표 - [Blue Text]:**
+    - 히스토리 테이블에서 AC, Span, 색상 분포 등 핵심 통계 지표를 강조.
 
-## 2. 실시간 분석 엔진 (analysis.js / main.js)
+## 2. 실시간 분석 엔진 (analysis.js / history.js)
 - `getZones()`: 최신 빈도 데이터를 기반으로 4단계 파레토 영역(Gold, Silver, Normal, Cold) 실시간 산출.
-- `renderParetoChart()`: 영역별 확률 점유 비중을 수평 막대 차트로 시각화하며, 퍼센트와 출현 횟수를 상세 표시.
-- `autoSelect()`: 2:2:1:1 비중 기반의 전략적 번호 자동 추출 알고리즘.
+- `renderParetoMiniTable()`: 최근 회차의 영역별 점유 비중을 `G:S:N:C` 형식으로 요약 출력.
+- `renderHistoryTable()`: G1~G5에 걸친 22가지 분석 데이터를 JSON 객체에서 HTML 테이블로 1:1 매핑 및 렌더링.

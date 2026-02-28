@@ -531,11 +531,21 @@ body:not(.analysis-page) {
 .results-table td { padding: 12px 8px; border-bottom: 1px solid #edf2f7; }
 
 /* 테이블 내 당첨번호 가로 정렬 스타일 */
+.table-ball.mini.golden {
+    box-shadow: 0 0 0 2px #f1c40f, 0 2px 4px rgba(0,0,0,0.2);
+    transform: scale(1.1);
+    z-index: 1;
+}
+
+.table-ball.mini.silver {
+    box-shadow: 0 0 0 2px #3498db, 0 2px 4px rgba(0,0,0,0.15);
+}
+
 .table-nums { 
     display: flex; 
     justify-content: center; 
-    gap: 4px; 
-    flex-wrap: nowrap; /* 절대 줄바꿈 방지 */
+    gap: 6px; /* 간격 약간 확대 */
+    flex-wrap: nowrap;
 }
 .table-ball { 
     width: 24px; 
