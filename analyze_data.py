@@ -170,16 +170,7 @@ def analyze():
         distributions["ac"][ac_val] += 1
         distributions["span"][span_val] += 1
         distributions["end_sum"][es_val] += 1
-        
-        # 총합 범위
-        rk = "200 이상"
-        if total_sum < 100: rk = "100 미만"
-        elif total_sum < 120: rk = "100-119"
-        elif total_sum < 140: rk = "120-139"
-        elif total_sum < 160: rk = "140-159"
-        elif total_sum < 180: rk = "160-179"
-        elif total_sum < 200: rk = "180-199"
-        distributions["sum"][rk] += 1
+        distributions["sum"][total_sum] += 1
 
         processed_data.append({
             "no": draw['no'], "date": draw['date'], "nums": nums_list, "sum": total_sum,

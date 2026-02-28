@@ -13,12 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // 1. 기본 및 합계
-            if (dists.sum) {
-                const sumOrder = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
-                const sortedSum = {};
-                sumOrder.forEach(range => { if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range]; });
-                renderCurveChart('sum-chart', sortedSum, '', stats.sum);
-            }
+            if (dists.sum) renderCurveChart('sum-chart', dists.sum, '', stats.sum);
             if (dists.odd_even) renderCurveChart('odd-even-chart', dists.odd_even, ' : ', stats.odd_count);
             if (dists.high_low) renderCurveChart('high-low-chart', dists.high_low, ' : ', stats.low_count);
 
@@ -350,20 +345,6 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
                     color = "#2980b9"; // Safe
                 } else {
                     color = "#e74c3c"; // Danger
-                }
-
-                // 총합 차트 전용 레이블 커스텀 (텍스트 명칭만 표시)
-                if (elementId.includes('sum-chart')) {
-                    const labelMap = {
-                        "100 미만": "최소값",
-                        "100-119": "세이프 미니",
-                        "120-139": "옵티 미니",
-                        "140-159": "평균",
-                        "160-179": "옵티 맥스",
-                        "180-199": "세이프 맥스",
-                        "200 이상": "맥스"
-                    };
-                    labelText = labelMap[p.label] || p.label;
                 }
             }
             

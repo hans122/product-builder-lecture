@@ -79,8 +79,28 @@ function updateGuideStats(data) {
     };
 
     // 각 섹션별 데이터 업데이트 실행
-    const topSumRange = Object.entries(dists.sum).sort((a, b) => b[1] - a[1])[0][0];
-    updateSection('sum', 'sum', 'sum', `역대 가장 많이 출현한 합계 구간은 <strong>"${topSumRange}"</strong> 입니다.`);
+    
+    // 총합: 원본 데이터(raw number)에서 20단위 구간 빈도수 직접 계산
+    let bestRangeLabel = "120-139"; // default
+    if (dists.sum) {
+        const rangeCounts = {};
+        Object.entries(dists.sum).forEach(([sumVal, count]) => {
+            const val = parseInt(sumVal);
+            if (!isNaN(val)) {
+                // 20단위 구간화 (예: 135 -> 120, 120~139 구간)
+                const rangeStart = Math.floor(val / 20) * 20;
+                const rangeLabel = `${rangeStart}-${rangeStart + 19}`;
+                rangeCounts[rangeLabel] = (rangeCounts[rangeLabel] || 0) + count;
+            }
+        });
+        
+        // 가장 빈도가 높은 구간 찾기
+        const sortedRanges = Object.entries(rangeCounts).sort((a, b) => b[1] - a[1]);
+        if (sortedRanges.length > 0) {
+            bestRangeLabel = sortedRanges[0][0];
+        }
+    }
+    updateSection('sum', 'sum', 'sum', `역대 가장 많이 출현한 합계 구간은 <strong>"${bestRangeLabel}"</strong> 입니다.`);
     
     updateSection('oe', 'odd_count', 'odd_even', `홀짝 균형은 3:3을 중심으로 강한 중앙 집중 경향을 보입니다.`);
     updateSection('hl', 'low_count', 'high_low', `고저 배합은 저번호와 고번호의 고른 분포가 핵심입니다.`);
