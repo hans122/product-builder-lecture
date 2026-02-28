@@ -79,7 +79,8 @@ function renderMiniTables(draws) {
         { id: 'period-1-mini-body', key: 'period_1' },
         { id: 'period-1-2-mini-body', key: 'period_1_2' },
         { id: 'period-1-3-mini-body', key: 'period_1_3' },
-        { id: 'bucket-15-mini-body', key: 'b15' }
+        { id: 'bucket-15-mini-body', key: 'b15' },
+        { id: 'bucket-3-mini-body', key: 'b3' }
     ];
 
     config.forEach(item => {
