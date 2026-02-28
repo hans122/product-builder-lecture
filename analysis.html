@@ -31,7 +31,11 @@
     </header>
 
     <div class="container wide">
-        <div class="group-header">📍 기본 균형 분석</div>
+        <div class="intro-text-section" style="margin-bottom: 2rem;">
+            <p class="subtitle">모든 통계 수치는 역대 전체 회차 데이터를 기반으로 자동 계산됩니다</p>
+        </div>
+
+        <div class="group-header">📍 기본 균형 및 합계</div>
         <section class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
@@ -39,10 +43,7 @@
                     <div id="odd-even-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 결과</h4>
-                    <table class="mini-table">
-                        <tbody id="odd-even-mini-body"></tbody>
-                    </table>
+                    <table class="mini-table"><tbody id="odd-even-mini-body"></tbody></table>
                 </div>
             </div>
         </section>
@@ -53,15 +54,45 @@
                     <div id="high-low-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 결과</h4>
-                    <table class="mini-table">
-                        <tbody id="high-low-mini-body"></tbody>
-                    </table>
+                    <table class="mini-table"><tbody id="high-low-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>📈 역대 총합 범위 분포</h3>
+                    <div id="sum-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="sum-mini-body"></tbody></table>
                 </div>
             </div>
         </section>
 
-        <div class="group-header">📍 특수 번호군 분석</div>
+        <div class="group-header">📍 특수 번호군 및 끝수</div>
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>🔢 역대 소수 포함 개수</h3>
+                    <div id="prime-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="prime-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>🧮 역대 합성수 포함 개수</h3>
+                    <div id="composite-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="composite-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
         <section class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
@@ -76,16 +107,27 @@
         <section class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
-                    <h3>🔢 역대 소수 포함 개수</h3>
-                    <div id="prime-chart" class="dist-bar-chart"></div>
+                    <h3>🖐️ 역대 5배수 포함 개수</h3>
+                    <div id="multiple-5-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <table class="mini-table"><tbody id="prime-mini-body"></tbody></table>
+                    <table class="mini-table"><tbody id="multiple-5-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>👯 역대 동끝수 출현 분포</h3>
+                    <div id="same-end-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="same-end-mini-body"></tbody></table>
                 </div>
             </div>
         </section>
 
-        <div class="group-header">📍 회차 간 상관관계 분석</div>
+        <div class="group-header">📍 회차 상관관계 (윈도우 매칭)</div>
         <section class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
@@ -120,7 +162,7 @@
             </div>
         </section>
 
-        <div class="group-header">📍 구간 분석</div>
+        <div class="group-header">📍 구간 및 용지 패턴</div>
         <section class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
@@ -132,7 +174,28 @@
                 </div>
             </div>
         </section>
-        
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>📦 역대 5분할(9개씩) 분포</h3>
+                    <div id="bucket-9-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="bucket-9-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>📦 역대 9분할(5개씩) 분포</h3>
+                    <div id="bucket-5-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="bucket-5-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
         <section class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
@@ -140,10 +203,42 @@
                     <div id="bucket-3-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 결과</h4>
-                    <table class="mini-table">
-                        <tbody id="bucket-3-mini-body"></tbody>
-                    </table>
+                    <table class="mini-table"><tbody id="bucket-3-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>🎨 역대 색상분할(5색) 분포</h3>
+                    <div id="color-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="color-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <div class="group-header">📍 전문 지표 (AC & Span)</div>
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>🔢 역대 AC값 분포</h3>
+                    <div id="ac-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="ac-mini-body"></tbody></table>
+                </div>
+            </div>
+        </section>
+        <section class="analysis-card">
+            <div class="analysis-content-wrapper">
+                <div class="analysis-main-side">
+                    <h3>↔️ 역대 Span(간격) 분포</h3>
+                    <div id="span-chart" class="dist-bar-chart"></div>
+                </div>
+                <div class="mini-table-wrapper">
+                    <table class="mini-table"><tbody id="span-mini-body"></tbody></table>
                 </div>
             </div>
         </section>
