@@ -2,12 +2,44 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('advanced_stats.json?v=' + Date.now())
         .then(res => res.json())
         .then(data => {
-            if (data && data.recent_draws) {
-                renderHistoryTable(data.recent_draws);
+            if (data) {
+                if (data.recent_draws) renderHistoryTable(data.recent_draws);
+                renderHistorySummary(data);
             }
         })
         .catch(err => console.error('History load failed:', err));
 });
+
+function renderHistorySummary(data) {
+    const container = document.getElementById('history-p1-cum-container');
+    if (!container || !data.distributions.period_1_cum) return;
+
+    const cumData = data.distributions.period_1_cum;
+    const total = data.total_draws;
+    
+    container.innerHTML = '';
+    
+    Object.entries(cumData).forEach(([label, count]) => {
+        const prob = ((count / total) * 100).toFixed(1);
+        const item = document.createElement('div');
+        item.style.cssText = `
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        `;
+        item.innerHTML = `
+            <span style="font-size: 0.7rem; color: #64748b; margin-bottom: 2px;">${label}회</span>
+            <span style="font-size: 0.9rem; font-weight: bold; color: #1e293b;">${prob}%</span>
+        `;
+        container.appendChild(item);
+    });
+}
 
 function renderHistoryTable(draws) {
     const tbody = document.getElementById('history-analysis-body');
