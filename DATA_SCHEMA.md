@@ -1,12 +1,18 @@
-# DATA_SCHEMA.md - Variable & Data Structures (v2.9)
+# DATA_SCHEMA.md - Variable & Data Structures (v3.0)
 
-## 1. 통계 시각화 정책 (Smooth Curve)
+## 1. 통계 시각화 정책 (Scientific Visualization)
 데이터의 연속성과 확률 분포의 흐름을 직관적으로 보여주기 위해 모든 통계 차트는 SVG 기반의 곡선형 Area Chart로 구현한다.
-- **Visual Elements**:
-    - `Curve Path`: 데이터 포인트를 잇는 부드러운 연결선.
-    - `Area Fill`: 차트 하단을 채우는 반투명 배경.
-    - `Golden Zone Fill`: 평균($\mu$) $\pm$ 1표준편차($\sigma$) 영역을 강조하는 별도의 하이라이트 레이어.
-    - `My Position Marker`: 사용자의 최신 번호 지표가 위치한 지점에 박동하는(Pulse) 레드 마커를 표시.
 
-## 2. 렌더링 엔진 (analysis.js)
-- `renderCurveChart()` 함수를 통해 전 지표를 동적으로 생성하며, 뷰포트 크기에 따른 반응형 SVG ViewBox를 사용한다.
+### 시각 요소 정의
+- **Golden Zone (녹색 영역):**
+    - 정의: 역대 당첨 데이터의 약 68%가 집중된 고출현 구간.
+    - 기준: 연속형 변수(총합 등)는 Z-score $|Z| \le 1.0$ (평균 $\pm$ 1표준편차), 범주형 변수(홀짝 등)는 출현 빈도 상위 50% 이상 지점.
+- **Danger Zone (연빨강 배경):**
+    - 정의: 통계적으로 발생 확률이 낮은 희귀 구간.
+- **My Position Marker (빨간 점):**
+    - 현재 사용자가 선택/생성한 번호 조합의 통계적 위치를 실시간으로 추적하여 표시.
+    - 시각 효과: 깜빡이는(Pulse) 애니메이션 적용.
+
+## 2. 실시간 분석 엔진 (analysis.js)
+- `renderCurveChart()`: 정규분포 곡선, 가이드라인, 영역 하이라이트 및 내 위치 포인팅을 동적으로 수행.
+- 모든 분석 지표(G1~G5)에 대해 실시간 위치 추적 로직 적용.

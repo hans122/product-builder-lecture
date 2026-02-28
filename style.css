@@ -363,6 +363,39 @@ body:not(.analysis-page) {
 .mini-table th { background: #f7fafc; padding: 8px 4px; border-bottom: 2px solid #edf2f7; color: #718096; }
 .mini-table td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
 
+/* 분석 범례 안내 카드 */
+.analysis-legend-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #475569;
+}
+
+.legend-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.legend-box.golden { background-color: rgba(39, 174, 96, 0.35); border: 1px solid #27ae60; }
+.legend-box.danger { background-color: rgba(231, 76, 60, 0.08); border: 1px solid rgba(231, 76, 60, 0.3); }
+.legend-box.my-pos { background-color: #e74c3c; border: 2px solid white; border-radius: 50%; }
+
 /* 곡선 차트 내 안내선 및 레이블 */
 .guide-line {
     stroke: #e74c3c;
