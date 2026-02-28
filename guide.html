@@ -65,28 +65,40 @@
         <p class="subtitle">역대 당첨 데이터를 바탕으로 정리한 과학적인 조합 분석 기법입니다</p>
 
         <div id="guide-content">
+            <!-- 0. 분석 시스템 정의 (추가) -->
+            <section class="logic-card" style="border: 2px solid #2ecc71;">
+                <h3 style="color: #27ae60;">📍 통계 분석 시스템 정의</h3>
+                <p>본 서비스는 모든 지표를 <strong>정규분포(Normal Distribution)</strong> 이론에 근거하여 3개 영역으로 분류합니다.</p>
+                <div class="header-legend" style="flex-direction: column; align-items: flex-start; background: #f8f9fa; padding: 15px; border-radius: 10px; gap: 10px;">
+                    <span class="legend-item optimal-txt" style="color: #27ae60; font-weight: bold;"><span class="legend-box optimal" style="background: rgba(46, 204, 113, 0.8); border: 1px solid #2ecc71; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></span> 옵티멀 존 (Optimal): 평균 ±1σ (역대 데이터의 68% 밀집 구간)</span>
+                    <span class="legend-item safe-txt" style="color: #2980b9; font-weight: bold;"><span class="legend-box safe" style="background: rgba(52, 152, 219, 0.8); border: 1px solid #3498db; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></span> 세이프 존 (Safe): 평균 ±2σ (역대 데이터의 95% 유효 구간)</span>
+                    <span class="legend-item danger-txt" style="color: #e74c3c; font-weight: bold;"><span class="legend-box danger" style="background: #e74c3c; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></span> 위험 구간 (Danger): 95% 범위를 벗어난 통계적 희귀 구간</span>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9rem;">※ 지표별 분석 차트에서 내 번호가 <strong>녹색(Optimal)</strong> 또는 <strong>파란색(Safe)</strong> 영역에 위치할수록 통계적으로 안정적인 조합입니다.</p>
+            </section>
+
             <!-- 1. 총합 분석 -->
             <section class="logic-card">
                 <h3>1. 총합(Sum) 분석 기법</h3>
-                <p>로또 번호 6개의 합계를 분석하는 것은 가장 기본적이면서 중요한 기법입니다. 중앙값 부근에 밀집되는 경향을 확인하세요.</p>
+                <p>로또 번호 6개의 합계를 분석하는 것은 가장 기본적이면서 중요한 기법입니다. 옵티멀 존 부근에 밀집되는 경향을 확인하세요.</p>
                 <div id="sum-stat-container"></div>
-                <p><strong>공략 팁:</strong> 120~180 사이의 균형 잡힌 조합을 선택하는 것이 통계적으로 유리합니다.</p>
+                <p><strong>공략 팁:</strong> 옵티멀 존인 120~180 사이의 균형 잡힌 조합을 선택하는 것이 통계적으로 가장 유리합니다.</p>
             </section>
 
             <!-- 2. 홀짝 비율 -->
             <section class="logic-card">
                 <h3>2. 홀짝(Odd:Even) 균형 기법</h3>
-                <p>홀수와 짝수가 섞여 나오는 비율을 분석합니다. 3:3 비율은 가장 빈번하게 등장하는 '황금 비율'입니다.</p>
+                <p>홀수와 짝수가 섞여 나오는 비율을 분석합니다. 정규분포 상 3:3 비율을 중심으로 하는 구간이 옵티멀 존에 해당합니다.</p>
                 <div id="oe-stat-container"></div>
-                <p><strong>공략 팁:</strong> 역대 당첨의 약 80%가 2:4, 3:3, 4:2 비율에서 나옵니다.</p>
+                <p><strong>공략 팁:</strong> 옵티멀 존(2:4, 3:3, 4:2)에서 당첨 번호의 대다수가 출현합니다.</p>
             </section>
 
             <!-- 2-2. 고저 비율 -->
             <section class="logic-card">
                 <h3>2-2. 고저(High:Low) 배합 기법</h3>
-                <p>저번호(1~22)와 고번호(23~45)가 어떤 비율로 출현하는지 분석합니다.</p>
+                <p>저번호(1~22)와 고번호(23~45)가 어떤 비율로 출현하는지 분석합니다. 홀짝과 마찬가지로 중앙 수렴 경향이 강합니다.</p>
                 <div id="hl-stat-container"></div>
-                <p><strong>공략 팁:</strong> 저번호와 고번호가 2:4, 3:3, 4:2 정도로 골고루 섞이는 조합이 확률이 높습니다.</p>
+                <p><strong>공략 팁:</strong> 저번호와 고번호가 옵티멀 구간(2:4 ~ 4:2) 내에서 골고루 섞이는 조합이 확률이 높습니다.</p>
             </section>
 
             <!-- 3. 이월수와 이웃수 -->
