@@ -93,23 +93,32 @@ function updateGuideStats(data) {
     
     // 이월수 및 1~3회전
     updateSection('carry', 'period_1', 'period_1', '이월수(직전 1회차)');
+    updateSection('carry-neighbor', 'neighbor', 'neighbor', '이웃수(직전 ±1)');
+    updateSection('carry-2', 'period_1_2', 'period_1_2', '최근 1~2회전 합계');
     updateSection('carry-3', 'period_1_3', 'period_1_3', '최근 1~3회전 합계');
     
     // 특수번호
     updateSection('special', 'prime', 'prime', '소수(Prime) 개수');
+    updateSection('special-composite', 'composite', 'composite', '합성수 개수');
     updateSection('special-3', 'multiple_3', 'multiple_3', '3의 배수 개수');
+    updateSection('special-5', 'multiple_5', 'multiple_5', '5의 배수 개수');
+    updateSection('special-square', 'square', 'square', '제곱수 개수');
+    updateSection('special-double', 'double_num', 'double_num', '쌍수 개수');
     
     updateSection('consecutive', 'consecutive', 'consecutive');
     updateSection('end-digit', 'same_end', 'same_end');
     
     // 다단계 구간
-    updateSection('bucket-15', 'bucket_15', 'bucket_15', '15분할(3개씩) 점유');
-    updateSection('bucket-9', 'bucket_9', 'bucket_9', '9분할(5개씩) 점유');
-    updateSection('bucket-3', 'bucket_3', 'bucket_3', '3분할(15개씩) 점유');
+    updateSection('bucket-15', 'bucket_15', 'bucket_15', '3분할(15개씩) 점유');
+    updateSection('bucket-9', 'bucket_9', 'bucket_9', '5분할(9개씩) 점유');
+    updateSection('bucket-5', 'bucket_5', 'bucket_5', '9분할(5개씩) 점유');
+    updateSection('bucket-3', 'bucket_3', 'bucket_3', '15분할(3개씩) 점유');
     
     // 용지 패턴 및 인덱스
     updateSection('pattern', 'pattern_corner', 'pattern_corner', '모서리 영역 포함');
+    updateSection('pattern-triangle', 'pattern_triangle', 'pattern_triangle', '삼각형 영역 포함');
     updateSection('pattern-ac', 'ac', 'ac', 'AC(산술적 복잡도)');
     updateSection('pattern-span', 'span', 'span', 'Span(번호 간격)');
+    updateSection('pattern-endsum', 'end_sum', 'end_sum', '끝수 합계');
     updateSection('pattern-color', 'color', 'color', '포함된 색상 수');
 }

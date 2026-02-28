@@ -8,6 +8,10 @@ function isPrime(num) {
     return primes.includes(num);
 }
 
+function isComposite(num) {
+    return num > 1 && !isPrime(num);
+}
+
 function calculate_ac(nums) {
     const diffs = new Set();
     for (let i = 0; i < nums.length; i++) {
@@ -60,12 +64,10 @@ function initNumberSelector() {
 }
 
 function toggleNumber(num, btn) {
-    // 수동 선택 로직
     if (manualNumbers.has(num)) {
         manualNumbers.delete(num);
         btn.classList.remove('selected-manual');
     } else if (autoNumbers.has(num)) {
-        // 자동 선택된 번호를 클릭하면 해제됨
         autoNumbers.delete(num);
         btn.classList.remove('selected');
     } else {
@@ -92,20 +94,13 @@ function updateSelectedBallsDisplay() {
     }
 
     container.innerHTML = '';
-    
-    // 전체 번호를 합쳐서 정렬하여 표시
     const allSelected = [...manualNumbers, ...autoNumbers].sort((a, b) => a - b);
     
     allSelected.forEach(num => {
         const ball = document.createElement('div');
         const colorClass = getBallColorClass(num);
         ball.className = `ball mini ${colorClass}`;
-        
-        // 수동 선택 번호는 특별 클래스 추가
-        if (manualNumbers.has(num)) {
-            ball.classList.add('manual');
-        }
-        
+        if (manualNumbers.has(num)) ball.classList.add('manual');
         ball.innerText = num;
         container.appendChild(ball);
     });
@@ -138,10 +133,7 @@ function getRandomFrom(array, count) {
 }
 
 function semiAutoSelect() {
-    // 수동 선택이 이미 6개면 더 이상 채울 공간이 없으므로 중단
     if (manualNumbers.size >= 6) return;
-
-    // 기존 자동 선택 번호는 지우고 새로 채움 (수동은 유지)
     autoNumbers.clear();
     const btns = document.querySelectorAll('.select-ball');
     btns.forEach((btn, idx) => {
@@ -151,80 +143,33 @@ function semiAutoSelect() {
     if (!statsData || !statsData.frequency) {
         while (manualNumbers.size + autoNumbers.size < 6) {
             const num = Math.floor(Math.random() * 45) + 1;
-            if (!manualNumbers.has(num) && !autoNumbers.has(num)) {
-                autoNumbers.add(num);
-            }
+            if (!manualNumbers.has(num) && !autoNumbers.has(num)) autoNumbers.add(num);
         }
     } else {
         const zones = getZones(statsData);
-        // 수동 선택 번호를 제외한 후보군 생성
-        const weightedCandidates = [
-            ...zones.gold, ...zones.gold, 
-            ...zones.silver, ...zones.silver, 
-            ...zones.normal
-        ].filter(n => !manualNumbers.has(n));
-
+        const weightedCandidates = [...zones.gold, ...zones.gold, ...zones.silver, ...zones.silver, ...zones.normal].filter(n => !manualNumbers.has(n));
         while (manualNumbers.size + autoNumbers.size < 6 && weightedCandidates.length > 0) {
             const idx = Math.floor(Math.random() * weightedCandidates.length);
             const num = weightedCandidates[idx];
-            if (!manualNumbers.has(num) && !autoNumbers.has(num)) {
-                autoNumbers.add(num);
-            }
+            if (!manualNumbers.has(num) && !autoNumbers.has(num)) autoNumbers.add(num);
             weightedCandidates.splice(idx, 1);
         }
-        
         while (manualNumbers.size + autoNumbers.size < 6) {
             const num = Math.floor(Math.random() * 45) + 1;
-            if (!manualNumbers.has(num) && !autoNumbers.has(num)) {
-                autoNumbers.add(num);
-            }
+            if (!manualNumbers.has(num) && !autoNumbers.has(num)) autoNumbers.add(num);
         }
     }
-
-    // 화면 UI 업데이트 (자동 번호 마킹)
     autoNumbers.forEach(num => {
         const btn = btns[num-1];
         if (btn) btn.classList.add('selected');
     });
-    
-    updateSelectedBallsDisplay();
-}
-
-function autoSelect() {
-    resetSelection();
-    const btns = document.querySelectorAll('.select-ball');
-    
-    if (!statsData || !statsData.frequency) {
-        while (autoNumbers.size < 6) {
-            const num = Math.floor(Math.random() * 45) + 1;
-            if (!autoNumbers.has(num)) {
-                autoNumbers.add(num);
-            }
-        }
-    } else {
-        const zones = getZones(statsData);
-        const picks = [
-            ...getRandomFrom(zones.gold, 2),
-            ...getRandomFrom(zones.silver, 3),
-            ...getRandomFrom(zones.normal, 1)
-        ];
-        picks.forEach(n => autoNumbers.add(n));
-    }
-
-    autoNumbers.forEach(num => {
-        const btn = btns[num-1];
-        if (btn) btn.classList.add('selected');
-    });
-    
     updateSelectedBallsDisplay();
 }
 
 function resetSelection() {
     manualNumbers.clear();
     autoNumbers.clear();
-    document.querySelectorAll('.select-ball').forEach(btn => {
-        btn.classList.remove('selected', 'selected-manual');
-    });
+    document.querySelectorAll('.select-ball').forEach(btn => btn.classList.remove('selected', 'selected-manual'));
     updateSelectedBallsDisplay();
     const reportSection = document.getElementById('report-section');
     if (reportSection) reportSection.style.display = 'none';
@@ -253,50 +198,81 @@ function runDetailedAnalysis() {
         return 'warning';
     };
 
-    // [G0] 파레토 영역 분석
-    const zones = getZones(statsData);
-    const gCnt = nums.filter(n => zones.gold.includes(n)).length;
-    const sCnt = nums.filter(n => zones.silver.includes(n)).length;
-    const nCnt = nums.filter(n => zones.normal.includes(n)).length;
-    addReportRow('[G0] 파레토 영역', `G:${gCnt}/S:${sCnt}/N:${nCnt}`, (gCnt >= 1 && gCnt <= 3) ? 'optimal' : 'safe', `골드/실버 비중 분석입니다.`);
-
     // [G1] 기본 균형
     const sumVal = nums.reduce((a, b) => a + b, 0);
-    addReportRow('[G1] 총합', sumVal, getStatus(sumVal, 'sum'), '평균 ±1σ 이내 분석입니다.');
+    addReportRow('[G1] 총합 분포', sumVal, getStatus(sumVal, 'sum'), '평균 ±1σ 이내 분석입니다.');
     const oddCnt = nums.filter(n => n % 2 !== 0).length;
-    addReportRow('[G1] 홀:짝', `${oddCnt}:${6-oddCnt}`, getStatus(oddCnt, 'odd_count'), '홀짝 균형 분석입니다.');
+    addReportRow('[G1] 홀:짝 비율', `${oddCnt}:${6-oddCnt}`, getStatus(oddCnt, 'odd_count'), '홀짝 균형 분석입니다.');
     const lowCnt = nums.filter(n => n <= 22).length;
-    addReportRow('[G1] 고:저', `${lowCnt}:${6-lowCnt}`, getStatus(lowCnt, 'low_count'), '고저 균형 분석입니다.');
+    addReportRow('[G1] 고:저 비율', `${lowCnt}:${6-lowCnt}`, getStatus(lowCnt, 'low_count'), '고저 균형 분석입니다.');
 
+    // [G2] 회차 상관관계
     if (statsData.last_3_draws) {
         const p1 = nums.filter(n => new Set(statsData.last_3_draws[0]).has(n)).length;
-        addReportRow('[G2] 직전 1회차', `${p1}개`, getStatus(p1, 'period_1'), '이월수 분석입니다.');
+        addReportRow('[G2] 직전 1회차', `${p1}개`, getStatus(p1, 'period_1'), '이월수 매칭 분석입니다.');
+        
+        const prev_1 = new Set(statsData.last_3_draws[0]);
+        const neighbors = new Set();
+        prev_1.forEach(n => { if(n>1) neighbors.add(n-1); if(n<45) neighbors.add(n+1); });
+        const neighborCnt = nums.filter(n => neighbors.has(n)).length;
+        addReportRow('[G2] 이웃수(±1)', `${neighborCnt}개`, getStatus(neighborCnt, 'neighbor'), '직전회차 주변수 분석입니다.');
+
+        const p1_2_set = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[])]);
+        const p1_2 = nums.filter(n => p1_2_set.has(n)).length;
+        addReportRow('[G2] 1~2회전 매칭', `${p1_2}개`, getStatus(p1_2, 'period_1_2'), '최근 흐름 분석입니다.');
+
         const p1_3_set = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[]), ...(statsData.last_3_draws[2]||[])]);
         const p1_3 = nums.filter(n => p1_3_set.has(n)).length;
-        addReportRow('[G2] 1~3회전 매칭', `${p1_3}개`, getStatus(p1_3, 'period_1_3'), '최근 흐름 분석입니다.');
+        addReportRow('[G2] 1~3회전 매칭', `${p1_3}개`, getStatus(p1_3, 'period_1_3'), '누적 흐름 분석입니다.');
     }
+    let consecutive = 0;
+    for (let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) consecutive++;
+    addReportRow('[G2] 연속번호 쌍', `${consecutive}쌍`, getStatus(consecutive, 'consecutive'), '번호 연속성 분석입니다.');
 
+    // [G3] 특수 번호군
     const primeCnt = nums.filter(isPrime).length;
-    addReportRow('[G3] 소수 포함', `${primeCnt}개`, getStatus(primeCnt, 'prime'), '소수 출현 빈도 분석입니다.');
+    addReportRow('[G3] 소수 포함', `${primeCnt}개`, getStatus(primeCnt, 'prime'), '수학적 소수 분포입니다.');
+    const compositeCnt = nums.filter(isComposite).length;
+    addReportRow('[G3] 합성수 포함', `${compositeCnt}개`, getStatus(compositeCnt, 'composite'), '합성수 포함 분석입니다.');
     const m3Cnt = nums.filter(n => n % 3 === 0).length;
-    addReportRow('[G3] 3배수 포함', `${m3Cnt}개`, getStatus(m3Cnt, 'multiple_3'), '3의 배수 포함 분석입니다.');
+    addReportRow('[G3] 3배수 포함', `${m3Cnt}개`, getStatus(m3Cnt, 'multiple_3'), '3의 배수 분포입니다.');
+    const m5Cnt = nums.filter(n => n % 5 === 0).length;
+    addReportRow('[G3] 5배수 포함', `${m5Cnt}개`, getStatus(m5Cnt, 'multiple_5'), '5의 배수 분포입니다.');
+    const squareCnt = nums.filter(n => [1,4,9,16,25,36].includes(n)).length;
+    addReportRow('[G3] 제곱수 포함', `${squareCnt}개`, getStatus(squareCnt, 'square'), '제곱수 포함 분석입니다.');
+    const doubleCnt = nums.filter(n => [11,22,33,44].includes(n)).length;
+    addReportRow('[G3] 쌍수 포함', `${doubleCnt}개`, getStatus(doubleCnt, 'double_num'), '동일숫자 반복 분포입니다.');
 
+    // [G4] 구간 및 패턴
     const b15 = new Set(nums.map(n => Math.floor((n-1)/15))).size;
-    addReportRow('[G4] 3분할 점유', `${b15}구간`, getStatus(b15, 'bucket_15'), '구간별 분산도 분석입니다.');
+    addReportRow('[G4] 3분할 점유', `${b15}구간`, getStatus(b15, 'bucket_15'), '15개씩 3분할 분석입니다.');
+    const b9 = new Set(nums.map(n => Math.floor((n-1)/9))).size;
+    addReportRow('[G4] 5분할 점유', `${b9}구간`, getStatus(b9, 'bucket_9'), '9개씩 5분할 분석입니다.');
+    const b5 = new Set(nums.map(n => Math.floor((n-1)/5))).size;
+    addReportRow('[G4] 9분할 점유', `${b5}구간`, getStatus(b5, 'bucket_5'), '5개씩 9분할 분석입니다.');
+    const b3 = new Set(nums.map(n => Math.floor((n-1)/3))).size;
+    addReportRow('[G4] 15분할 점유', `${b3}구간`, getStatus(b3, 'bucket_3'), '3개씩 15분할 분석입니다.');
     const colorCnt = new Set(nums.map(getBallColorClass)).size;
-    addReportRow('[G4] 색상 분할', `${colorCnt}색`, getStatus(colorCnt, 'color'), '색상 그룹 점유 분석입니다.');
+    addReportRow('[G4] 색상수 분포', `${colorCnt}색`, getStatus(colorCnt, 'color'), '색상 그룹 점유 분석입니다.');
+    const corners = [1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42];
+    const cornerCnt = nums.filter(n => corners.includes(n)).length;
+    addReportRow('[G4] 모서리 패턴', `${cornerCnt}개`, getStatus(cornerCnt, 'pattern_corner'), '용지 외곽 분포입니다.');
+    const triangles = [4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32];
+    const triCnt = nums.filter(n => triangles.includes(n)).length;
+    addReportRow('[G4] 삼각형 패턴', `${triCnt}개`, getStatus(triCnt, 'pattern_triangle'), '용지 중심 분포입니다.');
 
+    // [G5] 전문지표
+    const endSum = nums.reduce((a, b) => a + (b % 10), 0);
+    addReportRow('[G5] 끝수 합계', endSum, getStatus(endSum, 'end_sum'), '일의 자리 합 분석입니다.');
+    const endDigits = nums.map(n => n % 10);
+    const sameEnd = Math.max(...Object.values(endDigits.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {})));
+    addReportRow('[G5] 동끝수 출현', `${sameEnd}개`, getStatus(sameEnd, 'same_end'), '동일 끝수 중복 분석입니다.');
     const acVal = calculate_ac(nums);
-    addReportRow('[G5] AC값', acVal, getStatus(acVal, 'ac'), '산술적 복잡도 분석입니다.');
+    addReportRow('[G5] AC값 분석', acVal, getStatus(acVal, 'ac'), '산술적 복잡도 분석입니다.');
     const spanVal = nums[5] - nums[0];
-    addReportRow('[G5] Span', spanVal, getStatus(spanVal, 'span'), '번호 간격 분석입니다.');
+    addReportRow('[G5] Span 분석', spanVal, getStatus(spanVal, 'span'), '번호 간격 분석입니다.');
 
-    const scoreElem = document.getElementById('combination-score');
-    if (scoreElem) scoreElem.innerText = 80 + (nums.filter(n => zones.gold.includes(n)).length * 2);
-
-    setTimeout(() => {
-        reportSection.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    setTimeout(() => { reportSection.scrollIntoView({ behavior: 'smooth' }); }, 100);
 }
 
 function addReportRow(label, value, statusClass, opinion) {

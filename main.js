@@ -7,8 +7,7 @@ function isPrime(num) {
 }
 
 function isComposite(num) {
-    if (num <= 1) return false;
-    return !isPrime(num);
+    return num > 1 && !isPrime(num);
 }
 
 function calculate_ac(nums) {
@@ -49,9 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
-            if (savedNumbers) {
-                renderNumbers(JSON.parse(savedNumbers), false);
-            }
+            if (savedNumbers) renderNumbers(JSON.parse(savedNumbers), false);
         })
         .catch(err => console.error('Stats load failed:', err));
 });
@@ -62,81 +59,67 @@ function analyzeNumbers(numbers) {
         return;
     }
 
-    const currentDraw = new Set(numbers);
     const summary = statsData.stats_summary || {};
-
-    const getZScoreStatus = (val, stat) => {
-        if (!stat) return 'safe';
+    const getZStatus = (val, stat) => {
+        if (!stat || stat.std === 0) return 'safe';
         const z = Math.abs(val - stat.mean) / stat.std;
         if (z <= 1.0) return 'optimal';
         if (z <= 2.0) return 'safe';
         return 'warning';
     };
 
-    // 1. 회차 상관관계
-    const p1_cnt = [...currentDraw].filter(x => new Set(statsData.last_3_draws[0]).has(x)).length;
-    updateAnalysisItem(document.getElementById('period-1-count'), `${p1_cnt}개`, getZScoreStatus(p1_cnt, summary.period_1), '이월수(직전)', summary.period_1);
+    // [G1] 기본 균형
+    const sum = numbers.reduce((a, b) => a + b, 0);
+    updateAnalysisItem(document.getElementById('total-sum'), sum, getZStatus(sum, summary.sum), '합계', summary.sum);
+    const odds = numbers.filter(n => n % 2 !== 0).length;
+    updateAnalysisItem(document.getElementById('odd-even-ratio'), `${odds}:${6-odds}`, getZStatus(odds, summary.odd_count), '홀수', summary.odd_count);
+    const lows = numbers.filter(n => n <= 22).length;
+    updateAnalysisItem(document.getElementById('high-low-ratio'), `${lows}:${6-lows}`, getZStatus(lows, summary.low_count), '저번호', summary.low_count);
 
-    const p1_2_cnt = [...currentDraw].filter(x => new Set([...statsData.last_3_draws[0], ...statsData.last_3_draws[1]]).has(x)).length;
-    updateAnalysisItem(document.querySelector('#p1-cum-2 .value'), `${p1_2_cnt}개`, getZScoreStatus(p1_2_cnt, summary.period_1_2), '이월수(1~2전)', summary.period_1_2);
-
-    const p1_3_cnt = [...currentDraw].filter(x => new Set([...statsData.last_3_draws[0], ...statsData.last_3_draws[1], ...statsData.last_3_draws[2]]).has(x)).length;
-    updateAnalysisItem(document.querySelector('#p1-cum-3 .value'), `${p1_3_cnt}개`, getZScoreStatus(p1_3_cnt, summary.period_1_3), '이월수(1~3전)', summary.period_1_3);
-
+    // [G2] 상관관계
+    const p1 = numbers.filter(n => new Set(statsData.last_3_draws[0]).has(n)).length;
+    updateAnalysisItem(document.getElementById('period-1-count'), `${p1}개`, getZStatus(p1, summary.period_1), '이월수', summary.period_1);
     const neighbors = new Set();
     statsData.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
-    const nCnt = [...currentDraw].filter(x => neighbors.has(x)).length;
-    updateAnalysisItem(document.getElementById('neighbor-count'), `${nCnt}개`, getZScoreStatus(nCnt, summary.neighbor), '이웃수', summary.neighbor);
-
-    // 2. 기본 균형
-    const totalSum = numbers.reduce((a, b) => a + b, 0);
-    updateAnalysisItem(document.getElementById('total-sum'), totalSum, getZScoreStatus(totalSum, summary.sum), '합계', summary.sum);
-
-    const odds = numbers.filter(n => n % 2 !== 0).length;
-    updateAnalysisItem(document.getElementById('odd-even-ratio'), `${odds}:${6 - odds}`, getZScoreStatus(odds, summary.odd_count), '홀수', summary.odd_count);
-
-    const lows = numbers.filter(n => n <= 22).length;
-    updateAnalysisItem(document.getElementById('high-low-ratio'), `${lows}:${6 - lows}`, getZScoreStatus(lows, summary.low_count), '저번호', summary.low_count);
-
-    // 3. 특수수
-    updateAnalysisItem(document.getElementById('prime-count'), `${numbers.filter(isPrime).length}개`, getZScoreStatus(numbers.filter(isPrime).length, summary.prime), '소수', summary.prime);
-    updateAnalysisItem(document.getElementById('composite-count'), `${numbers.filter(isComposite).length}개`, getZScoreStatus(numbers.filter(isComposite).length, summary.composite), '합성수', summary.composite);
-    updateAnalysisItem(document.getElementById('multiple-3-count'), `${numbers.filter(n => n % 3 === 0).length}개`, getZScoreStatus(numbers.filter(n => n % 3 === 0).length, summary.multiple_3), '3배수', summary.multiple_3);
-    updateAnalysisItem(document.getElementById('multiple-5-count'), `${numbers.filter(n => n % 5 === 0).length}개`, getZScoreStatus(numbers.filter(n => n % 5 === 0).length, summary.multiple_5), '5배수', summary.multiple_5);
-    updateAnalysisItem(document.getElementById('square-count'), `${numbers.filter(n => [1,4,9,16,25,36].includes(n)).length}개`, getZScoreStatus(numbers.filter(n => [1,4,9,16,25,36].includes(n)).length, summary.square), '제곱수', summary.square);
-    updateAnalysisItem(document.getElementById('double-count'), `${numbers.filter(n => [11,22,33,44].includes(n)).length}개`, getZScoreStatus(numbers.filter(n => [11,22,33,44].includes(n)).length, summary.double_num), '쌍수', summary.double_num);
-
-    // 4. 구간/패턴
-    updateAnalysisItem(document.getElementById('bucket-15-count'), `${new Set(numbers.map(n => Math.floor((n-1)/15))).size}구간`, getZScoreStatus(new Set(numbers.map(n => Math.floor((n-1)/15))).size, summary.bucket_15), '3분할', summary.bucket_15);
-    updateAnalysisItem(document.getElementById('bucket-9-count'), `${new Set(numbers.map(n => Math.floor((n-1)/9))).size}구간`, getZScoreStatus(new Set(numbers.map(n => Math.floor((n-1)/9))).size, summary.bucket_9), '5분할', summary.bucket_9);
-    updateAnalysisItem(document.getElementById('bucket-3-count'), `${new Set(numbers.map(n => Math.floor((n-1)/3))).size}구간`, getZScoreStatus(new Set(numbers.map(n => Math.floor((n-1)/3))).size, summary.bucket_3), '15분할', summary.bucket_3);
-    updateAnalysisItem(document.getElementById('color-count'), `${new Set(numbers.map(getBallColorClass)).size}색`, getZScoreStatus(new Set(numbers.map(getBallColorClass)).size, summary.color), '색상수', summary.color);
-    updateAnalysisItem(document.getElementById('pattern-corner-count'), `${numbers.filter(n => [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42].includes(n)).length}개`, getZScoreStatus(numbers.filter(n => [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42].includes(n)).length, summary.pattern_corner), '모서리', summary.pattern_corner);
-    updateAnalysisItem(document.getElementById('pattern-triangle-count'), `${numbers.filter(n => [4,10,11,12,16,17,18,19,20,24,25,26,32].includes(n)).length}개`, getZScoreStatus(numbers.filter(n => [4,10,11,12,16,17,18,19,20,24,25,26,32].includes(n)).length, summary.pattern_triangle), '삼각형', summary.pattern_triangle);
-
-    // 5. 전문지표
-    const acVal = calculate_ac(numbers);
-    updateAnalysisItem(document.getElementById('ac-value'), acVal, getZScoreStatus(acVal, summary.ac), 'AC값', summary.ac);
-
-    const spanVal = numbers[numbers.length - 1] - numbers[0];
-    updateAnalysisItem(document.getElementById('span-value'), spanVal, getZScoreStatus(spanVal, summary.span), 'Span', summary.span);
-
-    const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
-    updateAnalysisItem(document.getElementById('end-sum-value'), endSum, getZScoreStatus(endSum, summary.end_sum), '끝수합', summary.end_sum);
-
-    const endDigits = numbers.map(n => n % 10);
-    const maxSameEnd = Math.max(...Object.values(Counter(endDigits)));
-    updateAnalysisItem(document.getElementById('same-end-count'), `${maxSameEnd}개`, getZScoreStatus(maxSameEnd, summary.same_end), '동끝수', summary.same_end);
-
+    const nCnt = numbers.filter(n => neighbors.has(n)).length;
+    updateAnalysisItem(document.getElementById('neighbor-count'), `${nCnt}개`, getZStatus(nCnt, summary.neighbor), '이웃수', summary.neighbor);
+    const p1_2 = numbers.filter(n => new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[])]).has(n)).length;
+    updateAnalysisItem(document.querySelector('#p1-cum-2 .value'), `${p1_2}개`, getZStatus(p1_2, summary.period_1_2), '1~2회전', summary.period_1_2);
+    const p1_3 = numbers.filter(n => new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[]), ...(statsData.last_3_draws[2]||[])]).has(n)).length;
+    updateAnalysisItem(document.querySelector('#p1-cum-3 .value'), `${p1_3}개`, getZStatus(p1_3, summary.period_1_3), '1~3회전', summary.period_1_3);
     let consecutive = 0;
-    for (let i = 0; i < numbers.length - 1; i++) if (numbers[i] + 1 === numbers[i + 1]) consecutive++;
-    updateAnalysisItem(document.getElementById('consecutive-count'), `${consecutive}쌍`, getZScoreStatus(consecutive, summary.consecutive), '연번', summary.consecutive);
-}
+    for (let i=0; i<5; i++) if(numbers[i]+1 === numbers[i+1]) consecutive++;
+    updateAnalysisItem(document.getElementById('consecutive-count'), `${consecutive}쌍`, getZStatus(consecutive, summary.consecutive), '연번', summary.consecutive);
 
-function Counter(array) {
-    const counts = {};
-    array.forEach(x => counts[x] = (counts[x] || 0) + 1);
-    return counts;
+    // [G3] 특수번호
+    updateAnalysisItem(document.getElementById('prime-count'), `${numbers.filter(isPrime).length}개`, getZStatus(numbers.filter(isPrime).length, summary.prime), '소수', summary.prime);
+    updateAnalysisItem(document.getElementById('composite-count'), `${numbers.filter(isComposite).length}개`, getZStatus(numbers.filter(isComposite).length, summary.composite), '합성수', summary.composite);
+    updateAnalysisItem(document.getElementById('multiple-3-count'), `${numbers.filter(n => n % 3 === 0).length}개`, getZStatus(numbers.filter(n => n % 3 === 0).length, summary.multiple_3), '3배수', summary.multiple_3);
+    updateAnalysisItem(document.getElementById('multiple-5-count'), `${numbers.filter(n => n % 5 === 0).length}개`, getZStatus(numbers.filter(n => n % 5 === 0).length, summary.multiple_5), '5배수', summary.multiple_5);
+    updateAnalysisItem(document.getElementById('square-count'), `${numbers.filter(n => [1,4,9,16,25,36].includes(n)).length}개`, getZStatus(numbers.filter(n => [1,4,9,16,25,36].includes(n)).length, summary.square), '제곱수', summary.square);
+    updateAnalysisItem(document.getElementById('double-count'), `${numbers.filter(n => [11,22,33,44].includes(n)).length}개`, getZStatus(numbers.filter(n => [11,22,33,44].includes(n)).length, summary.double_num), '쌍수', summary.double_num);
+
+    // [G4] 구간/패턴
+    updateAnalysisItem(document.getElementById('bucket-15-count'), `${new Set(numbers.map(n => Math.floor((n-1)/15))).size}구간`, getZStatus(new Set(numbers.map(n => Math.floor((n-1)/15))).size, summary.bucket_15), '3분할', summary.bucket_15);
+    updateAnalysisItem(document.getElementById('bucket-9-count'), `${new Set(numbers.map(n => Math.floor((n-1)/9))).size}구간`, getZStatus(new Set(numbers.map(n => Math.floor((n-1)/9))).size, summary.bucket_9), '5분할', summary.bucket_9);
+    updateAnalysisItem(document.getElementById('bucket-5-count'), `${new Set(numbers.map(n => Math.floor((n-1)/5))).size}구간`, getZStatus(new Set(numbers.map(n => Math.floor((n-1)/5))).size, summary.bucket_5), '9분할', summary.bucket_5);
+    updateAnalysisItem(document.getElementById('bucket-3-count'), `${new Set(numbers.map(n => Math.floor((n-1)/3))).size}구간`, getZStatus(new Set(numbers.map(n => Math.floor((n-1)/3))).size, summary.bucket_3), '15분할', summary.bucket_3);
+    updateAnalysisItem(document.getElementById('color-count'), `${new Set(numbers.map(getBallColorClass)).size}색`, getZStatus(new Set(numbers.map(getBallColorClass)).size, summary.color), '색상수', summary.color);
+    const cCnt = numbers.filter(n => [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42].includes(n)).length;
+    updateAnalysisItem(document.getElementById('pattern-corner-count'), `${cCnt}개`, getZStatus(cCnt, summary.pattern_corner), '모서리', summary.pattern_corner);
+    const tCnt = numbers.filter(n => [4,10,11,12,16,17,18,19,20,24,25,26,32].includes(n)).length;
+    updateAnalysisItem(document.getElementById('pattern-triangle-count'), `${tCnt}개`, getZStatus(tCnt, summary.pattern_triangle), '삼각형', summary.pattern_triangle);
+
+    // [G5] 전문지표
+    const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
+    updateAnalysisItem(document.getElementById('end-sum-value'), endSum, getZStatus(endSum, summary.end_sum), '끝수합', summary.end_sum);
+    const endDigits = numbers.map(n => n % 10);
+    const maxSE = Math.max(...Object.values(endDigits.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {})));
+    updateAnalysisItem(document.getElementById('same-end-count'), `${maxSE}개`, getZStatus(maxSE, summary.same_end), '동끝수', summary.same_end);
+    const ac = calculate_ac(numbers);
+    updateAnalysisItem(document.getElementById('ac-value'), ac, getZStatus(ac, summary.ac), 'AC값', summary.ac);
+    const span = numbers[5] - numbers[0];
+    updateAnalysisItem(document.getElementById('span-value'), span, getZStatus(span, summary.span), 'Span', summary.span);
 }
 
 function updateAnalysisItem(element, text, status, label, stat) {
@@ -144,19 +127,14 @@ function updateAnalysisItem(element, text, status, label, stat) {
     element.innerText = text;
     const parent = element.closest('.analysis-item');
     if (parent) {
-        parent.classList.remove('optimal', 'safe', 'warning', 'normal');
-        parent.classList.add(status);
-        
-        // 실시간 툴팁 반영
+        parent.className = 'analysis-item ' + status;
         const link = element.closest('.analysis-item-link');
         if (link && stat) {
             const optMin = Math.max(0, Math.round(stat.mean - stat.std));
             const optMax = Math.round(stat.mean + stat.std);
             const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
             const safeMax = Math.round(stat.mean + 2 * stat.std);
-            
-            const tipText = `[${label}] 권장 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})`;
-            link.setAttribute('data-tip', tipText);
+            link.setAttribute('data-tip', `[${label}] 권장 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})`);
         }
     }
 }
@@ -165,11 +143,10 @@ function renderNumbers(numbers, useAnimation = true) {
     const lottoContainer = document.getElementById('lotto-container');
     if (!lottoContainer) return;
     lottoContainer.innerHTML = ''; 
-
     numbers.forEach((num, index) => {
         const createBall = () => {
             const ball = document.createElement('div');
-            ball.classList.add('ball', getBallColorClass(num));
+            ball.className = 'ball ' + getBallColorClass(num);
             ball.innerText = num;
             lottoContainer.appendChild(ball);
             if (index === 5) analyzeNumbers(numbers);
@@ -205,23 +182,14 @@ function getRandomFrom(array, count) {
 
 document.getElementById('generate-btn')?.addEventListener('click', function() {
     if (!statsData || !statsData.frequency) {
-        const numbers = [];
-        while(numbers.length < 6) {
-            const num = Math.floor(Math.random() * 45) + 1;
-            if(!numbers.includes(num)) numbers.push(num);
-        }
-        numbers.sort((a, b) => a - b);
-        renderNumbers(numbers, true);
+        const nums = [];
+        while(nums.length < 6) { const n = Math.floor(Math.random() * 45) + 1; if(!nums.includes(n)) nums.push(n); }
+        nums.sort((a, b) => a - b);
+        renderNumbers(nums, true);
         return;
     }
-
     const zones = getZones(statsData);
-    let numbers = [
-        ...getRandomFrom(zones.gold, 2),
-        ...getRandomFrom(zones.silver, 3),
-        ...getRandomFrom(zones.normal, 1)
-    ];
-
+    let numbers = [...getRandomFrom(zones.gold, 2), ...getRandomFrom(zones.silver, 3), ...getRandomFrom(zones.normal, 1)];
     numbers.sort((a, b) => a - b);
     localStorage.setItem('lastGeneratedNumbers', JSON.stringify(numbers));
     renderNumbers(numbers, true);

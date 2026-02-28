@@ -1,19 +1,19 @@
-# 로또 번호 분석 및 추천 서비스 SDD (v3.8)
+# 로또 번호 분석 및 추천 서비스 SDD (v3.9)
 
 ## 1. 헤더 및 내비게이션 고도화
 - **Vertical Legend & Color Sync**: 범례 텍스트 색상을 차트 영역 색상과 1:1 매칭.
 - **Cross-Page Unified Style**: 전 서비스 화면 통합 상태 클래스(`.optimal`, `.safe`, `.warning`) 및 배지 디자인 적용.
 
 ## 2. 분석 엔진 및 알고리즘
-- **Precision Data Key Mapping**: `combination.js` 내의 Z-score 산출 로직이 `stats_summary`의 정확한 원시 데이터 키(`odd_count`, `low_count`, `period_1_3` 등)를 참조하도록 매핑 고도화.
-- **Unified Selection Logic**: `semiAutoSelect()` 함수를 통해 자동/반자동 기능을 단일 버튼으로 통합.
-- **Comprehensive Guide Statistics**: 
-    - `guide.js`에서 15개 이상의 지표에 대해 `getZoneInfo`를 호출하여 실제 적중 통계 산출.
-    - 서브 컨테이너(`carry-3`, `special-3`, `bucket-9/3`, `pattern-ac/span/color`) 동적 업데이트.
+- **Master Analysis Sequence Implementation**: 
+    - `G1` (Balance), `G2` (Correlation), `G3` (Special), `G4` (Zone/Pattern), `G5` (Expert) 순서로 데이터 매핑 통합.
+    - `combination.js`, `analysis.js`, `history.js`, `main.js`의 분석 루프가 위 시퀀스를 엄격히 준수.
+- **Expanded Metric Coverage**:
+    - 이웃수(neighbor), 합성수(composite), 5배수(m5), 제곱수(square), 쌍수(double), 삼각형패턴(p_tri), 끝수합(end_sum) 등 22종 이상의 지표 산출.
+- **Pareto Logic Decoupling**: 통계(analysis.html) 페이지 UI에서 파레토 분석 섹션 제거 및 지표별 분포 차트 고도화.
 
 ## 3. UI 레이아웃 및 시각화
-- **Unified Analysis Report UI**: 리포트 내의 모든 항목에 정규분포 임계값($\pm 1\sigma, \pm 2\sigma$)을 적용한 컬러 배지 연동.
+- **Standardized Analysis Grids**: 모든 페이지의 분석 리포트 그리드를 G1~G5 섹션 구조로 재편.
+- **History Table Expansion**: 히스토리 테이블을 27개 컬럼(회차, 당첨번호 + 22종 지표 + 기타)으로 확장하여 입체적 데이터 제공.
 - **Dynamic Real-time Tooltip**: 분석 항목 마우스 오버 시 실시간 계산된 옵티멀/세이프 범위 노출.
-- **Sparse X-axis Labeling Center**: 통계적 경계값중심의 가독성 높은 차트 레이블 제공.
-
-
+- **Sparse X-axis Labeling**: 통계적 경계값 중심의 가독성 높은 차트 레이블 제공.
