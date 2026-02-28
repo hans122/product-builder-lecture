@@ -1,4 +1,4 @@
-# DATA_SCHEMA.md - Variable & Data Structures (v3.20)
+# DATA_SCHEMA.md - Variable & Data Structures (v3.21)
 
 ## 1. 통계 시각화 정책 (Scientific Visualization)
 모든 수치 지표는 정규분포 확률을 기반으로 분석하며, 전 화면에 걸쳐 일관된 전문 포맷과 컬러 배지 시스템을 적용한다.
@@ -16,7 +16,7 @@
 5. **G5 (Expert)**: `end_sum`, `same_end`, `ac`, `span`
 
 ## 2. 실시간 분석 엔진 (analysis.js / history.js / main.js / guide.js / combination.js)
-- **Full Indicator Coverage**: 가이드 및 조합 분석 시 위 22종 지표에 대해 `stats_summary` 기반 실시간 판정 수행.
-- **Strategy Tip Policy**: 가이드 페이지에서 각 지표별 `Safe Zone` 수치를 포함한 맞춤형 공략 팁 노출.
-- **Unified Logic Sync**: 전 화면 지표 순서 및 명칭 완전 통일.
+- **Standardized Naming Policy**: 전 화면 메뉴 및 제목 명칭 완전 동기화.
+- **Full Indicator Coverage**: 가이드 및 조합 분석 시 위 22종 지표 실시간 판정.
+- **Strategy Tip Policy**: 가이드 페이지 내 맞춤형 공략 팁 노출.
 - `getZoneInfo()` / `getStatus()`: 정규분포 영역을 판정하는 핵심 유틸리티.
