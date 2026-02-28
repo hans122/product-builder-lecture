@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const total = data.total_draws;
             const stats = data.stats_summary || {};
 
-            // 1. 기본 및 합계 (정규분포 곡선 적용)
+            // 1. 기본 및 합계
             if (dists.sum) {
                 const sumOrder = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
                 const sortedSum = {};
@@ -42,18 +42,17 @@ document.addEventListener('DOMContentLoaded', function() {
             // 4. 구간 및 패턴
             if (dists.bucket_15) renderCurveChart('bucket-15-chart', dists.bucket_15, '구간');
             if (dists.bucket_9) renderCurveChart('bucket-9-chart', dists.bucket_9, '구간');
-            if (dists.bucket_5) renderCurveChart('bucket-5-chart', dists.bucket_5, '구간');
             if (dists.bucket_3) renderCurveChart('bucket-3-chart', dists.bucket_3, '구간');
             if (dists.color) renderCurveChart('color-chart', dists.color, '색상');
             if (dists.pattern_corner) renderCurveChart('pattern-corner-chart', dists.pattern_corner, '개');
             if (dists.pattern_triangle) renderCurveChart('pattern-triangle-chart', dists.pattern_triangle, '개');
 
-            // 5. 전문 지표 (AC, Span 곡선 적용)
+            // 5. 전문 지표
             if (dists.ac) renderCurveChart('ac-chart', dists.ac, '', stats.ac);
             if (dists.span) renderCurveChart('span-chart', dists.span, '', stats.span);
             if (dists.end_sum) renderCurveChart('end-sum-chart', dists.end_sum, '');
 
-            // 공통: 최근 6회차 미니 테이블
+            // 최근 6회차 미니 테이블 (중요: 데이터 렌더링 후 호출)
             if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));
             
             // 번호별 빈도 차트
@@ -82,7 +81,6 @@ function renderMiniTables(draws) {
         { id: 'double-mini-body', key: 'double' },
         { id: 'bucket-15-mini-body', key: 'b15' },
         { id: 'bucket-9-mini-body', key: 'b9' },
-        { id: 'bucket-5-mini-body', key: 'b5' },
         { id: 'bucket-3-mini-body', key: 'b3' },
         { id: 'color-mini-body', key: 'color' },
         { id: 'pattern-corner-mini-body', key: 'p_corner' },
@@ -99,7 +97,7 @@ function renderMiniTables(draws) {
         tbody.innerHTML = '';
         draws.forEach(draw => {
             const tr = document.createElement('tr');
-            const ballsHtml = draw.nums.map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
+            const ballsHtml = (draw.nums || []).map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
             let val = draw[item.key] !== undefined ? draw[item.key] : '-';
             tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${ballsHtml}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);
@@ -107,21 +105,17 @@ function renderMiniTables(draws) {
     });
 }
 
-/**
- * SVG 곡선 차트 렌더러
- */
 function renderCurveChart(elementId, distData, unit = '개', statSummary = null) {
     const container = document.getElementById(elementId);
     if (!container) return;
     container.innerHTML = '';
 
     const entries = Array.isArray(distData) ? distData : Object.entries(distData);
-    // 숫자형 라벨 정렬
     if (!Array.isArray(distData)) {
         entries.sort((a, b) => {
             const valA = parseFloat(a[0].includes('-') ? a[0].split('-')[0] : a[0]);
             const valB = parseFloat(b[0].includes('-') ? b[0].split('-')[0] : b[0]);
-            return valA - valB;
+            return isNaN(valA) ? 0 : valA - valB;
         });
     }
 
@@ -134,7 +128,6 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
     const values = entries.map(e => e[1]);
     const maxVal = Math.max(...values, 1);
 
-    // 내 위치 값 계산
     const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
     let myCurrentVal = null;
     if (savedNumbers) {
@@ -144,63 +137,53 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
         else if (elementId.includes('span')) myCurrentVal = nums[5] - nums[0];
     }
 
-    // 좌표 계산
     const points = entries.map((e, i) => {
-        const x = padding + (i / (entries.length - 1)) * chartWidth;
+        const x = padding + (i / Math.max(entries.length - 1, 1)) * chartWidth;
         const y = (height - 20) - (e[1] / maxVal) * chartHeight;
         return { x, y, label: e[0], value: e[1], percentage: e[2] };
     });
 
-    // SVG 생성
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    svg.setAttribute("class", "dist-curve-svg");
+    svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    // 1. 영역 채우기 (Area)
-    const areaPathData = `M ${points[0].x},${height - 20} ` + 
-        points.map(p => `L ${p.x},${p.y}`).join(' ') + 
-        ` L ${points[points.length-1].x},${height - 20} Z`;
-    
+    // Area
+    const areaPathData = `M ${points[0].x},${height - 20} ` + points.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${points[points.length-1].x},${height - 20} Z`;
     const areaPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     areaPath.setAttribute("d", areaPathData);
-    areaPath.setAttribute("class", "area-path");
+    areaPath.setAttribute("fill", "rgba(52, 152, 219, 0.1)");
     svg.appendChild(areaPath);
 
-    // 2. 골든존 채우기 (정규분포 요약이 있을 경우)
+    // Golden Zone
     if (statSummary) {
         const goldenPoints = points.filter(p => {
             const val = parseFloat(p.label.includes('-') ? p.label.split('-')[0] : p.label);
-            return Math.abs(val - statSummary.mean) <= statSummary.std;
+            return !isNaN(val) && Math.abs(val - statSummary.mean) <= statSummary.std;
         });
         if (goldenPoints.length > 1) {
-            const goldenPathData = `M ${goldenPoints[0].x},${height - 20} ` + 
-                goldenPoints.map(p => `L ${p.x},${p.y}`).join(' ') + 
-                ` L ${goldenPoints[goldenPoints.length-1].x},${height - 20} Z`;
-            const goldenPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            goldenPath.setAttribute("d", goldenPathData);
-            goldenPath.setAttribute("class", "golden-zone-path");
-            svg.appendChild(goldenPath);
+            const gPathData = `M ${goldenPoints[0].x},${height - 20} ` + goldenPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${goldenPoints[goldenPoints.length-1].x},${height - 20} Z`;
+            const gPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            gPath.setAttribute("d", gPathData);
+            gPath.setAttribute("fill", "rgba(46, 204, 113, 0.2)");
+            svg.appendChild(gPath);
         }
     }
 
-    // 3. 곡선 (Curve)
-    const curvePathData = `M ${points[0].x},${points[0].y} ` + 
-        points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
+    // Curve
+    const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     curvePath.setAttribute("d", curvePathData);
-    curvePath.setAttribute("class", "curve-path");
+    curvePath.setAttribute("fill", "none");
+    curvePath.setAttribute("stroke", "#3498db");
+    curvePath.setAttribute("stroke-width", "3");
     svg.appendChild(curvePath);
 
-    // 4. 포인트 및 라벨
-    points.forEach((p, i) => {
-        // 포인트 마커
+    // Points & Markers
+    points.forEach(p => {
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", p.x);
-        circle.setAttribute("cy", p.y);
-        circle.setAttribute("r", 4);
-        circle.setAttribute("class", "curve-point");
+        circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
+        circle.setAttribute("fill", "#3498db");
         
-        // 내 위치 마커 체크
         if (myCurrentVal !== null) {
             let isMine = false;
             if (p.label.includes('-')) {
@@ -209,28 +192,21 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
             } else if (Math.round(myCurrentVal) === Math.round(parseFloat(p.label))) {
                 isMine = true;
             }
-            if (isMine) circle.setAttribute("class", "curve-point my-pos-marker");
+            if (isMine) {
+                circle.setAttribute("r", 6);
+                circle.setAttribute("fill", "#e74c3c");
+                circle.setAttribute("stroke", "white");
+                circle.setAttribute("stroke-width", "2");
+            }
         }
         svg.appendChild(circle);
 
-        // 데이터 값 라벨 (상단)
-        const textVal = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        textVal.setAttribute("x", p.x);
-        textVal.setAttribute("y", p.y - 10);
-        textVal.setAttribute("text-anchor", "middle");
-        textVal.setAttribute("class", "axis-label");
-        textVal.style.fontSize = "0.55rem";
-        textVal.textContent = p.value;
-        svg.appendChild(textVal);
-
-        // X축 라벨 (하단)
-        const textLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        textLabel.setAttribute("x", p.x);
-        textLabel.setAttribute("y", height - 2);
-        textLabel.setAttribute("text-anchor", "middle");
-        textLabel.setAttribute("class", "axis-label");
-        textLabel.textContent = p.label + (isNaN(p.label) ? "" : unit);
-        svg.appendChild(textLabel);
+        // Labels
+        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
+        txt.setAttribute("fill", "#7f8c8d"); txt.style.fontSize = "0.6rem"; txt.style.fontWeight = "bold";
+        txt.textContent = p.label + (isNaN(p.label) ? "" : unit);
+        svg.appendChild(txt);
     });
 
     container.appendChild(svg);
@@ -247,45 +223,42 @@ function calculate_ac(nums) {
 }
 
 function renderFrequencyChart(data) {
-    const chartContainer = document.getElementById('full-frequency-chart');
-    if(!chartContainer) return;
-    chartContainer.innerHTML = '';
-    const maxFreq = Math.max(...Object.values(data), 1);
+    const container = document.getElementById('full-frequency-chart');
+    if(!container) return;
+    container.innerHTML = '';
+    const freqs = Object.values(data);
+    const maxFreq = Math.max(...freqs, 1);
     for (let i = 1; i <= 45; i++) {
-        const freq = data[i] || 0;
-        const height = (freq / maxFreq) * 85;
-        const barWrapper = document.createElement('div');
-        barWrapper.className = 'bar-wrapper';
-        const bar = document.createElement('div');
-        bar.className = `bar ${getBallColorClass(i)}`;
-        bar.style.height = `${height}%`;
-        const valSpan = document.createElement('span');
-        valSpan.className = 'bar-value';
-        valSpan.innerText = freq;
-        const label = document.createElement('span');
-        label.className = 'bar-label';
-        label.innerText = i;
-        barWrapper.appendChild(valSpan);
-        barWrapper.appendChild(bar);
-        barWrapper.appendChild(label);
-        chartContainer.appendChild(barWrapper);
+        const f = data[i] || 0;
+        const h = (f / maxFreq) * 85;
+        const w = document.createElement('div');
+        w.className = 'bar-wrapper';
+        const b = document.createElement('div');
+        b.className = `bar ${getBallColorClass(i)}`;
+        b.style.height = `${h}%`;
+        const v = document.createElement('span');
+        v.className = 'bar-value'; v.innerText = f;
+        const l = document.createElement('span');
+        l.className = 'bar-label'; l.innerText = i;
+        w.appendChild(v); w.appendChild(b); w.appendChild(l);
+        container.appendChild(w);
     }
 }
 
 function restoreMyNumbers() {
-    const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
-    if (savedNumbers) {
-        const numbers = JSON.parse(savedNumbers);
+    const saved = localStorage.getItem('lastGeneratedNumbers');
+    if (saved) {
+        const nums = JSON.parse(saved);
         const section = document.getElementById('my-numbers-section');
         const list = document.getElementById('my-numbers-list');
         if (section && list) {
             section.style.display = 'flex';
             list.innerHTML = '';
-            numbers.forEach(num => {
-                const ball = document.createElement('div');
-                ball.className = `ball mini ${getBallColorClass(num)}`;
-                ball.innerText = num;
-                list.appendChild(ball);
+            nums.forEach(n => {
+                const b = document.createElement('div');
+                b.className = `ball mini ${getBallColorClass(n)}`;
+                b.innerText = n;
+                list.appendChild(b);
             });
         }
     }
