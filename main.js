@@ -165,6 +165,31 @@ function analyzeNumbers(numbers) {
     const m5Target = document.getElementById('multiple-5-count');
     if (m5Target) updateAnalysisItem(m5Target, `${m5Count}개`, 'normal');
 
+    // [신규 추가 항목들]
+    const squares = [1, 4, 9, 16, 25, 36];
+    const squareCount = numbers.filter(n => squares.includes(n)).length;
+    const squareTarget = document.getElementById('square-count');
+    if (squareTarget) updateAnalysisItem(squareTarget, `${squareCount}개`, 'normal');
+
+    const doubles = [11, 22, 33, 44];
+    const doubleCount = numbers.filter(n => doubles.includes(n)).length;
+    const doubleTarget = document.getElementById('double-count');
+    if (doubleTarget) updateAnalysisItem(doubleTarget, `${doubleCount}개`, 'normal');
+
+    const corners = new Set([1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42]);
+    const triangle = new Set([4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32]);
+    const pCornerCnt = numbers.filter(n => corners.has(n)).length;
+    const pTriCnt = numbers.filter(n => triangle.has(n)).length;
+    
+    const pcTarget = document.getElementById('pattern-corner-count');
+    if (pcTarget) updateAnalysisItem(pcTarget, `${pCornerCnt}개`, 'normal');
+    const ptTarget = document.getElementById('pattern-triangle-count');
+    if (ptTarget) updateAnalysisItem(ptTarget, `${pTriCnt}개`, 'normal');
+
+    const colorCnt = new Set(numbers.map(getBallColorClass)).size;
+    const colorTarget = document.getElementById('color-count');
+    if (colorTarget) updateAnalysisItem(colorTarget, `${colorCnt}색상`, colorCnt >= 3 ? 'optimal' : 'normal');
+
     const b15Count = new Set(numbers.map(n => Math.floor((n-1)/15))).size;
     const b15Target = document.getElementById('bucket-15-count');
     if (b15Target) updateAnalysisItem(b15Target, `${b15Count}구간`, b15Count >= 2 ? 'optimal' : 'normal');
