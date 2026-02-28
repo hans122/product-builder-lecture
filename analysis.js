@@ -346,23 +346,22 @@ function renderCurveChart(elementId, distData, unit = '개', statSummary = null)
                 
                 if (z <= 1.0) {
                     color = "#27ae60"; // Optimal
-                    if (elementId.includes('sum-chart')) labelText = "옵티멀(" + p.label.replace('1', '').replace('0', '').replace('-', '') + ")"; // 요약 시도
                 } else if (z <= 2.0) {
                     color = "#2980b9"; // Safe
                 } else {
                     color = "#e74c3c"; // Danger
                 }
 
-                // 총합 차트 전용 레이블 커스텀 (최소, 세이프, 옵티, 평균, 최대)
+                // 총합 차트 전용 레이블 커스텀 (텍스트 명칭만 표시)
                 if (elementId.includes('sum-chart')) {
                     const labelMap = {
-                        "100 미만": "최소(<100)",
-                        "100-119": "세이프(100~)",
-                        "120-139": "옵티(120~)",
-                        "140-159": "평균(140~)",
-                        "160-179": "옵티(160~)",
-                        "180-199": "세이프(180~)",
-                        "200 이상": "최대(200~)"
+                        "100 미만": "최소값",
+                        "100-119": "세이프 미니",
+                        "120-139": "옵티 미니",
+                        "140-159": "평균",
+                        "160-179": "옵티 맥스",
+                        "180-199": "세이프 맥스",
+                        "200 이상": "맥스"
                     };
                     labelText = labelMap[p.label] || p.label;
                 }
