@@ -1,14 +1,9 @@
-# DATA_SCHEMA.md - Variable & Data Structures (v2.6)
+# DATA_SCHEMA.md - Variable & Data Structures (v2.7)
 
-## 1. 가이드 페이지 UI/UX 통일 규격
-모든 분석 가이드 지표는 사용자가 '팩트'에 기반한 정보를 얻고 있음을 인지하도록 아래의 공통 구조를 사용한다.
-- **표준 문구**: 모든 통계 박스는 `"실제 통계 결과: "`라는 문구로 시작한다.
-- **표준 스타일**: `.stat-highlight` 클래스로 감싸진 파란색 하이라이트 박스 내부에 핵심 통계를 배치한다.
-- **데이터 병기**: `백분율% (해당회차/전체회차)` 형식을 엄격히 준수한다.
+## 1. 가이드 페이지 지표 강조 규칙
+사용자가 조합의 황금 비율을 즉시 파악할 수 있도록 특정 수치를 명시한다.
+- **Ratio Names**: 홀짝 및 고저 하이라이트 박스에는 단순 합계 확률뿐만 아니라, 대상이 되는 비율 명칭(`3:3, 2:4, 4:2`)을 반드시 텍스트로 포함한다.
+- **Contextual Summary**: 각 그룹의 통계 요약은 해당 지표가 왜 중요한지에 대한 맥락(예: "가장 안정적인", "매우 높습니다")을 담은 표준 문구를 사용한다.
 
-## 2. 가이드 섹션별 컨테이너 매핑
-- **G1 (Basic)**: `sum-stat-container`, `oe-stat-container`, `hl-stat-container`
-- **G2 (Correlation)**: `carry-stat-container`, `consecutive-stat-container`
-- **G3 (Special)**: `special-stat-container`
-- **G4 (Pattern)**: `bucket-stat-container`, `pattern-stat-container`
-- **G5 (Advanced)**: `end-digit-stat-container`
+## 2. 주요 통계 리스트 (Guide)
+- **Top 3 Display**: 범주형 데이터는 전체 항목 중 빈도수가 높은 상위 3개를 리스트 형태로 하이라이트 박스 하단에 배치한다.

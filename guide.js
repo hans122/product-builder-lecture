@@ -34,10 +34,10 @@ function updateGuideStats(data) {
     const oeContainer = document.getElementById('oe-stat-container');
     if (oeContainer && dists.odd_even) {
         const sortedOE = Object.entries(dists.odd_even).sort((a, b) => b[1] - a[1]);
-        const coreRatios = ["4:2", "3:3", "2:4"];
+        const coreRatios = ["3:3", "2:4", "4:2"];
         const coreCount = coreRatios.reduce((acc, r) => acc + (dists.odd_even[r] || 0), 0);
         
-        oeContainer.innerHTML = wrapHighlight(`주요 비율(4:2, 3:3, 2:4)의 합계가 전체의 ${formatStat(coreCount, total)}를 차지합니다.`) + 
+        oeContainer.innerHTML = wrapHighlight(`가장 안정적인 주요 비율(3:3, 2:4, 4:2)의 합계가 전체의 ${formatStat(coreCount, total)}를 차지합니다.`) + 
             `<ul class="top-logic-list">` + 
             sortedOE.slice(0, 3).map(([label, count]) => `<li><span>홀짝 ${label}</span> ${formatStat(count, total)}</li>`).join('') + 
             `</ul>`;
@@ -47,10 +47,10 @@ function updateGuideStats(data) {
     const hlContainer = document.getElementById('hl-stat-container');
     if (hlContainer && dists.high_low) {
         const sortedHL = Object.entries(dists.high_low).sort((a, b) => b[1] - a[1]);
-        const coreRatios = ["4:2", "3:3", "2:4"];
+        const coreRatios = ["3:3", "2:4", "4:2"];
         const coreCount = coreRatios.reduce((acc, r) => acc + (dists.high_low[r] || 0), 0);
 
-        hlContainer.innerHTML = wrapHighlight(`주요 비율(4:2, 3:3, 2:4)의 합계가 전체의 ${formatStat(coreCount, total)}를 차지합니다.`) + 
+        hlContainer.innerHTML = wrapHighlight(`가장 안정적인 주요 비율(3:3, 2:4, 4:2)의 합계가 전체의 ${formatStat(coreCount, total)}를 차지합니다.`) + 
             `<ul class="top-logic-list">` + 
             sortedHL.slice(0, 3).map(([label, count]) => `<li><span>고저 ${label}</span> ${formatStat(count, total)}</li>`).join('') + 
             `</ul>`;
