@@ -1,102 +1,48 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Analysis Page Loaded');
-    
     fetch('advanced_stats.json?v=' + Date.now())
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             if (!data) return;
             const dists = data.distributions;
             const total = data.total_draws;
 
-            if (dists) {
-                // 1. 기본 비율 및 끝수
-                if (dists.odd_even) renderDistChart('odd-even-chart', dists.odd_even, ' : ', true);
-                if (dists.high_low) renderDistChart('high-low-chart', dists.high_low, ' : ', true);
-                if (dists.end_sum) {
-                    const esOrder = ["15 미만", "15-19", "20-24", "25-29", "30-34", "35-39", "40 이상"];
-                    const sortedES = {};
-                    esOrder.forEach(range => { if (dists.end_sum[range] !== undefined) sortedES[range] = dists.end_sum[range]; });
-                    renderDistChart('end-sum-chart', sortedES, '');
-                }
-                if (dists.same_end) renderDistChart('same-end-chart', dists.same_end, '개', true);
-                if (dists.square) renderDistChart('square-chart', dists.square, '개', true);
-                if (dists.multiple_5) renderDistChart('multiple-5-chart', dists.multiple_5, '개', true);
-                if (dists.double_num) renderDistChart('double-chart', dists.double_num, '개', true);
+            // 1. 기본 비율 (홀짝, 고저)
+            if (dists.odd_even) renderDistChart('odd-even-chart', dists.odd_even, ' : ', true);
+            if (dists.high_low) renderDistChart('high-low-chart', dists.high_low, ' : ', true);
+            
+            // 2. 특수 번호군
+            if (dists.multiple_3) renderDistChart('multiple-3-chart', dists.multiple_3, '개', true);
+            if (dists.prime) renderDistChart('prime-chart', dists.prime, '개', true);
 
-                // 2. 이월 및 윈도우 기반 분포 (1~2, 1~3)
-                if (dists.period_1) renderDistChart('period-1-chart', dists.period_1, '개', true);
-                
-                // [수정] 1~2회전 매칭 차트
-                if (dists.period_1_2) {
-                    const data1_2 = Object.entries(dists.period_1_2).map(([k, v]) => {
-                        const prob = ((v / total) * 100).toFixed(1);
-                        return [`${k}개`, v, `${prob}%`];
-                    });
-                    renderDistChart('period-1-2-chart', data1_2, '회');
-                }
-                
-                // [수정] 1~3회전 매칭 차트
-                if (dists.period_1_3) {
-                    const data1_3 = Object.entries(dists.period_1_3).map(([k, v]) => {
-                        const prob = ((v / total) * 100).toFixed(1);
-                        return [`${k}개`, v, `${prob}%`];
-                    });
-                    renderDistChart('period-1-3-chart', data1_3, '회');
-                }
-
-                if (dists.neighbor) renderDistChart('neighbor-chart', dists.neighbor, '개', true);
-                if (dists.consecutive) renderDistChart('consecutive-chart', dists.consecutive, '쌍', true);
-
-                // 3. 구간 및 패턴
-                if (dists.bucket_15) renderDistChart('bucket-15-chart', dists.bucket_15, '구간', true);
-                if (dists.bucket_9) renderDistChart('bucket-9-chart', dists.bucket_9, '구간', true);
-                if (dists.bucket_5) renderDistChart('bucket-5-chart', dists.bucket_5, '구간', true);
-                if (dists.bucket_3) renderDistChart('bucket-3-chart', dists.bucket_3, '구간', true);
-                if (dists.color) renderDistChart('color-chart', dists.color, '색상', true);
-                if (dists.pattern_corner) renderDistChart('pattern-corner-chart', dists.pattern_corner, '개', true);
-                if (dists.pattern_triangle) renderDistChart('pattern-triangle-chart', dists.pattern_triangle, '개', true);
-
-                // 4. 전문 기술적 지표
-                if (dists.ac) {
-                    const acOrder = ["6 이하", "7", "8", "9", "10"];
-                    const acData = acOrder.map(label => {
-                        let count = 0;
-                        if (label === "6 이하") {
-                            Object.entries(dists.ac).forEach(([v, c]) => { if (parseInt(v) <= 6) count += c; });
-                        } else { count = dists.ac[label] || 0; }
-                        return [label, count];
-                    });
-                    renderDistChart('ac-chart', acData, '');
-                }
-                if (dists.span) {
-                    const spanGrouped = {"25 미만": 0, "25-29": 0, "30-34": 0, "35-39": 0, "40 이상": 0};
-                    Object.entries(dists.span).forEach(([val, count]) => {
-                        const v = parseInt(val);
-                        if (v < 25) spanGrouped["25 미만"] += count;
-                        else if (v <= 29) spanGrouped["25-29"] += count;
-                        else if (v <= 34) spanGrouped["30-34"] += count;
-                        else if (v <= 39) spanGrouped["35-39"] += count;
-                        else spanGrouped["40 이상"] += count;
-                    });
-                    renderDistChart('span-chart', spanGrouped, '');
-                }
-                if (dists.sum) {
-                    const sumOrder = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
-                    const sortedSum = {};
-                    sumOrder.forEach(range => { if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range]; });
-                    renderDistChart('sum-chart', sortedSum, '');
-                }
-                if (dists.prime) renderDistChart('prime-chart', dists.prime, '개', true);
-                if (dists.composite) renderDistChart('composite-chart', dists.composite, '개', true);
-                if (dists.multiple_3) renderDistChart('multiple-3-chart', dists.multiple_3, '개', true);
+            // 3. 회차 상관관계 (이월, 1~2회전, 1~3회전)
+            if (dists.period_1) renderDistChart('period-1-chart', dists.period_1, '개', true);
+            
+            if (dists.period_1_2) {
+                const data1_2 = Object.entries(dists.period_1_2).map(([k, v]) => {
+                    const prob = ((v / total) * 100).toFixed(1);
+                    return [`${k}개`, v, `${prob}%`];
+                });
+                renderDistChart('period-1-2-chart', data1_2, '회');
+            }
+            
+            if (dists.period_1_3) {
+                const data1_3 = Object.entries(dists.period_1_3).map(([k, v]) => {
+                    const prob = ((v / total) * 100).toFixed(1);
+                    return [`${k}개`, v, `${prob}%`];
+                });
+                renderDistChart('period-1-3-chart', data1_3, '회');
             }
 
+            // 4. 구간 분석
+            if (dists.bucket_15) renderDistChart('bucket-15-chart', dists.bucket_15, '구간', true);
+
+            // 미니 테이블 렌더링
+            if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));
+            
+            // 번호별 빈도 차트
             if (data.frequency) renderFrequencyChart(data.frequency);
-            if (data.recent_draws) {
-                renderMiniTables(data.recent_draws.slice(0, 6));
-            }
         })
-        .catch(err => console.error('Data load failed:', err));
+        .catch(err => console.error('Stats load failed:', err));
 
     restoreMyNumbers();
 });
@@ -105,29 +51,12 @@ function renderMiniTables(draws) {
     const config = [
         { id: 'odd-even-mini-body', key: 'odd_even' },
         { id: 'high-low-mini-body', key: 'high_low' },
-        { id: 'end-sum-mini-body', key: 'end_sum' },
-        { id: 'same-end-mini-body', key: 'same_end' },
-        { id: 'bucket-3-mini-body', key: 'b15' },
-        { id: 'bucket-5-mini-body', key: 'b9' },
-        { id: 'bucket-9-mini-body', key: 'b5' },
-        { id: 'bucket-15-mini-body', key: 'b3' },
-        { id: 'color-mini-body', key: 'color' },
-        { id: 'ac-mini-body', key: 'ac' },
-        { id: 'span-mini-body', key: 'span' },
+        { id: 'multiple-3-mini-body', key: 'multiple_3' },
+        { id: 'prime-mini-body', key: 'prime' },
         { id: 'period-1-mini-body', key: 'period_1' },
         { id: 'period-1-2-mini-body', key: 'period_1_2' },
         { id: 'period-1-3-mini-body', key: 'period_1_3' },
-        { id: 'neighbor-mini-body', key: 'neighbor' },
-        { id: 'consecutive-mini-body', key: 'consecutive' },
-        { id: 'prime-mini-body', key: 'prime' },
-        { id: 'sum-mini-body', key: 'sum' },
-        { id: 'pattern-corner-mini-body', key: 'p_corner' },
-        { id: 'pattern-triangle-mini-body', key: 'p_tri' },
-        { id: 'square-mini-body', key: 'square' },
-        { id: 'multiple-5-mini-body', key: 'm5' },
-        { id: 'double-mini-body', key: 'double' },
-        { id: 'composite-mini-body', key: 'composite' },
-        { id: 'multiple-3-mini-body', key: 'multiple_3' }
+        { id: 'bucket-15-mini-body', key: 'b15' }
     ];
 
     config.forEach(item => {
@@ -137,8 +66,7 @@ function renderMiniTables(draws) {
         draws.forEach(draw => {
             const tr = document.createElement('tr');
             const ballsHtml = draw.nums.map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
-            let val = draw[item.key];
-            if (val === undefined) val = '-';
+            let val = draw[item.key] !== undefined ? draw[item.key] : '-';
             tr.innerHTML = `<td>${draw.no}</td><td><div class="table-nums">${ballsHtml}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);
         });
@@ -147,7 +75,7 @@ function renderMiniTables(draws) {
 
 function renderDistChart(elementId, distData, unit = '개', autoSort = false) {
     const container = document.getElementById(elementId);
-    if(!container) return;
+    if (!container) return;
     container.innerHTML = '';
     
     let entries = Array.isArray(distData) ? distData : Object.entries(distData);
@@ -169,9 +97,8 @@ function renderDistChart(elementId, distData, unit = '개', autoSort = false) {
         bar.className = 'dist-bar';
         bar.style.height = `${Math.max(height, 5)}%`;
         
-        // 퍼센트 데이터가 있으면 상단에 표시
-        const displayVal = percentage ? `${value}<br><small style="font-size:0.65rem">${percentage}</small>` : value;
-        const displayLabel = (label.includes(':') || label.includes('-') || label.includes(' ') || isNaN(label) ? label : label + unit);
+        const displayVal = percentage ? `${value}<br><small style="font-size:0.6rem">${percentage}</small>` : value;
+        const displayLabel = (label.includes(':') || label.includes('회전') || isNaN(label) ? label : label + unit);
         
         bar.innerHTML = `<span class="dist-value">${displayVal}</span><span class="dist-label">${displayLabel}</span>`;
         container.appendChild(bar);

@@ -15,7 +15,6 @@
      crossorigin="anonymous"></script>
 </head>
 <body class="analysis-page">
-    <!-- 상단 고정 헤더 -->
     <header class="sticky-header">
         <div class="header-inner">
             <div class="header-top-row">
@@ -38,26 +37,19 @@
     <div class="container wide">
         <div class="intro-text-section" style="margin-bottom: 2rem;">
             <p class="subtitle" style="margin-bottom: 1rem;">유사한 성격의 통계 항목끼리 그룹화되어 있습니다</p>
-            <p style="color: #666; font-size: 0.9rem; line-height: 1.6;">
-                로또는 독립 시행이지만, 장기적인 데이터에서는 "평균으로의 회귀"라는 통계적 특성이 관찰됩니다. 
-                본 페이지에서는 역대 당첨 번호들의 <strong>홀짝 비율, 고저 비율, 끝수 패턴</strong> 등을 시각화된 차트로 제공하여, 
-                현재의 번호 흐름이 통계적 평균에서 얼마나 벗어나 있는지, 혹은 수렴하고 있는지를 파악할 수 있게 도와줍니다.
-            </p>
         </div>
 
-        <!-- [그룹 1: 기본 균형] -->
-        <div class="group-header">📍 기본 균형 분석 (홀짝 & 고저)</div>
+        <div class="group-header">📍 기본 균형 분석</div>
         <section id="odd-even-section" class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
                     <h3>⚖️ 역대 홀:짝 비율 분포</h3>
-                    <p class="description">당첨번호 6개 중 홀수와 짝수가 어떤 비율로 섞여 나왔는지 보여줍니다. 보통 3:3 배합이 가장 빈번합니다.</p>
                     <div id="odd-even-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 홀:짝 결과</h4>
+                    <h4>🕒 최근 회차 결과</h4>
                     <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>홀:짝</th></tr></thead>
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>결과</th></tr></thead>
                         <tbody id="odd-even-mini-body"></tbody>
                     </table>
                 </div>
@@ -67,81 +59,27 @@
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
                     <h3>↕️ 역대 고:저 비율 분포</h3>
-                    <p class="description">저번호(1~22)와 고번호(23~45)의 배합 비율을 분석합니다.</p>
                     <div id="high-low-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 고:저 결과</h4>
+                    <h4>🕒 최근 회차 결과</h4>
                     <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>고:저</th></tr></thead>
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>결과</th></tr></thead>
                         <tbody id="high-low-mini-body"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- [그룹 2: 끝수 분석] -->
-        <div class="group-header">📍 끝수 분석 (일의 자리 패턴)</div>
-        <section id="end-sum-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>🔢 역대 끝수(일의 자리) 총합 분포</h3>
-                    <p class="description">당첨번호 6개의 일의 자리 숫자를 모두 더한 합계의 분포입니다.</p>
-                    <div id="end-sum-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 끝수합 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>끝수합</th></tr></thead>
-                        <tbody id="end-sum-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        <section id="same-end-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>👯 역대 동끝수(같은 일의 자리) 출현 분포</h3>
-                    <p class="description">일의 자리 숫자가 같은 번호가 몇 개나 포함되었는지 분석합니다.</p>
-                    <div id="same-end-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 동끝수 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>동끝수</th></tr></thead>
-                        <tbody id="same-end-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- [그룹 3: 특수 번호군] -->
-        <div class="group-header">📍 특수 번호군 분석 (소수, 배수, 제곱수 등)</div>
-        <section id="prime-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>🔢 역대 소수(Prime) 포함 개수</h3>
-                    <p class="description">1과 자기 자신만으로 나누어지는 소수(2, 3, 5, 7, 11 등)의 포함 개수입니다.</p>
-                    <div id="prime-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 소수 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>소수</th></tr></thead>
-                        <tbody id="prime-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+        <div class="group-header">📍 특수 번호군 분석</div>
         <section id="multiple-3-section" class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
                     <h3>✖️ 역대 3배수 포함 개수</h3>
-                    <p class="description">3의 배수(3, 6, 9, 12, ...)가 몇 개나 포함되었는지 보여줍니다.</p>
                     <div id="multiple-3-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 3배수 결과</h4>
+                    <h4>🕒 최근 회차 결과</h4>
                     <table class="mini-table">
                         <thead><tr><th>회차</th><th>당첨번호</th><th>3배수</th></tr></thead>
                         <tbody id="multiple-3-mini-body"></tbody>
@@ -149,82 +87,31 @@
                 </div>
             </div>
         </section>
-        <section id="multiple-5-section" class="analysis-card">
+        <section id="prime-section" class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
-                    <h3>🖐️ 역대 5의 배수 포함 개수 분포</h3>
-                    <p class="description">5의 배수(5, 10, 15, ...)의 포함 빈도를 분석합니다.</p>
-                    <div id="multiple-5-chart" class="dist-bar-chart"></div>
+                    <h3>🔢 역대 소수 포함 개수</h3>
+                    <div id="prime-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 5배수 결과</h4>
+                    <h4>🕒 최근 회차 결과</h4>
                     <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>5배수</th></tr></thead>
-                        <tbody id="multiple-5-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        <section id="square-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>🟦 역대 완전제곱수 포함 개수 분포</h3>
-                    <p class="description">완전제곱수(1, 4, 9, 16, 25, 36)가 당첨번호에 포함된 빈도입니다.</p>
-                    <div id="square-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 제곱수 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>제곱수</th></tr></thead>
-                        <tbody id="square-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        <section id="double-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>👥 역대 쌍수(11, 22, 33, 44) 포함 개수 분포</h3>
-                    <p class="description">십의 자리와 일의 자리가 같은 쌍수의 출현 빈도입니다.</p>
-                    <div id="double-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 쌍수 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>쌍수</th></tr></thead>
-                        <tbody id="double-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        <section id="composite-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>🧮 역대 합성수(Composite) 포함 개수</h3>
-                    <p class="description">1과 소수를 제외한 약수가 3개 이상인 수의 포함 개수입니다.</p>
-                    <div id="composite-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 합성수 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>합성</th></tr></thead>
-                        <tbody id="composite-mini-body"></tbody>
+                        <thead><tr><th>회차</th><th>당첨번호</th><th>소수</th></tr></thead>
+                        <tbody id="prime-mini-body"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- [그룹 4: 회차 간 상관관계] -->
-        <div class="group-header">📍 회차 간 상관관계 (이월, 이웃, 연속)</div>
+        <div class="group-header">📍 회차 간 상관관계 분석</div>
         <section id="period-1-section" class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
-                    <h3>🔄 역대 직전 회차 출현 개수 분포 (이월)</h3>
-                    <p class="description">지난 회차 당첨번호가 이번 회차에 다시 나온 개수 분포입니다.</p>
+                    <h3>🔄 역대 직전 회차 출현 (이월)</h3>
                     <div id="period-1-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 이월 결과</h4>
+                    <h4>🕒 최근 회차 결과</h4>
                     <table class="mini-table">
                         <thead><tr><th>회차</th><th>당첨번호</th><th>이월</th></tr></thead>
                         <tbody id="period-1-mini-body"></tbody>
@@ -232,16 +119,14 @@
                 </div>
             </div>
         </section>
-
         <section id="period-1-window-section" class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
                     <h3>📈 역대 1~2회전 매칭 분포</h3>
-                    <p class="description">현재 당첨번호가 직전 1+2회차 번호들과 겹치는 개수 분포입니다.</p>
                     <div id="period-1-2-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 1~2 매칭</h4>
+                    <h4>🕒 최근 회차 결과</h4>
                     <table class="mini-table">
                         <thead><tr><th>회차</th><th>당첨번호</th><th>1~2</th></tr></thead>
                         <tbody id="period-1-2-mini-body"></tbody>
@@ -251,11 +136,10 @@
             <div class="analysis-content-wrapper" style="margin-top: 2rem; border-top: 1px dashed #eee; padding-top: 2rem;">
                 <div class="analysis-main-side">
                     <h3>📈 역대 1~3회전 매칭 분포</h3>
-                    <p class="description">현재 당첨번호가 직전 1+2+3회차 번호들과 겹치는 개수 분포입니다.</p>
                     <div id="period-1-3-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 1~3 매칭</h4>
+                    <h4>🕒 최근 회차 결과</h4>
                     <table class="mini-table">
                         <thead><tr><th>회차</th><th>당첨번호</th><th>1~3</th></tr></thead>
                         <tbody id="period-1-3-mini-body"></tbody>
@@ -263,50 +147,16 @@
                 </div>
             </div>
         </section>
-        <section id="neighbor-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>🏠 역대 주변번호(이웃수) 출현 개수 분포</h3>
-                    <p class="description">직전 회차 당첨번호의 ±1에 해당하는 번호들의 출현 빈도입니다.</p>
-                    <div id="neighbor-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 이웃수 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>이웃</th></tr></thead>
-                        <tbody id="neighbor-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        <section id="consecutive-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>🔗 역대 연속번호 발생 빈도</h3>
-                    <p class="description">연속된 숫자가 쌍(예: 12, 13)으로 나타난 빈도입니다.</p>
-                    <div id="consecutive-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 연속번호 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>연속</th></tr></thead>
-                        <tbody id="consecutive-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
 
-        <!-- [그룹 5: 용지 패턴 및 구간] -->
-        <div class="group-header">📍 용지 패턴 및 구간 분석</div>
+        <div class="group-header">📍 구간 분석</div>
         <section id="bucket-15-section" class="analysis-card">
             <div class="analysis-content-wrapper">
                 <div class="analysis-main-side">
-                    <h3>📦 역대 3분할(15개씩) 출현 분포</h3>
-                    <p class="description">1-45를 15개씩 3개 구간으로 나누어 몇 개의 구간에서 번호가 나왔는지 분석합니다.</p>
+                    <h3>📦 역대 3분할(15개씩) 분포</h3>
                     <div id="bucket-15-chart" class="dist-bar-chart"></div>
                 </div>
                 <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 3분할</h4>
+                    <h4>🕒 최근 회차 결과</h4>
                     <table class="mini-table">
                         <thead><tr><th>회차</th><th>당첨번호</th><th>3분할</th></tr></thead>
                         <tbody id="bucket-15-mini-body"></tbody>
@@ -314,171 +164,10 @@
                 </div>
             </div>
         </section>
-
-        <section id="bucket-9-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>📦 역대 5분할(9개씩) 출현 분포</h3>
-                    <p class="description">1-45를 9개씩 5개 구간으로 나누어 분석합니다.</p>
-                    <div id="bucket-9-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 5분할</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>5분할</th></tr></thead>
-                        <tbody id="bucket-9-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="bucket-5-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>📦 역대 9분할(5개씩) 출현 분포</h3>
-                    <p class="description">1-45를 5개씩 9개 구간으로 나누어 분석합니다.</p>
-                    <div id="bucket-5-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 9분할</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>9분할</th></tr></thead>
-                        <tbody id="bucket-5-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="bucket-3-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>📦 역대 15분할(3개씩) 출현 분포</h3>
-                    <p class="description">1-45를 3개씩 묶어 총 15개 구간 중 몇 개의 구간에서 번호가 나왔는지 분석합니다.</p>
-                    <div id="bucket-3-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 15분할</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>15분할</th></tr></thead>
-                        <tbody id="bucket-3-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="color-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>🎨 역대 색상분할(5색) 출현 분포</h3>
-                    <p class="description">번호대별 색상(노랑, 파랑, 빨강, 회색, 초록)의 출현 가짓수를 분석합니다.</p>
-                    <div id="color-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 색상수</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>색상수</th></tr></thead>
-                        <tbody id="color-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="pattern-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>📐 역대 용지 패턴(모서리, 삼각형) 분포</h3>
-                    <p class="description">로또 용지상의 위치 패턴(모서리 16칸, 중앙 삼각형 13칸) 출현 빈도입니다.</p>
-                    <div id="pattern-corner-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 모서리패턴</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>모서리</th></tr></thead>
-                        <tbody id="pattern-corner-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="analysis-content-wrapper" style="margin-top: 2rem; border-top: 1px dashed #eee; padding-top: 2rem;">
-                <div class="analysis-main-side">
-                    <div id="pattern-triangle-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 삼각형패턴</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>삼각형</th></tr></thead>
-                        <tbody id="pattern-triangle-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- [그룹 6: 전문 기술적 지표] -->
-        <div class="group-header">📍 전문 기술적 지표 (AC값 & Span)</div>
-        <section id="ac-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>🔢 역대 AC값(산술적 복잡도) 분포</h3>
-                    <p class="description">번호들 사이의 차이가 얼마나 다양한지 측정합니다. 보통 7~10 사이가 무작위성이 높은 '정상' 범위입니다.</p>
-                    <div id="ac-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 AC값 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>AC값</th></tr></thead>
-                        <tbody id="ac-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        <section id="span-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>↔️ 역대 최대 Span(번호 간격) 분포</h3>
-                    <p class="description">가장 큰 번호와 가장 작은 번호의 차이입니다. 번호들이 전체 구간에 퍼진 정도를 나타냅니다.</p>
-                    <div id="span-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 Span 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>Span</th></tr></thead>
-                        <tbody id="span-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- [그룹 7: 총합 및 기타] -->
-        <div class="group-header">📍 총합 및 로우 데이터</div>
-        <section id="sum-section" class="analysis-card">
-            <div class="analysis-content-wrapper">
-                <div class="analysis-main-side">
-                    <h3>📈 역대 총합(Sum) 범위 분포</h3>
-                    <p class="description">당첨번호 6개의 모든 합계가 어느 범위에 가장 많이 분포하는지 보여줍니다.</p>
-                    <div id="sum-chart" class="dist-bar-chart"></div>
-                </div>
-                <div class="mini-table-wrapper">
-                    <h4>🕒 최근 회차 총합 결과</h4>
-                    <table class="mini-table">
-                        <thead><tr><th>회차</th><th>당첨번호</th><th>총합</th></tr></thead>
-                        <tbody id="sum-mini-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        
-        <section id="frequency-section" class="analysis-card">
-            <h3>🔢 번호별 전체 출현 빈도</h3>
-            <p class="description">1번부터 45번까지 각 번호가 역대 몇 번이나 당첨번호로 나왔는지 보여줍니다.</p>
-            <div id="full-frequency-chart" class="frequency-chart"></div>
-        </section>
+        <!-- (기타 구간들 생략 혹은 JS에서 존재 여부 체크) -->
 
         <footer class="standard-footer">
-            <p class="disclaimer">
-                <a href="privacy.html" style="color: #3498db; text-decoration: none; font-weight: bold;">개인정보처리방침</a> | 
-                <a href="guide.html" style="color: #718096; text-decoration: none;">이용 가이드</a><br>
-                ※ 본 통계 데이터는 역대 로또 당첨 기록을 수치화하여 분석한 참고용 자료이며,<br>
-                실제 당첨을 보장하는 도구가 아닙니다. 복권은 소액으로 즐겁게 참여하세요.
-            </p>
+            <p class="disclaimer">※ 본 데이터는 역대 당첨 결과를 바탕으로 제공됩니다.</p>
         </footer>
     </div>
     <script src="analysis.js"></script>
