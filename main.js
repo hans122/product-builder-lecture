@@ -110,15 +110,13 @@ function analyzeNumbers(numbers) {
         }
 
         // 이월수 개별 출현 분석 업데이트
-        const totalDraws = statsData.total_draws;
         const statsDataItems = statsData.distributions.period_1_stats;
         for (let i = 1; i <= 3; i++) {
             const target = document.getElementById(`p1-stats-${i}`);
             if (target && statsDataItems) {
                 const count = statsDataItems[String(i)] || 0;
-                const prob = ((count / totalDraws) * 100).toFixed(1);
                 const valSpan = target.querySelector('.value');
-                if (valSpan) valSpan.innerText = `${prob}%`;
+                if (valSpan) valSpan.innerText = `${count}회`;
                 
                 // 현재 생성된 번호가 정확히 이 개수이면 강조
                 if (common === i) {

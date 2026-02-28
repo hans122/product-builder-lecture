@@ -12,15 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function renderHistorySummary(data) {
     const container = document.getElementById('history-p1-cum-container');
-    if (!container || !data.distributions.period_1_cum) return;
+    if (!container || !data.distributions.period_1_stats) return;
 
-    const cumData = data.distributions.period_1_cum;
-    const total = data.total_draws;
+    const statsData = data.distributions.period_1_stats;
     
     container.innerHTML = '';
     
-    Object.entries(cumData).forEach(([label, count]) => {
-        const prob = ((count / total) * 100).toFixed(1);
+    Object.entries(statsData).forEach(([label, count]) => {
         const item = document.createElement('div');
         item.style.cssText = `
             background: white;
@@ -34,8 +32,8 @@ function renderHistorySummary(data) {
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         `;
         item.innerHTML = `
-            <span style="font-size: 0.7rem; color: #64748b; margin-bottom: 2px;">${label}회</span>
-            <span style="font-size: 0.9rem; font-weight: bold; color: #1e293b;">${prob}%</span>
+            <span style="font-size: 0.7rem; color: #64748b; margin-bottom: 2px;">이월 ${label}개</span>
+            <span style="font-size: 0.9rem; font-weight: bold; color: #1e293b;">${count}회</span>
         `;
         container.appendChild(item);
     });

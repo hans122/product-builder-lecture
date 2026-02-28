@@ -63,18 +63,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     renderDistChart('span-chart', spanGrouped, '');
                 }
 
-                // 6. 기존 항목들 및 누적 이월수
+                // 6. 기존 항목들 및 개별 이월수 분포
                 if (dists.period_1) {
                     const sortedPeriod1 = {};
                     for(let i=0; i<=6; i++) if (dists.period_1[i] !== undefined) sortedPeriod1[i] = dists.period_1[i];
                     renderDistChart('period-1-chart', sortedPeriod1, '개');
                 }
-                if (dists.period_1_cum) {
-                    const cumData = Object.entries(dists.period_1_cum).map(([label, val]) => {
-                        const prob = ((val / total) * 100).toFixed(1);
-                        return [label, val, `${prob}%`];
+                if (dists.period_1_stats) {
+                    const statsData = Object.entries(dists.period_1_stats).map(([label, val]) => {
+                        return [`${label}개`, val];
                     });
-                    renderDistChart('period-1-cum-chart', cumData, '회');
+                    renderDistChart('period-1-stats-chart', statsData, '회');
                 }
                 if (dists.neighbor) {
                     const sortedNeighbor = {};

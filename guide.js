@@ -53,15 +53,15 @@ function updateGuideStats(data) {
 
     // 3. 이월수/이웃수 요약
     const carryBox = document.getElementById('carry-neighbor-stat');
-    if (dists.period_1 && dists.period_1_cum) {
+    if (dists.period_1 && dists.period_1_stats) {
         const p1_0 = dists.period_1["0"] || 0;
         const carryProb = (100 - (p1_0 / total * 100)).toFixed(1);
-        const cum3Count = dists.period_1_cum["1~3"] || 0;
-        const cum3Prob = ((cum3Count / total) * 100).toFixed(1);
+        const p1_1 = dists.period_1_stats["1"] || 0;
+        const p1_2 = dists.period_1_stats["2"] || 0;
         
         carryBox.innerHTML = `
             데이터 분석 결과, 이월수가 1개 이상 포함될 확률은 <strong>${carryProb}%</strong>에 달합니다.<br>
-            특히 이월수가 <strong>1~3개 사이</strong>로 포함될 확률은 약 <strong>${cum3Prob}%</strong>로 가장 이상적인 선택 범위입니다.
+            역대 통계상 1개 포함(${p1_1}회), 2개 포함(${p1_2}회)되는 경우가 가장 흔한 패턴입니다.
         `;
     }
 

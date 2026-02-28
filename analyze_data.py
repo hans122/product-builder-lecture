@@ -188,9 +188,7 @@ def analyze():
         sum_range_dist[rk] += 1
 
     # 개별 데이터 생성 (이월수 개수 통계)
-    period_1_stats = {}
-    for i in range(1, 4):
-        period_1_stats[str(i)] = period_1_dist.get(i, 0)
+    period_1_stats = {str(i): period_1_dist.get(i, 0) for i in range(1, 4)}
 
     result = {
         "frequency": {str(i): frequency.get(i, 0) for i in range(1, 46)},
