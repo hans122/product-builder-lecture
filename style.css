@@ -1,4 +1,8 @@
 /* 기본 레이아웃 */
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Noto Sans KR', sans-serif;
     background-color: #f0f4f8;
