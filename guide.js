@@ -50,21 +50,21 @@ function updateGuideStats(data) {
     };
 
     // 하이라이트 박스 및 팁 업데이트 함수
-    const updateSection = (idPrefix, statKey, distKey, extraText = "") => {
+    const updateSection = (idPrefix, statKey, distKey, titleText = "") => {
         const container = document.getElementById(`${idPrefix}-stat-container`);
         const tipElem = document.getElementById(`${idPrefix}-tip`);
         const info = getZoneInfo(statKey, stats[statKey], dists[distKey]);
 
         if (info) {
-            // 1. 통계 하이라이트 업데이트 (세이프 존 확률 추가)
+            // 1. 통계 하이라이트 업데이트 (옵티멀 존 수치 직접 노출)
             if (container) {
                 container.innerHTML = `<div class="stat-highlight">
-                    📊 실제 통계 결과: ${extraText}
+                    📊 실제 통계 결과: ${titleText} <strong>옵티멀 존은 "${info.optimal}"</strong> 입니다.
                     <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(0,0,0,0.05);">
                         <span class="text-safe" style="font-size:0.9rem;">✔ 세이프 존 적중률: ${formatStat(info.safeHits, total)}</span>
                         <div style="margin-top:5px; display:flex; gap:15px; font-size:0.8rem; opacity:0.8;">
-                            <span>● 옵티멀 범위: ${info.optimal}</span>
-                            <span>● 세이프 범위: ${info.safe}</span>
+                            <span>● 옵티멀 범위($\pm 1\sigma$): ${info.optimal}</span>
+                            <span>● 세이프 범위($\pm 2\sigma$): ${info.safe}</span>
                         </div>
                     </div>
                 </div>`;
@@ -72,42 +72,20 @@ function updateGuideStats(data) {
 
             // 2. 공략 팁 업데이트 (세이프 범위 명시)
             if (tipElem) {
-                const originalTip = tipElem.innerHTML.split('(')[0].trim();
-                tipElem.innerHTML = `${originalTip} <br><small class="text-safe" style="font-weight:bold;">(권장 세이프 범위: ${info.safe})</small>`;
+                const originalTip = tipElem.innerHTML.split('<br>')[0].split('(')[0].trim();
+                tipElem.innerHTML = `${originalTip} <br><span class="text-safe" style="font-weight:bold; font-size:0.85rem;">(권장 세이프 범위: ${info.safe})</span>`;
             }
         }
     };
 
     // 각 섹션별 데이터 업데이트 실행
-    
-    // 총합: 원본 데이터(raw number)에서 20단위 구간 빈도수 직접 계산
-    let bestRangeLabel = "120-139"; // default
-    if (dists.sum) {
-        const rangeCounts = {};
-        Object.entries(dists.sum).forEach(([sumVal, count]) => {
-            const val = parseInt(sumVal);
-            if (!isNaN(val)) {
-                // 20단위 구간화 (예: 135 -> 120, 120~139 구간)
-                const rangeStart = Math.floor(val / 20) * 20;
-                const rangeLabel = `${rangeStart}-${rangeStart + 19}`;
-                rangeCounts[rangeLabel] = (rangeCounts[rangeLabel] || 0) + count;
-            }
-        });
-        
-        // 가장 빈도가 높은 구간 찾기
-        const sortedRanges = Object.entries(rangeCounts).sort((a, b) => b[1] - a[1]);
-        if (sortedRanges.length > 0) {
-            bestRangeLabel = sortedRanges[0][0];
-        }
-    }
-    updateSection('sum', 'sum', 'sum', `역대 가장 많이 출현한 합계 구간은 <strong>"${bestRangeLabel}"</strong> 입니다.`);
-    
-    updateSection('oe', 'odd_count', 'odd_even', `홀짝 균형은 3:3을 중심으로 강한 중앙 집중 경향을 보입니다.`);
-    updateSection('hl', 'low_count', 'high_low', `고저 배합은 저번호와 고번호의 고른 분포가 핵심입니다.`);
-    updateSection('carry', 'period_1', 'period_1', `최근 당첨 번호가 다시 출현하는 '이월' 현상은 매우 빈번합니다.`);
-    updateSection('special', 'prime', 'prime', `소수, 3배수 등 특수 번호군은 조합의 다양성을 높여줍니다.`);
-    updateSection('consecutive', 'consecutive', 'consecutive', `연속된 번호(연번)는 당첨 조합의 약 절반 이상에서 발견됩니다.`);
-    updateSection('end-digit', 'same_end', 'same_end', `끝자리가 같은 '동끝수'는 번호 선택의 중요한 패턴입니다.`);
-    updateSection('bucket', 'bucket_15', 'bucket_15', `번호가 특정 구간에 쏠리지 않고 적절히 분산되는 것이 유리합니다.`);
-    updateSection('pattern', 'pattern_corner', 'pattern_corner', `용지상의 시각적 패턴인 모서리 영역도 유효한 지표입니다.`);
+    updateSection('sum', 'sum', 'sum', `역대 당첨 확률이 가장 높은 합계`);
+    updateSection('oe', 'odd_count', 'odd_even', `홀수 개수의 통계적`);
+    updateSection('hl', 'low_count', 'high_low', `저번호(1~22) 개수의`);
+    updateSection('carry', 'period_1', 'period_1', `직전 회차 이월수의`);
+    updateSection('special', 'prime', 'prime', `소수(Prime) 포함 개수의`);
+    updateSection('consecutive', 'consecutive', 'consecutive', `연속 번호(쌍)의`);
+    updateSection('end-digit', 'same_end', 'same_end', `동일 끝수 출현 개수의`);
+    updateSection('bucket', 'bucket_15', 'bucket_15', `3분할(15개씩) 구간 점유수의`);
+    updateSection('pattern', 'pattern_corner', 'pattern_corner', `용지 모서리 영역 포함수의`);
 }
