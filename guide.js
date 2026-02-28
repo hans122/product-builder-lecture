@@ -12,139 +12,32 @@ function updateGuideStats(data) {
 
     // 1. 총합 요약
     const sumBox = document.getElementById('sum-stat-box');
-    if (dists.sum) {
+    if (sumBox && dists.sum) {
         const sortedSum = Object.entries(dists.sum).sort((a, b) => b[1] - a[1]);
         const topRange = sortedSum[0][0];
         const topCount = sortedSum[0][1];
         const percentage = ((topCount / total) * 100).toFixed(1);
-        sumBox.innerHTML = `
-            <div class="stat-highlight">
-                실제 통계 결과: "${topRange}" 구간이 총 ${total}회 중 ${topCount}회 출현하여 
-                약 ${percentage}%의 가장 높은 빈도를 보이고 있습니다.
-            </div>
-        `;
+        sumBox.innerHTML = `<div class="stat-highlight">실제 통계 결과: "${topRange}" 구간이 총 ${total}회 중 ${topCount}회 출현하여 약 ${percentage}%의 가장 높은 빈도를 보이고 있습니다.</div>`;
     }
 
-    // 2. 홀짝 비율 리스트
-    const oeList = document.getElementById('oe-stat-list');
-    if (dists.odd_even) {
-        const sortedOE = Object.entries(dists.odd_even).sort((a, b) => b[1] - a[1]);
-        oeList.innerHTML = '<strong>주요 출현 비율 순위:</strong>';
-        sortedOE.slice(0, 3).forEach(([ratio, count]) => {
-            const perc = ((count / total) * 100).toFixed(1);
-            const li = document.createElement('li');
-            li.innerHTML = `<span>홀수 ${ratio.split(':')[0]} : 짝수 ${ratio.split(':')[1]}</span><span>${perc}% (${count}회)</span>`;
-            oeList.appendChild(li);
-        });
-    }
-
-    // 2-2. 고저 비율 리스트
-    const hlList = document.getElementById('hl-stat-list');
-    if (dists.high_low) {
-        const sortedHL = Object.entries(dists.high_low).sort((a, b) => b[1] - a[1]);
-        hlList.innerHTML = '<strong>주요 고:저 비율 순위:</strong>';
-        sortedHL.slice(0, 3).forEach(([ratio, count]) => {
-            const perc = ((count / total) * 100).toFixed(1);
-            const li = document.createElement('li');
-            li.innerHTML = `<span>저번호 ${ratio.split(':')[0]} : 고번호 ${ratio.split(':')[1]}</span><span>${perc}% (${count}회)</span>`;
-            hlList.appendChild(li);
-        });
-    }
-
-    // 3. 이월수/이웃수 요약
+    // 2. 이월수 요약 (윈도우 기반)
     const carryBox = document.getElementById('carry-neighbor-stat');
-    if (dists.period_1 && dists.period_1_cum) {
+    if (carryBox && dists.period_1 && dists.period_1_3) {
         const p1_0 = dists.period_1["0"] || 0;
         const carryProb = (100 - (p1_0 / total * 100)).toFixed(1);
-        const cum3Count = dists.period_1_cum["1~3"] || 0;
-        const cum3Prob = ((cum3Count / total) * 100).toFixed(1);
+        // 1~3회전 매칭이 3~5개인 경우의 합계 계산
+        const idealCount = Object.entries(dists.period_1_3)
+            .filter(([k, v]) => parseInt(k) >= 3 && parseInt(k) <= 5)
+            .reduce((acc, curr) => acc + curr[1], 0);
+        const idealProb = ((idealCount / total) * 100).toFixed(1);
         
-        carryBox.innerHTML = `
-            데이터 분석 결과, 이월수가 1개 이상 포함될 확률은 <strong>${carryProb}%</strong>에 달합니다.<br>
-            특히 이월수가 <strong>1~3개 사이</strong>로 포함될 확률은 약 <strong>${cum3Prob}%</strong>로 가장 이상적인 선택 범위입니다.
-        `;
+        carryBox.innerHTML = `데이터 분석 결과, 직전 회차 번호가 1개 이상 포함될 확률은 <strong>${carryProb}%</strong>입니다.<br>특히 최근 3개 회차 번호 중 <strong>3~5개</strong>가 포함될 확률은 <strong>${idealProb}%</strong>로 가장 안정적인 선택입니다.`;
     }
 
-    // 4. 특수 번호 및 패턴 통합 분석
-    const combinedStat = document.getElementById('combined-special-stat');
-    if (dists.prime && dists.multiple_3 && dists.square && dists.multiple_5 && dists.double_num) {
-        const getProb = (dist) => (100 - ((dist["0"] || 0) / total * 100)).toFixed(1);
-        const pPrime = getProb(dists.prime);
-        const pM3 = getProb(dists.multiple_3);
-        const pSquare = getProb(dists.square);
-        const pM5 = getProb(dists.multiple_5);
-        const pDouble = getProb(dists.double_num);
-
-        // 용지 패턴 추가 분석
-        const pCorner0 = dists.pattern_corner["0"] || 0;
-        const pCornerProb = (100 - (pCorner0 / total * 100)).toFixed(1);
-
-        combinedStat.innerHTML = `
-            <strong>실시간 데이터 요약:</strong><br>
-            • 소수 출현 확률: ${pPrime}% | 3배수 출현 확률: ${pM3}%<br>
-            • 제곱수 출현 확률: ${pSquare}% | 5배수 출현 확률: ${pM5}%<br>
-            • 쌍수 출현 확률: ${pDouble}% | 모서리패턴 출현 확률: ${pCornerProb}%<br>
-            <small>※ 위 수치는 각 번호군/패턴이 1개 이상 포함된 회차의 비율입니다.</small>
-        `;
-    }
-
-    // 5. 연속번호 요약
-    const conBox = document.getElementById('consecutive-stat');
-    if (dists.consecutive) {
-        const con_0 = dists.consecutive["0"] || 0;
-        const hasConProb = (100 - (con_0 / total * 100)).toFixed(1);
-        conBox.innerHTML = `<div class="stat-highlight">우리 사이트 분석: 전체 회차의 <strong>${hasConProb}%</strong>에서 최소 한 쌍 이상의 연속번호가 등장했습니다.</div>`;
-    }
-
-    // 6. 끝수 분석 요약
-    const endDigitStat = document.getElementById('end-digit-stat');
-    if (dists.same_end && dists.end_sum) {
-        const same_1 = dists.same_end["1"] || 0;
-        const hasSameEndProb = (100 - (same_1 / total * 100)).toFixed(1);
-        const sortedEndSum = Object.entries(dists.end_sum).sort((a, b) => b[1] - a[1]);
-        const topEndSum = sortedEndSum[0][0];
-
-        endDigitStat.innerHTML = `
-            동끝수가 1개 이상 출현할 확률은 <strong>${hasSameEndProb}%</strong>이며, 
-            끝수 총합은 <strong>${topEndSum}</strong> 부근에서 가장 많이 발생합니다.
-        `;
-    }
-
-    // 7. 구간별 출현 분석 요약
+    // 3. 구간 분석 요약
     const bucketStat = document.getElementById('bucket-stat');
-    if (dists.bucket_3 && dists.bucket_5 && dists.bucket_9 && dists.bucket_15) {
-        const getTop = (dist) => Object.entries(dist).sort((a, b) => b[1] - a[1])[0];
-        const top3 = getTop(dists.bucket_15);
-        const top5 = getTop(dists.bucket_9);
-        const top9 = getTop(dists.bucket_5);
-        const top15 = getTop(dists.bucket_3);
-
-        bucketStat.innerHTML = `
-            <strong>실시간 구간 분석 데이터:</strong><br>
-            • 3분할: ${top3[0]}개 구간 출현이 가장 많음 (${((top3[1]/total)*100).toFixed(1)}%)<br>
-            • 5분할: ${top5[0]}개 구간 출현이 가장 많음 (${((top5[1]/total)*100).toFixed(1)}%)<br>
-            • 9분할: ${top9[0]}개 구간 출현이 가장 많음 (${((top9[1]/total)*100).toFixed(1)}%)<br>
-            • 15분할: ${top15[0]}개 구간 출현이 가장 많음 (${((top15[1]/total)*100).toFixed(1)}%)
-        `;
-    }
-
-    // 8. 용지 패턴 분석 요약
-    const patternStat = document.getElementById('pattern-stat');
-    if (dists.pattern_corner && dists.pattern_triangle) {
-        const pTri0 = dists.pattern_triangle["0"] || 0;
-        const hasTriProb = (100 - (pTri0 / total * 100)).toFixed(1);
-        patternStat.innerHTML = `중앙 삼각형 영역에 번호가 1개 이상 포함될 확률은 <strong>${hasTriProb}%</strong>로 매우 일반적인 패턴입니다.`;
-    }
-
-    // 9. 기술적 지표 (AC & Span) 요약
-    const techStat = document.createElement('div');
-    techStat.className = 'stat-highlight';
-    if (dists.ac && dists.span) {
-        const sortedAC = Object.entries(dists.ac).sort((a, b) => b[1] - a[1]);
-        const topAC = sortedAC[0][0];
-        const acPerc = ((sortedAC[0][1] / total) * 100).toFixed(1);
-        techStat.innerHTML = `산술적 복잡도(AC)는 <strong>${topAC}</strong>(확률 ${acPerc}%)가 가장 많으며, 번호의 넓은 분포(Span)가 당첨의 핵심입니다.`;
-        const lastSection = document.querySelector('.logic-card:last-of-type');
-        if (lastSection) lastSection.appendChild(techStat);
+    if (bucketStat && dists.bucket_15) {
+        const sortedB15 = Object.entries(dists.bucket_15).sort((a, b) => b[1] - a[1]);
+        bucketStat.innerHTML = `3분할 분석 결과, 당첨번호가 <strong>${sortedB15[0][0]}개 구간</strong>에 걸쳐 출현할 확률이 ${((sortedB15[0][1]/total)*100).toFixed(1)}%로 가장 높습니다.`;
     }
 }

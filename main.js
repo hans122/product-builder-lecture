@@ -148,6 +148,39 @@ function analyzeNumbers(numbers) {
         updateAnalysisItem(sumTarget, totalSum, status);
     }
 
+    // [추가] 실시간 분석 누락 지표들
+    const primeCount = numbers.filter(isPrime).length;
+    const primeTarget = document.getElementById('prime-count');
+    if (primeTarget) updateAnalysisItem(primeTarget, `${primeCount}개`, (primeCount >= 2 && primeCount <= 3) ? 'optimal' : 'normal');
+
+    const compositeCount = numbers.filter(isComposite).length;
+    const compositeTarget = document.getElementById('composite-count');
+    if (compositeTarget) updateAnalysisItem(compositeTarget, `${compositeCount}개`, 'normal');
+
+    const m3Count = numbers.filter(n => n % 3 === 0).length;
+    const m3Target = document.getElementById('multiple-3-count');
+    if (m3Target) updateAnalysisItem(m3Target, `${m3Count}개`, 'normal');
+
+    const m5Count = numbers.filter(n => n % 5 === 0).length;
+    const m5Target = document.getElementById('multiple-5-count');
+    if (m5Target) updateAnalysisItem(m5Target, `${m5Count}개`, 'normal');
+
+    const b15Count = new Set(numbers.map(n => Math.floor((n-1)/15))).size;
+    const b15Target = document.getElementById('bucket-15-count');
+    if (b15Target) updateAnalysisItem(b15Target, `${b15Count}구간`, b15Count >= 2 ? 'optimal' : 'normal');
+
+    const b9Count = new Set(numbers.map(n => Math.floor((n-1)/9))).size;
+    const b9Target = document.getElementById('bucket-9-count');
+    if (b9Target) updateAnalysisItem(b9Target, `${b9Count}구간`, b9Count >= 3 ? 'optimal' : 'normal');
+
+    const b5Count = new Set(numbers.map(n => Math.floor((n-1)/5))).size;
+    const b5Target = document.getElementById('bucket-5-count');
+    if (b5Target) updateAnalysisItem(b5Target, `${b5Count}구간`, b5Count >= 4 ? 'optimal' : 'normal');
+
+    const b3Count = new Set(numbers.map(n => Math.floor((n-1)/3))).size;
+    const b3Target = document.getElementById('bucket-3-count');
+    if (b3Target) updateAnalysisItem(b3Target, `${b3Count}구간`, b3Count >= 5 ? 'optimal' : 'normal');
+
     // (기타 지표들 생략/유지)
     const endSum = numbers.reduce((a, b) => a + (b % 10), 0);
     const endSumTarget = document.getElementById('end-sum-value');

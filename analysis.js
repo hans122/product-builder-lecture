@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const dists = data.distributions;
             const total = data.total_draws;
 
-            // 1. 기본 비율 (홀짝, 고저)
+            // 1. 기본 비율
             if (dists.odd_even) renderDistChart('odd-even-chart', dists.odd_even, ' : ', true);
             if (dists.high_low) renderDistChart('high-low-chart', dists.high_low, ' : ', true);
             
@@ -33,8 +33,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderDistChart('period-1-3-chart', data1_3, '회');
             }
 
-            // 4. 구간 분석
+            // 4. 구간 분석 (데이터 키: bucket_15, bucket_9, bucket_5, bucket_3)
             if (dists.bucket_15) renderDistChart('bucket-15-chart', dists.bucket_15, '구간', true);
+            if (dists.bucket_9) renderDistChart('bucket-9-chart', dists.bucket_9, '구간', true);
+            if (dists.bucket_5) renderDistChart('bucket-5-chart', dists.bucket_5, '구간', true);
+            if (dists.bucket_3) renderDistChart('bucket-3-chart', dists.bucket_3, '구간', true);
+
+            // 5. 기타 전문 지표
+            if (dists.color) renderDistChart('color-chart', dists.color, '색상', true);
+            if (dists.ac) {
+                const acOrder = ["6 이하", "7", "8", "9", "10"];
+                const acData = acOrder.map(label => {
+                    let count = 0;
+                    if (label === "6 이하") {
+                        Object.entries(dists.ac).forEach(([v, c]) => { if (parseInt(v) <= 6) count += c; });
+                    } else { count = dists.ac[label] || 0; }
+                    return [label, count];
+                });
+                renderDistChart('ac-chart', acData, '');
+            }
+            if (dists.sum) {
+                const sumOrder = ["100 미만", "100-119", "120-139", "140-159", "160-179", "180-199", "200 이상"];
+                const sortedSum = {};
+                sumOrder.forEach(range => { if (dists.sum[range] !== undefined) sortedSum[range] = dists.sum[range]; });
+                renderDistChart('sum-chart', sortedSum, '');
+            }
 
             // 미니 테이블 렌더링
             if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));

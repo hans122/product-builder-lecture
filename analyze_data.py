@@ -5,6 +5,9 @@ from collections import Counter
 def is_prime(n):
     return n in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]
 
+def is_composite(n):
+    return n > 1 and not is_prime(n)
+
 def calculate_ac(nums):
     diffs = set()
     for i in range(len(nums)):
@@ -29,10 +32,11 @@ def analyze():
     frequency = Counter()
     distributions = {
         "odd_even": Counter(), "high_low": Counter(), "consecutive": Counter(),
-        "prime": Counter(), "period_1": Counter(), "period_1_2": Counter(), "period_1_3": Counter(),
+        "prime": Counter(), "composite": Counter(), "multiple_3": Counter(),
+        "period_1": Counter(), "period_1_2": Counter(), "period_1_3": Counter(),
         "neighbor": Counter(), "sum": Counter(), "end_sum": Counter(), "same_end": Counter(),
         "square": Counter(), "multiple_5": Counter(), "double_num": Counter(),
-        "bucket_3": Counter(), "bucket_5": Counter(), "bucket_9": Counter(), "bucket_15": Counter(),
+        "bucket_15": Counter(), "bucket_9": Counter(), "bucket_5": Counter(), "bucket_3": Counter(),
         "color": Counter(), "pattern_corner": Counter(), "pattern_triangle": Counter(),
         "ac": Counter(), "span": Counter()
     }
@@ -60,8 +64,10 @@ def analyze():
             
         total_sum = sum(nums_list)
         primes = len([n for n in nums_list if is_prime(n)])
+        composites = len([n for n in nums_list if is_composite(n)])
+        m3s = len([n for n in nums_list if n % 3 == 0])
         
-        # --- [핵심] 이월 및 윈도우 기반 비교 (1~2, 1~3) ---
+        # 이월 및 윈도우 기반 비교
         p1_val = 0
         p1_2_val = 0
         p1_3_val = 0
@@ -71,8 +77,6 @@ def analyze():
             prev_1 = set(draws[i-1]['nums'])
             p1_val = len(nums_set.intersection(prev_1))
             distributions["period_1"][p1_val] += 1
-            
-            # 이웃수 (직전 회차 기준 ±1)
             neighbors = set()
             for n in prev_1:
                 if n > 1: neighbors.add(n-1)
@@ -89,16 +93,19 @@ def analyze():
             p1_3_val = len(nums_set.intersection(prev_1_3))
             distributions["period_1_3"][p1_3_val] += 1
 
-        # 나머지 지표들
+        # 끝수 및 특수수
         end_digits = [n % 10 for n in nums_list]
         es_val = sum(end_digits)
         max_same_end = Counter(end_digits).most_common(1)[0][1]
+        square_cnt = len([n for n in nums_list if n in [1,4,9,16,25,36]])
+        m5_cnt = len([n for n in nums_list if n % 5 == 0])
+        double_cnt = len([n for n in nums_list if n in [11,22,33,44]])
         
         # 구간 및 색상
-        b3 = len(set((n-1)//15 for n in nums_list))
-        b5 = len(set((n-1)//9 for n in nums_list))
-        b9 = len(set((n-1)//5 for n in nums_list))
-        b15 = len(set((n-1)//3 for n in nums_list))
+        b15 = len(set((n-1)//15 for n in nums_list))
+        b9 = len(set((n-1)//9 for n in nums_list))
+        b5 = len(set((n-1)//5 for n in nums_list))
+        b3 = len(set((n-1)//3 for n in nums_list))
         
         colors = set()
         for n in nums_list:
@@ -119,12 +126,17 @@ def analyze():
         distributions["high_low"][hl_val] += 1
         distributions["consecutive"][consecutive] += 1
         distributions["prime"][primes] += 1
+        distributions["composite"][composites] += 1
+        distributions["multiple_3"][m3s] += 1
         distributions["neighbor"][neighbor_val] += 1
         distributions["same_end"][max_same_end] += 1
-        distributions["bucket_3"][b3] += 1
-        distributions["bucket_5"][b5] += 1
-        distributions["bucket_9"][b9] += 1
+        distributions["square"][square_cnt] += 1
+        distributions["multiple_5"][m5_cnt] += 1
+        distributions["double_num"][double_cnt] += 1
         distributions["bucket_15"][b15] += 1
+        distributions["bucket_9"][b9] += 1
+        distributions["bucket_5"][b5] += 1
+        distributions["bucket_3"][b3] += 1
         distributions["color"][color_cnt] += 1
         distributions["pattern_corner"][p_corner] += 1
         distributions["pattern_triangle"][p_tri] += 1
@@ -144,10 +156,12 @@ def analyze():
         processed_data.append({
             "no": draw['no'], "date": draw['date'], "nums": nums_list, "sum": total_sum,
             "odd_even": oe_val, "high_low": hl_val, "consecutive": consecutive,
-            "prime": primes, "period_1": p1_val, "period_1_2": p1_2_val, "period_1_3": p1_3_val,
+            "prime": primes, "composite": composites, "multiple_3": m3s,
+            "period_1": p1_val, "period_1_2": p1_2_val, "period_1_3": p1_3_val,
             "neighbor": neighbor_val, "ac": ac_val, "span": span_val,
-            "b3": b3, "b5": b5, "b9": b9, "b15": b15, "color": color_cnt,
-            "p_corner": p_corner, "p_tri": p_tri, "end_sum": es_val, "same_end": max_same_end
+            "b15": b15, "b9": b9, "b5": b5, "b3": b3, "color": color_cnt,
+            "p_corner": p_corner, "p_tri": p_tri, "end_sum": es_val, "same_end": max_same_end,
+            "square": square_cnt, "m5": m5_cnt, "double": double_cnt
         })
 
     recent_table = processed_data[::-1][:30]
@@ -156,13 +170,13 @@ def analyze():
         "frequency": {str(k): v for k, v in frequency.items()},
         "distributions": {k: dict(v) for k, v in distributions.items()},
         "total_draws": len(draws),
-        "last_3_draws": [d['nums'] for d in draws[-3:][::-1]], # 직전 3회차 번호 리스트
+        "last_3_draws": [d['nums'] for d in draws[-3:][::-1]],
         "recent_draws": recent_table
     }
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    print(f"Success: Updated stats with window-based carry-over (1~2, 1~3) up to draw {draws[-1]['no']}")
+    print(f"Success: Updated stats with comprehensive metrics up to draw {draws[-1]['no']}")
 
 if __name__ == "__main__":
     analyze()
