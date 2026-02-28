@@ -89,7 +89,6 @@ function updateSelectedBallsDisplay() {
     }
 
     container.innerHTML = '';
-    // 정렬된 복사본으로 렌더링
     [...selectedNumbers].sort((a, b) => a - b).forEach(num => {
         const ball = document.createElement('div');
         ball.className = `ball mini ${getBallColorClass(num)}`;
@@ -97,6 +96,7 @@ function updateSelectedBallsDisplay() {
         container.appendChild(ball);
     });
 
+    // 6개일 때만 분석 버튼 활성화 (사용자가 직접 누르도록 유도)
     analyzeBtn.disabled = selectedNumbers.length !== 6;
 }
 
@@ -170,7 +170,7 @@ function semiAutoSelect() {
     });
     
     updateSelectedBallsDisplay();
-    if (selectedNumbers.length === 6) runDetailedAnalysis();
+    // 자동 실행 트리거 제거 (사용자가 직접 버튼을 누르도록 함)
 }
 
 function autoSelect() {
@@ -198,7 +198,7 @@ function autoSelect() {
     });
     
     updateSelectedBallsDisplay();
-    runDetailedAnalysis();
+    // 자동 실행 트리거 제거
 }
 
 function resetSelection() {
@@ -221,7 +221,19 @@ function runDetailedAnalysis() {
     
     let totalScore = 100;
     const nums = [...selectedNumbers].sort((a, b) => a - b);
+    const summary = statsData.stats_summary || {};
 
+    // 정규분포 기반 상태 판정 헬퍼
+    const getStatus = (val, statKey) => {
+        const stat = summary[statKey];
+        if (!stat) return 'safe';
+        const z = Math.abs(val - stat.mean) / stat.std;
+        if (z <= 1.0) return 'optimal';
+        if (z <= 2.0) return 'safe';
+        return 'warning';
+    };
+
+    // [G0] 파레토 영역 분석
     if (statsData.frequency) {
         const zones = getZones(statsData);
         const gCnt = nums.filter(n => zones.gold.includes(n)).length;
@@ -230,57 +242,76 @@ function runDetailedAnalysis() {
         const cCnt = nums.filter(n => zones.cold.includes(n)).length;
         
         addReportRow('[G0] 파레토 영역', `G:${gCnt}/S:${sCnt}/N:${nCnt}/C:${cCnt}`, 
-            (gCnt >= 1 && gCnt <= 3) ? '최적' : '보통', 
+            (gCnt >= 1 && gCnt <= 3) ? 'optimal' : 'safe', 
             `골드(${gCnt}), 실버(${sCnt}) 비중 분석입니다. (추천: 2:3:1:0)`);
     }
 
-    const sum = nums.reduce((a, b) => a + b, 0);
-    addReportRow('[G1] 총합', sum, (sum >= 120 && sum <= 180) ? '최적' : '보통', '평균 ±1σ 이내의 옵티멀 구간 분석입니다.');
-    const odds = nums.filter(n => n % 2 !== 0).length;
-    addReportRow('[G1] 홀:짝', `${odds}:${6-odds}`, (odds >= 2 && odds <= 4) ? '최적' : '주의', '홀수와 짝수의 균형입니다.');
-    const lows = nums.filter(n => n <= 22).length;
-    addReportRow('[G1] 고:저', `${lows}:${6-lows}`, (lows >= 2 && lows <= 4) ? '최적' : '주의', '저번호와 고번호의 균형입니다.');
+    // [G1] 기본 균형
+    const sumVal = nums.reduce((a, b) => a + b, 0);
+    addReportRow('[G1] 총합', sumVal, getStatus(sumVal, 'sum'), '평균 ±1σ 이내의 옵티멀 구간 분석입니다.');
+    
+    const oddCnt = nums.filter(n => n % 2 !== 0).length;
+    addReportRow('[G1] 홀:짝', `${oddCnt}:${6-oddCnt}`, getStatus(oddCnt, 'odd_count'), '홀수와 짝수의 균형입니다.');
+    
+    const lowCnt = nums.filter(n => n <= 22).length;
+    addReportRow('[G1] 고:저', `${lowCnt}:${6-lowCnt}`, getStatus(lowCnt, 'low_count'), '저번호와 고번호의 균형입니다.');
 
+    // [G2] 회차 상관관계
     if (statsData.last_3_draws) {
         const prev1 = new Set(statsData.last_3_draws[0]);
         const p1 = nums.filter(n => prev1.has(n)).length;
-        addReportRow('[G2] 직전 1회차', `${p1}개`, (p1 >= 1 && p1 <= 2) ? '최적' : '보통', '직전 회차 번호 중복 분석입니다.');
+        addReportRow('[G2] 직전 1회차', `${p1}개`, getStatus(p1, 'period_1'), '직전 회차 번호 중복 분석입니다.');
+        
         const prev1_3 = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[]), ...(statsData.last_3_draws[2]||[])]);
         const p1_3 = nums.filter(n => prev1_3.has(n)).length;
-        addReportRow('[G2] 1~3회전 매칭', `${p1_3}개`, (p1_3 >= 3 && p1_3 <= 5) ? '최적' : '보통', '최근 3개 회차 합집합과의 중복 분석입니다.');
+        addReportRow('[G2] 1~3회전 매칭', `${p1_3}개`, getStatus(p1_3, 'period_1_3'), '최근 3개 회차 합집합과의 중복 분석입니다.');
     }
 
+    // [G3] 특수 번호군
     const primeCnt = nums.filter(isPrime).length;
-    addReportRow('[G3] 소수 포함', `${primeCnt}개`, (primeCnt >= 2 && primeCnt <= 3) ? '최적' : '보통', '소수 포함 개수 분석입니다.');
+    addReportRow('[G3] 소수 포함', `${primeCnt}개`, getStatus(primeCnt, 'prime'), '역대 소수 출현 빈도 기반 분석입니다.');
+    
     const m3Cnt = nums.filter(n => n % 3 === 0).length;
-    addReportRow('[G3] 3배수 포함', `${m3Cnt}개`, '보통', '3의 배수 포함 분석입니다.');
+    addReportRow('[G3] 3배수 포함', `${m3Cnt}개`, getStatus(m3Cnt, 'multiple_3'), '3의 배수 포함 균형 분석입니다.');
 
+    // [G4] 구간 및 패턴
     const b15 = new Set(nums.map(n => Math.floor((n-1)/15))).size;
-    addReportRow('[G4] 3분할 점유', `${b15}구간`, b15 >= 2 ? '최적' : '주의', '15개 단위 구간 분산도 분석입니다.');
+    addReportRow('[G4] 3분할 점유', `${b15}구간`, getStatus(b15, 'bucket_15'), '15개 단위 구간 분산도 분석입니다.');
+    
     const colorCnt = new Set(nums.map(getBallColorClass)).size;
-    addReportRow('[G4] 색상 분할', `${colorCnt}색`, colorCnt >= 3 ? '최적' : '보통', '5가지 색상 그룹 점유 분석입니다.');
+    addReportRow('[G4] 색상 분할', `${colorCnt}색`, getStatus(colorCnt, 'color'), '5가지 색상 그룹 점유 분석입니다.');
 
+    // [G5] 끝수 및 전문지표
     const acVal = calculate_ac(nums);
-    addReportRow('[G5] AC값', acVal, acVal >= 7 ? '최적' : '주의', '무작위성 검증 지표입니다.');
+    addReportRow('[G5] AC값', acVal, getStatus(acVal, 'ac'), '산술적 복잡도(AC) 검증 지표입니다.');
+    
     const spanVal = nums[5] - nums[0];
-    addReportRow('[G5] Span', spanVal, (spanVal >= 25 && spanVal <= 40) ? '최적' : '보통', '옵티멀 구간 내의 번호 간 최대 간격 분석입니다.');
+    addReportRow('[G5] Span', spanVal, getStatus(spanVal, 'span'), '번호 간 최대 간격(차이) 분석입니다.');
 
     const scoreElem = document.getElementById('combination-score');
     const gradeElem = document.getElementById('combination-grade');
     if (scoreElem) scoreElem.innerText = totalScore;
     if (gradeElem) gradeElem.innerText = totalScore >= 90 ? 'A등급' : (totalScore >= 80 ? 'B등급' : 'C등급');
     
-    // 렌더링 후 스크롤
     setTimeout(() => {
         reportSection.scrollIntoView({ behavior: 'smooth' });
     }, 100);
 }
 
-function addReportRow(label, value, status, opinion) {
+function addReportRow(label, value, statusClass, opinion) {
     const tbody = document.getElementById('analysis-report-body');
     if (!tbody) return;
     const tr = document.createElement('tr');
-    let statusClass = (status === '최적') ? 'optimal' : (status === '주의' ? 'warning' : 'safe');
-    tr.innerHTML = `<td><strong>${label}</strong></td><td>${value}</td><td><span class="status-badge ${statusClass}">${status === '보통' ? '세이프' : status}</span></td><td class="text-left">${opinion}</td>`;
+    
+    let statusText = '세이프';
+    if (statusClass === 'optimal') statusText = '최적';
+    if (statusClass === 'warning') statusText = '주의';
+
+    tr.innerHTML = `
+        <td><strong>${label}</strong></td>
+        <td>${value}</td>
+        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+        <td class="text-left">${opinion}</td>
+    `;
     tbody.appendChild(tr);
 }
