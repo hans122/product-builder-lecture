@@ -315,29 +315,36 @@ function runDetailedAnalysis() {
     const spanVal = nums[5] - nums[0];
     addReportRow('[G5] Span 분석', spanVal, getStatus(spanVal, 'span'), '번호 간격 분석입니다.');
 
-    showSharePrompt(nums);
+    // 점수 및 등급 추출
+    const score = document.getElementById('combination-score')?.innerText || '??';
+    const grade = document.getElementById('combination-grade')?.innerText || '분석 중';
+
+    showSharePrompt(nums, score, grade);
 
     setTimeout(() => { reportSection.scrollIntoView({ behavior: 'smooth' }); }, 100);
 }
 
-function showSharePrompt(numbers) {
+function showSharePrompt(numbers, score = '??', grade = '분석 중') {
     const shareSection = document.getElementById('share-prompt-section');
     const copyBtn = document.getElementById('copy-share-btn');
     if (!shareSection || !copyBtn) return;
 
     shareSection.style.display = 'block';
     
-    // 이전에 등록된 이벤트 리스너 제거 (중복 방지)
     const newBtn = copyBtn.cloneNode(true);
     copyBtn.parentNode.replaceChild(newBtn, copyBtn);
     
     newBtn.addEventListener('click', function() {
-        const textToCopy = `[나의 분석 조합 공유] 제가 분석한 번호는 ${numbers.join(', ')} 입니다! 이 조합 어떤가요? 🎯`;
+        const textToCopy = `[나의 로또 조합 분석 리포트] 🎯\n- 선택 번호: ${numbers.join(', ')}\n- 분석 점수: ${score}점\n- 종합 등급: ${grade}\n\n역대 빅데이터와 대조한 제 조합 결과입니다! 여러분의 의견은 어떠신가요? 💬`;
+        
         navigator.clipboard.writeText(textToCopy).then(() => {
             const status = document.getElementById('copy-status');
             if (status) {
-                status.innerText = '✅ 클립보드에 복사되었습니다! 하단 댓글창에 붙여넣어 공유해보세요.';
-                setTimeout(() => { status.innerText = ''; }, 3000);
+                status.innerText = '✅ 분석 결과가 복사되었습니다! 댓글창으로 이동합니다.';
+                setTimeout(() => { 
+                    status.innerText = ''; 
+                    document.getElementById('disqus_thread').scrollIntoView({ behavior: 'smooth' });
+                }, 1000);
             }
         }).catch(err => {
             console.error('복사 실패:', err);

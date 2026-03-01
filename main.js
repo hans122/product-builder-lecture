@@ -166,17 +166,26 @@ function showSharePrompt(numbers) {
 
     shareSection.style.display = 'block';
     
-    // 이전에 등록된 이벤트 리스너 제거 (중복 방지)
     const newBtn = copyBtn.cloneNode(true);
     copyBtn.parentNode.replaceChild(newBtn, copyBtn);
     
     newBtn.addEventListener('click', function() {
-        const textToCopy = `[행운의 번호 공유] 제 이번 주 번호는 ${numbers.join(', ')} 입니다! 여러분의 의견은 어떠신가요? ✨`;
+        const templates = [
+            `이번 주 1등 예감! ✨ 제가 뽑은 행운의 번호는 [ ${numbers.join(', ')} ] 입니다. 다들 기운 받아가세요! 🍀`,
+            `빅데이터가 골라준 오늘의 추천 번호: [ ${numbers.join(', ')} ] 이 번호 어떤가요? 댓글로 의견 부탁드려요! 📊`,
+            `로또 당첨 가즈아! 🚀 공유된 제 번호는 [ ${numbers.join(', ')} ] 입니다. 같이 대박 나요! 💰`
+        ];
+        const textToCopy = templates[Math.floor(Math.random() * templates.length)];
+        
         navigator.clipboard.writeText(textToCopy).then(() => {
             const status = document.getElementById('copy-status');
             if (status) {
-                status.innerText = '✅ 클립보드에 복사되었습니다! 하단 댓글창에 붙여넣어 공유해보세요.';
-                setTimeout(() => { status.innerText = ''; }, 3000);
+                status.innerText = '✅ 번호와 응원 문구가 복사되었습니다! 댓글창으로 이동합니다.';
+                setTimeout(() => { 
+                    status.innerText = ''; 
+                    // 댓글창으로 부드럽게 이동
+                    document.getElementById('disqus_thread').scrollIntoView({ behavior: 'smooth' });
+                }, 1000);
             }
         }).catch(err => {
             console.error('복사 실패:', err);
