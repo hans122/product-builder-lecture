@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 예측 및 시뮬레이션 - 빅데이터 로또</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="analysis-page">
+    <header class="sticky-header">
+        <div class="header-inner">
+            <div class="header-top-row">
+                <h1>🔮 AI 시뮬레이터 <span class="badge-v">v2.2 Verified</span></h1>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-btn small">🏠 번호 생성</a>
+                    <a href="prediction.html" class="nav-btn small active">🔮 예측 검증</a>
+                    <a href="combination.html" class="nav-btn small">🎯 조합 분석</a>
+                    <a href="analysis.html" class="nav-btn small">📊 빅데이터 통계</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="container wide">
+            <header class="page-header-section">
+                <h2 class="page-title">AI 알고리즘 적중 시뮬레이션</h2>
+                <p class="page-subtitle">과거 데이터를 통해 검증된 <strong>롤링 윈도우(Rolling Window)</strong> 방식의 실전 적중 분석 리포트입니다.</p>
+            </header>
+
+            <!-- 1. 실시간 예상 풀 및 로직 안내 -->
+            <div class="analysis-layout-split">
+                <section class="analysis-card logic-card">
+                    <div class="card-header">
+                        <span class="icon">⚙️</span>
+                        <h3>분석 알고리즘 정보</h3>
+                    </div>
+                    <div class="logic-list">
+                        <div class="logic-item">
+                            <strong>1213회차 실시간 예측</strong>
+                            <p>현재 시점(1212회차)까지의 모든 데이터를 반영하여 다음 회차 후보를 산출합니다.</p>
+                        </div>
+                        <div class="logic-item">
+                            <strong>복합 가중치 모델</strong>
+                            <p>사용자 이월/이웃 로직(25%) + 최근 기세(35%) + 중기 안정성(20%) + 주기/밸런스(20%)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="analysis-card pool-card">
+                    <div class="pool-container">
+                        <div class="pool-box hot">
+                            <div class="pool-header">🔥 출현 예상 (30개)</div>
+                            <div id="hot-pool-container" class="ball-container mini wrap"></div>
+                        </div>
+                        <div class="pool-box neutral">
+                            <div class="pool-header">⚠️ 보류/관찰 (5개)</div>
+                            <div id="neutral-pool-container" class="ball-container mini wrap"></div>
+                        </div>
+                        <div class="pool-box cold">
+                            <div class="pool-header">❄️ 제외 추천 (10개)</div>
+                            <div id="cold-pool-container" class="ball-container mini wrap"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 3. AI 추천 조합 섹션 -->
+            <section class="analysis-card recommendation-card" style="margin-bottom: 30px;">
+                <div class="card-header">
+                    <span class="icon">✨</span>
+                    <h3>AI 엄선 최적 조합 (Top 5)</h3>
+                </div>
+                <div class="recommendation-grid" id="ai-combinations-container">
+                    <!-- JS에서 생성 -->
+                    <div class="placeholder-text">데이터 분석 중...</div>
+                </div>
+            </section>
+
+            <!-- 4. 성과 요약 스코어보드 (유일한 ID 보장) -->
+            <section class="analysis-card summary-card-standalone" id="summary-stat-board" style="display: none; margin-bottom: 30px;">
+                <div class="summary-bar-horizontal" style="background: white; padding: 25px 0;">
+                    <div class="bar-item">
+                        <span class="bar-label">🎯 평균 적중 (30개 풀)</span>
+                        <div class="bar-value-inner">
+                            <span id="avg-hit-count" class="bar-value text-primary">...</span><span class="bar-unit">개</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">🔥 잭팟 달성 (5~6개)</span>
+                        <div class="bar-value-inner">
+                            <span id="jackpot-count" class="bar-value text-success">-</span><span class="bar-unit">회</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">🛡️ 완벽 제외 (10개 성공)</span>
+                        <div class="bar-value-inner">
+                            <span id="total-exclude-success" class="bar-value text-warning">-</span><span class="bar-unit">회</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">🏆 역대 최고 적중</span>
+                        <div class="bar-value-inner">
+                            <span id="max-hit-count" class="bar-value text-danger">-</span><span class="bar-unit">개</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 상세 시뮬레이션 내역 -->
+            <section class="analysis-card table-card">
+                <div class="card-header">
+                    <span class="icon">📋</span>
+                    <h3>롤링 윈도우 시뮬레이션 리포트 (최근 20회)</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="prediction-table">
+                        <thead>
+                            <tr>
+                                <th width="80">회차</th>
+                                <th width="180">당첨 번호</th>
+                                <th>AI 출현 예상 (30개)</th>
+                                <th>AI 보류/관찰 (5개)</th>
+                                <th>AI 제외 추천 (10개)</th>
+                                <th width="90">성과</th>
+                            </tr>
+                        </thead>
+                        <tbody id="backtest-report-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <footer class="standard-footer">
+            <p class="disclaimer">※ 본 시뮬레이션은 통계적 분석 결과이며 실제 당첨을 보장하지 않습니다. 로또는 확률 게임입니다.</p>
+        </footer>
+    </div>
+
+    <style>
+        :root {
+            --primary-navy: #1a365d;
+            --secondary-blue: #3182ce;
+            --success-green: #38a169;
+            --warning-orange: #dd6b20;
+            --bg-gray: #f7fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body.analysis-page { background-color: var(--bg-gray); font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        
+        .badge-v { font-size: 0.7rem; background: #e53e3e; color: white; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 8px; }
+        
+        .page-header-section { text-align: center; padding: 40px 0 20px; }
+        .page-title { font-size: 1.8rem; color: var(--primary-navy); margin-bottom: 10px; font-weight: 700; }
+        .page-subtitle { color: #718096; font-size: 1rem; }
+
+        /* 요약 바 스타일 - 테이블 구조로 변경하여 찌부러짐 완전 차단 */
+        .summary-bar-horizontal { 
+            display: table; 
+            width: 100%;
+            table-layout: fixed; /* 모든 칸 너비 동일 */
+            background: white;
+            padding: 20px 0;
+            border-collapse: collapse;
+        }
+        .bar-item { 
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+            border-right: 1px solid #edf2f7;
+            padding: 10px 0;
+        }
+        .bar-item:last-child { border-right: none; }
+        
+        .bar-label { 
+            display: block; 
+            font-size: 0.8rem; 
+            color: #4a5568; 
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .bar-value-inner { 
+            display: block;
+            width: 100%;
+        }
+        .bar-value { 
+            font-size: 2rem !important; 
+            font-weight: 900 !important; 
+            display: inline !important; /* inline으로 변경하여 가로 나열 강제 */
+            letter-spacing: normal !important;
+            word-break: keep-all !important;
+        }
+        .bar-unit { 
+            font-size: 0.9rem !important; 
+            color: #718096 !important; 
+            font-weight: 600 !important;
+            margin-left: 2px !important;
+            display: inline !important;
+        }
+        
+        /* 텍스트 색상 강제 지정 */
+        .text-primary { color: #2b6cb0 !important; } 
+        .text-success { color: #2f855a !important; } 
+        .text-warning { color: #c05621 !important; } 
+        .text-danger { color: #c53030 !important; }
+
+        /* Analysis Layout */
+        .analysis-layout-split { display: grid; grid-template-columns: 350px 1fr; gap: 20px; margin-bottom: 30px; }
+        .analysis-card { background: white; border-radius: 12px; box-shadow: var(--card-shadow); overflow: hidden; }
+        .card-header { padding: 15px 20px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; gap: 10px; background: #fcfcfd; }
+        .card-header h3 { font-size: 1rem; margin: 0; color: var(--primary-navy); font-weight: 700; }
+        
+        /* Logic Info */
+        .logic-list { padding: 20px; }
+        .logic-item { margin-bottom: 15px; }
+        .logic-item strong { display: block; font-size: 0.9rem; color: var(--primary-navy); margin-bottom: 4px; }
+        .logic-item p { font-size: 0.85rem; color: #718096; margin: 0; line-height: 1.5; }
+
+        /* Pool Section */
+        .pool-container { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .pool-box { padding: 15px; border-radius: 10px; }
+        .pool-box.hot { background: #fff5f5; border: 1px solid #feb2b2; }
+        .pool-box.neutral { background: #fffaf0; border: 1px solid #fbd38d; }
+        .pool-box.cold { background: #ebf8ff; border: 1px solid #90cdf4; }
+        .pool-header { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; color: var(--primary-navy); }
+        .ball-container.wrap { display: flex; flex-wrap: wrap; gap: 4px; }
+
+        /* AI 추천 조합 스타일 */
+        .recommendation-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 20px; }
+        .combo-card { background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
+        .combo-card .ball-container { display: flex; justify-content: center; gap: 4px; margin-top: 5px; }
+        .combo-card .ball { width: 30px; height: 30px; line-height: 30px; font-size: 0.8rem; }
+        .combo-rank { position: absolute; top: -10px; left: 10px; background: var(--primary-navy); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
+        .combo-meta { margin-top: 10px; font-size: 0.75rem; color: #a0aec0; }
+        .placeholder-text { grid-column: span 5; text-align: center; color: #a0aec0; padding: 20px; }
+
+        /* Table Section */
+        .prediction-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .prediction-table th { background: #f8fafc; padding: 15px 10px; text-align: center; color: #4a5568; font-weight: 700; border-bottom: 2px solid #edf2f7; }
+        .prediction-table td { padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: center; vertical-align: middle; }
+        
+        .text-left { text-align: left !important; padding-left: 15px !important; }
+        
+        /* 3줄 고정 그리드 레이아웃 */
+        .hit-summary-top, .fail-summary-top { font-size: 0.8rem; font-weight: 700; color: #4a5568; margin-bottom: 8px; border-bottom: 1px solid #edf2f7; padding-bottom: 4px; display: block; }
+        
+        .pool-grid-mini { display: grid; gap: 2px; line-height: 1; justify-content: start; }
+        
+        /* 10개씩 3줄 (30개) */
+        .pool-grid-mini.expected { grid-template-columns: repeat(10, 20px); width: 220px; } 
+        
+        /* 2개씩 3줄 (5개용 - 2+2+1) */
+        .pool-grid-mini.neutral-grid { grid-template-columns: repeat(2, 20px); width: 44px; }
+        
+        /* 4개씩 3줄 (10개용 - 4+4+2) */
+        .pool-grid-mini.excluded { grid-template-columns: repeat(4, 20px); width: 88px; }
+        
+        /* 당첨번호 3x2 고정 그리드 */
+        .pool-grid-win { 
+            display: grid; 
+            grid-template-columns: repeat(3, 24px); 
+            gap: 4px; 
+            justify-content: center; 
+            margin: 0 auto;
+        }
+
+        .pool-num { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; font-size: 0.7rem; color: #a0aec0; }
+        .hit-num { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; background: #e53e3e; color: white; border-radius: 50%; font-weight: bold; font-size: 0.7rem; }
+        .neutral-hit-num { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; background: #ecc94b; color: #744210; border-radius: 50%; font-weight: bold; font-size: 0.7rem; }
+        .fail-num { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; background: #3182ce; color: white; border-radius: 50%; font-weight: bold; font-size: 0.7rem; }
+        
+        .hit-summary, .fail-summary { font-size: 0.8rem; font-weight: 600; }
+        .status-tag { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .status-tag.excellent { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .status-tag.good { background: #e6fffa; color: #234e52; border: 1px solid #b2f5ea; }
+        .status-tag.fail { background: #edf2f7; color: #4a5568; }
+
+        @media (max-width: 1024px) {
+            .analysis-layout-split { grid-template-columns: 1fr; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+
+    <script src="prediction.js"></script>
+    <script src="consent.js"></script>
+</body>
+</html>

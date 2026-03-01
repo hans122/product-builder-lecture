@@ -12,6 +12,9 @@
 - **Combination State Persistence**: 
     - `combination.js` 내 `saveSelection()` 및 `loadSavedSelection()` 구현.
     - `manualNumbers`와 `autoNumbers` Set 객체를 JSON 직렬화하여 `localStorage`에 상주.
+- **AI Prediction Engine & Rolling Backtest**:
+    - `prediction.js`에서 롤링 윈도우(Rolling Window) 기법을 활용한 가중치 기반 예측 로직 구현.
+    - 최근 20회차에 대해 '당시 알 수 있었던 정보'만을 사용하여 동적으로 적중률 시뮬레이션 수행.
 - **Master Analysis Sequence Implementation**: `G1`~`G5` 표준 시퀀스 엄격 준수.
 
 ## 3. UI 레이아웃 및 시각화
