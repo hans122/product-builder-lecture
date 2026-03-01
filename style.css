@@ -826,3 +826,16 @@ body:not(.analysis-page) {
 #copy-share-btn:active {
     transform: scale(0.95);
 }
+
+/* Disqus 통합 댓글창 스타일 고정 */
+#disqus_thread {
+    width: 100%;
+    max-width: 800px; /* 메인 컨텐츠와 동일한 폭 */
+    margin: 50px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+    min-height: 300px; /* 로딩 전 빈 공간 방지 */
+}
