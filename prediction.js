@@ -72,20 +72,42 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
     };
     }
 
+    let lastHotPool = [];
+    let lastNeutralPool = [];
+
     document.addEventListener('DOMContentLoaded', function() {
-    fetch('advanced_stats.json')
-        .then(res => res.json())
-        .then(data => {
-            statsData = data;
-            const currentPools = getPredictionPoolsForRound(data.recent_draws, -1);
-            renderPools(currentPools.hot, currentPools.neutral, currentPools.cold);
-            generateSmartCombinations(currentPools.hot, currentPools.neutral);
+        fetch('advanced_stats.json')
+            .then(res => res.json())
+            .then(data => {
+                statsData = data;
+                const currentPools = getPredictionPoolsForRound(data.recent_draws, -1);
 
-            runBacktest(data.recent_draws);
-        })
-        .catch(err => console.error('Data load failed:', err));
+                // 풀(Pool) 저장
+                lastHotPool = currentPools.hot;
+                lastNeutralPool = currentPools.neutral;
+
+                renderPools(currentPools.hot, currentPools.neutral, currentPools.cold);
+                generateSmartCombinations(currentPools.hot, currentPools.neutral);
+
+                runBacktest(data.recent_draws);
+            })
+            .catch(err => console.error('Data load failed:', err));
+
+        // 새로고침 버튼 이벤트 연결
+        document.getElementById('refresh-recommendations-btn')?.addEventListener('click', function() {
+            if (lastHotPool.length > 0) {
+                // 버튼 시각 효과 (애니메이션 느낌)
+                this.innerText = "⏳ 생성 중...";
+                this.disabled = true;
+
+                setTimeout(() => {
+                    generateSmartCombinations(lastHotPool, lastNeutralPool);
+                    this.innerText = "🔄 조합 새로고침";
+                    this.disabled = false;
+                }, 300);
+            }
+        });
     });
-
     function renderPools(hot, neutral, cold) {
     const hotContainer = document.getElementById('hot-pool-container');
     const neutralContainer = document.getElementById('neutral-pool-container');
@@ -143,18 +165,26 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
 
     results.forEach((combo, idx) => {
         const card = document.createElement('div');
-        card.className = 'combo-card';
+        card.className = 'combo-card clickable';
+        card.title = "클릭하여 정밀 분석하기";
         card.innerHTML = `
             <div class="combo-rank">#${idx + 1}</div>
             <div class="ball-container">
                 ${combo.map(n => `<div class="ball ${getBallColorClass(n)}">${n}</div>`).join('')}
             </div>
             <div class="combo-meta">합계: ${combo.reduce((a,b)=>a+b,0)} | 홀짝: ${combo.filter(n=>n%2!==0).length}:${6-combo.filter(n=>n%2!==0).length}</div>
+            <div class="analyze-badge">정밀 분석 ➔</div>
         `;
+
+        // 클릭 시 상세 분석 페이지로 전송
+        card.addEventListener('click', () => {
+            localStorage.setItem('pending_analysis_numbers', JSON.stringify(combo));
+            window.location.href = 'combination.html';
+        });
+
         container.appendChild(card);
     });
     }
-
 function runBacktest(draws) {
     const reportBody = document.getElementById('backtest-report-body');
     if (!draws || !reportBody) return;

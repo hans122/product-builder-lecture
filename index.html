@@ -55,6 +55,7 @@
                 <div class="card-header">
                     <span class="icon">✨</span>
                     <h3>AI 엄선 최적 조합 (Top 5)</h3>
+                    <button id="refresh-recommendations-btn" class="nav-btn small" style="margin-left: 15px; background: #edf2f7; color: #4a5568; border: 1px solid #cbd5e0; cursor: pointer; padding: 4px 10px;">🔄 조합 새로고침</button>
                     <p style="font-size: 0.8rem; color: #718096; margin-left: auto;">* 합계 100~175 & 홀짝 균형 필터 적용</p>
                 </div>
                 <div class="recommendation-grid" id="ai-combinations-container">
@@ -130,7 +131,16 @@
         .card-header h3 { font-size: 1rem; margin: 0; color: var(--primary-navy); font-weight: 700; }
         .logic-list { padding: 20px; } .logic-item { margin-bottom: 15px; } .logic-item strong { display: block; font-size: 0.9rem; color: var(--primary-navy); margin-bottom: 4px; } .logic-item p { font-size: 0.85rem; color: #718096; margin: 0; line-height: 1.5; }
         .pool-container { padding: 20px; display: flex; flex-direction: column; gap: 15px; } .pool-box { padding: 15px; border-radius: 10px; } .pool-box.hot { background: #fff5f5; border: 1px solid #feb2b2; } .pool-box.neutral { background: #fffaf0; border: 1px solid #fbd38d; } .pool-box.cold { background: #ebf8ff; border: 1px solid #90cdf4; } .pool-header { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; color: var(--primary-navy); } .ball-container.wrap { display: flex; flex-wrap: wrap; gap: 4px; }
-        .recommendation-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 20px; } .combo-card { background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; } .combo-card .ball-container { display: flex; justify-content: center; gap: 4px; margin-top: 5px; } .combo-card .ball { width: 30px; height: 30px; line-height: 30px; font-size: 0.8rem; } .combo-rank { position: absolute; top: -10px; left: 10px; background: var(--primary-navy); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; } .combo-meta { margin-top: 10px; font-size: 0.75rem; color: #a0aec0; } .placeholder-text { grid-column: span 5; text-align: center; color: #a0aec0; padding: 20px; }
+        .recommendation-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 20px; } 
+        .combo-card { background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; } 
+        .combo-card.clickable { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .combo-card.clickable:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: var(--secondary-blue); }
+        .analyze-badge { margin-top: 10px; font-size: 0.7rem; color: var(--secondary-blue); font-weight: 700; border-top: 1px dashed #edf2f7; padding-top: 8px; }
+        .combo-card .ball-container { display: flex; justify-content: center; gap: 4px; margin-top: 5px; } 
+        .combo-card .ball { width: 30px; height: 30px; line-height: 30px; font-size: 0.8rem; } 
+        .combo-rank { position: absolute; top: -10px; left: 10px; background: var(--primary-navy); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; } 
+        .combo-meta { margin-top: 10px; font-size: 0.75rem; color: #a0aec0; } 
+        .placeholder-text { grid-column: span 5; text-align: center; color: #a0aec0; padding: 20px; }
         .prediction-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; } .prediction-table th { background: #f8fafc; padding: 15px 10px; text-align: center; color: #4a5568; font-weight: 700; border-bottom: 2px solid #edf2f7; } .prediction-table td { padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: center; vertical-align: middle; }
         .text-left { text-align: left !important; padding-left: 15px !important; }
         .hit-summary-top, .fail-summary-top { font-size: 0.8rem; font-weight: 700; color: #4a5568; margin-bottom: 8px; border-bottom: 1px solid #edf2f7; padding-bottom: 4px; display: block; }

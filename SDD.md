@@ -13,9 +13,11 @@
     - `combination.js` 내 `saveSelection()` 및 `loadSavedSelection()` 구현.
     - `manualNumbers`와 `autoNumbers` Set 객체를 JSON 직렬화하여 `localStorage`에 상주.
 - **AI Prediction Engine & Rolling Backtest**:
-    - `prediction.js`에서 롤링 윈도우(Rolling Window) 기법을 활용한 가중치 기반 예측 로직 구현.
-    - 최근 20회차에 대해 '당시 알 수 있었던 정보'만을 사용하여 동적으로 예상수(Hot), 보류수(Neutral), 제외수(Cold)를 산출.
-    - AI 스마트 조합 엔진: 선정된 풀 내에서 합계(100~175) 및 홀짝(2:4~4:2) 필터링을 통과한 Top 5 조합 생성.
+    - `prediction.js`: 롤링 윈도우 기반 예측 로직 및 `generateSmartCombinations()`를 통한 필터링 조합 생성.
+    - [Refresh Logic]: `lastHotPool` 전역 상태를 활용하여 페이지 리로드 없이 비동기식 조합 재생성 지원.
+    - [Data Transfer]: 선택된 조합을 `pending_analysis_numbers` 키로 `localStorage`에 직렬화하여 페이지 간 데이터 공유.
+- **Auto-Analysis Mechanism**:
+    - `combination.js`: 로드 시 `localStorage`를 체크하여 대기 중인 번호가 있을 경우 즉시 마킹 UI 업데이트 및 `runDetailedAnalysis()` 자동 트리거.
 - **Cross-Browser UI Optimization**:
     - 크롬 등 다양한 브라우저에서의 수치 찌부러짐 현상을 방지하기 위해 성과 요약 바에 표준 HTML Table 레이아웃 적용.
 - **Master Analysis Sequence Implementation**: `G1`~`G5` 표준 시퀀스 엄격 준수.

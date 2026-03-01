@@ -37,6 +37,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // 저장된 번호 불러오기
     loadSavedSelection();
 
+    // 외부(index.html 등)에서 넘어온 분석 대기 번호 확인
+    const pending = localStorage.getItem('pending_analysis_numbers');
+    if (pending) {
+        try {
+            const numbers = JSON.parse(pending);
+            // 기존 선택 초기화
+            manualNumbers.clear();
+            autoNumbers.clear();
+            document.querySelectorAll('.select-ball').forEach(btn => btn.classList.remove('selected', 'selected-manual'));
+            
+            // 새 번호 채우기
+            numbers.forEach(num => {
+                manualNumbers.add(num);
+                const btn = document.getElementById(`select-ball-${num}`);
+                if (btn) btn.classList.add('selected-manual');
+            });
+            
+            updateSelectedBallsDisplay();
+            
+            // 데이터 로드 완료 후 자동 분석 실행 (지연 필요)
+            setTimeout(() => {
+                runDetailedAnalysis();
+                localStorage.removeItem('pending_analysis_numbers'); // 처리 후 삭제
+            }, 500);
+        } catch (e) {
+            console.error('Failed to process pending numbers:', e);
+        }
+    }
+
     document.getElementById('semi-auto-btn')?.addEventListener('click', semiAutoSelect);
     document.getElementById('reset-btn')?.addEventListener('click', resetSelection);
     document.getElementById('analyze-my-btn')?.addEventListener('click', runDetailedAnalysis);
