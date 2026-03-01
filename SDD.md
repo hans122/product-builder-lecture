@@ -14,7 +14,10 @@
     - `manualNumbers`와 `autoNumbers` Set 객체를 JSON 직렬화하여 `localStorage`에 상주.
 - **AI Prediction Engine & Rolling Backtest**:
     - `prediction.js`에서 롤링 윈도우(Rolling Window) 기법을 활용한 가중치 기반 예측 로직 구현.
-    - 최근 20회차에 대해 '당시 알 수 있었던 정보'만을 사용하여 동적으로 적중률 시뮬레이션 수행.
+    - 최근 20회차에 대해 '당시 알 수 있었던 정보'만을 사용하여 동적으로 예상수(Hot), 보류수(Neutral), 제외수(Cold)를 산출.
+    - AI 스마트 조합 엔진: 선정된 풀 내에서 합계(100~175) 및 홀짝(2:4~4:2) 필터링을 통과한 Top 5 조합 생성.
+- **Cross-Browser UI Optimization**:
+    - 크롬 등 다양한 브라우저에서의 수치 찌부러짐 현상을 방지하기 위해 성과 요약 바에 표준 HTML Table 레이아웃 적용.
 - **Master Analysis Sequence Implementation**: `G1`~`G5` 표준 시퀀스 엄격 준수.
 
 ## 3. UI 레이아웃 및 시각화
