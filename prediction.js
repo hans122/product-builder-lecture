@@ -230,18 +230,19 @@ function runBacktest(draws) {
         summaryCard.style.display = 'block';
         
         const avgHitVal = (testCount > 0) ? (totalHits / testCount).toFixed(1) : "0.0";
+        const excludeRateVal = (testCount > 0) ? ((perfectExclusions / testCount) * 100).toFixed(0) : "0";
         
         const elAvg = document.getElementById('avg-hit-count');
         const elJackpot = document.getElementById('jackpot-count');
         const elPerfect = document.getElementById('total-exclude-success');
-        const elMax = document.getElementById('max-hit-count');
+        const elExcludeRate = document.getElementById('exclude-rate');
 
         if (elAvg) elAvg.textContent = avgHitVal;
         if (elJackpot) elJackpot.textContent = jackpotCount;
         if (elPerfect) elPerfect.textContent = perfectExclusions;
-        if (elMax) elMax.textContent = maxHits;
+        if (elExcludeRate) elExcludeRate.textContent = excludeRateVal;
 
-        console.log("Unique Summary board updated:", { avgHitVal, jackpotCount, perfectExclusions, maxHits });
+        console.log("Summary updated:", { avgHitVal, jackpotCount, perfectExclusions, excludeRateVal });
     }
 }
 
