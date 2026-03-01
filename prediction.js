@@ -163,12 +163,20 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
         }
     }
 
+    const strategyLabels = [
+        "💎 최우선 추천",
+        "⚖️ 균형 최적화",
+        "🔥 기세형 조합",
+        "🌊 흐름 추종",
+        "🛡️ 안정형 필터"
+    ];
+
     results.forEach((combo, idx) => {
         const card = document.createElement('div');
         card.className = 'combo-card clickable';
         card.title = "클릭하여 정밀 분석하기";
         card.innerHTML = `
-            <div class="combo-rank">#${idx + 1}</div>
+            <div class="combo-rank">${strategyLabels[idx] || "#" + (idx + 1)}</div>
             <div class="ball-container">
                 ${combo.map(n => `<div class="ball ${getBallColorClass(n)}">${n}</div>`).join('')}
             </div>
@@ -222,7 +230,7 @@ function runBacktest(draws) {
 
         const hotDisplay = hotPool.map(n => 
             draw.nums.includes(n) ? `<strong class="hit-num">${n}</strong>` : `<span class="pool-num">${n}</span>`
-        ).join(''); // 콤마 제거
+        ).join(''); 
 
         const neutralDisplay = neutralPool.map(n => 
             draw.nums.includes(n) ? `<strong class="neutral-hit-num">${n}</strong>` : `<span class="pool-num">${n}</span>`
@@ -272,7 +280,7 @@ function runBacktest(draws) {
         if (elPerfect) elPerfect.textContent = perfectExclusions;
         if (elExcludeRate) elExcludeRate.textContent = excludeRateVal;
 
-        console.log("Summary updated:", { avgHitVal, jackpotCount, perfectExclusions, excludeRateVal });
+        console.log("Unique Summary board updated:", { avgHitVal, jackpotCount, perfectExclusions, excludeRateVal });
     }
 }
 
