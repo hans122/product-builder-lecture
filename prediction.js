@@ -184,8 +184,9 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
             <div class="analyze-badge">정밀 분석 ➔</div>
         `;
 
-        // 클릭 시 상세 분석 페이지로 전송
+        // 클릭 시 상세 분석 페이지로 전송 및 최근 번호로 저장
         card.addEventListener('click', () => {
+            localStorage.setItem('lastGeneratedNumbers', JSON.stringify(combo));
             localStorage.setItem('pending_analysis_numbers', JSON.stringify(combo));
             window.location.href = 'combination.html';
         });

@@ -22,117 +22,22 @@ function calculate_ac(nums) {
     return diffs.size - (nums.length - 1);
 }
 
-function getBallColorClass(num) {
-    if (num <= 10) return 'yellow';
-    if (num <= 20) return 'blue';
-    if (num <= 30) return 'red';
-    if (num <= 40) return 'gray';
-    return 'green';
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    initNumberSelector();
-    loadStatsData();
-    
-    // 저장된 번호 불러오기
-    loadSavedSelection();
-
-    // 외부(index.html 등)에서 넘어온 분석 대기 번호 확인
-    const pending = localStorage.getItem('pending_analysis_numbers');
-    if (pending) {
-        try {
-            const numbers = JSON.parse(pending);
-            // 기존 선택 초기화
-            manualNumbers.clear();
-            autoNumbers.clear();
-            document.querySelectorAll('.select-ball').forEach(btn => btn.classList.remove('selected', 'selected-manual'));
-            
-            // 새 번호 채우기
-            numbers.forEach(num => {
-                manualNumbers.add(num);
-                const btn = document.getElementById(`select-ball-${num}`);
-                if (btn) btn.classList.add('selected-manual');
-            });
-            
-            updateSelectedBallsDisplay();
-            
-            // 데이터 로드 완료 후 자동 분석 실행 (지연 필요)
-            setTimeout(() => {
-                runDetailedAnalysis();
-                localStorage.removeItem('pending_analysis_numbers'); // 처리 후 삭제
-            }, 500);
-        } catch (e) {
-            console.error('Failed to process pending numbers:', e);
-        }
-    }
-
-    document.getElementById('semi-auto-btn')?.addEventListener('click', semiAutoSelect);
-    document.getElementById('reset-btn')?.addEventListener('click', resetSelection);
-    document.getElementById('analyze-my-btn')?.addEventListener('click', runDetailedAnalysis);
-});
-
-function loadStatsData() {
-    fetch('advanced_stats.json')
-        .then(res => res.json())
-        .then(data => {
-            statsData = data;
-            console.log('Stats loaded for analysis');
-        })
-        .catch(err => console.error('Stats load failed:', err));
-}
-
 function initNumberSelector() {
-    const selector = document.getElementById('number-selector');
-    if (!selector) return;
-    selector.innerHTML = '';
+    const container = document.getElementById('number-selector-grid');
+    if (!container) return;
+    container.innerHTML = '';
     for (let i = 1; i <= 45; i++) {
         const btn = document.createElement('button');
         btn.className = 'select-ball';
         btn.id = `select-ball-${i}`;
         btn.innerText = i;
-        btn.type = 'button';
-        btn.addEventListener('click', () => toggleNumber(i, btn));
-        selector.appendChild(btn);
+        btn.addEventListener('click', () => toggleNumber(i));
+        container.appendChild(btn);
     }
 }
 
-// 번호 상태 저장 함수
-function saveSelection() {
-    const data = {
-        manual: Array.from(manualNumbers),
-        auto: Array.from(autoNumbers)
-    };
-    localStorage.setItem('combination_saved_picks', JSON.stringify(data));
-}
-
-// 저장된 번호 불러오기 및 UI 동기화
-function loadSavedSelection() {
-    const saved = localStorage.getItem('combination_saved_picks');
-    if (!saved) return;
-
-    try {
-        const data = JSON.parse(saved);
-        manualNumbers = new Set(data.manual || []);
-        autoNumbers = new Set(data.auto || []);
-        
-        // UI 마킹 동기화 (DOM 생성 후 실행되도록 약간의 지연 필요할 수 있음)
-        setTimeout(() => {
-            manualNumbers.forEach(num => {
-                const btn = document.getElementById(`select-ball-${num}`);
-                if (btn) btn.classList.add('selected-manual');
-            });
-            autoNumbers.forEach(num => {
-                const btn = document.getElementById(`select-ball-${num}`);
-                if (btn) btn.classList.add('selected');
-            });
-            updateSelectedBallsDisplay();
-        }, 50);
-    } catch (e) {
-        console.error('Failed to load saved picks:', e);
-    }
-}
-
-function toggleNumber(num, btn) {
+function toggleNumber(num) {
+    const btn = document.getElementById(`select-ball-${num}`);
     if (manualNumbers.has(num)) {
         manualNumbers.delete(num);
         btn.classList.remove('selected-manual');
@@ -147,7 +52,7 @@ function toggleNumber(num, btn) {
         manualNumbers.add(num);
         btn.classList.add('selected-manual');
     }
-    saveSelection(); // 상태 저장
+    saveSelection();
     updateSelectedBallsDisplay();
 }
 
@@ -165,17 +70,48 @@ function updateSelectedBallsDisplay() {
 
     container.innerHTML = '';
     const allSelected = [...manualNumbers, ...autoNumbers].sort((a, b) => a - b);
-    
     allSelected.forEach(num => {
         const ball = document.createElement('div');
-        const colorClass = getBallColorClass(num);
-        ball.className = `ball mini ${colorClass}`;
+        ball.className = `ball mini ${getBallColorClass(num)}`;
         if (manualNumbers.has(num)) ball.classList.add('manual');
         ball.innerText = num;
         container.appendChild(ball);
     });
-
     analyzeBtn.disabled = (totalCount !== 6);
+}
+
+function saveSelection() {
+    const data = {
+        manual: Array.from(manualNumbers),
+        auto: Array.from(autoNumbers)
+    };
+    localStorage.setItem('combination_saved_picks', JSON.stringify(data));
+}
+
+function loadSavedSelection() {
+    const saved = localStorage.getItem('combination_saved_picks');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        data.manual.forEach(num => {
+            manualNumbers.add(num);
+            const btn = document.getElementById(`select-ball-${num}`);
+            if (btn) btn.classList.add('selected-manual');
+        });
+        data.auto.forEach(num => {
+            autoNumbers.add(num);
+            const btn = document.getElementById(`select-ball-${num}`);
+            if (btn) btn.classList.add('selected');
+        });
+        updateSelectedBallsDisplay();
+    } catch (e) { console.error('Load failed:', e); }
+}
+
+function loadStatsData() {
+    fetch('advanced_stats.json')
+        .then(res => res.json())
+        .then(data => { statsData = data; })
+        .catch(err => console.error('Data load failed:', err));
 }
 
 function getZones(data) {
@@ -197,195 +133,103 @@ function getZones(data) {
     };
 }
 
-function getRandomFrom(array, count) {
-    const shuffled = [...array].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-}
-
 function semiAutoSelect() {
     if (manualNumbers.size >= 6) return;
     autoNumbers.clear();
-    const btns = document.querySelectorAll('.select-ball');
-    btns.forEach((btn, idx) => {
+    document.querySelectorAll('.select-ball').forEach((btn, idx) => {
         if (!manualNumbers.has(idx + 1)) btn.classList.remove('selected');
     });
 
-    if (!statsData || !statsData.frequency) {
-        while (manualNumbers.size + autoNumbers.size < 6) {
-            const num = Math.floor(Math.random() * 45) + 1;
-            if (!manualNumbers.has(num) && !autoNumbers.has(num)) autoNumbers.add(num);
-        }
-    } else {
-        const zones = getZones(statsData);
-        const weightedCandidates = [...zones.gold, ...zones.gold, ...zones.silver, ...zones.silver, ...zones.normal].filter(n => !manualNumbers.has(n));
-        while (manualNumbers.size + autoNumbers.size < 6 && weightedCandidates.length > 0) {
-            const idx = Math.floor(Math.random() * weightedCandidates.length);
-            const num = weightedCandidates[idx];
-            if (!manualNumbers.has(num) && !autoNumbers.has(num)) autoNumbers.add(num);
-            weightedCandidates.splice(idx, 1);
-        }
-        while (manualNumbers.size + autoNumbers.size < 6) {
-            const num = Math.floor(Math.random() * 45) + 1;
-            if (!manualNumbers.has(num) && !autoNumbers.has(num)) autoNumbers.add(num);
-        }
+    if (!statsData) return;
+    const zones = getZones(statsData);
+    const weightedCandidates = [...zones.gold, ...zones.gold, ...zones.silver, ...zones.silver, ...zones.normal].filter(n => !manualNumbers.has(n));
+    
+    while (manualNumbers.size + autoNumbers.size < 6 && weightedCandidates.length > 0) {
+        const idx = Math.floor(Math.random() * weightedCandidates.length);
+        const num = weightedCandidates[idx];
+        if (!manualNumbers.has(num) && !autoNumbers.has(num)) autoNumbers.add(num);
+        weightedCandidates.splice(idx, 1);
     }
     autoNumbers.forEach(num => {
         const btn = document.getElementById(`select-ball-${num}`);
         if (btn) btn.classList.add('selected');
     });
-    saveSelection(); // 상태 저장
+    saveSelection();
     updateSelectedBallsDisplay();
 }
 
 function resetSelection() {
-    manualNumbers.clear();
-    autoNumbers.clear();
+    manualNumbers.clear(); autoNumbers.clear();
     document.querySelectorAll('.select-ball').forEach(btn => btn.classList.remove('selected', 'selected-manual'));
-    localStorage.removeItem('combination_saved_picks'); // 저장된 데이터 삭제
+    localStorage.removeItem('combination_saved_picks');
     updateSelectedBallsDisplay();
-    const reportSection = document.getElementById('report-section');
-    if (reportSection) reportSection.style.display = 'none';
+    const rs = document.getElementById('report-section'); if (rs) rs.style.display = 'none';
 }
 
 function runDetailedAnalysis() {
-    const totalCount = manualNumbers.size + autoNumbers.size;
-    if (!statsData || totalCount !== 6) return;
+    if (!statsData) return;
+    const currentNumbers = [...manualNumbers, ...autoNumbers].sort((a, b) => a - b);
+    if (currentNumbers.length !== 6) { alert('6개 번호를 선택해주세요.'); return; }
 
-    const reportBody = document.getElementById('analysis-report-body');
+    // 분석 시점에 번호를 최근 번호로 저장 (통계 페이지 연동)
+    localStorage.setItem('lastGeneratedNumbers', JSON.stringify(currentNumbers));
+
     const reportSection = document.getElementById('report-section');
-    if (!reportBody || !reportSection) return;
-    
-    reportBody.innerHTML = '';
-    reportSection.style.display = 'block';
-    
-    const nums = [...manualNumbers, ...autoNumbers].sort((a, b) => a - b);
-    const summary = statsData.stats_summary || {};
+    if (reportSection) reportSection.style.display = 'block';
 
-    const getStatus = (val, statKey) => {
-        const stat = summary[statKey];
-        if (!stat || stat.std === 0) return 'safe';
-        const z = Math.abs(val - stat.mean) / stat.std;
-        if (z <= 1.0) return 'optimal';
-        if (z <= 2.0) return 'safe';
-        return 'warning';
-    };
-
-    // [G1] 기본 균형
-    const sumVal = nums.reduce((a, b) => a + b, 0);
-    addReportRow('[G1] 총합 분포', sumVal, getStatus(sumVal, 'sum'), '평균 ±1σ 이내 분석입니다.');
-    const oddCnt = nums.filter(n => n % 2 !== 0).length;
-    addReportRow('[G1] 홀:짝 비율', `${oddCnt}:${6-oddCnt}`, getStatus(oddCnt, 'odd_count'), '홀짝 균형 분석입니다.');
-    const lowCnt = nums.filter(n => n <= 22).length;
-    addReportRow('[G1] 고:저 비율', `${lowCnt}:${6-lowCnt}`, getStatus(lowCnt, 'low_count'), '고저 균형 분석입니다.');
-
-    // [G2] 회차 상관관계
-    if (statsData.last_3_draws) {
-        const p1 = nums.filter(n => new Set(statsData.last_3_draws[0]).has(n)).length;
-        addReportRow('[G2] 직전 1회차', `${p1}개`, getStatus(p1, 'period_1'), '이월수 매칭 분석입니다.');
-        
-        const prev_1 = new Set(statsData.last_3_draws[0]);
-        const neighbors = new Set();
-        prev_1.forEach(n => { if(n>1) neighbors.add(n-1); if(n<45) neighbors.add(n+1); });
-        const neighborCnt = nums.filter(n => neighbors.has(n)).length;
-        addReportRow('[G2] 이웃수(±1)', `${neighborCnt}개`, getStatus(neighborCnt, 'neighbor'), '직전회차 주변수 분석입니다.');
-
-        const p1_2_set = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[])]);
-        const p1_2 = nums.filter(n => p1_2_set.has(n)).length;
-        addReportRow('[G2] 1~2회전 매칭', `${p1_2}개`, getStatus(p1_2, 'period_1_2'), '최근 흐름 분석입니다.');
-
-        const p1_3_set = new Set([...statsData.last_3_draws[0], ...(statsData.last_3_draws[1]||[]), ...(statsData.last_3_draws[2]||[])]);
-        const p1_3 = nums.filter(n => p1_3_set.has(n)).length;
-        addReportRow('[G2] 1~3회전 매칭', `${p1_3}개`, getStatus(p1_3, 'period_1_3'), '누적 흐름 분석입니다.');
-    }
-    let consecutive = 0;
-    for (let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) consecutive++;
-    addReportRow('[G2] 연속번호 쌍', `${consecutive}쌍`, getStatus(consecutive, 'consecutive'), '번호 연속성 분석입니다.');
-
-    // [G3] 특수 번호군
-    const primeCnt = nums.filter(isPrime).length;
-    addReportRow('[G3] 소수 포함', `${primeCnt}개`, getStatus(primeCnt, 'prime'), '수학적 소수 분포입니다.');
-    const compositeCnt = nums.filter(isComposite).length;
-    addReportRow('[G3] 합성수 포함', `${compositeCnt}개`, getStatus(compositeCnt, 'composite'), '합성수 포함 분석입니다.');
-    const m3Cnt = nums.filter(n => n % 3 === 0).length;
-    addReportRow('[G3] 3배수 포함', `${m3Cnt}개`, getStatus(m3Cnt, 'multiple_3'), '3의 배수 분포입니다.');
-    const m5Cnt = nums.filter(n => n % 5 === 0).length;
-    addReportRow('[G3] 5배수 포함', `${m5Cnt}개`, getStatus(m5Cnt, 'multiple_5'), '5의 배수 분포입니다.');
-    const squareCnt = nums.filter(n => [1,4,9,16,25,36].includes(n)).length;
-    addReportRow('[G3] 제곱수 포함', `${squareCnt}개`, getStatus(squareCnt, 'square'), '제곱수 포함 분석입니다.');
-    const doubleCnt = nums.filter(n => [11,22,33,44].includes(n)).length;
-    addReportRow('[G3] 쌍수 포함', `${doubleCnt}개`, getStatus(doubleCnt, 'double_num'), '동일숫자 반복 분포입니다.');
-
-    // [G4] 구간 및 패턴
-    const b15 = new Set(nums.map(n => Math.floor((n-1)/15))).size;
-    addReportRow('[G4] 3분할 점유', `${b15}구간`, getStatus(b15, 'bucket_15'), '15개씩 3분할 분석입니다.');
-    const b9 = new Set(nums.map(n => Math.floor((n-1)/9))).size;
-    addReportRow('[G4] 5분할 점유', `${b9}구간`, getStatus(b9, 'bucket_9'), '9개씩 5분할 분석입니다.');
-    const b5 = new Set(nums.map(n => Math.floor((n-1)/5))).size;
-    addReportRow('[G4] 9분할 점유', `${b5}구간`, getStatus(b5, 'bucket_5'), '5개씩 9분할 분석입니다.');
-    const b3 = new Set(nums.map(n => Math.floor((n-1)/3))).size;
-    addReportRow('[G4] 15분할 점유', `${b3}구간`, getStatus(b3, 'bucket_3'), '3개씩 15분할 분석입니다.');
-    const colorCnt = new Set(nums.map(getBallColorClass)).size;
-    addReportRow('[G4] 색상수 분포', `${colorCnt}색`, getStatus(colorCnt, 'color'), '색상 그룹 점유 분석입니다.');
-    const corners = [1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42];
-    const cornerCnt = nums.filter(n => corners.includes(n)).length;
-    addReportRow('[G4] 모서리 패턴', `${cornerCnt}개`, getStatus(cornerCnt, 'pattern_corner'), '용지 외곽 분포입니다.');
-    const triangles = [4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32];
-    const triCnt = nums.filter(n => triangles.includes(n)).length;
-    addReportRow('[G4] 삼각형 패턴', `${triCnt}개`, getStatus(triCnt, 'pattern_triangle'), '용지 중심 분포입니다.');
-
-    // [G5] 전문지표
-    const endSum = nums.reduce((a, b) => a + (b % 10), 0);
-    addReportRow('[G5] 끝수 합계', endSum, getStatus(endSum, 'end_sum'), '일의 자리 합 분석입니다.');
-    const endDigits = nums.map(n => n % 10);
-    const sameEnd = Math.max(...Object.values(endDigits.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {})));
-    addReportRow('[G5] 동끝수 출현', `${sameEnd}개`, getStatus(sameEnd, 'same_end'), '동일 끝수 중복 분석입니다.');
-    const acVal = calculate_ac(nums);
-    addReportRow('[G5] AC값 분석', acVal, getStatus(acVal, 'ac'), '산술적 복잡도 분석입니다.');
-    const spanVal = nums[5] - nums[0];
-    addReportRow('[G5] Span 분석', spanVal, getStatus(spanVal, 'span'), '번호 간격 분석입니다.');
-
-    // 점수 및 등급 추출
-    const score = document.getElementById('combination-score')?.innerText || '??';
-    const grade = document.getElementById('combination-grade')?.innerText || '분석 중';
-
-    showSharePrompt(nums, score, grade);
-
-    setTimeout(() => { reportSection.scrollIntoView({ behavior: 'smooth' }); }, 100);
-}
-
-function showSharePrompt(numbers, score = '??', grade = '분석 중') {
-    const shareSection = document.getElementById('share-prompt-section');
-    const copyBtn = document.getElementById('copy-share-btn');
-    if (!shareSection || !copyBtn) return;
-
-    shareSection.style.display = 'block';
-    
-    const newBtn = copyBtn.cloneNode(true);
-    copyBtn.parentNode.replaceChild(newBtn, copyBtn);
-    
-    newBtn.addEventListener('click', function() {
-        const textToCopy = `[나의 로또 조합 분석 리포트] 🎯\n- 선택 번호: ${numbers.join(', ')}\n- 분석 점수: ${score}점\n- 종합 등급: ${grade}\n\n역대 빅데이터와 대조한 제 조합 결과입니다! 여러분의 의견은 어떠신가요? 💬`;
-        
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            const status = document.getElementById('copy-status');
-            if (status) {
-                status.innerText = '✅ 분석 결과가 복사되었습니다! 댓글창으로 이동합니다.';
-                setTimeout(() => { 
-                    status.innerText = ''; 
-                    document.getElementById('disqus_thread').scrollIntoView({ behavior: 'smooth' });
-                }, 1000);
-            }
-        }).catch(err => {
-            console.error('복사 실패:', err);
-        });
-    });
-}
-
-function addReportRow(label, value, statusClass, opinion) {
     const tbody = document.getElementById('analysis-report-body');
     if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const dists = statsData.distributions;
+    const stats = statsData.stats_summary;
+
+    renderAnalysisRow('G1: 합계 점수', currentNumbers.reduce((a, b) => a + b, 0), dists.sum, stats.sum);
+    renderAnalysisRow('G2: 홀짝 비율', currentNumbers.filter(n => n % 2 !== 0).length + ":" + currentNumbers.filter(n => n % 2 === 0).length, dists.odd_even, stats.odd_count);
+    renderAnalysisRow('G2: 고저 비율', currentNumbers.filter(n => n <= 22).length + ":" + currentNumbers.filter(n => n > 22).length, dists.high_low, stats.low_count);
+    renderAnalysisRow('G3: 소수 출현', currentNumbers.filter(isPrime).length, dists.prime, stats.prime);
+    renderAnalysisRow('G3: 합성수 출현', currentNumbers.filter(isComposite).length, dists.composite, stats.composite);
+    renderAnalysisRow('G3: 3의 배수', currentNumbers.filter(n => n % 3 === 0).length, dists.multiple_3, stats.multiple_3);
+    renderAnalysisRow('G4: AC 지수', calculate_ac(currentNumbers), dists.ac, stats.ac);
+    renderAnalysisRow('G5: 끝수 합계', currentNumbers.reduce((a, b) => a + (b % 10), 0), dists.end_sum, stats.end_sum);
+}
+
+function renderAnalysisRow(label, value, distData, statSummary) {
+    const tbody = document.getElementById('analysis-report-body');
     const tr = document.createElement('tr');
-    let statusText = statusClass === 'optimal' ? '최적' : (statusClass === 'warning' ? '주의' : '세이프');
-    tr.innerHTML = `<td><strong>${label}</strong></td><td>${value}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td class="text-left">${opinion}</td>`;
+    
+    let status = 'safe'; 
+    let opinion = '안정적인 데이터 분포 내에 있습니다.';
+    
+    if (statSummary) {
+        const numVal = parseFloat(typeof value === 'string' ? value.split(':')[0] : value);
+        const z = Math.abs(numVal - statSummary.mean) / statSummary.std;
+        if (z > 2) { status = 'danger'; opinion = '통계적 희귀 구간입니다. 신중한 선택이 필요합니다.'; }
+        else if (z > 1) { status = 'warning'; opinion = '평균에서 약간 벗어난 구간입니다.'; }
+    }
+
+    const statusText = status === 'danger' ? '위험' : (status === 'warning' ? '주의' : '세이프');
+    tr.innerHTML = `<td><strong>${label}</strong></td><td>${value}</td><td><span class="status-badge ${status}">${statusText}</span></td><td class="text-left">${opinion}</td>`;
     tbody.appendChild(tr);
 }
+
+function getBallColorClass(num) {
+    if (num <= 10) return 'yellow'; if (num <= 20) return 'blue'; if (num <= 30) return 'red';
+    if (num <= 40) return 'gray'; return 'green';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initNumberSelector(); loadStatsData(); loadSavedSelection();
+    const pending = localStorage.getItem('pending_analysis_numbers');
+    if (pending) {
+        try {
+            const numbers = JSON.parse(pending); manualNumbers.clear(); autoNumbers.clear();
+            numbers.forEach(num => { manualNumbers.add(num); const btn = document.getElementById(`select-ball-${num}`); if (btn) btn.classList.add('selected-manual'); });
+            updateSelectedBallsDisplay();
+            setTimeout(() => { runDetailedAnalysis(); localStorage.removeItem('pending_analysis_numbers'); }, 500);
+        } catch (e) { console.error(e); }
+    }
+    document.getElementById('semi-auto-btn')?.addEventListener('click', semiAutoSelect);
+    document.getElementById('reset-btn')?.addEventListener('click', resetSelection);
+    document.getElementById('analyze-my-btn')?.addEventListener('click', runDetailedAnalysis);
+});
