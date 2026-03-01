@@ -315,7 +315,34 @@ function runDetailedAnalysis() {
     const spanVal = nums[5] - nums[0];
     addReportRow('[G5] Span 분석', spanVal, getStatus(spanVal, 'span'), '번호 간격 분석입니다.');
 
+    showSharePrompt(nums);
+
     setTimeout(() => { reportSection.scrollIntoView({ behavior: 'smooth' }); }, 100);
+}
+
+function showSharePrompt(numbers) {
+    const shareSection = document.getElementById('share-prompt-section');
+    const copyBtn = document.getElementById('copy-share-btn');
+    if (!shareSection || !copyBtn) return;
+
+    shareSection.style.display = 'block';
+    
+    // 이전에 등록된 이벤트 리스너 제거 (중복 방지)
+    const newBtn = copyBtn.cloneNode(true);
+    copyBtn.parentNode.replaceChild(newBtn, copyBtn);
+    
+    newBtn.addEventListener('click', function() {
+        const textToCopy = `[나의 분석 조합 공유] 제가 분석한 번호는 ${numbers.join(', ')} 입니다! 이 조합 어떤가요? 🎯`;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const status = document.getElementById('copy-status');
+            if (status) {
+                status.innerText = '✅ 클립보드에 복사되었습니다! 하단 댓글창에 붙여넣어 공유해보세요.';
+                setTimeout(() => { status.innerText = ''; }, 3000);
+            }
+        }).catch(err => {
+            console.error('복사 실패:', err);
+        });
+    });
 }
 
 function addReportRow(label, value, statusClass, opinion) {

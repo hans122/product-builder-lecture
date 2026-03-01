@@ -104,6 +104,28 @@
             </div>
         </div>
 
+        <div id="share-prompt-section" style="display: none; margin-top: 30px; text-align: center; background: #f0f7ff; padding: 20px; border-radius: 10px; border: 1px dashed #3498db;">
+            <h4 style="margin-top: 0; color: #2c3e50;">✨ 분석한 이 조합 어때요? 댓글로 공유해보세요!</h4>
+            <p style="font-size: 0.9rem; color: #5a67d8;">아래 버튼을 눌러 번호를 복사한 뒤, 하단 댓글창에 의견을 남겨보세요.</p>
+            <button id="copy-share-btn" class="nav-btn primary" style="padding: 10px 20px; font-weight: bold;">📋 분석된 번호 복사하기</button>
+            <span id="copy-status" style="display: block; margin-top: 10px; font-size: 0.8rem; color: #38a169; font-weight: bold;"></span>
+        </div>
+
+        <div id="disqus_thread" style="margin-top: 50px;"></div>
+        <script>
+            var disqus_config = function () {
+                this.page.url = window.location.href;
+                this.page.identifier = 'combination';
+            };
+            (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://productbuilder-cik8ji1tvf.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
         <footer class="standard-footer">
             <p class="disclaimer">
                 <a href="privacy.html" style="color: #3498db; text-decoration: none; font-weight: bold;">개인정보처리방침</a> | 

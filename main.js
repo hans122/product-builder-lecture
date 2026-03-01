@@ -149,10 +149,38 @@ function renderNumbers(numbers, useAnimation = true) {
             ball.className = 'ball ' + getBallColorClass(num);
             ball.innerText = num;
             lottoContainer.appendChild(ball);
-            if (index === 5) analyzeNumbers(numbers);
+            if (index === 5) {
+                analyzeNumbers(numbers);
+                showSharePrompt(numbers);
+            }
         };
         if (useAnimation) setTimeout(createBall, index * 100);
         else createBall();
+    });
+}
+
+function showSharePrompt(numbers) {
+    const shareSection = document.getElementById('share-prompt-section');
+    const copyBtn = document.getElementById('copy-share-btn');
+    if (!shareSection || !copyBtn) return;
+
+    shareSection.style.display = 'block';
+    
+    // 이전에 등록된 이벤트 리스너 제거 (중복 방지)
+    const newBtn = copyBtn.cloneNode(true);
+    copyBtn.parentNode.replaceChild(newBtn, copyBtn);
+    
+    newBtn.addEventListener('click', function() {
+        const textToCopy = `[행운의 번호 공유] 제 이번 주 번호는 ${numbers.join(', ')} 입니다! 여러분의 의견은 어떠신가요? ✨`;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const status = document.getElementById('copy-status');
+            if (status) {
+                status.innerText = '✅ 클립보드에 복사되었습니다! 하단 댓글창에 붙여넣어 공유해보세요.';
+                setTimeout(() => { status.innerText = ''; }, 3000);
+            }
+        }).catch(err => {
+            console.error('복사 실패:', err);
+        });
     });
 }
 

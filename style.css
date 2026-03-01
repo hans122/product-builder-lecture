@@ -807,3 +807,22 @@ body:not(.analysis-page) {
 @media (max-width: 850px) {
     .nav-links { position: static; margin-top: 10px; transform: none; }
 }
+
+/* 공유 유도 섹션 스타일 */
+#share-prompt-section {
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#copy-share-btn {
+    transition: all 0.2s;
+}
+
+#copy-share-btn:active {
+    transform: scale(0.95);
+}

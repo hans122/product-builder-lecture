@@ -155,6 +155,31 @@
             </div>
         </div>
         
+        <div id="share-prompt-section" class="container" style="display: none; margin-top: 30px; text-align: center; background: #f0f7ff; padding: 20px; border-radius: 10px; border: 1px dashed #3498db;">
+            <h4 style="margin-top: 0; color: #2c3e50;">✨ 이 번호 어때요? 댓글로 의견을 나눠보세요!</h4>
+            <p style="font-size: 0.9rem; color: #5a67d8;">아래 버튼을 눌러 번호를 복사한 뒤, 하단 댓글창에 공유해보세요.</p>
+            <button id="copy-share-btn" class="nav-btn primary" style="padding: 10px 20px; font-weight: bold;">📋 생성된 번호 복사하기</button>
+            <span id="copy-status" style="display: block; margin-top: 10px; font-size: 0.8rem; color: #38a169; font-weight: bold;"></span>
+        </div>
+
+        <div id="disqus_thread" style="margin-top: 50px;"></div>
+        <script>
+            /**
+            *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+            *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+            var disqus_config = function () {
+                this.page.url = window.location.href;  // Replace PAGE_URL with your page's canonical URL variable
+                this.page.identifier = 'index'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            s.src = 'https://productbuilder-cik8ji1tvf.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
         <footer class="standard-footer">
             <p class="disclaimer">※ 본 결과는 통계적 분석이며 당첨을 보장하지 않습니다.</p>
         </footer>

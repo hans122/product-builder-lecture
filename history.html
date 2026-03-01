@@ -90,6 +90,21 @@
             </div>
         </section>
 
+        <div id="disqus_thread" style="margin-top: 50px;"></div>
+        <script>
+            var disqus_config = function () {
+                this.page.url = window.location.href;
+                this.page.identifier = 'history';
+            };
+            (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://productbuilder-cik8ji1tvf.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
         <footer class="standard-footer">
             <p class="disclaimer">※ 본 히스토리 데이터는 역대 당첨 결과를 바탕으로 제공됩니다.</p>
         </footer>
