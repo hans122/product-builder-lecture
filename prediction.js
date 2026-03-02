@@ -1,3 +1,7 @@
+/**
+ * AI Prediction Logic - LottoCore v4.3 기반 리팩토링
+ */
+
 let predStatsData = null;
 
 // [1] 모든 수치에 롤링 윈도우가 적용된 정밀 추출 함수 (v2.2)
@@ -46,19 +50,16 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
 let lastHotPool = [];
 let lastNeutralPool = [];
 
-document.addEventListener('DOMContentLoaded', function() {
-    fetch('advanced_stats.json?v=' + Date.now())
-        .then(res => res.json())
-        .then(data => {
-            predStatsData = data;
-            const currentPools = getPredictionPoolsForRound(data.recent_draws, -1);
-            lastHotPool = currentPools.hot;
-            lastNeutralPool = currentPools.neutral;
-            renderPools(currentPools.hot, currentPools.neutral, currentPools.cold);
-            generateSmartCombinations(currentPools.hot, currentPools.neutral);
-            runBacktest(data.recent_draws);
-        })
-        .catch(err => console.error('Prediction data failed:', err));
+document.addEventListener('DOMContentLoaded', async function() {
+    predStatsData = await LottoDataManager.getStats();
+    if (!predStatsData) return;
+
+    const currentPools = getPredictionPoolsForRound(predStatsData.recent_draws, -1);
+    lastHotPool = currentPools.hot;
+    lastNeutralPool = currentPools.neutral;
+    renderPools(currentPools.hot, currentPools.neutral, currentPools.cold);
+    generateSmartCombinations(currentPools.hot, currentPools.neutral);
+    runBacktest(predStatsData.recent_draws);
 
     document.getElementById('refresh-recommendations-btn')?.addEventListener('click', function() {
         if (lastHotPool.length > 0) {
@@ -79,7 +80,7 @@ function renderPools(hot, neutral, cold) {
         hotContainer.innerHTML = '';
         hot.forEach(num => {
             const ball = document.createElement('div');
-            ball.className = `ball mini ${getBallColorClass(num)}`;
+            ball.className = `ball mini ${LottoUtils.getBallColorClass(num)}`;
             ball.innerText = num;
             hotContainer.appendChild(ball);
         });
@@ -112,7 +113,7 @@ function generateSmartCombinations(hotPool, neutralPool) {
     while (results.length < 5 && attempts < 1000) {
         attempts++;
         const combined = [...hotPool, ...neutralPool];
-        const shuffled = combined.sort(() => 0.5 - Math.random());
+        const shuffled = [...combined].sort(() => 0.5 - Math.random());
         const pick = shuffled.slice(0, 6).sort((a, b) => a - b);
         const sum = pick.reduce((a, b) => a + b, 0);
         const odds = pick.filter(n => n % 2 !== 0).length;
@@ -124,40 +125,27 @@ function generateSmartCombinations(hotPool, neutralPool) {
         card.className = 'combo-card clickable';
         card.innerHTML = `
             <div class="combo-rank">${strategyLabels[idx] || "#" + (idx + 1)}</div>
-            <div class="ball-container">${combo.map(n => `<div class="ball ${getBallColorClass(n)}">${n}</div>`).join('')}</div>
+            <div class="ball-container">${combo.map(n => `<div class="ball ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('')}</div>
             <div class="combo-meta">합계: ${combo.reduce((a,b)=>a+b,0)} | 홀짝: ${combo.filter(n=>n%2!==0).length}:${6-combo.filter(n=>n%2!==0).length}</div>
             <div class="analyze-badge" style="background: #ebf8ff; padding: 5px; border-radius: 4px; margin-top: 10px;">정밀 분석 리포트 보기 ➔</div>
         `;
-
-        // [개선] 카드 본체 클릭 시: 메인 페이지 내 지표만 갱신
-        card.addEventListener('click', (e) => {
-            // 모든 카드의 선택 효과 제거 후 현재 카드 강조
+        card.addEventListener('click', () => {
             document.querySelectorAll('.combo-card').forEach(c => c.style.borderColor = '#edf2f7');
-            card.style.borderColor = 'var(--secondary-blue)';
-            card.style.background = '#f0f7ff';
-
-            // LocalStorage 저장 (다른 페이지 연동용)
+            card.style.borderColor = 'var(--secondary-blue)'; card.style.background = '#f0f7ff';
             localStorage.setItem('lastGeneratedNumbers', JSON.stringify(combo));
-            
-            // 메인 페이지의 분석 함수 직접 호출 (main.js에 정의된 analyzeNumbers)
             if (typeof analyzeNumbers === 'function') {
                 const sourceTitle = document.getElementById('analysis-source-title');
                 if (sourceTitle) sourceTitle.innerText = `📊 분석 결과: ${strategyLabels[idx] || '추천 조합'}`;
                 analyzeNumbers(combo);
-                
-                // 지표 영역으로 부드럽게 스크롤 (선택 사항)
                 document.getElementById('analysis-source-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
-
-        // '정밀 분석 ➔' 영역이나 특정 버튼 클릭 시에만 페이지 이동
         card.querySelector('.analyze-badge').addEventListener('click', (e) => {
-            e.stopPropagation(); // 카드 클릭 이벤트와 중복 방지
+            e.stopPropagation();
             localStorage.setItem('lastGeneratedNumbers', JSON.stringify(combo));
             localStorage.setItem('pending_analysis_numbers', JSON.stringify(combo));
             window.location.href = 'combination.html';
         });
-
         container.appendChild(card);
     });
 }
@@ -173,49 +161,26 @@ function runBacktest(draws) {
         const hits = draw.nums.filter(n => pools.hot.includes(n));
         const neutralHits = draw.nums.filter(n => pools.neutral.includes(n));
         const fails = draw.nums.filter(n => pools.cold.includes(n));
-        
         totalHits += hits.length;
         if (hits.length >= 5) jackpotCount++;
         if (fails.length === 0) perfectExclusions++;
 
-        // [복구] 회차별 풀 리스트 렌더링용 HTML 생성
-        const hotDisplay = pools.hot.map(n => 
-            draw.nums.includes(n) ? `<strong class="hit-num">${n}</strong>` : `<span class="pool-num">${n}</span>`
-        ).join(''); 
-
-        const neutralDisplay = pools.neutral.map(n => 
-            draw.nums.includes(n) ? `<strong class="neutral-hit-num">${n}</strong>` : `<span class="pool-num">${n}</span>`
-        ).join('');
-
-        const coldDisplay = pools.cold.map(n => 
-            draw.nums.includes(n) ? `<strong class="fail-num">${n}</strong>` : `<span class="pool-num">${n}</span>`
-        ).join('');
+        const hotDisplay = pools.hot.map(n => draw.nums.includes(n) ? `<strong class="hit-num">${n}</strong>` : `<span class="pool-num">${n}</span>`).join(''); 
+        const neutralDisplay = pools.neutral.map(n => draw.nums.includes(n) ? `<strong class="neutral-hit-num">${n}</strong>` : `<span class="pool-num">${n}</span>`).join('');
+        const coldDisplay = pools.cold.map(n => draw.nums.includes(n) ? `<strong class="fail-num">${n}</strong>` : `<span class="pool-num">${n}</span>`).join('');
 
         const tr = document.createElement('tr');
         let statusTag = hits.length >= 5 ? '<span class="status-tag excellent">우수</span>' : (hits.length >= 4 ? '<span class="status-tag good">양호</span>' : '<span class="status-tag fail">보통</span>');
-        
         tr.innerHTML = `
             <td>${draw.no}회</td>
-            <td><div class="pool-grid-win">${draw.nums.map(n => `<div class="ball mini ${getBallColorClass(n)}">${n}</div>`).join('')}</div></td>
-            <td class="text-left">
-                <div class="hit-summary-top">적중: <strong>${hits.length}개</strong></div>
-                <div class="pool-grid-mini expected">${hotDisplay}</div>
-            </td>
-            <td class="text-left">
-                <div class="hit-summary-top">적중: <strong>${neutralHits.length}개</strong></div>
-                <div class="pool-grid-mini neutral-grid">${neutralDisplay}</div>
-            </td>
-            <td class="text-left">
-                <div class="fail-summary-top ${fails.length > 0 ? 'text-danger' : 'text-success'}">
-                    ${fails.length > 0 ? `실패: <strong>${fails.join(',')}</strong>` : '제외성공'}
-                </div>
-                <div class="pool-grid-mini excluded">${coldDisplay}</div>
-            </td>
+            <td><div class="pool-grid-win">${draw.nums.map(n => `<div class="ball mini ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('')}</div></td>
+            <td class="text-left"><div class="hit-summary-top">적중: <strong>${hits.length}개</strong></div><div class="pool-grid-mini expected">${hotDisplay}</div></td>
+            <td class="text-left"><div class="hit-summary-top">적중: <strong>${neutralHits.length}개</strong></div><div class="pool-grid-mini neutral-grid">${neutralDisplay}</div></td>
+            <td class="text-left"><div class="fail-summary-top ${fails.length > 0 ? 'text-danger' : 'text-success'}">${fails.length > 0 ? `실패: ${fails.join(',')}` : '제외성공'}</div><div class="pool-grid-mini excluded">${coldDisplay}</div></td>
             <td>${statusTag}</td>
         `;
         reportBody.appendChild(tr);
     });
-    
     const summaryCard = document.getElementById('summary-stat-board');
     if (summaryCard) {
         summaryCard.style.display = 'block';
@@ -224,9 +189,4 @@ function runBacktest(draws) {
         document.getElementById('total-exclude-success').textContent = perfectExclusions;
         document.getElementById('exclude-rate').textContent = ((perfectExclusions / testCount) * 100).toFixed(0);
     }
-}
-
-function getBallColorClass(num) {
-    if (num <= 10) return 'yellow'; if (num <= 20) return 'blue';
-    if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
 }

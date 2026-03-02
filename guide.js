@@ -1,31 +1,6 @@
-// [표준 지표 설정] DATA_SCHEMA.md(v4.0) 마스터 매핑 테이블 엄격 준수
-const INDICATOR_CONFIG = [
-    { id: 'sum', label: '총합', distKey: 'sum', statKey: 'sum' },
-    { id: 'odd-even', label: '홀짝 비율', distKey: 'odd_even', statKey: 'odd_count' },
-    { id: 'high-low', label: '고저 비율', distKey: 'high_low', statKey: 'low_count' },
-    { id: 'period_1', label: '직전 1회차 매칭', distKey: 'period_1', statKey: 'period_1' },
-    { id: 'neighbor', label: '이웃수', distKey: 'neighbor', statKey: 'neighbor' },
-    { id: 'period_1_2', label: '1~2회전 윈도우', distKey: 'period_1_2', statKey: 'period_1_2' },
-    { id: 'period_1_3', label: '1~3회전 윈도우', distKey: 'period_1_3', statKey: 'period_1_3' },
-    { id: 'consecutive', label: '연속번호 쌍', distKey: 'consecutive', statKey: 'consecutive' },
-    { id: 'prime', label: '소수 포함', distKey: 'prime', statKey: 'prime' },
-    { id: 'composite', label: '합성수 포함', distKey: 'composite', statKey: 'composite' },
-    { id: 'multiple-3', label: '3배수 포함', distKey: 'multiple_3', statKey: 'multiple_3' },
-    { id: 'multiple-5', label: '5배수 포함', distKey: 'multiple_5', statKey: 'multiple_5' },
-    { id: 'square', label: '제곱수 포함', distKey: 'square', statKey: 'square' },
-    { id: 'double', label: '쌍수 포함', distKey: 'double_num', statKey: 'double_num' },
-    { id: 'bucket-15', label: '3분할 점유', distKey: 'bucket_15', statKey: 'bucket_15' },
-    { id: 'bucket-9', label: '5분할 점유', distKey: 'bucket_9', statKey: 'bucket_9' },
-    { id: 'bucket-5', label: '9분할 점유', distKey: 'bucket_5', statKey: 'bucket_5' },
-    { id: 'bucket-3', label: '15분할 점유', distKey: 'bucket_3', statKey: 'bucket_3' },
-    { id: 'color', label: '포함 색상수', distKey: 'color', statKey: 'color' },
-    { id: 'pattern-corner', label: '모서리 패턴', distKey: 'pattern_corner', statKey: 'pattern_corner' },
-    { id: 'pattern-triangle', label: '삼각형 패턴', distKey: 'pattern_triangle', statKey: 'pattern_triangle' },
-    { id: 'end-sum', label: '끝수합', distKey: 'end_sum', statKey: 'end_sum' },
-    { id: 'same-end', label: '동끝수', distKey: 'same_end', statKey: 'same_end' },
-    { id: 'ac', label: 'AC값', distKey: 'ac', statKey: 'ac' },
-    { id: 'span', label: 'Span(간격)', distKey: 'span', statKey: 'span' }
-];
+/**
+ * Indicator Guide Page - LottoCore v4.3 기반 리팩토링
+ */
 
 const TIPS = {
     'sum': `합계 수치는 가장 출현 빈도가 높은 세이프 존 <strong>"{safe}"</strong> 범위를 유지하는 것이 전략적으로 매우 유리합니다.`,
@@ -55,11 +30,9 @@ const TIPS = {
     'span': `가장 큰 수와 작은 수의 차이(Span)는 <strong>"{safe}"</strong> 범위일 때 가장 강력한 당첨 에너지를 가집니다.`
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    fetch('advanced_stats.json?v=' + Date.now())
-        .then(res => res.json())
-        .then(data => { updateGuideStats(data); })
-        .catch(err => console.error('Guide stats load failed:', err));
+document.addEventListener('DOMContentLoaded', async function() {
+    const data = await LottoDataManager.getStats();
+    if (data) updateGuideStats(data);
 });
 
 function updateGuideStats(data) {
@@ -90,8 +63,8 @@ function updateGuideStats(data) {
         return { optimal: `${optMin}~${optMax}`, safe: `${safeMin}~${safeMax}`, optHits, safeHits };
     };
 
-    INDICATOR_CONFIG.forEach(cfg => {
-        // [ID 고정] DATA_SCHEMA.md의 JS ID(id)를 HTML 요소 ID의 접두어로 사용
+    // [LottoCore 통합 연동]
+    LottoConfig.INDICATORS.forEach(cfg => {
         const container = document.getElementById(`${cfg.id}-stat-container`);
         const tipElem = document.getElementById(`${cfg.id}-tip`);
         const info = getZoneInfo(stats[cfg.statKey], dists[cfg.distKey]);
