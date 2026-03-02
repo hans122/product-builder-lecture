@@ -590,18 +590,33 @@ body:not(.analysis-page) {
 }
 
 /* 상태 배지 스타일 */
+/* 상태 표시 배지 (Safe/Warning/Danger) */
 .status-badge {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 3px 12px;
     border-radius: 20px;
     font-size: 0.75rem;
-    font-weight: bold;
+    font-weight: 900;
+    text-align: center;
+    min-width: 55px;
     color: white;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
 
-.status-badge.optimal { background-color: #27ae60; box-shadow: 0 2px 4px rgba(39, 174, 96, 0.2); }
-.status-badge.safe { background-color: #2980b9; box-shadow: 0 2px 4px rgba(41, 128, 185, 0.2); }
-.status-badge.warning { background-color: #e74c3c; box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2); }
+.status-badge.safe { 
+    background-color: #38a169; 
+    box-shadow: 0 2px 4px rgba(56, 161, 105, 0.2); 
+}
+
+.status-badge.warning { 
+    background-color: #dd6b20; 
+    box-shadow: 0 2px 4px rgba(221, 107, 32, 0.2); 
+}
+
+.status-badge.danger { 
+    background-color: #e53e3e; 
+    box-shadow: 0 2px 4px rgba(229, 62, 62, 0.2); 
+}
 
 #frequency-section { width: 100%; margin-left: 0; box-sizing: border-box; }
 .frequency-chart { 
