@@ -47,7 +47,7 @@
 - **Expert Table System**: 가로로 긴 표는 45도 대각선 헤더 및 틀 고정(Sticky)을 필수 적용한다.
 - **Grid Layout**: 예측 번호 풀은 10열 그리드를 기본으로 정밀 정렬한다.
 - **Performance Grading**: 성과 지표는 S/A/B/C 등급제로 정량화하여 표시한다.
-- **Real Paper Experience**: 번호 선택 용지는 실제 로또 용지 질감과 빨간 사선 마킹 효과를 제공한다.
+- **Real Paper Experience**: 번호 선택 용지는 실제 로또 용지 질감과 가독성 높은 강조(Red/Blue Solid) 효과를 제공한다.
 - **Responsive Symmetry**: 통계 카드는 전 해상도에서 차트(유연)와 미니 표(고정)의 좌우 밸런스를 유지한다.
 
 ## 4. 자동 업데이트 파이프라인

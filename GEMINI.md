@@ -8,12 +8,13 @@
 5. **Architectural Conformity**: 문서에 정의된 설계 철학(Sticky Columns, Slanted Header, SSOT 등)과 충돌하는 독자적 구현을 금지하며, 변경 시 반드시 문서를 동시 업데이트한다.
 6. **Anchor Centering Policy**: 통계 섹션의 앵커 이동 시 반드시 `scroll-margin-top: 50vh`를 유지하여 제목이 화면 상하 정중앙에 위치하게 한다.
 7. **Statistical Visualization Refinement**: 차트 라벨 색상 동기화, 최소 높이 200px 확보, 이중 빗금 정책을 준수한다.
-8. **UX Performance Visualization**: 성과 지표는 S/A/B 등급제 및 시각적 배지(빨간 사선 마킹, 스탬프 효과)를 통해 직관적으로 전달한다.
+8. **UX Performance Visualization**: 성과 지표는 S/A/B 등급제 및 직관적인 색상 강조 효과(Solid Color)를 통해 전달한다.
 9. **Grid-Based Precision**: 예측 번호 풀은 10열 그리드를 기본으로 하며, 히스토리 표는 데이터 중심의 초콤팩트 레이아웃(40px 열 너비)을 준수한다.
 10. **Expert Table Features**: 가로로 긴 표는 반드시 **45도 대각선 헤더**와 **틀 고정(회차/번호)** 기능을 적용한다.
 
 ## [RECENT UPDATES]
 - **추천 조합(Top 5) 레이아웃 정밀화**: 카드 너비를 190px에서 170px로 축소하여 정보 밀도를 높이고 한 줄 배치를 더욱 강화.
+- **번호 선택 UI 개선**: 실제 용지 감성의 빨간 사선 마킹을 제거하고, 시인성이 높은 솔리드 컬러 강조 방식으로 변경.
 - **전문가용 히스토리 표 고도화**: 45도 대각선 헤더, 엑셀형 틀 고정, 우측 유령 공간 제거(v9.8).
 - **시스템 팩토링 및 문서 최신화**: `indicators.js` 기반 자동화 완성 및 PRD/SDD/DATA_SCHEMA v4.0~6.0 동기화.
 - **통계 레이아웃 최적화**: 차트(유연)와 미니 표(235px 고정)의 완벽한 밸런스 및 여백 확보.

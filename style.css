@@ -660,22 +660,17 @@ body {
     border-color: #94a3b8;
 }
 
-/* [복구] 수동 선택: 빨간색 사선 마킹 */
+/* [수정] 수동 선택: 깔끔한 강조 효과 (사선 제거) */
 .select-ball.selected-manual {
     border-color: #ef4444;
-    color: #ef4444;
-    background: #fff5f5;
+    color: white; /* 텍스트 흰색으로 가독성 향상 */
+    background: #ef4444; /* 빨간색으로 꽉 채움 */
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+    transform: scale(1.05);
 }
 
 .select-ball.selected-manual::after {
-    content: "";
-    position: absolute;
-    top: 50%; left: -10%;
-    width: 120%;
-    height: 2px;
-    background: #ef4444;
-    transform: rotate(-45deg);
-    pointer-events: none;
+    display: none; /* 사선 제거 */
 }
 
 /* [복구] 자동 선택: 블루 스탬프 */
