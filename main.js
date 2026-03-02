@@ -71,6 +71,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function analyzeNumbers(numbers) {
     if (!mainStatsData) { setTimeout(() => analyzeNumbers(numbers), 100); return; }
+    
+    // [추가] 분석 대상 번호 시각화
+    const targetContainer = document.getElementById('analysis-target-balls');
+    if (targetContainer) {
+        targetContainer.innerHTML = '';
+        numbers.sort((a, b) => a - b).forEach(num => {
+            const ball = document.createElement('div');
+            ball.className = `ball mini ${getBallColorClass(num)}`;
+            ball.innerText = num;
+            targetContainer.appendChild(ball);
+        });
+    }
+
     const summary = mainStatsData.stats_summary || {};
 
     const getZStatus = (val, stat) => {
