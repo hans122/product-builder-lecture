@@ -76,7 +76,7 @@ const LottoUtils = {
     getBallColorClass: (num) => {
         if (num <= 10) return 'yellow'; if (num <= 20) return 'blue';
         if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
-    },
+    // 정규분포 Z-Score 기반 등급 판정
     getZStatus: (val, stat) => {
         if (!stat || stat.std === 0) return 'safe';
         const numVal = (typeof val === 'string' && val.includes(':')) ? parseFloat(val.split(':')[0]) : parseFloat(val);
@@ -88,13 +88,39 @@ const LottoUtils = {
     // 상용급 로깅 시스템
     logError: (msg, context = '') => {
         console.error(`[LottoCore Error] ${msg}`, context);
-        // 추후 서버 로그 수집 API 연동 가능 지점
     }
-};
+    };
 
-/**
- * LottoUI - 컴포넌트 기반 UI 렌더링 엔진
- */
+    /**
+    * LottoSynergy - 지표 간 상관관계 및 정합성 분석 엔진 (G7)
+    */
+    const LottoSynergy = {
+    check: (nums, data) => {
+        const results = [];
+        const s = nums.reduce((a, b) => a + b, 0);
+        const lc = nums.filter(n => n <= 22).length;
+        const ac = LottoUtils.calculateAC(nums);
+        const cons = (() => { let c=0; for(let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) c++; return c; })();
+
+        // 1. 고저-총합 상관관계 (Low-Sum Correlation)
+        if (lc >= 5 && s > 130) results.push({ id: 'syn-ls', label: '저번호-총합 모순', status: 'warning', desc: '저번호가 많음에도 총합이 높습니다. 번호가 구간 끝에 몰려있을 가능성이 큽니다.' });
+        if (lc <= 1 && s < 140) results.push({ id: 'syn-ls', label: '고번호-총합 모순', status: 'warning', desc: '고번호가 많음에도 총합이 낮습니다. 번호가 구간 시작에 몰려있습니다.' });
+
+        // 2. 무작위성-연속성 상관관계 (AC-Consec Correlation)
+        if (ac >= 8 && cons >= 2) results.push({ id: 'syn-ac', label: '패턴 밀집도 불균형', status: 'warning', desc: '수학적 복잡도(AC)는 높으나 연속번호가 많아 패턴이 충돌합니다.' });
+
+        // 3. 간격-범위 상관관계 (Span-Gap Correlation)
+        const span = nums[5] - nums[0];
+        const avgGap = span / 5;
+        if (span > 40 && avgGap < 7) results.push({ id: 'syn-sg', label: '분산도 불일치', status: 'safe', desc: '전체 범위는 넓으나 번호 사이의 간격이 좁아 특정 구역 쏠림이 예상됩니다.' });
+
+        return results;
+    }
+    };
+
+    /**
+    * LottoUI - 컴포넌트 기반 UI 렌더링 엔진
+    */
 const LottoUI = {
     // 로또 공 생성
     createBall: (num, isMini = false) => {

@@ -117,7 +117,13 @@ function generateSmartCombinations(hotPool, neutralPool) {
         const pick = shuffled.slice(0, 6).sort((a, b) => a - b);
         const sum = pick.reduce((a, b) => a + b, 0);
         const odds = pick.filter(n => n % 2 !== 0).length;
-        if (sum >= 100 && sum <= 175 && odds >= 2 && odds <= 4) { results.push(pick); }
+        if (sum >= 100 && sum <= 175 && odds >= 2 && odds <= 4) { 
+            // [추가] G7 시너지 필터: 심각한 지표 충돌이 없는 조합만 선별
+            const synergy = LottoSynergy.check(pick, predStatsData);
+            if (!synergy.some(s => s.status === 'warning')) {
+                results.push(pick); 
+            }
+        }
     }
     const strategyLabels = ["💎 최우선 추천", "⚖️ 균형 최적화", "🔥 기세형 조합", "🌊 흐름 추종", "🛡️ 안정형 필터"];
     results.forEach((combo, idx) => {
