@@ -179,18 +179,24 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     pattern.appendChild(line); defs.appendChild(pattern); svg.appendChild(defs);
 
     const drawZone = (z, color) => {
-        const threshold = sd * z;
+        // 라벨과 동일하게 반올림된 정수 경계를 기준으로 구역 설정
+        const minBound = Math.round(mu - z * sd);
+        const maxBound = Math.round(mu + z * sd);
+
         const zPoints = points.filter(p => {
             const pVal = parseFloat(p.label.split(/[ :\-]/)[0]);
-            return !isNaN(pVal) && Math.abs(pVal - mu) <= threshold + 0.1; 
+            return !isNaN(pVal) && pVal >= minBound && pVal <= maxBound;
         });
+
         if (zPoints.length > 0) {
             const firstP = zPoints[0]; const lastP = zPoints[zPoints.length - 1];
             let d = "";
+            // 단일 포인트인 경우(예: 1개만 옵티멀일 때) 가시성 확보를 위해 너비 부여
             if (zPoints.length === 1) {
-                const w = 20;
+                const w = 25; 
                 d = `M ${firstP.x - w},${baselineY} L ${firstP.x - w},${firstP.y} L ${firstP.x + w},${firstP.y} L ${firstP.x + w},${baselineY} Z`;
             } else {
+                // 여러 포인트인 경우 점들을 잇고 아래 바닥까지 채움
                 d = `M ${firstP.x},${baselineY} `;
                 zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
                 d += `L ${lastP.x},${baselineY} Z`;
