@@ -126,13 +126,38 @@ function generateSmartCombinations(hotPool, neutralPool) {
             <div class="combo-rank">${strategyLabels[idx] || "#" + (idx + 1)}</div>
             <div class="ball-container">${combo.map(n => `<div class="ball ${getBallColorClass(n)}">${n}</div>`).join('')}</div>
             <div class="combo-meta">합계: ${combo.reduce((a,b)=>a+b,0)} | 홀짝: ${combo.filter(n=>n%2!==0).length}:${6-combo.filter(n=>n%2!==0).length}</div>
-            <div class="analyze-badge">정밀 분석 ➔</div>
+            <div class="analyze-badge" style="background: #ebf8ff; padding: 5px; border-radius: 4px; margin-top: 10px;">정밀 분석 리포트 보기 ➔</div>
         `;
-        card.addEventListener('click', () => {
+
+        // [개선] 카드 본체 클릭 시: 메인 페이지 내 지표만 갱신
+        card.addEventListener('click', (e) => {
+            // 모든 카드의 선택 효과 제거 후 현재 카드 강조
+            document.querySelectorAll('.combo-card').forEach(c => c.style.borderColor = '#edf2f7');
+            card.style.borderColor = 'var(--secondary-blue)';
+            card.style.background = '#f0f7ff';
+
+            // LocalStorage 저장 (다른 페이지 연동용)
+            localStorage.setItem('lastGeneratedNumbers', JSON.stringify(combo));
+            
+            // 메인 페이지의 분석 함수 직접 호출 (main.js에 정의된 analyzeNumbers)
+            if (typeof analyzeNumbers === 'function') {
+                const sourceTitle = document.getElementById('analysis-source-title');
+                if (sourceTitle) sourceTitle.innerText = `📊 분석 결과: ${strategyLabels[idx] || '추천 조합'}`;
+                analyzeNumbers(combo);
+                
+                // 지표 영역으로 부드럽게 스크롤 (선택 사항)
+                document.getElementById('analysis-source-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        // '정밀 분석 ➔' 영역이나 특정 버튼 클릭 시에만 페이지 이동
+        card.querySelector('.analyze-badge').addEventListener('click', (e) => {
+            e.stopPropagation(); // 카드 클릭 이벤트와 중복 방지
             localStorage.setItem('lastGeneratedNumbers', JSON.stringify(combo));
             localStorage.setItem('pending_analysis_numbers', JSON.stringify(combo));
             window.location.href = 'combination.html';
         });
+
         container.appendChild(card);
     });
 }
