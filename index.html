@@ -150,32 +150,53 @@
         .card-header h3 { font-size: 1rem; margin: 0; color: var(--primary-navy); font-weight: 700; }
         .logic-list { padding: 20px; } .logic-item { margin-bottom: 15px; } .logic-item strong { display: block; font-size: 0.9rem; color: var(--primary-navy); margin-bottom: 4px; } .logic-item p { font-size: 0.85rem; color: #718096; margin: 0; line-height: 1.5; }
         
-        /* 예측 번호 풀 가로 그리드 개편 */
+        /* [G0] 예측 번호 풀: 수학적 직사각형 레이아웃 (5행 정렬) */
         .pool-container { 
-            padding: 15px; 
+            padding: 20px; 
             display: grid; 
-            grid-template-columns: 1.5fr 0.8fr 1fr; 
-            gap: 15px; 
+            grid-template-columns: 6fr 1fr 2fr; /* 6:1:2 비율로 가로 폭 할당 */
+            gap: 12px; 
             background: #f8fafc; 
-            height: 100%;
-            box-sizing: border-box;
+            align-items: stretch;
         } 
         .pool-box { 
             padding: 12px; 
-            border-radius: 10px; 
+            border-radius: 8px; 
             background: white; 
-            border: 1px solid #edf2f7;
+            border: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
         } 
-        .pool-box.hot { border-top: 3px solid #feb2b2; } 
-        .pool-box.neutral { border-top: 3px solid #fbd38d; } 
-        .pool-box.cold { border-top: 3px solid #90cdf4; } 
-        .pool-header { font-size: 0.8rem; font-weight: 900; margin-bottom: 10px; color: var(--primary-navy); display: flex; align-items: center; gap: 4px; } 
+        .pool-box.hot { border-top: 4px solid #e53e3e; } 
+        .pool-box.neutral { border-top: 4px solid #dd6b20; } 
+        .pool-box.cold { border-top: 4px solid #718096; } 
+        
+        .pool-header { 
+            font-size: 0.75rem; 
+            font-weight: 900; 
+            margin-bottom: 12px; 
+            color: #4a5568; 
+            text-align: center;
+            white-space: nowrap;
+        } 
+
+        /* 각 풀별 고정 열(Column) 설정을 통해 직사각형 완성 */
+        .pool-box.hot .ball-container { grid-template-columns: repeat(6, 1fr); }
+        .pool-box.neutral .ball-container { grid-template-columns: repeat(1, 1fr); }
+        .pool-box.cold .ball-container { grid-template-columns: repeat(2, 1fr); }
+
         .ball-container.mini.wrap { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(26px, 1fr)); 
             gap: 4px; 
+            justify-items: center;
+        }
+        
+        /* 모바일 대응 (비율 유지 또는 스택) */
+        @media (max-width: 1024px) {
+            .pool-container { grid-template-columns: 1fr; }
+            .pool-box.hot .ball-container { grid-template-columns: repeat(10, 1fr); }
+            .pool-box.neutral .ball-container { grid-template-columns: repeat(5, 1fr); }
+            .pool-box.cold .ball-container { grid-template-columns: repeat(10, 1fr); }
         }
         .recommendation-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 20px; } 
         .combo-card { background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; } 
