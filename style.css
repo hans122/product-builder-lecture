@@ -433,25 +433,30 @@ body {
 .status-badge.warning { background: #fff5e6; color: #ff9500; }
 .status-badge.danger { background: #feecef; color: #f04452; }
 
-/* Table Styles */
-.results-table, .prediction-table {
-    width: 100%;
-    border-collapse: collapse;
+/* [공통] 표 컨테이너 여백 보강 (카드 내부에 꽉 차지 않도록) */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 30px 30px; /* 표 주변에 확실한 여백 부여 */
+    background: white;
 }
-.results-table th, .prediction-table th {
-    background: #f9fafb;
-    padding: 16px;
+
+/* 표 헤더가 많을 때의 텍스트 정렬 및 간격 */
+.results-table th, .prediction-table th, .history-table th {
+    background: #f8fafc;
+    padding: 16px 12px; /* 헤더 안쪽 여백 확대 */
     color: var(--text-sub);
-    font-size: 0.85rem;
-    text-align: left;
-    font-weight: 600;
-    border-bottom: 1px solid var(--border-light);
+    font-size: 0.8rem;
+    text-align: center;
+    font-weight: 700;
+    border-bottom: 2px solid #edf2f7;
+    white-space: nowrap; /* 헤더 줄바꿈 방지 */
 }
-.results-table td, .prediction-table td {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-light);
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease;
+
+/* 히스토리 표 전용 미세 조정 */
+.history-table td {
+    padding: 12px 8px;
+    text-align: center;
 }
 
 .prediction-table tbody tr:hover {
