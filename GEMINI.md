@@ -1,4 +1,4 @@
-# GEMINI.md - AI Coding Constitution (v2.1)
+# GEMINI.md - AI Coding Constitution (v2.2)
 
 ## [MANDATORY RULES]
 1. **Unified Classification (G1~G5)**: 모든 UI는 `DATA_SCHEMA.md`에 정의된 5대 표준 분류 순서와 항목명을 엄격히 준수한다.
@@ -9,9 +9,16 @@
     - 차트 라벨은 통계 구역과 색상을 동기화한다.
     - 차트 높이는 최소 200px 이상 확보하며, 이중 빗금(Dual-Hatching) 정책을 준수한다.
 6. **Self-Maintaining Pipeline**: 데이터 갱신 시 `update_latest.py` 프로세스를 활용하여 전체 통계 체인의 무결성을 보장한다.
+7. **UX Performance Visualization**: 성과 지표(적중 실적, 필터 제외)는 S/A/B 등급제 및 시각적 배지(빨간 사선 마킹, 스탬프 효과)를 통해 직관적으로 전달한다.
+
+## [RECENT UPDATES]
+- **과거 적중 실적 고도화**: 최근 20회차 백테스트 표에 S/A/일반 등급 시스템 및 '제외성공' 배지 적용.
+- **조합 분석 용지 리뉴얼**: 실제 로또 용지 질감(웜 화이트), 세로형 칸 디자인, 빨간색 펜 사선 마킹(Slash) 효과 구현.
+- **응답형 컨트롤 레이아웃**: 번호 선택 화면을 와이드 해상도에서 '좌 용지 - 우 컨트롤' 배치로 개선 (모바일은 상하 배치 유지).
 
 ## [FILE RESPONSIBILITIES]
-- `index.html`: G1~G5 링크가 포함된 실시간 분석 대시보드.
+... (중략) ...
+
 - `analysis.html`: 50vh 스크롤 정책이 적용된 심층 통계 카드 모음.
 - `combination.html`: 로또 용지 UI를 통한 번호 선택 및 사용자 조합 정밀 분석.
 - `combination.js`: 번호 선택 상태 관리(localStorage) 및 실시간 조합 분석 로직.

@@ -126,33 +126,66 @@ function runDetailedAnalysis() {
     const dists = combinationStatsData.distributions;
     const stats = combinationStatsData.stats_summary;
 
-    // [G7] 조합 정합성(Synergy) 분석을 최상단으로 배치
-    renderSynergyReport(currentNumbers);
+    let totalScore = 100;
+    let dangerCount = 0;
+    let warningCount = 0;
 
-    // [LottoCore 통합 연동] 모든 지표(G1~G6)를 리포트에 포함하여 전문성 강화
-    LottoConfig.INDICATORS.forEach(cfg => {
-        const value = cfg.calc(currentNumbers, combinationStatsData);
-        renderAnalysisRow(`${cfg.group}: ${cfg.label}`, value, dists[cfg.distKey], stats[cfg.statKey]);
-    });
-}
-
-function renderSynergyReport(nums) {
-    const synergyResults = LottoSynergy.check(nums, combinationStatsData);
-    const tbody = document.getElementById('analysis-report-body');
-    if (!tbody) return;
-
+    // [G7] 조합 정합성(Synergy) 분석
+    const synergyResults = LottoSynergy.check(currentNumbers, combinationStatsData);
     if (synergyResults.length === 0) {
-        // 모순이 없는 경우: 일반 행과 동일한 톤으로 출력
         const tr = document.createElement('tr');
         tr.innerHTML = `<td><strong>[G0] 조합 정합성 시너지</strong></td><td>-</td><td><span class="status-badge safe">세이프</span></td><td class="text-left">지표 간 충돌이 없는 매우 논리적인 조합입니다.</td>`;
         tbody.appendChild(tr);
     } else {
         synergyResults.forEach(res => {
+            if (res.status === 'warning') { totalScore -= 10; warningCount++; }
             const tr = document.createElement('tr');
             const statusText = res.status === 'warning' ? '주의' : '세이프';
             tr.innerHTML = `<td><strong>[G0] ${res.label}</strong></td><td>-</td><td><span class="status-badge ${res.status}">${statusText}</span></td><td class="text-left">${res.desc}</td>`;
             tbody.appendChild(tr);
         });
+    }
+
+    // [LottoCore 통합 연동] 모든 지표(G1~G6) 리포트 및 스코어 차감
+    LottoConfig.INDICATORS.forEach(cfg => {
+        const value = cfg.calc(currentNumbers, combinationStatsData);
+        const status = LottoUtils.getZStatus(value, stats[cfg.statKey]);
+        
+        if (status === 'danger') { totalScore -= 15; dangerCount++; }
+        else if (status === 'warning') { totalScore -= 5; warningCount++; }
+
+        renderAnalysisRow(`${cfg.group}: ${cfg.label}`, value, dists[cfg.distKey], stats[cfg.statKey]);
+    });
+
+    // 최종 스코어 보정 및 UI 반영
+    totalScore = Math.max(5, totalScore);
+    const scoreEl = document.getElementById('combination-score');
+    const gradeEl = document.getElementById('combination-grade');
+    const commentEl = document.getElementById('grade-comment');
+
+    if (scoreEl) {
+        scoreEl.innerText = totalScore;
+        // 스코어 색상 동적 변경
+        if (totalScore >= 80) scoreEl.style.color = 'var(--primary-blue)';
+        else if (totalScore >= 60) scoreEl.style.color = 'var(--warning-orange)';
+        else scoreEl.style.color = 'var(--danger-red)';
+    }
+
+    if (gradeEl) {
+        let grade = 'S';
+        if (totalScore >= 90) grade = 'S';
+        else if (totalScore >= 80) grade = 'A';
+        else if (totalScore >= 70) grade = 'B';
+        else if (totalScore >= 60) grade = 'C';
+        else grade = 'D';
+        gradeEl.innerText = `${grade}등급`;
+        gradeEl.style.color = scoreEl.style.color;
+    }
+
+    if (commentEl) {
+        if (dangerCount > 0) commentEl.innerText = `위험 지표가 ${dangerCount}개 발견되었습니다. 매우 희귀한 패턴의 조합입니다.`;
+        else if (warningCount > 2) commentEl.innerText = `주의 지표가 ${warningCount}개로 다소 치우친 조합입니다. 균형 조절을 권장합니다.`;
+        else commentEl.innerText = '역대 당첨 데이터의 핵심 구간에 부합하는 매우 이상적인 조합입니다.';
     }
 }
 

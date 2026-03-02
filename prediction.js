@@ -206,23 +206,36 @@ function runBacktest(draws) {
         ).join('');
 
         const tr = document.createElement('tr');
-        let statusTag = hits.length >= 5 ? '<span class="status-tag excellent">우수</span>' : (hits.length >= 4 ? '<span class="status-tag good">양호</span>' : '<span class="status-tag fail">보통</span>');
         
+        // 성과 등급 정의 (S: 5개 이상, A: 4개, B: 3개 이하)
+        let statusTag = '';
+        if (hits.length >= 5) {
+            statusTag = '<span class="status-tag excellent">S급 우수</span>';
+        } else if (hits.length >= 4) {
+            statusTag = '<span class="status-tag good">A급 양호</span>';
+        } else {
+            statusTag = '<span class="status-tag fail">일반</span>';
+        }
+        
+        const filterPerf = fails.length === 0 
+            ? '<span class="filter-perf success">🛡️ 제외성공</span>' 
+            : `<span class="filter-perf fail">🚨 실패(${fails.length})</span>`;
+
         tr.innerHTML = `
-            <td>${draw.no}회</td>
+            <td><strong>${draw.no}회</strong></td>
             <td><div class="pool-grid-win">${draw.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('')}</div></td>
             <td class="text-left">
-                <div style="font-size: 0.75rem; font-weight: 800; color: var(--primary-blue); margin-bottom: 5px;">적중 ${hits.length}개</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 0.75rem; font-weight: 800; color: var(--primary-blue);">🎯 추천풀 적중 ${hits.length}개</span>
+                </div>
                 <div class="micro-num-grid">${hotDisplay}</div>
             </td>
             <td class="text-left">
-                <div style="font-size: 0.75rem; font-weight: 800; color: var(--warning-orange); margin-bottom: 5px;">적중 ${neutralHits.length}개</div>
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--warning-orange); margin-bottom: 6px;">🟡 보류풀 적중 ${neutralHits.length}개</div>
                 <div class="micro-num-grid">${neutralDisplay}</div>
             </td>
             <td class="text-left">
-                <div style="font-size: 0.75rem; font-weight: 800; color: ${fails.length > 0 ? 'var(--danger-red)' : 'var(--success-green)'}; margin-bottom: 5px;">
-                    ${fails.length > 0 ? '필터실패' : '완벽제외'}
-                </div>
+                <div style="margin-bottom: 6px;">${filterPerf}</div>
                 <div class="micro-num-grid">${coldDisplay}</div>
             </td>
             <td>${statusTag}</td>

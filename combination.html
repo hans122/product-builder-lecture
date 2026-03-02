@@ -48,22 +48,24 @@
             <h3>🔢 번호 선택하기</h3>
             <p class="description">분석할 번호 6개를 선택하세요. (직접 클릭하거나 자동 생성 가능)</p>
             
-            <div class="lotto-paper-wrapper">
-                <div class="lotto-paper">
-                    <div id="number-selector" class="number-grid">
-                        <!-- 1~45번 구슬이 JS에서 생성됨 -->
+            <div class="selection-layout-container">
+                <div class="lotto-paper-wrapper">
+                    <div class="lotto-paper">
+                        <div id="number-selector" class="number-grid">
+                            <!-- 1~45번 구슬이 JS에서 생성됨 -->
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="selection-controls">
-                <div id="selected-balls" class="ball-container mini">
-                    <div class="placeholder">번호를 선택해주세요</div>
-                </div>
-                <div class="btn-group-center">
-                    <button id="semi-auto-btn" class="btn-gen">자동/반자동</button>
-                    <button id="reset-btn" class="btn-reset">초기화</button>
-                    <button id="analyze-my-btn" class="btn-analyze" disabled>조합 분석 실행</button>
+                <div class="selection-controls">
+                    <div id="selected-balls" class="ball-container mini">
+                        <div class="placeholder">번호를 선택해주세요</div>
+                    </div>
+                    <div class="btn-group-center">
+                        <button id="semi-auto-btn" class="btn-gen">자동/반자동</button>
+                        <button id="reset-btn" class="btn-reset">초기화</button>
+                        <button id="analyze-my-btn" class="btn-analyze" disabled>조합 분석 실행</button>
+                    </div>
                 </div>
             </div>
         </section>
