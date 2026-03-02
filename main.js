@@ -59,8 +59,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             }
+            
+            // [연동 핵심] 조합 분석에서 선택된 번호가 있다면 메인 그리드에 즉시 표시
             const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
-            if (savedNumbers) renderNumbers(JSON.parse(savedNumbers), false);
+            if (savedNumbers) {
+                const numbers = JSON.parse(savedNumbers);
+                analyzeNumbers(numbers);
+            }
         })
         .catch(err => console.error('Stats load failed:', err));
 });
@@ -94,83 +99,20 @@ function updateAnalysisItem(element, text, status, label, stat) {
     const parent = element.closest('.analysis-item');
     if (parent) {
         parent.className = 'analysis-item ' + status;
-        // 툴팁 등은 템플릿에 data-tip이 있을 때만 동작
+        
+        // 메인 페이지에서도 툴팁이 작동하도록 유도
+        const optMin = Math.max(0, Math.round(stat.mean - stat.std));
+        const optMax = Math.round(stat.mean + stat.std);
+        const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
+        const safeMax = Math.round(stat.mean + 2 * stat.std);
+        
+        // 부모가 링크(a) 형태라면 툴팁 속성 부여
+        const link = element.closest('a') || parent;
+        link.setAttribute('data-tip', `[${label}] 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})`);
+        link.classList.add('analysis-item-link');
     }
 }
 
-function renderNumbers(numbers, useAnimation = true) {
-    const lottoContainer = document.getElementById('lotto-container');
-    if (!lottoContainer) return;
-    lottoContainer.innerHTML = ''; 
-    numbers.forEach((num, index) => {
-        const createBall = () => {
-            const ball = document.createElement('div');
-            ball.className = 'ball ' + getBallColorClass(num);
-            ball.innerText = num;
-            lottoContainer.appendChild(ball);
-            if (index === 5) { analyzeNumbers(numbers); showSharePrompt(numbers); }
-        };
-        if (useAnimation) setTimeout(createBall, index * 100);
-        else createBall();
-    });
-}
-
-function showSharePrompt(numbers) {
-    const shareSection = document.getElementById('share-prompt-section');
-    const copyBtn = document.getElementById('copy-share-btn');
-    if (!shareSection || !copyBtn) return;
-    shareSection.style.display = 'block';
-    const newBtn = copyBtn.cloneNode(true);
-    copyBtn.parentNode.replaceChild(newBtn, copyBtn);
-    newBtn.addEventListener('click', function() {
-        const templates = [
-            `이번 주 1등 예감! ✨ 제가 뽑은 행운의 번호는 [ ${numbers.join(', ')} ] 입니다. 다들 기운 받아가세요! 🍀`,
-            `빅데이터가 골라준 오늘의 추천 번호: [ ${numbers.join(', ')} ] 이 번호 어떤가요? 댓글로 의견 부탁드려요! 📊`,
-            `로또 당첨 가즈아! 🚀 공유된 제 번호는 [ ${numbers.join(', ')} ] 입니다. 같이 대박 나요! 💰`
-        ];
-        const textToCopy = templates[Math.floor(Math.random() * templates.length)];
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            const status = document.getElementById('copy-status');
-            if (status) {
-                status.innerText = '✅ 번호와 응원 문구가 복사되었습니다! 댓글창으로 이동합니다.';
-                setTimeout(() => { status.innerText = ''; document.getElementById('disqus_thread').scrollIntoView({ behavior: 'smooth' }); }, 1000);
-            }
-        });
-    });
-}
-
-function getZones(data) {
-    const freq = data.frequency || {};
-    const recentFreq = data.recent_20_frequency || {};
-    const scores = [];
-    for (let i = 1; i <= 45; i++) {
-        const cumulative = freq[i] || 0;
-        const recent = recentFreq[i] || 0;
-        const totalScore = (cumulative * 0.4) + (recent * 25.0 * 0.6); 
-        scores.push({ num: i, score: totalScore });
-    }
-    scores.sort((a, b) => b.score - a.score);
-    return {
-        gold: scores.slice(0, 9).map(x => x.num),
-        silver: scores.slice(9, 23).map(x => x.num),
-        normal: scores.slice(23, 36).map(x => x.num),
-        cold: scores.slice(36).map(x => x.num)
-    };
-}
-
-function getRandomFrom(array, count) {
-    const shuffled = [...array].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-}
-
-document.getElementById('generate-btn')?.addEventListener('click', function() {
-    if (!statsData || !statsData.frequency) {
-        const nums = []; while(nums.length < 6) { const n = Math.floor(Math.random() * 45) + 1; if(!nums.includes(n)) nums.push(n); }
-        nums.sort((a, b) => a - b); renderNumbers(nums, true); return;
-    }
-    const zones = getZones(statsData);
-    let numbers = [...getRandomFrom(zones.gold, 2), ...getRandomFrom(zones.silver, 3), ...getRandomFrom(zones.normal, 1)];
-    numbers.sort((a, b) => a - b);
-    localStorage.setItem('lastGeneratedNumbers', JSON.stringify(numbers));
-    renderNumbers(numbers, true);
-});
+// 불필요한 번호 생성 및 공유 로직 삭제 (사용자 요청)
+function getZones(data) { return null; }
+function getRandomFrom(array, count) { return []; }
