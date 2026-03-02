@@ -193,9 +193,10 @@ body {
 /* 3D 효과 제거 */
 .ball::before, .ball::after { display: none !important; }
 
+/* 호버 시 움직임 효과 제거 (가독성 향상) */
 .ball:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    /* transform: translateY(-2px); 제거 */
+    /* box-shadow: 0 6px 12px rgba(0,0,0,0.1); 제거 */
 }
 
 .ball.mini { 
@@ -266,14 +267,14 @@ body {
 .analysis-item .label { display: block; font-size: 0.75rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
 .analysis-item .value { font-size: 1.1rem; font-weight: 800; color: var(--primary-blue); font-family: 'SF Mono', 'Roboto Mono', monospace; }
 
-/* [통계 화면] 차트 및 미니 표 가로 레이아웃 (강력 고정) */
+/* [통계 화면] 차트 및 미니 표 가로 레이아웃 (데이터 최적화 v8.4) */
 .analysis-content-wrapper {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important; /* 절대로 줄바꿈 금지 */
+    flex-wrap: nowrap !important;
     align-items: stretch;
-    padding: 24px;
-    gap: 30px;
+    padding: 30px 100px 30px 24px; /* 우측 끝 여백 100px 유지, 좌측은 24px 복구 */
+    gap: 24px; /* 차트와 표 사이 간격 원래대로 복구 */
     background: white;
     width: 100%;
 }
@@ -281,21 +282,22 @@ body {
 .analysis-main-side {
     flex: 1; 
     min-width: 0;
-    width: calc(100% - 270px); /* 표 영역을 제외한 나머지 공간 강제 할당 */
 }
 
 .analysis-main-side h3 {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     margin: 0 0 20px 0;
     color: var(--text-main);
 }
 
 .mini-table-wrapper {
-    width: 240px; 
+    width: 235px; 
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    border-left: 1px dashed #f1f3f5;
+    padding-left: 20px; /* 구분선 간격 원래대로 복구 */
 }
 
 .mini-table-wrapper h4 {
@@ -310,32 +312,112 @@ body {
     width: 100%;
 }
 
-/* 좁은 화면 대응 */
-@media (max-width: 900px) {
-    .analysis-content-wrapper {
-        flex-direction: column;
-        padding: 20px;
-        gap: 20px;
-    }
-    .mini-table-wrapper {
-        width: 100%;
-    }
-}
-
 .mini-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    table-layout: fixed;
 }
+
+/* 셀별 너비 정밀 할당 (데이터 기반) */
+.mini-table td:first-child { width: 55px; text-align: left; } /* 회차 */
+.mini-table td:nth-child(2) { width: 130px; text-align: center; } /* 번호 구슬 */
+.mini-table td:last-child { width: 50px; text-align: right; font-weight: 800; color: var(--primary-blue); } /* 결과값 */
 
 .mini-table td {
-    padding: 10px 8px;
+    padding: 8px 0;
     border-bottom: 1px solid #f1f3f5;
     color: var(--text-sub);
+    vertical-align: middle;
+    white-space: nowrap;
 }
 
-.mini-table tr:last-child td {
-    border-bottom: none;
+/* 표 내부 번호 컨테이너 공통 가로 정렬 */
+.table-nums {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* 표 전용 미니 공 (히스토리 화면용) */
+.table-ball {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: 800;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+}
+
+/* 미니 표 전용 초소형 구슬 (20px) */
+.mini-table .ball.mini {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 0.65rem !important;
+    flex-shrink: 0;
+    line-height: 20px;
+}
+
+/* 번호별 전체 빈도 차트 스타일 (복구 및 강화) */
+.frequency-chart {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 250px;
+    padding: 40px 20px 20px;
+    background: white;
+}
+
+.bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end; /* 막대와 라벨을 아래로 밀착 */
+    flex: 1;
+    height: 100%;
+    gap: 8px;
+}
+
+.bar {
+    width: 14px; /* 막대 너비 약간 확장 */
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    transition: all 0.3s ease;
+    min-height: 2px;
+}
+
+.bar:hover {
+    filter: brightness(0.9);
+    width: 16px;
+}
+
+.bar-value {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--text-light);
+}
+
+.bar-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-main);
+    height: 20px; /* 라벨 영역 높이 고정으로 일직선 정렬 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Status Badges */

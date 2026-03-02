@@ -28,10 +28,35 @@ function renderHistorySummary(data) {
 }
 
 function renderHistoryTable(draws, statsSummary) {
+    const thead = document.getElementById('history-table-head');
     const tbody = document.getElementById('history-analysis-body');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+    if (!thead || !tbody) return;
 
+    // 1. 헤더 자동 생성 (TR 명시적 생성)
+    thead.innerHTML = '';
+    const headerRow = document.createElement('tr');
+    
+    const baseHeaders = [
+        { label: '회차', width: '80' },
+        { label: '당첨번호', width: '180' }
+    ];
+
+    baseHeaders.forEach(h => {
+        const th = document.createElement('th');
+        th.innerText = h.label;
+        th.width = h.width;
+        headerRow.appendChild(th);
+    });
+
+    LottoConfig.INDICATORS.forEach(cfg => {
+        const th = document.createElement('th');
+        th.innerText = cfg.label;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+
+    // 2. 바디 데이터 생성
+    tbody.innerHTML = '';
     draws.forEach(draw => {
         const tr = document.createElement('tr');
         const ballsHtml = (draw.nums || []).map(n => `<div class="table-ball mini ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('');
@@ -39,15 +64,14 @@ function renderHistoryTable(draws, statsSummary) {
         let rowHtml = `<td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
                        <td><div class="table-nums">${ballsHtml}</div></td>`;
         
-        // [LottoCore 통합 연동] 테이블 셀 생성
         LottoConfig.INDICATORS.forEach(cfg => {
             const val = draw[cfg.drawKey] !== undefined ? draw[cfg.drawKey] : '-';
             const status = LottoUtils.getZStatus(val, statsSummary[cfg.statKey]);
             
             let statusClass = '';
-            if (status === 'optimal') statusClass = 'text-optimal';
-            else if (status === 'safe') statusClass = 'text-safe';
-            else statusClass = 'text-warning';
+            if (status === 'safe') statusClass = 'text-safe';
+            else if (status === 'warning') statusClass = 'text-warning';
+            else if (status === 'danger') statusClass = 'text-danger';
 
             rowHtml += `<td class="stat-val ${statusClass}">${val}</td>`;
         });
