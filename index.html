@@ -111,6 +111,106 @@
         <footer class="standard-footer"><p class="disclaimer">※ 본 서비스는 통계적 분석 결과이며 실제 당첨을 보장하지 않습니다.</p></footer>
     </div>
 
+    <footer class="standard-footer"><p class="disclaimer">※ 본 서비스는 통계적 분석 결과이며 실제 당첨을 보장하지 않습니다.</p></footer>
+    </div>
+
+    <style>
+        /* AI 추천 조합 섹션 리뉴얼 (v6.4) */
+        .recommendation-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 24px;
+        }
+
+        .combo-card {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .combo-card:hover {
+            transform: translateX(8px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 10px 25px rgba(49, 130, 246, 0.08);
+            background: #fcfdfe;
+        }
+
+        .combo-rank {
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: var(--primary-blue);
+            width: 130px;
+            flex-shrink: 0;
+            text-align: left;
+        }
+
+        .combo-card .ball-container {
+            flex: 1;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .combo-meta {
+            width: 200px;
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 600;
+            font-family: 'SF Mono', 'Roboto Mono', monospace;
+            flex-shrink: 0;
+        }
+
+        .analyze-badge {
+            margin-left: 20px;
+            padding: 8px 16px;
+            background: var(--primary-blue-soft);
+            color: var(--primary-blue);
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            white-space: nowrap;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+
+        .combo-card:hover .analyze-badge {
+            opacity: 1;
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* 공통 테이블 및 유틸리티 스타일 복구 */
+        .summary-score-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
+        .summary-score-table td { padding: 25px 10px; text-align: center; border-right: 1px solid #edf2f7; }
+        .s-label { display: block; font-size: 0.85rem; color: #4a5568; font-weight: 700; margin-bottom: 10px; }
+        .s-value { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
+        .s-unit { font-size: 1rem; color: #718096; font-weight: 600; margin-left: 4px; }
+        .c-blue { color: #2b6cb0; } .c-green { color: #2f855a; } .c-orange { color: #c05621; } .c-red { color: #c53030; }
+
+        .prediction-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; } 
+        .prediction-table th { background: #f8fafc; padding: 15px 10px; text-align: center; color: #4a5568; font-weight: 700; border-bottom: 2px solid #edf2f7; } 
+        .prediction-table td { padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: center; vertical-align: middle; }
+        
+        .analysis-layout-split { display: grid; grid-template-columns: 380px 1fr; gap: 24px; margin-bottom: 24px; align-items: start; }
+        
+        @media (max-width: 1024px) {
+            .analysis-layout-split { grid-template-columns: 1fr; }
+            .combo-card { flex-direction: column; gap: 12px; padding: 20px; text-align: center; }
+            .combo-rank { width: auto; text-align: center; margin-bottom: 5px; }
+            .combo-meta { width: auto; text-align: center; }
+            .analyze-badge { margin-left: 0; width: 100%; }
+            .summary-score-table td { display: block; width: 100%; border-right: none; border-bottom: 1px solid #edf2f7; }
+        }
+    </style>
+
     <script src="indicators.js"></script>
     <script src="core.js"></script>
     <script src="main.js"></script>

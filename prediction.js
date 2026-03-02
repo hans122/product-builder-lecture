@@ -102,17 +102,25 @@ function generateSmartCombinations(hotPool, neutralPool) {
     
     results.forEach((combo, idx) => {
         const card = document.createElement('div');
-        card.className = 'combo-card clickable';
+        card.className = 'combo-card';
         card.innerHTML = `
             <div class="combo-rank">${strategyLabels[idx]}</div>
-            <div class="ball-container">${combo.map(n => `<div class="ball ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('')}</div>
-            <div class="combo-meta">Score: ${95 - (idx * 3)}.5 | ${combo.reduce((a,b)=>a+b,0)} (${combo.filter(n=>n%2!==0).length}:${6-combo.filter(n=>n%2!==0).length})</div>
-            <div class="analyze-badge">정밀 분석 리포트 ➔</div>
+            <div class="ball-container">${combo.map(n => LottoUI.createBall(n, true).outerHTML).join('')}</div>
+            <div class="combo-meta">
+                <span>합계 ${combo.reduce((a,b)=>a+b,0)}</span> | 
+                <span>홀짝 ${combo.filter(n=>n%2!==0).length}:${6-combo.filter(n=>n%2!==0).length}</span>
+            </div>
+            <div class="analyze-badge">분석 리포트 ➔</div>
         `;
         
         card.addEventListener('click', () => {
-            document.querySelectorAll('.combo-card').forEach(c => c.style.borderColor = '#edf2f7');
-            card.style.borderColor = 'var(--secondary-blue)'; card.style.background = '#f0f7ff';
+            document.querySelectorAll('.combo-card').forEach(c => {
+                c.style.borderColor = 'var(--border-light)';
+                c.style.background = 'white';
+            });
+            card.style.borderColor = 'var(--primary-blue)';
+            card.style.background = 'var(--primary-blue-soft)';
+            
             localStorage.setItem('lastGeneratedNumbers', JSON.stringify(combo));
             if (typeof analyzeNumbers === 'function') {
                 const sourceTitle = document.getElementById('analysis-source-title');
