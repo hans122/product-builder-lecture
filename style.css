@@ -433,11 +433,11 @@ body {
 .status-badge.warning { background: #fff5e6; color: #ff9500; }
 .status-badge.danger { background: #feecef; color: #f04452; }
 
-/* [공통] 표 컨테이너 여백 보강 (v9.6 균형 조정) */
+/* [공통] 표 컨테이너 여백 보강 (v9.8 초압축) */
 .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 80px 40px 40px 40px; /* 우측 여백을 40px로 줄여 좌우 대칭 */
+    padding: 80px 10px 40px 40px; /* 우측 패딩을 10px로 축소 */
     background: white;
 }
 
@@ -489,7 +489,7 @@ body {
     transform: rotate(-45deg);
     transform-origin: left bottom;
     white-space: nowrap;
-    width: 180px; 
+    width: 100px; /* 100px로 더 축소 */
     text-align: left;
     font-size: 0.72rem;
     font-weight: 800;
