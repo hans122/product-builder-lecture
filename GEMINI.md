@@ -1,20 +1,16 @@
-# GEMINI.md - AI Coding Constitution (v2.2)
+# GEMINI.md - AI Coding Constitution (v2.3)
 
 ## [MANDATORY RULES]
-1. **Unified Classification (G1~G5)**: 모든 UI는 `DATA_SCHEMA.md`에 정의된 5대 표준 분류 순서와 항목명을 엄격히 준수한다.
-2. **Core-Centric Development (LottoCore)**: 공통 로직, 유틸리티, UI 렌더링은 반드시 `core.js`를 거쳐야 하며, 각 페이지 스크립트에서의 중복 정의를 금지한다.
-3. **Data-Driven Automation (Master Mapping)**: 모든 데이터 키값 및 JS ID는 `DATA_SCHEMA.md`의 마스터 매핑 테이블을 절대적 기준으로 삼는다.
-4. **Anchor Centering Policy**: 통계 섹션의 앵커 이동 시 반드시 `scroll-margin-top: 50vh`를 유지하여 제목이 화면 상하 정중앙에 위치하게 한다.
-5. **Statistical Visualization Refinement**: 
-    - 차트 라벨은 통계 구역과 색상을 동기화한다.
-    - 차트 높이는 최소 200px 이상 확보하며, 이중 빗금(Dual-Hatching) 정책을 준수한다.
-6. **Self-Maintaining Pipeline**: 데이터 갱신 시 `update_latest.py` 프로세스를 활용하여 전체 통계 체인의 무결성을 보장한다.
+... (중략) ...
 7. **UX Performance Visualization**: 성과 지표(적중 실적, 필터 제외)는 S/A/B 등급제 및 시각적 배지(빨간 사선 마킹, 스탬프 효과)를 통해 직관적으로 전달한다.
+8. **Grid-Based Precision**: 예측 번호 풀은 10열 그리드(3줄/1줄)를 기본으로 하여 시각적 질서를 유지하며, 지표 리포트는 가로 3열 배치를 통해 정보 밀도를 최적화한다.
 
 ## [RECENT UPDATES]
-- **과거 적중 실적 고도화**: 최근 20회차 백테스트 표에 S/A/일반 등급 시스템 및 '제외성공' 배지 적용.
-- **조합 분석 용지 리뉴얼**: 실제 로또 용지 질감(웜 화이트), 세로형 칸 디자인, 빨간색 펜 사선 마킹(Slash) 효과 구현.
-- **응답형 컨트롤 레이아웃**: 번호 선택 화면을 와이드 해상도에서 '좌 용지 - 우 컨트롤' 배치로 개선 (모바일은 상하 배치 유지).
+- **예측 번호 풀 그리드화**: 강력 추천(Hot 30) 및 필터 제외(Cold 10) 영역에 10열 그리드를 적용하여 3줄/1줄로 정교하게 정렬.
+- **실시간 분석 지표 레이아웃 개선**: 분석 지표 그리드를 2열에서 3열로 확장하여 총 2줄의 콤팩트한 리포트 구현.
+- **추천 조합(Top 5) 콤팩트 카드화**: 추천 조합 리스트를 가로로 나란히 배치된 5개 사각 카드 형태로 개편. 구슬 3x2 정렬 및 모바일 가로 스크롤 지원.
+- **조합 분석 용지 리뉴얼**: 실제 로또 용지 질감(웜 화이트), 빨간색 펜 사선 마킹(Slash) 효과 및 응답형 '좌 용지-우 컨트롤' 레이아웃 구현.
+- **성과 지표 등급제 도입**: 백테스트 및 조합 분석에 S/A/B/C/D 등급 시스템 및 시계방향 스코어링 적용.
 
 ## [FILE RESPONSIBILITIES]
 ... (중략) ...

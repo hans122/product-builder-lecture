@@ -151,6 +151,21 @@ body {
     gap: 6px;
 }
 
+/* [추가] 예측 풀 전용 10열 그리드 레이아웃 */
+.pool-grid-10 {
+    display: grid !important;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    justify-items: center;
+}
+
+/* 모바일 대응: 10개가 너무 좁을 경우 5개씩 6줄로 전환 */
+@media (max-width: 600px) {
+    .pool-grid-10 {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
 .analysis-layout-split {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -251,6 +266,13 @@ body {
 .analysis-item.optimal, .analysis-item.safe { border-color: var(--primary-blue-soft); background: white; box-shadow: var(--shadow-soft); }
 .analysis-item .label { display: block; font-size: 0.75rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
 .analysis-item .value { font-size: 1.1rem; font-weight: 800; color: var(--primary-blue); font-family: 'SF Mono', 'Roboto Mono', monospace; }
+
+/* [추가] 실시간 분석 지표 응답형 그리드 */
+@media (max-width: 768px) {
+    #main-indicator-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
 
 /* Status Badges */
 .status-badge {
