@@ -1,5 +1,5 @@
 /**
- * Statistical Analysis Page v5.4 - LottoCore 엔진 전면 도입
+ * Statistical Analysis Page v6.0 - FinTech Style Chart Enhancement
  */
 
 let globalStatsData = null;
@@ -63,7 +63,7 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const minVal = Math.min(...valKeys);
     const maxVal = Math.max(...valKeys);
 
-    const statPoints = [
+    const rawPoints = [
         { label: '최소', val: minVal, cls: 'min-max' },
         { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2 * sd)), cls: 'safe-zone' },
         { label: '미니 옵티멀', val: Math.max(minVal, Math.round(mu - sd)), cls: 'optimal-zone' },
@@ -74,7 +74,7 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
 
     const priority = { 'optimal-zone': 3, 'safe-zone': 2, 'min-max': 1 };
     const unifiedMap = new Map();
-    statPoints.forEach(p => {
+    rawPoints.forEach(p => {
         const existing = unifiedMap.get(p.val);
         if (!existing || priority[p.cls] > priority[existing.cls]) { unifiedMap.set(p.val, p); }
     });
@@ -97,31 +97,32 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    xAxis.setAttribute("x1", padding - 10); xAxis.setAttribute("y1", baselineY);
-    xAxis.setAttribute("x2", width - padding + 10); xAxis.setAttribute("y2", baselineY);
-    xAxis.setAttribute("stroke", "#edf2f7"); xAxis.setAttribute("stroke-width", "1.5");
-    svg.appendChild(xAxis);
+    // [디자인 고도화] 필터 및 그라디언트 정의
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    
+    // 차트 선 그림자
+    const filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+    filter.setAttribute("id", "chart-shadow");
+    filter.innerHTML = `<feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(49, 130, 246, 0.2)"/>`;
+    defs.appendChild(filter);
 
     const hatchIdOptimal = `hatch-optimal-${elementId}`;
     const hatchIdSafe = `hatch-safe-${elementId}`;
-    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     
+    // [옵티멀] 핀테크 그린 빗금
     const patternOpt = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
     patternOpt.setAttribute("id", hatchIdOptimal); patternOpt.setAttribute("patternUnits", "userSpaceOnUse");
-    patternOpt.setAttribute("width", "4"); patternOpt.setAttribute("height", "4"); patternOpt.setAttribute("patternTransform", "rotate(45)");
-    const lineOpt = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    lineOpt.setAttribute("x1", "0"); lineOpt.setAttribute("y1", "0"); lineOpt.setAttribute("x2", "0"); lineOpt.setAttribute("y2", "4");
-    lineOpt.setAttribute("stroke", "rgba(46, 204, 113, 0.6)"); lineOpt.setAttribute("stroke-width", "1.5");
-    patternOpt.appendChild(lineOpt); defs.appendChild(patternOpt);
+    patternOpt.setAttribute("width", "6"); patternOpt.setAttribute("height", "6"); patternOpt.setAttribute("patternTransform", "rotate(45)");
+    patternOpt.innerHTML = `<line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.5" opacity="0.4"/>`;
+    defs.appendChild(patternOpt);
 
+    // [세이프] 핀테크 블루 빗금
     const patternSafe = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
     patternSafe.setAttribute("id", hatchIdSafe); patternSafe.setAttribute("patternUnits", "userSpaceOnUse");
-    patternSafe.setAttribute("width", "4"); patternSafe.setAttribute("height", "4"); patternSafe.setAttribute("patternTransform", "rotate(-45)");
-    const lineSafe = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    lineSafe.setAttribute("x1", "0"); lineSafe.setAttribute("y1", "0"); lineSafe.setAttribute("x2", "0"); lineSafe.setAttribute("y2", "4");
-    lineSafe.setAttribute("stroke", "rgba(52, 152, 219, 0.4)"); lineSafe.setAttribute("stroke-width", "1.2");
-    patternSafe.appendChild(lineSafe); defs.appendChild(patternSafe);
+    patternSafe.setAttribute("width", "6"); patternSafe.setAttribute("height", "6"); patternSafe.setAttribute("patternTransform", "rotate(-45)");
+    patternSafe.innerHTML = `<line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" opacity="0.2"/>`;
+    defs.appendChild(patternSafe);
+    
     svg.appendChild(defs);
 
     const drawZone = (z, color) => {
@@ -140,14 +141,29 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
             path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
         }
     };
-    drawZone(2, `url(#${hatchIdSafe})`); drawZone(1, `url(#${hatchIdOptimal})`); 
-    drawZone(2, "rgba(52, 152, 219, 0.03)"); drawZone(1, "rgba(46, 204, 113, 0.03)"); 
+    
+    // 구역 색상 핀테크 스타일로 튜닝
+    drawZone(2, `url(#${hatchIdSafe})`); 
+    drawZone(1, `url(#${hatchIdOptimal})`); 
+    drawZone(2, "rgba(49, 130, 246, 0.02)"); 
+    drawZone(1, "rgba(46, 204, 113, 0.02)"); 
 
+    // 바닥선 가이드
+    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    xAxis.setAttribute("x1", padding - 10); xAxis.setAttribute("y1", baselineY);
+    xAxis.setAttribute("x2", width - padding + 10); xAxis.setAttribute("y2", baselineY);
+    xAxis.setAttribute("stroke", "#e5e8eb"); xAxis.setAttribute("stroke-width", "1");
+    svg.appendChild(xAxis);
+
+    // 차트 곡선 (더 두껍고 부드럽게)
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     curvePath.setAttribute("d", curvePathData); curvePath.setAttribute("fill", "none");
-    curvePath.setAttribute("stroke", "#3498db"); curvePath.setAttribute("stroke-width", "2"); svg.appendChild(curvePath);
+    curvePath.setAttribute("stroke", "#3182f6"); curvePath.setAttribute("stroke-width", "3"); 
+    curvePath.setAttribute("stroke-linecap", "round"); curvePath.setAttribute("filter", "url(#chart-shadow)");
+    svg.appendChild(curvePath);
 
+    // 라벨 렌더링
     finalPoints.forEach(fp => {
         let bestIdx = -1; let minD = Infinity;
         points.forEach((p, idx) => {
@@ -158,16 +174,20 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         if (bestIdx !== -1) {
             const p = points[bestIdx];
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
-            circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
+            circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 4);
+            circle.setAttribute("fill", "#3182f6"); 
+            circle.setAttribute("stroke", "white"); circle.setAttribute("stroke-width", "2");
+            svg.appendChild(circle);
+
             const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
             txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
-            let textColor = fp.cls === 'safe-zone' ? "#3498db" : (fp.cls === 'optimal-zone' ? "#27ae60" : "#718096");
-            txt.setAttribute("fill", textColor); txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
+            let textColor = fp.cls === 'safe-zone' ? "#3182f6" : (fp.cls === 'optimal-zone' ? "#2ecc71" : "#8b95a1");
+            txt.setAttribute("fill", textColor); txt.style.fontSize = "0.8rem"; txt.style.fontWeight = "700";
             txt.textContent = p.label + unit; svg.appendChild(txt);
         }
     });
 
+    // 내 번호 마킹 고도화
     const saved = localStorage.getItem('lastGeneratedNumbers');
     if (saved && config && config.calc) {
         try {
@@ -179,11 +199,12 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
                     if (d < minD) { minD = d; closestP = p; }
                 });
                 const mc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                mc.setAttribute("cx", closestP.x); mc.setAttribute("cy", closestP.y); mc.setAttribute("r", 6);
-                mc.setAttribute("fill", "rgba(231, 76, 60, 0.4)"); mc.setAttribute("stroke", "#e74c3c"); svg.appendChild(mc);
+                mc.setAttribute("cx", closestP.x); mc.setAttribute("cy", closestP.y); mc.setAttribute("r", 7);
+                mc.setAttribute("fill", "#f04452"); mc.setAttribute("stroke", "white"); mc.setAttribute("stroke-width", "2");
+                svg.appendChild(mc);
                 const ml = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                ml.setAttribute("x", closestP.x); ml.setAttribute("y", closestP.y - 12); ml.setAttribute("text-anchor", "middle");
-                ml.setAttribute("fill", "#e74c3c"); ml.style.fontSize = "0.7rem"; ml.style.fontWeight = "900";
+                ml.setAttribute("x", closestP.x); ml.setAttribute("y", closestP.y - 15); ml.setAttribute("text-anchor", "middle");
+                ml.setAttribute("fill", "#f04452"); ml.style.fontSize = "0.75rem"; ml.style.fontWeight = "900";
                 ml.textContent = "내 번호"; svg.appendChild(ml);
             }
         } catch(e) {}
