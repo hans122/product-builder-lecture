@@ -125,23 +125,29 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
 
     const finalPoints = Array.from(unifiedMap.values()).sort((a, b) => a.val - b.val);
 const width = container.clientWidth || 600;
-    const height = 180;
-    const padding = 50;
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - 50;
-    const baselineY = height - 25;
+const height = 160; // 높이를 조금 줄여서 텐션감 있게 조정
+const padding = 50;
+const chartWidth = width - padding * 2;
+const chartHeight = height - 40; // 하단 라벨 공간 확보
+const baselineY = height - 20;
 
-    const maxFreq = Math.max(...entries.map(e => e[1]), 1);
-    const points = entries.map((e, i) => {
-        const x = padding + (i / (entries.length - 1)) * chartWidth;
-        const y = baselineY - (e[1] / maxFreq) * chartHeight;
-        return { x, y, label: e[0], value: e[1], index: i };
-    });
+const maxFreq = Math.max(...entries.map(e => e[1]), 1);
+const points = entries.map((e, i) => {
+    const x = padding + (i / (entries.length - 1)) * chartWidth;
+    const y = baselineY - (e[1] / maxFreq) * chartHeight;
+    return { x, y, label: e[0], value: e[1], index: i };
+});
 
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
+const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
+// [추가] 하단 X축 가이드 라인 (안정감 부여)
+const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+xAxis.setAttribute("x1", padding - 10); xAxis.setAttribute("y1", baselineY);
+xAxis.setAttribute("x2", width - padding + 10); xAxis.setAttribute("y2", baselineY);
+xAxis.setAttribute("stroke", "#edf2f7"); xAxis.setAttribute("stroke-width", "1");
+svg.appendChild(xAxis);
     const hatchId = `hatch-optimal-${elementId}`;
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
