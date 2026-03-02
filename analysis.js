@@ -1,4 +1,4 @@
-// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계 (데이터 키값 정밀 매칭)
+// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계
 const INDICATOR_CONFIG = [
     { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
     { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
@@ -97,6 +97,31 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         });
     }
 
+    // [추가] 통계 요약 배지 렌더링
+    const mu = statSummary.mean; const sd = statSummary.std;
+    const valKeys = entries.map(e => parseFloat(e[0].split(/[ :\-]/)[0])).filter(v => !isNaN(v));
+    const minVal = Math.min(...valKeys);
+    const maxVal = Math.max(...valKeys);
+
+    const badgeData = [
+        { label: '최소', val: minVal, cls: 'min-max' },
+        { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2*sd)), cls: 'safe-zone' },
+        { label: '미니 옵티멀', val: Math.max(minVal, Math.round(mu - sd)), cls: 'optimal-zone' },
+        { label: '맥스 옵티멀', val: Math.min(maxVal, Math.round(mu + sd)), cls: 'optimal-zone' },
+        { label: '맥스 세이프', val: Math.min(maxVal, Math.round(mu + 2*sd)), cls: 'safe-zone' },
+        { label: '최대', val: maxVal, cls: 'min-max' }
+    ];
+
+    const bContainer = document.createElement('div');
+    bContainer.className = 'stat-badge-container';
+    badgeData.forEach(b => {
+        const badge = document.createElement('div');
+        badge.className = `stat-badge ${b.cls}`;
+        badge.innerHTML = `<span class="label">${b.label}</span>${b.val}${unit.trim()}`;
+        bContainer.appendChild(badge);
+    });
+    container.appendChild(bContainer);
+
     const width = container.clientWidth || 600;
     const height = 180;
     const padding = 50;
@@ -105,16 +130,15 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const baselineY = height - 25;
 
     const values = entries.map(e => e[1]);
-    const maxVal = Math.max(...values, 1);
+    const maxFreq = Math.max(...values, 1);
 
     const points = entries.map((e, i) => {
         const x = padding + (i / (entries.length - 1)) * chartWidth;
-        const y = baselineY - (e[1] / maxVal) * chartHeight;
+        const y = baselineY - (e[1] / maxFreq) * chartHeight;
         return { x, y, label: e[0], value: e[1], index: i };
     });
 
     const labelSet = new Set([0, points.length - 1]);
-    const mu = statSummary.mean; const sd = statSummary.std;
     const targets = [mu - 2*sd, mu - sd, mu, mu + sd, mu + 2*sd];
     targets.forEach(t => {
         let bestIdx = -1; let minD = Infinity;
@@ -138,7 +162,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    // 존 그리기 로직 개선 (범위 내 포인트 필터링 정밀화)
     const drawZone = (z, color) => {
         const zPoints = points.filter(p => {
             const val = parseFloat(p.label.split(/[ :\-]/)[0]);
