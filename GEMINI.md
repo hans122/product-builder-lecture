@@ -9,4 +9,6 @@
 ## [FILE RESPONSIBILITIES]
 - `index.html`: G1~G5 링크가 포함된 실시간 분석 대시보드.
 - `analysis.html`: 50vh 스크롤 정책이 적용된 심층 통계 카드 모음.
+- `combination.html`: 로또 용지 UI를 통한 번호 선택 및 사용자 조합 정밀 분석.
+- `combination.js`: 번호 선택 상태 관리(localStorage) 및 실시간 조합 분석 로직.
 - `guide.js`: 실시간 통계 기반의 지능형 텍스트 생성 엔진.
