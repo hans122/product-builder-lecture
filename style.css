@@ -851,3 +851,7 @@ body:not(.analysis-page) {
 /* 번호별 빈도 차트 값 위치 조정 */
 .bar { position: relative; display: flex; align-items: flex-start; justify-content: center; padding-top: 5px; }
 .bar-value { position: static; color: white; font-size: 0.65rem; font-weight: bold; writing-mode: vertical-lr; transform: rotate(180deg); text-shadow: 0 1px 2px rgba(0,0,0,0.3); margin-top: 2px; }
+
+/* Skeleton UI 애니메이션 */
+@keyframes skeleton-loading { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
+.skeleton-grid { height: 100px; width: 100%; background-image: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200px 100%; background-repeat: no-repeat; animation: skeleton-loading 1.5s infinite; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8rem; }

@@ -1,10 +1,9 @@
 /**
- * LottoCore - 프로젝트의 공통 로직 및 설정을 관리하는 핵심 모듈
- * DATA_SCHEMA.md v4.3 규격을 준수함
+ * LottoCore v5.0 - 상용급 고도화 엔진
+ * UI 컴포넌트화, 에러 로깅, 성능 최적화 포함
  */
 
 const LottoConfig = {
-    // 25개 전 지표 마스터 설정
     INDICATORS: [
         { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
         { id: 'odd-even', label: '홀짝 비율', unit: '', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => {
@@ -71,7 +70,6 @@ const LottoUtils = {
         if (num <= 10) return 'yellow'; if (num <= 20) return 'blue';
         if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
     },
-    // 정규분포 Z-Score 기반 등급 판정
     getZStatus: (val, stat) => {
         if (!stat || stat.std === 0) return 'safe';
         const numVal = (typeof val === 'string' && val.includes(':')) ? parseFloat(val.split(':')[0]) : parseFloat(val);
@@ -79,6 +77,52 @@ const LottoUtils = {
         if (z <= 1.0) return 'optimal';
         if (z <= 2.0) return 'safe';
         return 'warning';
+    },
+    // 상용급 로깅 시스템
+    logError: (msg, context = '') => {
+        console.error(`[LottoCore Error] ${msg}`, context);
+        // 추후 서버 로그 수집 API 연동 가능 지점
+    }
+};
+
+/**
+ * LottoUI - 컴포넌트 기반 UI 렌더링 엔진
+ */
+const LottoUI = {
+    // 로또 공 생성
+    createBall: (num, isMini = false) => {
+        const ball = document.createElement('div');
+        ball.className = `ball ${isMini ? 'mini' : ''} ${LottoUtils.getBallColorClass(num)}`;
+        ball.innerText = num;
+        return ball;
+    },
+    // 분석 지표 아이템 생성
+    createAnalysisItem: (cfg, value, status, stat) => {
+        const item = document.createElement('div');
+        item.className = `analysis-item ${status}`;
+        
+        let tip = '';
+        if (stat) {
+            const optMin = Math.max(0, Math.round(stat.mean - stat.std));
+            const optMax = Math.round(stat.mean + stat.std);
+            const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
+            const safeMax = Math.round(stat.mean + 2 * stat.std);
+            tip = `data-tip="[${cfg.label}] 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})"`;
+        }
+
+        item.innerHTML = `
+            <a href="analysis.html#${cfg.id}-section" class="analysis-item-link" ${tip}>
+                <span class="label">${cfg.label}</span>
+                <span id="${cfg.id}" class="value">${value}</span>
+            </a>
+        `;
+        return item;
+    },
+    // 스켈레톤 UI 표시
+    showSkeleton: (containerId, type = 'grid') => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = `<div class="skeleton-${type}">데이터를 불러오는 중...</div>`;
     }
 };
 
@@ -88,10 +132,11 @@ const LottoDataManager = {
         if (this.cache) return this.cache;
         try {
             const res = await fetch('advanced_stats.json?v=' + Date.now());
+            if (!res.ok) throw new Error('Network response was not ok');
             this.cache = await res.json();
             return this.cache;
         } catch (err) {
-            console.error('Core Data Load Failed:', err);
+            LottoUtils.logError('Data Fetch Failed', err);
             return null;
         }
     }

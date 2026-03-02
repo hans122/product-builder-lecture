@@ -5,6 +5,10 @@
 let mainStatsData = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
+    // 스켈레톤 UI 표시
+    const targetContainer = document.getElementById('analysis-target-balls');
+    if (targetContainer) targetContainer.innerHTML = '<div class="skeleton-grid">분석 데이터 로딩 중...</div>';
+
     mainStatsData = await LottoDataManager.getStats();
     if (!mainStatsData) return;
 
