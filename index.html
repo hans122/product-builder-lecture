@@ -53,18 +53,18 @@
 
             <!-- 2. AI 예측 번호 풀 카드 -->
             <section class="analysis-card">
-                <div class="card-header"><span class="icon">🎯</span><h3>AI 예측 번호 풀 (Hot/Neutral/Cold)</h3></div>
+                <div class="card-header"><span class="icon">🎯</span><h3>데이터 주도적 예측 풀 (Momentum Strategy)</h3></div>
                 <div class="pool-container"> 
                     <div class="pool-box hot">
-                        <div class="pool-header">🔥 강력 추천 (Hot 30)</div>
+                        <div class="pool-header">🔥 핵심 모멘텀 (Hot 30)</div>
                         <div id="hot-pool-container" class="pool-grid-10"></div>
                     </div>
                     <div class="pool-box neutral">
-                        <div class="pool-header">⚠️ 전략 보류 (Neutral 5)</div>
+                        <div class="pool-header">⚖️ 전략적 보류 (Neutral 5)</div>
                         <div id="neutral-pool-container" class="pool-grid-10"></div>
                     </div>
                     <div class="pool-box cold">
-                        <div class="pool-header">❄️ 필터 제외 (Cold 10)</div>
+                        <div class="pool-header">🛡️ 데이터 필터링 (Cold 10)</div>
                         <div id="cold-pool-container" class="pool-grid-10"></div>
                     </div>
                 </div>
@@ -89,10 +89,10 @@
         <section class="analysis-card" id="summary-stat-board" style="display: none; padding: 0;">
             <table class="summary-score-table">
                 <tr>
-                    <td><span class="s-label">📈 풀 내 평균 적중</span><div class="s-value-group"><span id="avg-hit-count" class="s-value c-blue">...</span><span class="s-unit">개</span></div></td>
-                    <td><span class="s-label">🔥 상위권 적중 (3등↑)</span><div class="s-value-group"><span id="jackpot-count" class="s-value c-green">-</span><span class="s-unit">회</span></div></td>
-                    <td><span class="s-label">🛡️ 완벽 제외 성공</span><div class="s-value-group"><span id="total-exclude-success" class="s-value c-orange">-</span><span class="s-unit">회</span></div></td>
-                    <td style="border-right: none;"><span class="s-label">🎯 제외 필터 정확도</span><div class="s-value-group"><span id="exclude-rate" class="s-value c-red">-</span><span class="s-unit">%</span></div></td>
+                    <td><span class="s-label">📈 예측 풀 적중률</span><div class="s-value-group"><span id="avg-hit-count" class="s-value c-blue">...</span><span class="s-unit">개</span></div></td>
+                    <td><span class="s-label">🎯 상위권 적중 (3등↑)</span><div class="s-value-group"><span id="jackpot-count" class="s-value c-green">-</span><span class="s-unit">회</span></div></td>
+                    <td><span class="s-label">🛡️ 필터링 정밀도</span><div class="s-value-group"><span id="total-exclude-success" class="s-value c-orange">-</span><span class="s-unit">회</span></div></td>
+                    <td style="border-right: none;"><span class="s-label">🚀 제외 적중 실적</span><div class="s-value-group"><span id="exclude-rate" class="s-value c-red">-</span><span class="s-unit">%</span></div></td>
                 </tr>
             </table>
         </section>
