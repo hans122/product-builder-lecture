@@ -267,14 +267,14 @@ body {
 .analysis-item .label { display: block; font-size: 0.75rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
 .analysis-item .value { font-size: 1.1rem; font-weight: 800; color: var(--primary-blue); font-family: 'SF Mono', 'Roboto Mono', monospace; }
 
-/* [통계 화면] 차트 및 미니 표 가로 레이아웃 (데이터 최적화 v8.4) */
+/* [통계 화면] 차트 및 미니 표 가로 레이아웃 (데이터 최적화 v8.5) */
 .analysis-content-wrapper {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: stretch;
-    padding: 30px 100px 30px 24px; /* 우측 끝 여백 100px 유지, 좌측은 24px 복구 */
-    gap: 24px; /* 차트와 표 사이 간격 원래대로 복구 */
+    padding: 40px 100px 40px 40px; /* 상하좌우 여백 대폭 확대 */
+    gap: 30px; 
     background: white;
     width: 100%;
 }
@@ -285,9 +285,9 @@ body {
 }
 
 .analysis-main-side h3 {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 700;
-    margin: 0 0 20px 0;
+    margin: 0 0 30px 0; /* 타이틀 아래 여백 확대 */
     color: var(--text-main);
 }
 
@@ -297,7 +297,8 @@ body {
     display: flex;
     flex-direction: column;
     border-left: 1px dashed #f1f3f5;
-    padding-left: 20px; /* 구분선 간격 원래대로 복구 */
+    padding-left: 30px; /* 구분선과 표 사이 간격 넓힘 */
+    padding-top: 10px; /* 상단 제목과의 높이 맞춤 */
 }
 
 .mini-table-wrapper h4 {
