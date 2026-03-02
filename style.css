@@ -87,30 +87,65 @@ body {
 }
 .card-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
 
-/* Lotto Ball Modern Style */
+/* 로또 구슬 프리미엄 디자인 (v6.0) */
 .ball {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px; /* Squircle style */
+    width: 46px;
+    height: 46px;
+    border-radius: 15px; /* Squircle 바이브 */
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    font-weight: 800;
-    font-size: 1rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    font-weight: 900;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12), inset 0 -2px 4px rgba(0,0,0,0.1);
     position: relative;
-    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.2);
+    animation: ballPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    transition: all 0.2s ease;
 }
 
-.ball::after {
+.ball::before {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%);
+    top: 2px; left: 2px; right: 2px;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 12px 12px 4px 4px;
 }
 
-.ball.mini { width: 30px; height: 30px; border-radius: 8px; font-size: 0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.ball:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+.ball.mini { 
+    width: 32px; height: 32px; border-radius: 10px; font-size: 0.85rem; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08); 
+}
+.ball.mini::before { border-radius: 8px 8px 2px 2px; }
+
+@keyframes ballPop {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* 수동 선택 강조 효과 */
+.ball.manual {
+    border: 3px solid #191f28 !important;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+.ball.manual::after {
+    content: "MY";
+    position: absolute;
+    top: -10px; right: -10px;
+    background: #191f28; color: #f1c40f;
+    font-size: 0.6rem; font-weight: 900;
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid white;
+}
 
 /* Lotto Colors (Soft Vivid) */
 .yellow { background: #ffcc00; }
