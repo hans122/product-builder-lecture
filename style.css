@@ -106,14 +106,13 @@ body {
     justify-content: flex-start;
 }
 
-/* 표 내부 구슬 레이아웃 가로 정렬 강제 */
-.table-nums, .pool-grid-win {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 4px;
+/* 표 내부 당첨 번호 3개씩 2줄 그리드 배치 (가로 유지) */
+.pool-grid-win {
+    display: grid !important;
+    grid-template-columns: repeat(3, 32px); /* 3열 고정, 너비 명시 */
+    gap: 6px;
     justify-content: center;
-    align-items: center;
-    flex-wrap: nowrap;
+    margin: 0 auto;
 }
 
 /* AI 예측 번호 풀 레이아웃 (표준 카드형) */
@@ -267,11 +266,76 @@ body {
 .analysis-item .label { display: block; font-size: 0.75rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
 .analysis-item .value { font-size: 1.1rem; font-weight: 800; color: var(--primary-blue); font-family: 'SF Mono', 'Roboto Mono', monospace; }
 
-/* [추가] 실시간 분석 지표 응답형 그리드 */
-@media (max-width: 768px) {
-    #main-indicator-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
+/* [통계 화면] 차트 및 미니 표 가로 레이아웃 (강력 고정) */
+.analysis-content-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* 절대로 줄바꿈 금지 */
+    align-items: stretch;
+    padding: 24px;
+    gap: 30px;
+    background: white;
+    width: 100%;
+}
+
+.analysis-main-side {
+    flex: 1; 
+    min-width: 0;
+    width: calc(100% - 270px); /* 표 영역을 제외한 나머지 공간 강제 할당 */
+}
+
+.analysis-main-side h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    color: var(--text-main);
+}
+
+.mini-table-wrapper {
+    width: 240px; 
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-table-wrapper h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    color: var(--text-sub);
+}
+
+.dist-bar-chart {
+    height: 220px;
+    width: 100%;
+}
+
+/* 좁은 화면 대응 */
+@media (max-width: 900px) {
+    .analysis-content-wrapper {
+        flex-direction: column;
+        padding: 20px;
+        gap: 20px;
     }
+    .mini-table-wrapper {
+        width: 100%;
+    }
+}
+
+.mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.mini-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #f1f3f5;
+    color: var(--text-sub);
+}
+
+.mini-table tr:last-child td {
+    border-bottom: none;
 }
 
 /* Status Badges */
@@ -557,12 +621,26 @@ body {
     .select-ball { width: 32px; height: 32px; font-size: 0.8rem; }
 }
 
-/* 시뮬레이션 표 내부 전용 마이크로 그리드 (복구) */
+/* 시뮬레이션 표 내부 전용 마이크로 그리드 (가로 레이아웃 고정) */
 .micro-num-grid { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 2px; 
-    max-width: 220px; 
+    display: grid !important; 
+    gap: 3px; 
+    width: fit-content;
+}
+
+/* 추천풀: 10열 (3줄) */
+.micro-num-grid.hot-grid {
+    grid-template-columns: repeat(10, 20px);
+}
+
+/* 보류풀: 3열 (2줄) */
+.micro-num-grid.neutral-grid {
+    grid-template-columns: repeat(3, 20px);
+}
+
+/* 제외풀: 5열 (2줄) */
+.micro-num-grid.cold-grid {
+    grid-template-columns: repeat(5, 20px);
 }
 .micro-num { 
     width: 20px; 

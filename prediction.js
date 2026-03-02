@@ -6,48 +6,44 @@
 let predStatsData = null;
 
 /**
- * [핵심 엔진] 다차원 스코어링 모델
+ * [핵심 엔진] 다차원 스코어링 모델 (과거 시점 시뮬레이션 지원)
+ * @param {Array} allDraws 전체 당첨 데이터
+ * @param {number} currentIndex 분석할 시점의 인덱스 (-1은 현재)
  */
 function getPredictionPoolsForRound(allDraws, currentIndex) {
-    const drawsBefore = allDraws.slice(currentIndex + 1);
-    if (drawsBefore.length < 10) return { hot: [], neutral: [], cold: [] };
+    // 분석 시점 기준 '과거 데이터'만 추출 (currentIndex + 1 부터 끝까지)
+    const history = allDraws.slice(currentIndex + 1);
+    if (history.length < 10) return { hot: [], neutral: [], cold: [] };
 
-    // 1. 역대 당첨 특징 분석 (Feature Extraction)
-    const recentPattern = drawsBefore.slice(0, 5).map(d => d.nums); // 최근 5회차 패턴
-    
-    // 2. 번호별 동적 스코어링 (Dynamic Scoring)
+    const lastDraw = history[0]; // 분석 시점 바로 직전 회차
     const scores = [];
+
     for (let i = 1; i <= 45; i++) {
         let score = 0;
 
-        // A. 빈도 기세 (Momentum) - 최근 10회차 출현 빈도 기반
-        const freq10 = drawsBefore.slice(0, 10).filter(d => d.nums.includes(i)).length;
-        score += freq10 * 15; // 빈도가 높을수록 기세 가점
+        // 1. 최근 출현 빈도 (Momentum - 최근 10회)
+        const freq10 = history.slice(0, 10).filter(d => d.nums.includes(i)).length;
+        score += freq10 * 15;
 
-        // B. 미출현 임계점 (Gap-Threshold) 
+        // 2. 미출현 임계점 (Gap - 골든타임 5~15회차)
         let gap = 0;
-        for (let d = 0; d < drawsBefore.length; d++) {
-            if (drawsBefore[d].nums.includes(i)) { gap = d; break; }
+        for (let d = 0; d < history.length; d++) {
+            if (history[d].nums.includes(i)) { gap = d; break; }
         }
-        // 로또 데이터상 5~15회차 미출현 번호가 가장 많이 재등장하는 '골든 타임' 법칙 적용
         if (gap >= 5 && gap <= 15) score += 25;
-        else if (gap > 30) score -= 10; // 너무 장기 미출수는 확률 급감
+        else if (gap > 30) score -= 15;
 
-        // C. 이웃 시너지 (Neighbor Synergy)
-        const lastWinNums = drawsBefore[0].nums;
+        // 3. 직전 회차 이월/이웃 시너지
+        if (lastDraw.nums.includes(i)) score += 12; // 이월수 가점
+        
         const neighbors = new Set();
-        lastWinNums.forEach(n => { if(n>1) neighbors.add(n-1); if(n<45) neighbors.add(n+1); });
-        if (neighbors.has(i)) score += 20;
-
-        // D. 회차별 전조 패턴 유사도 (Pattern Similarity)
-        // 과거 데이터 중 최근 3회차와 유사한 조합이 나왔던 지점을 찾아 가산점 부여
-        // (단순화를 위해 최근 1회차 이월수 패턴만 체크)
-        if (lastWinNums.includes(i)) score += 12;
+        lastDraw.nums.forEach(n => { if(n>1) neighbors.add(n-1); if(n<45) neighbors.add(n+1); });
+        if (neighbors.has(i)) score += 20; // 이웃수 가점
 
         scores.push({ num: i, score: score });
     }
 
-    // 3. 확률 기반 풀 분할
+    // 점수 순 정렬
     scores.sort((a, b) => b.score - a.score);
     
     return {
@@ -228,15 +224,15 @@ function runBacktest(draws) {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <span style="font-size: 0.75rem; font-weight: 800; color: var(--primary-blue);">🎯 추천풀 적중 ${hits.length}개</span>
                 </div>
-                <div class="micro-num-grid">${hotDisplay}</div>
+                <div class="micro-num-grid hot-grid">${hotDisplay}</div>
             </td>
             <td class="text-left">
                 <div style="font-size: 0.75rem; font-weight: 800; color: var(--warning-orange); margin-bottom: 6px;">🟡 보류풀 적중 ${neutralHits.length}개</div>
-                <div class="micro-num-grid">${neutralDisplay}</div>
+                <div class="micro-num-grid neutral-grid">${neutralDisplay}</div>
             </td>
             <td class="text-left">
                 <div style="margin-bottom: 6px;">${filterPerf}</div>
-                <div class="micro-num-grid">${coldDisplay}</div>
+                <div class="micro-num-grid cold-grid">${coldDisplay}</div>
             </td>
             <td>${statusTag}</td>
         `;
