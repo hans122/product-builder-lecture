@@ -268,9 +268,12 @@ function renderFrequencyChart(data) {
         const f = data[i] || 0; const h = (f / maxFreq) * 85;
         const w = document.createElement('div'); w.className = 'bar-wrapper';
         const b = document.createElement('div'); b.className = `bar ${getBallColorClass(i)}`; b.style.height = `${h}%`;
+        
         const v = document.createElement('span'); v.className = 'bar-value'; v.innerText = f;
+        b.appendChild(v); // 수치 텍스트를 막대(b) 내부에 삽입
+        
         const l = document.createElement('span'); l.className = 'bar-label'; l.innerText = i;
-        w.appendChild(v); w.appendChild(b); w.appendChild(l); container.appendChild(w);
+        w.appendChild(b); w.appendChild(l); container.appendChild(w);
     }
 }
 
