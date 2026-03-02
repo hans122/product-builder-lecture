@@ -1,4 +1,4 @@
-// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계
+// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계 (JSON 데이터와 100% 일치화)
 const INDICATOR_CONFIG = [
     { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
     { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
@@ -111,17 +111,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         { label: '최대', val: maxVal, cls: 'min-max' }
     ];
 
-    // 상단 배지 생성 (값만 표시)
-    const bContainer = document.createElement('div');
-    bContainer.className = 'stat-badge-container';
-    statPoints.forEach(p => {
-        const badge = document.createElement('div');
-        badge.className = `stat-badge ${p.cls}`;
-        badge.innerHTML = `${p.val}${unit.trim()}`;
-        bContainer.appendChild(badge);
-    });
-    container.appendChild(bContainer);
-
     const width = container.clientWidth || 600;
     const height = 180;
     const padding = 50;
@@ -145,7 +134,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
             const diff = Math.abs(val - sp.val);
             if (diff < minD) { minD = diff; bestIdx = idx; }
         });
-        // 중복 인덱스 방지 (값이 같더라도 가장 적절한 지점 하나만 라벨링)
         if (bestIdx !== -1 && !labelSet.has(bestIdx)) {
             labelSet.add(bestIdx);
             finalLabels.push({ index: bestIdx, cls: sp.cls, val: sp.val });
@@ -156,10 +144,11 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    // [추가] 옵티멀 존 전용 빗금 패턴 정의
+    // [패턴 ID 고유화] 차트별 고유 ID 부여로 빗금 표시 문제 해결
+    const hatchId = `hatch-optimal-${elementId}`;
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-    pattern.setAttribute("id", "hatch-optimal");
+    pattern.setAttribute("id", hatchId);
     pattern.setAttribute("patternUnits", "userSpaceOnUse");
     pattern.setAttribute("width", "4");
     pattern.setAttribute("height", "4");
@@ -167,59 +156,49 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", "0"); line.setAttribute("y1", "0");
     line.setAttribute("x2", "0"); line.setAttribute("y2", "4");
-    line.setAttribute("stroke", "rgba(46, 204, 113, 0.6)"); // 옵티멀 그린
+    line.setAttribute("stroke", "rgba(46, 204, 113, 0.6)");
     line.setAttribute("stroke-width", "1.5");
     pattern.appendChild(line);
     defs.appendChild(pattern);
     svg.appendChild(defs);
 
-    // 존 그리기 로직 개선 (범위 내 포인트 필터링 및 폴리곤 생성 정밀화)
     const drawZone = (z, color) => {
         const threshold = sd * z;
         const zPoints = points.filter(p => {
             const val = parseFloat(p.label.split(/[ :\-]/)[0]);
             return !isNaN(val) && Math.abs(val - mu) <= threshold + 0.0001; 
         });
-
         if (zPoints.length > 0) {
             const firstP = zPoints[0];
             const lastP = zPoints[zPoints.length - 1];
             let d = `M ${firstP.x},${baselineY} `;
             zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
             d += `L ${lastP.x},${baselineY} Z`;
-
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
             path.setAttribute("d", d);
             path.setAttribute("fill", color);
             svg.appendChild(path);
         }
     };
-    // 세이프 존은 연한 파랑색, 옵티멀 존은 빗금 패턴 적용
     drawZone(2, "rgba(52, 152, 219, 0.12)"); 
-    drawZone(1, "url(#hatch-optimal)"); 
-    // 옵티멀 존의 존재감을 위해 얇은 테두리 추가 (선택사항)
+    drawZone(1, `url(#${hatchId})`); // 고유 패턴 ID 참조
     drawZone(1, "rgba(46, 204, 113, 0.05)"); 
-
 
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     curvePath.setAttribute("d", curvePathData); curvePath.setAttribute("fill", "none");
     curvePath.setAttribute("stroke", "#3498db"); curvePath.setAttribute("stroke-width", "2"); svg.appendChild(curvePath);
 
-    // X축 라벨 및 포인트 그리기
     finalLabels.forEach(lb => {
         const p = points[lb.index];
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
         circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
-
         const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
         txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
-        
         let textColor = "#718096";
         if (lb.cls === 'safe-zone') textColor = "#3498db";
         else if (lb.cls === 'optimal-zone') textColor = "#27ae60";
-        
         txt.setAttribute("fill", textColor);
         txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
         txt.textContent = p.label + unit; svg.appendChild(txt);
