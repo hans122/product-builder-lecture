@@ -1,4 +1,4 @@
-# DATA_SCHEMA.md - Master Data Mapping (v4.0)
+# DATA_SCHEMA.md - Master Data Mapping (v4.2)
 
 ## 1. 지표 표준 매핑 테이블 (Master Mapping Table)
 모든 개발(Python, JS, HTML)은 아래 표의 키값을 엄격히 준수한다.
@@ -31,13 +31,13 @@
 | | AC값 | `ac` | `ac` | `ac` | `ac` |
 | | Span(간격) | `span` | `span` | `span` | `span` |
 
-## 2. 클라이언트 사이드 데이터 (LocalStorage)
-- `combination_saved_picks`: 사용자가 직접 선택하거나 자동 생성한 번호 상태 백업.
-- `lastGeneratedNumbers`: 모든 분석의 기준이 되는 가장 최근에 생성/선택된 6개 번호.
+## 2. 시각화 정책 (Visualization Policy v4.2)
+- **수치 계산**: 모든 통계 지점은 `Math.round()` 반올림을 표준으로 삼는다.
+- **7대 통계 지점**: [최소, 미니 세이프, 미니 옵티멀, 평균, 맥스 옵티멀, 맥스 세이프, 최대]를 추적한다.
+- **상단 배지**: 값(Value)만 표시하며, 등급별 색상을 적용한다 (글자 라벨 생략).
+- **하단 라벨**: 배지와 1:1 동기화된 [값 + 단위]를 표시하며 색상을 일치시킨다.
+- **우선순위 로직**: 지점이 겹칠 경우 `옵티멀(초록) > 세이프(파랑) > 일반(회색)` 순으로 색상을 결정한다.
 
-## 3. 통계 계산 유틸리티 규격
-- **평균(mean)**: 전체 회차의 지표 합계 / 총 회차.
-- **표준편차(std)**: 데이터의 산포도.
-- **옵티멀 존**: mean ± 1σ (빗금 패턴).
-- **세이프 존**: mean ± 2σ (파란색 배경).
-- **위험 구간**: mean ± 2σ 초과 (라벨 회색).
+## 3. 클라이언트 사이드 데이터 (LocalStorage)
+- `combination_saved_picks`: 사용자의 번호 선택 상태 백업.
+- `lastGeneratedNumbers`: 분석 기준이 되는 가장 최근 번호 세트.
