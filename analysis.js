@@ -117,7 +117,7 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     badgeData.forEach(b => {
         const badge = document.createElement('div');
         badge.className = `stat-badge ${b.cls}`;
-        badge.innerHTML = `<span class="label">${b.label}</span>${b.val}${unit.trim()}`;
+        badge.innerHTML = `${b.val}${unit.trim()}`;
         bContainer.appendChild(badge);
     });
     container.appendChild(bContainer);
