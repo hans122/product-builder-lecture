@@ -39,12 +39,13 @@ function getBallColorClass(num) {
     if (num <= 10) return 'yellow'; if (num <= 20) return 'blue';
     if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
 }
-
 document.addEventListener('DOMContentLoaded', function() {
     fetch('advanced_stats.json?v=' + Date.now())
         .then(res => res.json())
         .then(data => {
             mainStatsData = data;
+
+            // 1. 최근 당첨 번호 정보 표시 (상단 배너)
             if (data.last_3_draws && data.last_3_draws.length > 0) {
                 const infoContainer = document.getElementById('last-draw-info');
                 const ballContainer = document.getElementById('last-draw-balls');
@@ -59,11 +60,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             }
-            
+
+            // 2. [개선] 실시간 분석 대상 결정 (사용자 번호 > 최근 당첨 번호)
             const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
+            const sourceTitle = document.getElementById('analysis-source-title');
+
             if (savedNumbers) {
                 const numbers = JSON.parse(savedNumbers);
+                if (sourceTitle) sourceTitle.innerText = "📊 분석 결과: 사용자 조합";
                 analyzeNumbers(numbers);
+            } else if (data.last_3_draws && data.last_3_draws.length > 0) {
+                // 사용자가 선택한 번호가 없으면 최근 당첨 번호를 기본 분석 대상으로 설정
+                if (sourceTitle) sourceTitle.innerText = "📊 분석 결과: 최근 당첨 번호 (참조)";
+                analyzeNumbers(data.last_3_draws[0]);
             }
         })
         .catch(err => console.error('Main data failed:', err));
