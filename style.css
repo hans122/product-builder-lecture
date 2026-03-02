@@ -267,13 +267,13 @@ body {
 .analysis-item .label { display: block; font-size: 0.75rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
 .analysis-item .value { font-size: 1.1rem; font-weight: 800; color: var(--primary-blue); font-family: 'SF Mono', 'Roboto Mono', monospace; }
 
-/* [통계 화면] 차트 및 미니 표 가로 레이아웃 (데이터 최적화 v8.5) */
+/* [통계 화면] 차트 및 미니 표 가로 레이아웃 (데이터 최적화 v9.6 균형 조정) */
 .analysis-content-wrapper {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: stretch;
-    padding: 50px 120px 50px 50px; /* 상하좌우 여백 더욱 확대 */
+    padding: 50px; /* 모든 방향 50px로 통일하여 균형감 확보 */
     gap: 40px; 
     background: white;
     width: 100%;
@@ -433,25 +433,26 @@ body {
 .status-badge.warning { background: #fff5e6; color: #ff9500; }
 .status-badge.danger { background: #feecef; color: #f04452; }
 
-/* [공통] 표 컨테이너 여백 보강 (카드 내부에 꽉 차지 않도록) */
+/* [공통] 표 컨테이너 여백 보강 (v9.6 균형 조정) */
 .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 20px 30px 30px; /* 표 주변에 확실한 여백 부여 */
+    padding: 80px 40px 40px 40px; /* 우측 여백을 40px로 줄여 좌우 대칭 */
     background: white;
 }
 
 /* 표 헤더가 많을 때의 텍스트 정렬 및 간격 (초콤팩트 v8.6) */
 .results-table th, .prediction-table th, .history-table th {
-    background: #f8fafc;
-    padding: 12px 4px; /* 좌우 패딩을 4px로 극도로 축소 */
-    color: var(--text-sub);
-    font-size: 0.72rem; /* 폰트 크기 축소 */
+    background: #f8fafc !important; /* 배경색 강제 */
+    padding: 12px 4px; 
+    color: #4e5968 !important; /* 글자색 강제 (var 대신 직접 지정으로 안전하게) */
+    font-size: 0.72rem; 
     text-align: center;
     font-weight: 700;
     border-bottom: 2px solid #edf2f7;
     line-height: 1.2;
-    /* white-space: nowrap; 제거 - 필요시 줄바꿈 허용하여 너비 압축 */
+    min-height: 40px; /* 최소 높이 확보 */
+    visibility: visible !important; /* 가시성 강제 */
 }
 
 /* 데이터 셀도 함께 압축 */
@@ -460,10 +461,75 @@ body {
     font-size: 0.8rem;
 }
 
-/* 특정 열 너비 강제 고정 (지표 열들) */
-.history-table th:not(:first-child):not(:nth-child(2)),
-.history-table td:not(:first-child):not(:nth-child(2)) {
-    min-width: 40px; /* 지표 열들이 너무 넓어지지 않게 고정 */
+/* 💎 전문가용 45도 대각선 헤더 스타일 (v9.1 보정) */
+.history-table thead {
+    height: 120px; /* 헤더 영역 높이 추가 확보 */
+}
+
+.slant-column {
+    height: 120px;
+    vertical-align: bottom; /* 텍스트를 바닥에 붙임 */
+    position: relative;
+    padding: 0 !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    border-bottom: 2px solid #edf2f7;
+}
+
+.slant-wrapper {
+    position: absolute;
+    bottom: 12px;
+    left: 20px; /* 열의 중앙에서 텍스트 시작 */
+    width: 0;
+}
+
+.slant-wrapper span {
+    display: inline-block;
+    transform: rotate(-45deg);
+    transform-origin: left bottom;
+    white-space: nowrap;
+    width: 180px; 
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #4e5968;
+}
+
+/* 📊 엑셀형 틀 고정 스타일 (Sticky Columns v9.5) */
+.history-table th:first-child,
+.history-table td:first-child {
+    position: sticky !important;
+    left: 0;
+    z-index: 10;
+    background: #f8fafc !important; /* 배경색으로 뒤 가림 */
+    border-right: 1px solid #edf2f7;
+}
+
+.history-table th:nth-child(2),
+.history-table td:nth-child(2) {
+    position: sticky !important;
+    left: 65px; /* 첫 번째 열 너비만큼 뗌 */
+    z-index: 10;
+    background: white !important;
+    border-right: 2px solid var(--primary-blue-soft); /* 경계선 강조 */
+}
+
+/* 헤더의 z-index는 데이터 셀보다 더 높게 */
+.history-table th:first-child,
+.history-table th:nth-child(2) {
+    z-index: 20;
+    background: #f8fafc !important;
+}
+
+.history-table td:nth-child(2) {
+    background: white !important;
+}
+
+/* 호버 시 틀 고정된 열의 배경색도 함께 변경 */
+.history-table tbody tr:hover td:first-child,
+.history-table tbody tr:hover td:nth-child(2) {
+    background: #f8fafc !important;
 }
 
 .prediction-table tbody tr:hover {

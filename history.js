@@ -32,28 +32,19 @@ function renderHistoryTable(draws, statsSummary) {
     const tbody = document.getElementById('history-analysis-body');
     if (!thead || !tbody) return;
 
-    // 1. 헤더 자동 생성 (TR 명시적 생성)
-    thead.innerHTML = '';
-    const headerRow = document.createElement('tr');
-    
-    const baseHeaders = [
-        { label: '회차', width: '80' },
-        { label: '당첨번호', width: '180' }
-    ];
-
-    baseHeaders.forEach(h => {
-        const th = document.createElement('th');
-        th.innerText = h.label;
-        th.width = h.width;
-        headerRow.appendChild(th);
-    });
+    // 1. 헤더 자동 생성 (데이터 중심의 고정 너비 할당)
+    let headHtml = '<tr>';
+    headHtml += `<th style="width: 65px; min-width: 65px;">회차</th>`;
+    headHtml += `<th style="width: 155px; min-width: 155px;">당첨번호</th>`;
 
     LottoConfig.INDICATORS.forEach(cfg => {
-        const th = document.createElement('th');
-        th.innerText = cfg.label;
-        headerRow.appendChild(th);
+        // 대각선 효과를 위한 wrapper 구조 추가
+        headHtml += `<th class="slant-column">
+                        <div class="slant-wrapper"><span>${cfg.label}</span></div>
+                     </th>`;
     });
-    thead.appendChild(headerRow);
+    headHtml += '</tr>';
+    thead.innerHTML = headHtml;
 
     // 2. 바디 데이터 생성
     tbody.innerHTML = '';
