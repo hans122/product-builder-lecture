@@ -23,7 +23,7 @@ function calculate_ac(nums) {
 }
 
 function initNumberSelector() {
-    const container = document.getElementById('number-selector-grid');
+    const container = document.getElementById('number-selector');
     if (!container) return;
     container.innerHTML = '';
     for (let i = 1; i <= 45; i++) {
