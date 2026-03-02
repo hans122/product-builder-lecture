@@ -124,18 +124,7 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     });
 
     const finalPoints = Array.from(unifiedMap.values()).sort((a, b) => a.val - b.val);
-
-    const bContainer = document.createElement('div');
-    bContainer.className = 'stat-badge-container';
-    finalPoints.forEach(p => {
-        const badge = document.createElement('div');
-        badge.className = `stat-badge ${p.cls}`;
-        badge.innerHTML = `${p.val}${unit.trim()}`;
-        bContainer.appendChild(badge);
-    });
-    container.appendChild(bContainer);
-
-    const width = container.clientWidth || 600;
+const width = container.clientWidth || 600;
     const height = 180;
     const padding = 50;
     const chartWidth = width - padding * 2;
