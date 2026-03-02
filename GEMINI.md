@@ -4,7 +4,9 @@
 1. **Unified Classification (G1~G5)**: 모든 UI는 `DATA_SCHEMA.md`에 정의된 5대 표준 분류 순서와 항목명을 엄격히 준수한다.
 2. **Data-Driven Automation (Master Mapping)**: 모든 데이터 키값(distKey, statKey, drawKey) 및 JS ID는 `DATA_SCHEMA.md`의 마스터 매핑 테이블을 절대적 기준으로 삼는다. 불일치 발견 시 코드가 아닌 문서를 먼저 확인한다.
 3. **Anchor Centering Policy**: 통계 섹션의 앵커 이동 시 반드시 `scroll-margin-top: 50vh`를 유지하여 제목이 화면 상하 정중앙에 위치하게 한다.
-4. **Statistical Visualization Refinement**: 차트 라벨은 통계 구역(Min/Max, Safe, Optimal)과 색상을 동기화(회색/파란색/초록색)하여 수치적 일관성을 유지한다.
+4. **Statistical Visualization Refinement**: 
+    - 차트 라벨은 통계 구역(Min/Max, Safe, Optimal)과 색상을 동기화(회색/파란색/초록색)한다.
+    - 차트 높이는 가독성을 위해 **최소 200px** 이상 확보하며, 하단 라벨과 데이터 영역 사이에 충분한 여백(Breathing Room)을 둔다.
 5. **Sticky Header Integrity**: `sticky-header` 내부의 `header-inner`, `my-numbers-banner`, `intro-text-section` 구조를 유지하여 고정 영역의 완성도를 보장한다.
 6. **Data-Driven Guidance**: 가이드 페이지 및 안내 문구는 절대로 하드코딩하지 않으며, 반드시 `advanced_stats.json` 데이터를 실시간 분석하여 투영한다.
 
