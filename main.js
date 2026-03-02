@@ -1,4 +1,4 @@
-let statsData = null;
+let mainStatsData = null;
 
 const INDICATOR_CONFIG = [
     { id: 'sum', label: '합계', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
@@ -41,10 +41,10 @@ function getBallColorClass(num) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    fetch('advanced_stats.json')
+    fetch('advanced_stats.json?v=' + Date.now())
         .then(res => res.json())
         .then(data => {
-            statsData = data;
+            mainStatsData = data;
             if (data.last_3_draws && data.last_3_draws.length > 0) {
                 const infoContainer = document.getElementById('last-draw-info');
                 const ballContainer = document.getElementById('last-draw-balls');
@@ -60,19 +60,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // [연동 핵심] 조합 분석에서 선택된 번호가 있다면 메인 그리드에 즉시 표시
             const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
             if (savedNumbers) {
                 const numbers = JSON.parse(savedNumbers);
                 analyzeNumbers(numbers);
             }
         })
-        .catch(err => console.error('Stats load failed:', err));
+        .catch(err => console.error('Main data failed:', err));
 });
 
 function analyzeNumbers(numbers) {
-    if (!statsData) { setTimeout(() => analyzeNumbers(numbers), 100); return; }
-    const summary = statsData.stats_summary || {};
+    if (!mainStatsData) { setTimeout(() => analyzeNumbers(numbers), 100); return; }
+    const summary = mainStatsData.stats_summary || {};
 
     const getZStatus = (val, stat) => {
         if (!stat || stat.std === 0) return 'safe';
@@ -86,8 +85,7 @@ function analyzeNumbers(numbers) {
     INDICATOR_CONFIG.forEach(cfg => {
         const element = document.getElementById(cfg.id);
         if (!element) return;
-        
-        const value = cfg.calc(numbers, statsData);
+        const value = cfg.calc(numbers, mainStatsData);
         const status = getZStatus(value, summary[cfg.statKey]);
         updateAnalysisItem(element, value, status, cfg.label, summary[cfg.statKey]);
     });
@@ -99,20 +97,11 @@ function updateAnalysisItem(element, text, status, label, stat) {
     const parent = element.closest('.analysis-item');
     if (parent) {
         parent.className = 'analysis-item ' + status;
-        
-        // 메인 페이지에서도 툴팁이 작동하도록 유도
         const optMin = Math.max(0, Math.round(stat.mean - stat.std));
         const optMax = Math.round(stat.mean + stat.std);
         const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
         const safeMax = Math.round(stat.mean + 2 * stat.std);
-        
-        // 부모가 링크(a) 형태라면 툴팁 속성 부여
         const link = element.closest('a') || parent;
         link.setAttribute('data-tip', `[${label}] 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})`);
-        link.classList.add('analysis-item-link');
     }
 }
-
-// 불필요한 번호 생성 및 공유 로직 삭제 (사용자 요청)
-function getZones(data) { return null; }
-function getRandomFrom(array, count) { return []; }
