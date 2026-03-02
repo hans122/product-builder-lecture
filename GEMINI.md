@@ -4,8 +4,9 @@
 1. **Unified Classification (G1~G5)**: 모든 UI는 `DATA_SCHEMA.md`에 정의된 5대 표준 분류 순서와 항목명을 엄격히 준수한다.
 2. **Data-Driven Automation (SSOT)**: 지표 추가/수정 시 각 JS 파일의 `INDICATOR_CONFIG` 설정을 통해 관리하며, 하드코딩된 반복 로직을 지양한다.
 3. **Anchor Centering Policy**: 통계 섹션의 앵커 이동 시 반드시 `scroll-margin-top: 50vh`를 유지하여 제목이 화면 상하 정중앙에 위치하게 한다.
-4. **Sticky Header Integrity**: `sticky-header` 내부의 `header-inner`, `my-numbers-banner`, `intro-text-section` 구조를 유지하여 고정 영역의 완성도를 보장한다.
-5. **Data-Driven Guidance**: 가이드 페이지 및 안내 문구는 절대로 하드코딩하지 않으며, 반드시 `advanced_stats.json` 데이터를 실시간 분석하여 투영한다.
+4. **Statistical Visualization Refinement**: 차트 라벨은 통계 구역(Min/Max, Safe, Optimal)과 색상을 동기화(회색/파란색/초록색)하여 수치적 일관성을 유지한다.
+5. **Sticky Header Integrity**: `sticky-header` 내부의 `header-inner`, `my-numbers-banner`, `intro-text-section` 구조를 유지하여 고정 영역의 완성도를 보장한다.
+6. **Data-Driven Guidance**: 가이드 페이지 및 안내 문구는 절대로 하드코딩하지 않으며, 반드시 `advanced_stats.json` 데이터를 실시간 분석하여 투영한다.
 
 ## [FILE RESPONSIBILITIES]
 - `index.html`: G1~G5 링크가 포함된 실시간 분석 대시보드.
