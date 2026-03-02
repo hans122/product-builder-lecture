@@ -148,21 +148,49 @@ function runBacktest(draws) {
         const hits = draw.nums.filter(n => pools.hot.includes(n));
         const neutralHits = draw.nums.filter(n => pools.neutral.includes(n));
         const fails = draw.nums.filter(n => pools.cold.includes(n));
+        
         totalHits += hits.length;
         if (hits.length >= 5) jackpotCount++;
         if (fails.length === 0) perfectExclusions++;
+
+        // [복구] 회차별 풀 리스트 렌더링용 HTML 생성
+        const hotDisplay = pools.hot.map(n => 
+            draw.nums.includes(n) ? `<strong class="hit-num">${n}</strong>` : `<span class="pool-num">${n}</span>`
+        ).join(''); 
+
+        const neutralDisplay = pools.neutral.map(n => 
+            draw.nums.includes(n) ? `<strong class="neutral-hit-num">${n}</strong>` : `<span class="pool-num">${n}</span>`
+        ).join('');
+
+        const coldDisplay = pools.cold.map(n => 
+            draw.nums.includes(n) ? `<strong class="fail-num">${n}</strong>` : `<span class="pool-num">${n}</span>`
+        ).join('');
+
         const tr = document.createElement('tr');
         let statusTag = hits.length >= 5 ? '<span class="status-tag excellent">우수</span>' : (hits.length >= 4 ? '<span class="status-tag good">양호</span>' : '<span class="status-tag fail">보통</span>');
+        
         tr.innerHTML = `
             <td>${draw.no}회</td>
             <td><div class="pool-grid-win">${draw.nums.map(n => `<div class="ball mini ${getBallColorClass(n)}">${n}</div>`).join('')}</div></td>
-            <td class="text-left"><div class="hit-summary-top">적중: <strong>${hits.length}개</strong></div></td>
-            <td class="text-left"><div class="hit-summary-top">적중: <strong>${neutralHits.length}개</strong></div></td>
-            <td class="text-left"><div class="fail-summary-top ${fails.length > 0 ? 'text-danger' : 'text-success'}">${fails.length > 0 ? `실패: ${fails.join(',')}` : '제외성공'}</div></td>
+            <td class="text-left">
+                <div class="hit-summary-top">적중: <strong>${hits.length}개</strong></div>
+                <div class="pool-grid-mini expected">${hotDisplay}</div>
+            </td>
+            <td class="text-left">
+                <div class="hit-summary-top">적중: <strong>${neutralHits.length}개</strong></div>
+                <div class="pool-grid-mini neutral-grid">${neutralDisplay}</div>
+            </td>
+            <td class="text-left">
+                <div class="fail-summary-top ${fails.length > 0 ? 'text-danger' : 'text-success'}">
+                    ${fails.length > 0 ? `실패: <strong>${fails.join(',')}</strong>` : '제외성공'}
+                </div>
+                <div class="pool-grid-mini excluded">${coldDisplay}</div>
+            </td>
             <td>${statusTag}</td>
         `;
         reportBody.appendChild(tr);
     });
+    
     const summaryCard = document.getElementById('summary-stat-board');
     if (summaryCard) {
         summaryCard.style.display = 'block';
