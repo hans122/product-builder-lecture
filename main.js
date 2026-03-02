@@ -1,34 +1,30 @@
 /**
- * Main Analysis Logic - LottoCore v4.3 기반 리팩토링
+ * Main Analysis Logic v5.4 - 컴포넌트 기반 렌더링 적용
  */
 
 let mainStatsData = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
     // 스켈레톤 UI 표시
-    const targetContainer = document.getElementById('analysis-target-balls');
-    if (targetContainer) targetContainer.innerHTML = '<div class="skeleton-grid">분석 데이터 로딩 중...</div>';
+    const gridContainer = document.getElementById('main-indicator-grid');
+    if (gridContainer) gridContainer.innerHTML = '<div class="skeleton-grid" style="grid-column: span 2;">데이터 로딩 중...</div>';
 
     mainStatsData = await LottoDataManager.getStats();
     if (!mainStatsData) return;
 
     // 1. 최근 당첨 번호 정보 표시 (상단 배너)
     if (mainStatsData.last_3_draws && mainStatsData.last_3_draws.length > 0) {
-        const infoContainer = document.getElementById('last-draw-info');
         const ballContainer = document.getElementById('last-draw-balls');
-        if (infoContainer && ballContainer) {
-            infoContainer.style.display = 'flex';
+        if (ballContainer) {
             ballContainer.innerHTML = '';
             mainStatsData.last_3_draws[0].forEach(num => {
-                const ball = document.createElement('div');
-                ball.className = `ball mini ${LottoUtils.getBallColorClass(num)}`;
-                ball.innerText = num;
-                ballContainer.appendChild(ball);
+                ballContainer.appendChild(LottoUI.createBall(num, true));
             });
+            document.getElementById('last-draw-info').style.display = 'flex';
         }
     }
     
-    // 2. 실시간 분석 대상 결정 (사용자 번호 > 최근 당첨 번호)
+    // 2. 실시간 분석 대상 결정
     const savedNumbers = localStorage.getItem('lastGeneratedNumbers');
     const sourceTitle = document.getElementById('analysis-source-title');
     
@@ -37,12 +33,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (sourceTitle) sourceTitle.innerText = "📊 분석 결과: 사용자 조합";
         analyzeNumbers(numbers);
     } else if (mainStatsData.last_3_draws && mainStatsData.last_3_draws.length > 0) {
-        if (sourceTitle) sourceTitle.innerText = "📊 분석 결과: 최근 당첨 번호 (참조)";
+        if (sourceTitle) sourceTitle.innerText = "📊 분석 결과: 최근 당첨 번호";
         analyzeNumbers(mainStatsData.last_3_draws[0]);
     }
 });
 
-function analyzeNumbers(numbers) {
+/**
+ * [LottoCore 연동] 지표 분석 및 동적 렌더링
+ */
+window.analyzeNumbers = function(numbers) {
     if (!mainStatsData) return;
     
     // 분석 대상 번호 시각화
@@ -50,41 +49,11 @@ function analyzeNumbers(numbers) {
     if (targetContainer) {
         targetContainer.innerHTML = '';
         [...numbers].sort((a, b) => a - b).forEach(num => {
-            const ball = document.createElement('div');
-            ball.className = `ball mini ${LottoUtils.getBallColorClass(num)}`;
-            ball.innerText = num;
-            targetContainer.appendChild(ball);
+            targetContainer.appendChild(LottoUI.createBall(num, true));
         });
     }
 
-    const summary = mainStatsData.stats_summary || {};
-
-    // [LottoCore 통합 연동] 메인에서 보여줄 핵심 6개 지표만 필터링하여 처리
+    // 메인 그리드 동적 렌더링
     const mainIndicatorIds = ['sum', 'odd-even', 'high-low', 'period_1', 'neighbor', 'ac'];
-    
-    LottoConfig.INDICATORS.filter(cfg => mainIndicatorIds.includes(cfg.id)).forEach(cfg => {
-        const element = document.getElementById(cfg.id);
-        if (!element) return;
-        
-        const value = cfg.calc(numbers, mainStatsData);
-        const status = LottoUtils.getZStatus(value, summary[cfg.statKey]);
-        updateAnalysisItem(element, value, status, cfg.label, summary[cfg.statKey]);
-    });
-}
-
-function updateAnalysisItem(element, text, status, label, stat) {
-    if (!element) return;
-    element.innerText = text;
-    const parent = element.closest('.analysis-item');
-    if (parent) {
-        parent.className = 'analysis-item ' + status;
-        if (stat) {
-            const optMin = Math.max(0, Math.round(stat.mean - stat.std));
-            const optMax = Math.round(stat.mean + stat.std);
-            const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
-            const safeMax = Math.round(stat.mean + 2 * stat.std);
-            const link = element.closest('a') || parent;
-            link.setAttribute('data-tip', `[${label}] 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})`);
-        }
-    }
-}
+    LottoUI.renderIndicatorGrid('main-indicator-grid', mainIndicatorIds, numbers, mainStatsData);
+};

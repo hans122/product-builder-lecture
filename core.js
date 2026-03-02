@@ -68,15 +68,18 @@ const LottoSynergy = {
  * LottoUI - 컴포넌트 기반 UI 렌더링 엔진
  */
 const LottoUI = {
+    // 로또 공 생성
     createBall: (num, isMini = false) => {
         const ball = document.createElement('div');
         ball.className = `ball ${isMini ? 'mini' : ''} ${LottoUtils.getBallColorClass(num)}`;
         ball.innerText = num;
         return ball;
     },
+    // 분석 지표 아이템 생성
     createAnalysisItem: (cfg, value, status, stat) => {
         const item = document.createElement('div');
         item.className = `analysis-item ${status}`;
+        
         let tip = '';
         if (stat) {
             const optMin = Math.max(0, Math.round(stat.mean - stat.std));
@@ -85,15 +88,35 @@ const LottoUI = {
             const safeMax = Math.round(stat.mean + 2 * stat.std);
             tip = `data-tip="[${cfg.label}] 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})"`;
         }
-        item.innerHTML = `<a href="analysis.html#${cfg.id}-section" class="analysis-item-link" ${tip}><span class="label">${cfg.label}</span><span id="${cfg.id}" class="value">${value}</span></a>`;
+
+        item.innerHTML = `
+            <a href="analysis.html#${cfg.id}-section" class="analysis-item-link" ${tip}>
+                <span class="label">${cfg.label}</span>
+                <span id="${cfg.id}" class="value">${value}</span>
+            </a>
+        `;
         return item;
     },
-    showSkeleton: (containerId, type = 'grid') => {
+    // [추가] 지표 그리드 자동 빌드 (Mount Point에 설정된 지표들 주입)
+    renderIndicatorGrid: (containerId, indicatorIds, numbers, statsData) => {
         const container = document.getElementById(containerId);
         if (!container) return;
-        container.innerHTML = `<div class="skeleton-${type}">데이터를 불러오는 중...</div>`;
+        container.innerHTML = '';
+        
+        const summary = statsData.stats_summary || {};
+        LottoConfig.INDICATORS.filter(cfg => indicatorIds.includes(cfg.id)).forEach(cfg => {
+            const val = cfg.calc(numbers, statsData);
+            const status = LottoUtils.getZStatus(val, summary[cfg.statKey]);
+            const item = LottoUI.createAnalysisItem(cfg, val, status, summary[cfg.statKey]);
+            container.appendChild(item);
+        });
     }
 };
+
+// [추가] 글로벌 에러 모니터링
+window.addEventListener('error', (e) => {
+    LottoUtils.logError('Runtime Error', { message: e.message, filename: e.filename, lineno: e.lineno });
+});
 
 const LottoDataManager = {
     cache: null,

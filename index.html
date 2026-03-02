@@ -171,13 +171,10 @@
             <section class="tetris-piece piece-stats">
                 <div class="piece-header" id="analysis-source-title">📊 Real-time Stats</div>
                 <div id="analysis-target-balls" class="ball-container mini" style="margin-bottom: 8px;"></div>
-                <div class="mini-analysis-grid">
-                    <div class="mini-stat-item"><span class="label">합계</span><span id="sum" class="value">-</span></div>
-                    <div class="mini-stat-item"><span class="label">홀짝</span><span id="odd-even" class="value">-</span></div>
-                    <div class="mini-stat-item"><span class="label">고저</span><span id="high-low" class="value">-</span></div>
-                    <div class="mini-stat-item"><span class="label">이월</span><span id="period_1" class="value">-</span></div>
-                    <div class="mini-stat-item"><span class="label">이웃</span><span id="neighbor" class="value">-</span></div>
-                    <div class="mini-stat-item"><span class="label">AC</span><span id="ac" class="value">-</span></div>
+                
+                <!-- 동적 렌더링 마운트 포인트 -->
+                <div id="main-indicator-grid" class="analysis-grid-horizontal" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1;">
+                    <div class="placeholder-text" style="grid-column: span 2;">분석 대기 중...</div>
                 </div>
             </section>
 

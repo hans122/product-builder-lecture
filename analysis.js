@@ -1,5 +1,5 @@
 /**
- * Statistical Analysis Page - LottoCore v4.3 기반 리팩토링
+ * Statistical Analysis Page v5.4 - LottoCore 엔진 전면 도입
  */
 
 let globalStatsData = null;
@@ -16,10 +16,7 @@ function restoreMyNumbers() {
             section.style.display = 'flex';
             list.innerHTML = '';
             [...nums].sort((a, b) => a - b).forEach(n => {
-                const b = document.createElement('div');
-                b.className = `ball mini ${LottoUtils.getBallColorClass(n)}`;
-                b.innerText = n;
-                list.appendChild(b);
+                list.appendChild(LottoUI.createBall(n, true));
             });
         } else { section.style.display = 'none'; }
     } catch (e) { section.style.display = 'none'; }
@@ -79,9 +76,7 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const unifiedMap = new Map();
     statPoints.forEach(p => {
         const existing = unifiedMap.get(p.val);
-        if (!existing || priority[p.cls] > priority[existing.cls]) {
-            unifiedMap.set(p.val, p);
-        }
+        if (!existing || priority[p.cls] > priority[existing.cls]) { unifiedMap.set(p.val, p); }
     });
     const finalPoints = Array.from(unifiedMap.values()).sort((a, b) => a.val - b.val);
 
@@ -112,7 +107,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const hatchIdSafe = `hatch-safe-${elementId}`;
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     
-    // [옵티멀] 녹색 빗금 (45도)
     const patternOpt = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
     patternOpt.setAttribute("id", hatchIdOptimal); patternOpt.setAttribute("patternUnits", "userSpaceOnUse");
     patternOpt.setAttribute("width", "4"); patternOpt.setAttribute("height", "4"); patternOpt.setAttribute("patternTransform", "rotate(45)");
@@ -121,7 +115,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     lineOpt.setAttribute("stroke", "rgba(46, 204, 113, 0.6)"); lineOpt.setAttribute("stroke-width", "1.5");
     patternOpt.appendChild(lineOpt); defs.appendChild(patternOpt);
 
-    // [세이프] 파란색 빗금 (-45도)
     const patternSafe = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
     patternSafe.setAttribute("id", hatchIdSafe); patternSafe.setAttribute("patternUnits", "userSpaceOnUse");
     patternSafe.setAttribute("width", "4"); patternSafe.setAttribute("height", "4"); patternSafe.setAttribute("patternTransform", "rotate(-45)");
@@ -129,7 +122,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     lineSafe.setAttribute("x1", "0"); lineSafe.setAttribute("y1", "0"); lineSafe.setAttribute("x2", "0"); lineSafe.setAttribute("y2", "4");
     lineSafe.setAttribute("stroke", "rgba(52, 152, 219, 0.4)"); lineSafe.setAttribute("stroke-width", "1.2");
     patternSafe.appendChild(lineSafe); defs.appendChild(patternSafe);
-    
     svg.appendChild(defs);
 
     const drawZone = (z, color) => {
@@ -148,13 +140,8 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
             path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
         }
     };
-    // 레이어 순서: 세이프 빗금(-45도) -> 옵티멀 빗금(45도)
-    drawZone(2, `url(#${hatchIdSafe})`); 
-    drawZone(1, `url(#${hatchIdOptimal})`); 
-    // 가시성을 위해 아주 연한 배경색 살짝 추가
-    drawZone(2, "rgba(52, 152, 219, 0.03)");
-    drawZone(1, "rgba(46, 204, 113, 0.03)"); 
-
+    drawZone(2, `url(#${hatchIdSafe})`); drawZone(1, `url(#${hatchIdOptimal})`); 
+    drawZone(2, "rgba(52, 152, 219, 0.03)"); drawZone(1, "rgba(46, 204, 113, 0.03)"); 
 
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -171,7 +158,8 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         if (bestIdx !== -1) {
             const p = points[bestIdx];
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3); circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
+            circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
+            circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
             const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
             txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
             let textColor = fp.cls === 'safe-zone' ? "#3498db" : (fp.cls === 'optimal-zone' ? "#27ae60" : "#718096");
@@ -211,9 +199,9 @@ function renderMiniTables(draws) {
         tbody.innerHTML = '';
         draws.forEach(draw => {
             const tr = document.createElement('tr');
-            const balls = (draw.nums || []).map(n => `<div class="table-ball mini ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('');
+            const ballsHtml = (draw.nums || []).map(n => LottoUI.createBall(n, true).outerHTML).join('');
             const val = draw[cfg.drawKey] !== undefined ? draw[cfg.drawKey] : (draw[cfg.statKey] !== undefined ? draw[cfg.statKey] : '-');
-            tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${balls}</div></td><td><strong>${val}</strong></td>`;
+            tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${ballsHtml}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);
         });
     });
