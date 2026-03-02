@@ -126,10 +126,8 @@ function runDetailedAnalysis() {
     const dists = combinationStatsData.distributions;
     const stats = combinationStatsData.stats_summary;
 
-    // [LottoCore 통합 연동] 핵심 지표 분석 루프
-    const labIndicatorIds = ['sum', 'odd-even', 'high-low', 'prime', 'composite', 'multiple-3', 'ac', 'end-sum', 'first-num', 'last-num', 'mean-gap'];
-    
-    LottoConfig.INDICATORS.filter(cfg => labIndicatorIds.includes(cfg.id)).forEach(cfg => {
+    // [LottoCore 통합 연동] 모든 지표(G1~G6)를 리포트에 포함하여 전문성 강화
+    LottoConfig.INDICATORS.forEach(cfg => {
         const value = cfg.calc(currentNumbers, combinationStatsData);
         renderAnalysisRow(`${cfg.group}: ${cfg.label}`, value, dists[cfg.distKey], stats[cfg.statKey]);
     });
