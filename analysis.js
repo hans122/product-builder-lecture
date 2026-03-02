@@ -1,4 +1,5 @@
-// [표준 지표 설정] DATA_SCHEMA.md(v4.0) 마스터 매핑 테이블 및 반올림(Round) 정책 준수
+// [표준 지표 설정] DATA_SCHEMA.md(v4.3) 마스터 매핑 테이블 엄격 준수
+// 주의: id는 HTML 요소의 ID와 일치해야 함 (하이픈 사용)
 const INDICATOR_CONFIG = [
     { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
     { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
@@ -100,11 +101,11 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
 
     const mu = statSummary.mean; const sd = statSummary.std;
     const valKeys = entries.map(e => parseFloat(e[0].split(/[ :\-]/)[0])).filter(v => !isNaN(v));
+    if (valKeys.length === 0) return;
     const minVal = Math.min(...valKeys);
     const maxVal = Math.max(...valKeys);
 
-    // [v4.2 표준 정책] 7대 핵심 통계 지점 정의 (반올림 기준)
-    const statPoints = [
+    const rawPoints = [
         { label: '최소', val: minVal, cls: 'min-max' },
         { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2 * sd)), cls: 'safe-zone' },
         { label: '미니 옵티멀', val: Math.max(minVal, Math.round(mu - sd)), cls: 'optimal-zone' },
@@ -113,7 +114,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         { label: '최대', val: maxVal, cls: 'min-max' }
     ];
 
-    // [중복 제거 및 우선순위 통합] 배지와 라벨이 100% 동일한 로직 공유
     const priority = { 'optimal-zone': 3, 'safe-zone': 2, 'min-max': 1 };
     const unifiedMap = new Map();
     rawPoints.forEach(p => {
@@ -125,7 +125,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
 
     const finalPoints = Array.from(unifiedMap.values()).sort((a, b) => a.val - b.val);
 
-    // 상단 배지 생성 (값만 표시)
     const bContainer = document.createElement('div');
     bContainer.className = 'stat-badge-container';
     finalPoints.forEach(p => {
@@ -198,7 +197,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     curvePath.setAttribute("d", curvePathData); curvePath.setAttribute("fill", "none");
     curvePath.setAttribute("stroke", "#3498db"); curvePath.setAttribute("stroke-width", "2"); svg.appendChild(curvePath);
 
-    // [v4.2 하단 라벨 그리기] 상단 배지와 동일한 finalPoints 순회
     finalPoints.forEach(fp => {
         let bestIdx = -1; let minD = Infinity;
         points.forEach((p, idx) => {
@@ -206,22 +204,17 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
             const diff = Math.abs(pVal - fp.val);
             if (diff < minD) { minD = diff; bestIdx = idx; }
         });
-
         if (bestIdx !== -1) {
             const p = points[bestIdx];
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
             circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
-
             const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
             txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
-            
             let textColor = "#718096";
             if (fp.cls === 'safe-zone') textColor = "#3498db";
             else if (fp.cls === 'optimal-zone') textColor = "#27ae60";
-            
-            txt.setAttribute("fill", textColor);
-            txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
+            txt.setAttribute("fill", textColor); txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
             txt.textContent = p.label + unit; svg.appendChild(txt);
         }
     });
