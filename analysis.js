@@ -103,21 +103,35 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const minVal = Math.min(...valKeys);
     const maxVal = Math.max(...valKeys);
 
+    // [개선] '평균' 지점을 추가하여 '1개' 등의 핵심 데이터 누락 방지
     const statPoints = [
         { label: '최소', val: minVal, cls: 'min-max' },
         { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2*sd)), cls: 'safe-zone' },
         { label: '미니 옵티멀', val: Math.max(minVal, Math.round(mu - sd)), cls: 'optimal-zone' },
+        { label: '평균', val: Math.round(mu), cls: 'optimal-zone' }, 
         { label: '맥스 옵티멀', val: Math.min(maxVal, Math.round(mu + sd)), cls: 'optimal-zone' },
         { label: '맥스 세이프', val: Math.min(maxVal, Math.round(mu + 2*sd)), cls: 'safe-zone' },
         { label: '최대', val: maxVal, cls: 'min-max' }
     ];
 
+    const priority = { 'optimal-zone': 3, 'safe-zone': 2, 'min-max': 1 };
+    
+    // [중복 제거 로직 통합] 배지와 라벨이 동일한 데이터를 보게 함
+    const labelMap = new Map();
+    statPoints.forEach(sp => {
+        const existing = labelMap.get(sp.val);
+        if (!existing || priority[sp.cls] > priority[existing.cls]) {
+            labelMap.set(sp.val, { cls: sp.cls, label: sp.label });
+        }
+    });
+
+    // 상단 배지 생성 (중복 제거된 고유 값만 표시)
     const bContainer = document.createElement('div');
     bContainer.className = 'stat-badge-container';
-    statPoints.forEach(p => {
+    Array.from(labelMap.entries()).sort((a, b) => a[0] - b[0]).forEach(([val, info]) => {
         const badge = document.createElement('div');
-        badge.className = `stat-badge ${p.cls}`;
-        badge.innerHTML = `${p.val}${unit.trim()}`;
+        badge.className = `stat-badge ${info.cls}`;
+        badge.innerHTML = `${val}${unit.trim()}`;
         bContainer.appendChild(badge);
     });
     container.appendChild(bContainer);
@@ -135,32 +149,19 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         const y = baselineY - (e[1] / maxFreq) * chartHeight;
         return { x, y, label: e[0], value: e[1], index: i };
     });
-const labelMap = new Map(); // index -> { cls, val }
 
-// 우선순위 정의 (더 좁은 구역일수록 높은 우선순위)
-const priority = { 'optimal-zone': 3, 'safe-zone': 2, 'min-max': 1 };
-
-statPoints.forEach(sp => {
-    let bestIdx = -1; let minD = Infinity;
-    points.forEach((p, idx) => {
-        const val = parseFloat(p.label.split(/[ :\-]/)[0]);
-        const diff = Math.abs(val - sp.val);
-        if (diff < minD) { minD = diff; bestIdx = idx; }
+    const finalLabels = [];
+    labelMap.forEach((info, val) => {
+        let bestIdx = -1; let minD = Infinity;
+        points.forEach((p, idx) => {
+            const pVal = parseFloat(p.label.split(/[ :\-]/)[0]);
+            const diff = Math.abs(pVal - val);
+            if (diff < minD) { minD = diff; bestIdx = idx; }
+        });
+        if (bestIdx !== -1) finalLabels.push({ index: bestIdx, cls: info.cls });
     });
 
-    if (bestIdx !== -1) {
-        const existing = labelMap.get(bestIdx);
-        if (!existing || priority[sp.cls] > priority[existing.cls]) {
-            labelMap.set(bestIdx, { cls: sp.cls, val: sp.val });
-        }
-    }
-});
-
-const finalLabels = Array.from(labelMap.entries()).map(([index, info]) => ({
-    index, cls: info.cls, val: info.val
-})).sort((a, b) => a.index - b.index);
-
-const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
@@ -169,45 +170,33 @@ const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
     pattern.setAttribute("id", hatchId);
     pattern.setAttribute("patternUnits", "userSpaceOnUse");
-    pattern.setAttribute("width", "4");
-    pattern.setAttribute("height", "4");
+    pattern.setAttribute("width", "4"); pattern.setAttribute("height", "4");
     pattern.setAttribute("patternTransform", "rotate(45)");
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", "0"); line.setAttribute("y1", "0");
     line.setAttribute("x2", "0"); line.setAttribute("y2", "4");
-    line.setAttribute("stroke", "rgba(46, 204, 113, 0.6)");
-    line.setAttribute("stroke-width", "1.5");
-    pattern.appendChild(line);
-    defs.appendChild(pattern);
-    svg.appendChild(defs);
+    line.setAttribute("stroke", "rgba(46, 204, 113, 0.6)"); line.setAttribute("stroke-width", "1.5");
+    pattern.appendChild(line); defs.appendChild(pattern); svg.appendChild(defs);
 
     const drawZone = (z, color) => {
         const threshold = sd * z;
         const zPoints = points.filter(p => {
-            const val = parseFloat(p.label.split(/[ :\-]/)[0]);
-            // 정수형 데이터 대응을 위해 아주 미세한 여유치(0.1) 추가
-            return !isNaN(val) && Math.abs(val - mu) <= threshold + 0.1; 
+            const pVal = parseFloat(p.label.split(/[ :\-]/)[0]);
+            return !isNaN(pVal) && Math.abs(pVal - mu) <= threshold + 0.1; 
         });
-        
         if (zPoints.length > 0) {
-            const firstP = zPoints[0];
-            const lastP = zPoints[zPoints.length - 1];
-            
-            // 만약 포인트가 하나라면 해당 포인트를 중심으로 작은 영역 생성
+            const firstP = zPoints[0]; const lastP = zPoints[zPoints.length - 1];
             let d = "";
             if (zPoints.length === 1) {
-                const w = 20; // 최소 너비
+                const w = 20;
                 d = `M ${firstP.x - w},${baselineY} L ${firstP.x - w},${firstP.y} L ${firstP.x + w},${firstP.y} L ${firstP.x + w},${baselineY} Z`;
             } else {
                 d = `M ${firstP.x},${baselineY} `;
                 zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
                 d += `L ${lastP.x},${baselineY} Z`;
             }
-
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("d", d);
-            path.setAttribute("fill", color);
-            svg.appendChild(path);
+            path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
         }
     };
     drawZone(2, "rgba(52, 152, 219, 0.12)"); 
@@ -229,8 +218,7 @@ const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         let textColor = "#718096";
         if (lb.cls === 'safe-zone') textColor = "#3498db";
         else if (lb.cls === 'optimal-zone') textColor = "#27ae60";
-        txt.setAttribute("fill", textColor);
-        txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
+        txt.setAttribute("fill", textColor); txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
         txt.textContent = p.label + unit; svg.appendChild(txt);
     });
 
