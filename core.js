@@ -1,6 +1,6 @@
 /**
- * LottoCore v5.2 - 순수 엔진 모듈
- * indicators.js로부터 설정을 주입받아 실행 및 데이터 관리 담당
+ * LottoCore v5.3 - 고도화된 지능형 엔진
+ * 설정 기반 시너지 분석(G0) 및 공통 유틸리티
  */
 
 const LottoUtils = {
@@ -21,14 +21,13 @@ const LottoUtils = {
         if (num <= 10) return 'yellow'; if (num <= 20) return 'blue';
         if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
     },
-    // 정규분포 기반 3단계 등급 판정 (v5.2 규격)
     getZStatus: (val, stat) => {
         if (!stat || stat.std === 0) return 'safe';
         const numVal = (typeof val === 'string' && val.includes(':')) ? parseFloat(val.split(':')[0]) : parseFloat(val);
         const z = Math.abs(numVal - stat.mean) / stat.std;
-        if (z <= 1.0) return 'safe';    // 핵심 안정 구간
-        if (z <= 2.0) return 'warning'; // 경계 구간
-        return 'danger';                // 희귀 구간
+        if (z <= 1.0) return 'safe';
+        if (z <= 2.0) return 'warning';
+        return 'danger';
     },
     logError: (msg, context = '') => {
         console.error(`[LottoCore Error] ${msg}`, context);
@@ -36,19 +35,31 @@ const LottoUtils = {
 };
 
 /**
- * LottoSynergy - 지표 간 상관관계 및 정합성 분석 엔진 (G0)
+ * LottoSynergy - 설정 기반 상관관계 분석 엔진 (G0)
+ * indicators.js의 SYNERGY_RULES 설정을 동적으로 실행함
  */
 const LottoSynergy = {
     check: (nums, data) => {
         const results = [];
-        const s = nums.reduce((a, b) => a + b, 0);
-        const lc = nums.filter(n => n <= 22).length;
-        const ac = LottoUtils.calculateAC(nums);
-        const cons = (() => { let c=0; for(let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) c++; return c; })();
         
-        if (lc >= 5 && s > 130) results.push({ id: 'syn-ls', label: '저번호-총합 모순', status: 'warning', desc: '저번호가 많음에도 총합이 높습니다.' });
-        if (lc <= 1 && s < 140) results.push({ id: 'syn-ls', label: '고번호-총합 모순', status: 'warning', desc: '고번호가 많음에도 총합이 낮습니다.' });
-        if (ac >= 8 && cons >= 2) results.push({ id: 'syn-ac', label: '패턴 밀집도 불균형', status: 'warning', desc: '복잡도는 높으나 연속번호가 많아 패턴이 충돌합니다.' });
+        // 1. 규칙 실행에 필요한 모든 지표 값 사전 계산
+        const indicatorValues = {};
+        LottoConfig.INDICATORS.forEach(cfg => {
+            indicatorValues[cfg.id] = cfg.calc(nums, data);
+        });
+
+        // 2. 설정된 시너지 규칙들을 순회하며 검사 (자동화 핵심)
+        LottoConfig.SYNERGY_RULES.forEach(rule => {
+            if (rule.check(indicatorValues)) {
+                results.push({
+                    id: rule.id,
+                    label: rule.label,
+                    status: rule.status,
+                    desc: rule.desc
+                });
+            }
+        });
+
         return results;
     }
 };
@@ -90,6 +101,7 @@ const LottoDataManager = {
         if (this.cache) return this.cache;
         try {
             const res = await fetch('advanced_stats.json?v=' + Date.now());
+            if (!res.ok) throw new Error('Network response was not ok');
             this.cache = await res.json();
             return this.cache;
         } catch (err) {

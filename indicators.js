@@ -1,19 +1,13 @@
 /**
- * LottoIndicators v1.0 - 지표 설정 및 계산 로직 전문 모듈
- * 모든 지표의 '정의'만 담당함
+ * LottoIndicators v1.1 - 지표 및 시너지 규칙 마스터 설정
  */
 
 const LottoConfig = {
+    // 1. 개별 지표 마스터 설정
     INDICATORS: [
         { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
-        { id: 'odd-even', label: '홀짝 비율', unit: '', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => {
-            const odds = nums.filter(n => n % 2 !== 0).length;
-            return `${odds}:${6 - odds}`;
-        }},
-        { id: 'high-low', label: '고저 비율', unit: '', group: 'G1', distKey: 'high_low', statKey: 'low_count', drawKey: 'high_low', calc: (nums) => {
-            const lows = nums.filter(n => n <= 22).length;
-            return `${lows}:${6 - lows}`;
-        }},
+        { id: 'odd-even', label: '홀짝 비율', unit: '', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
+        { id: 'high-low', label: '고저 비율', unit: '', group: 'G1', distKey: 'high_low', statKey: 'low_count', drawKey: 'high_low', calc: (nums) => nums.filter(n => n <= 22).length },
         { id: 'period_1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1', drawKey: 'period_1', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : 0 },
         { id: 'neighbor', label: '이웃수', unit: '개', group: 'G2', distKey: 'neighbor', statKey: 'neighbor', drawKey: 'neighbor', calc: (nums, data) => {
             if (!data || !data.last_3_draws) return 0;
@@ -56,5 +50,38 @@ const LottoConfig = {
         { id: 'first-num', label: '첫 수 범위', unit: '', group: 'G6', distKey: 'first_num', statKey: 'first_num', drawKey: 'first_num', calc: (nums) => nums[0] },
         { id: 'last-num', label: '끝 수 범위', unit: '', group: 'G6', distKey: 'last_num', statKey: 'last_num', drawKey: 'last_num', calc: (nums) => nums[nums.length-1] },
         { id: 'mean-gap', label: '평균 간격', unit: '', group: 'G6', distKey: 'mean_gap', statKey: 'mean_gap', drawKey: 'mean_gap', calc: (nums) => LottoUtils.round((nums[nums.length-1] - nums[0]) / 5, 1) }
+    ],
+
+    // 2. [G0] 조합 정합성(Synergy) 규칙 설정
+    // 새로운 상관관계 분석이 필요하면 여기에만 추가하면 자동 연동됨
+    SYNERGY_RULES: [
+        {
+            id: 'syn-ls-high',
+            label: '저번호-총합 상충',
+            status: 'warning',
+            check: (v) => v['high-low'] >= 5 && v['sum'] > 130, // 낮은수가 많은데 합계가 높음
+            desc: '저번호가 5개 이상임에도 총합이 높습니다. 번호가 각 구간의 끝자락에 몰려있어 당첨 확률이 낮아집니다.'
+        },
+        {
+            id: 'syn-ls-low',
+            label: '고번호-총합 상충',
+            status: 'warning',
+            check: (v) => v['high-low'] <= 1 && v['sum'] < 140, // 높은수가 많은데 합계가 낮음
+            desc: '고번호가 5개 이상임에도 총합이 낮습니다. 번호가 각 구간의 시작점에 몰려있어 밸런스가 어색합니다.'
+        },
+        {
+            id: 'syn-ac-consec',
+            label: '밀집도-복잡도 상충',
+            status: 'warning',
+            check: (v) => v['ac'] >= 8 && v['consecutive'] >= 2,
+            desc: '산술적 복잡도(AC)는 높지만 연속번호가 많습니다. 인위적인 번호 선택 패턴으로 판정될 수 있습니다.'
+        },
+        {
+            id: 'syn-span-gap',
+            label: '분산도 정합성 오류',
+            status: 'safe',
+            check: (v) => v['span'] > 40 && v['mean-gap'] < 7,
+            desc: '전체 범위(Span)에 비해 번호 간 간격이 너무 좁아 특정 구역에 뭉침 현상이 의심됩니다.'
+        }
     ]
 };
