@@ -155,30 +155,51 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
-// 존 그리기 로직 개선 (범위 내 포인트 필터링 및 폴리곤 생성 정밀화)
-const drawZone = (z, color) => {
-    const threshold = sd * z;
-    const zPoints = points.filter(p => {
-        const val = parseFloat(p.label.split(/[ :\-]/)[0]);
-        return !isNaN(val) && Math.abs(val - mu) <= threshold + 0.0001; // 부동소수점 오차 방지
-    });
 
-    if (zPoints.length > 0) {
-        // 구역의 시작과 끝을 데이터 포인트의 실제 X좌표로 정밀 매핑
-        const firstP = zPoints[0];
-        const lastP = zPoints[zPoints.length - 1];
+    // [추가] 옵티멀 존 전용 빗금 패턴 정의
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+    pattern.setAttribute("id", "hatch-optimal");
+    pattern.setAttribute("patternUnits", "userSpaceOnUse");
+    pattern.setAttribute("width", "4");
+    pattern.setAttribute("height", "4");
+    pattern.setAttribute("patternTransform", "rotate(45)");
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", "0"); line.setAttribute("y1", "0");
+    line.setAttribute("x2", "0"); line.setAttribute("y2", "4");
+    line.setAttribute("stroke", "rgba(46, 204, 113, 0.6)"); // 옵티멀 그린
+    line.setAttribute("stroke-width", "1.5");
+    pattern.appendChild(line);
+    defs.appendChild(pattern);
+    svg.appendChild(defs);
 
-        let d = `M ${firstP.x},${baselineY} `;
-        zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
-        d += `L ${lastP.x},${baselineY} Z`;
+    // 존 그리기 로직 개선 (범위 내 포인트 필터링 및 폴리곤 생성 정밀화)
+    const drawZone = (z, color) => {
+        const threshold = sd * z;
+        const zPoints = points.filter(p => {
+            const val = parseFloat(p.label.split(/[ :\-]/)[0]);
+            return !isNaN(val) && Math.abs(val - mu) <= threshold + 0.0001; 
+        });
 
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", d);
-        path.setAttribute("fill", color);
-        svg.appendChild(path);
-    }
-};
-    drawZone(2, "rgba(52, 152, 219, 0.08)"); drawZone(1, "rgba(46, 204, 113, 0.15)");
+        if (zPoints.length > 0) {
+            const firstP = zPoints[0];
+            const lastP = zPoints[zPoints.length - 1];
+            let d = `M ${firstP.x},${baselineY} `;
+            zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
+            d += `L ${lastP.x},${baselineY} Z`;
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", d);
+            path.setAttribute("fill", color);
+            svg.appendChild(path);
+        }
+    };
+    // 세이프 존은 연한 파랑색, 옵티멀 존은 빗금 패턴 적용
+    drawZone(2, "rgba(52, 152, 219, 0.12)"); 
+    drawZone(1, "url(#hatch-optimal)"); 
+    // 옵티멀 존의 존재감을 위해 얇은 테두리 추가 (선택사항)
+    drawZone(1, "rgba(46, 204, 113, 0.05)"); 
+
 
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
