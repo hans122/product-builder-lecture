@@ -1,4 +1,4 @@
-// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계 (계산 로직 calc 추가)
+// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계 (데이터 키값 정밀 매칭)
 const INDICATOR_CONFIG = [
     { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
     { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
@@ -18,16 +18,16 @@ const INDICATOR_CONFIG = [
     { id: 'prime', label: '소수 포함', unit: '개', group: 'G3', distKey: 'prime', statKey: 'prime', calc: (nums) => nums.filter(isPrime).length },
     { id: 'composite', label: '합성수 포함', unit: '개', group: 'G3', distKey: 'composite', statKey: 'composite', calc: (nums) => nums.filter(isComposite).length },
     { id: 'multiple-3', label: '3배수 포함', unit: '개', group: 'G3', distKey: 'multiple_3', statKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length },
-    { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'm5', calc: (nums) => nums.filter(n => n % 5 === 0).length },
+    { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'multiple_5', calc: (nums) => nums.filter(n => n % 5 === 0).length },
     { id: 'square', label: '제곱수 포함', unit: '개', group: 'G3', distKey: 'square', statKey: 'square', calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length },
-    { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double', calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length },
-    { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'b15', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size },
-    { id: 'bucket-9', label: '5분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'b9', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size },
-    { id: 'bucket-5', label: '9분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'b5', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size },
-    { id: 'bucket-3', label: '15분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'b3', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/3))).size },
+    { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double_num', calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length },
+    { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'bucket_15', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size },
+    { id: 'bucket-9', label: '5분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'bucket_9', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size },
+    { id: 'bucket-5', label: '9분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'bucket_5', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size },
+    { id: 'bucket-3', label: '15분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'bucket_3', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/3))).size },
     { id: 'color', label: '포함 색상수', unit: '색상', group: 'G4', distKey: 'color', statKey: 'color', calc: (nums) => new Set(nums.map(getBallColorClass)).size },
-    { id: 'pattern-corner', label: '모서리 패턴', unit: '개', group: 'G4', distKey: 'pattern_corner', statKey: 'p_corner', calc: (nums) => nums.filter(n => [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42].includes(n)).length },
-    { id: 'pattern-triangle', label: '삼각형 패턴', unit: '개', group: 'G4', distKey: 'pattern_triangle', statKey: 'p_tri', calc: (nums) => nums.filter(n => [4,10,11,12,16,17,18,19,20,24,25,26,32].includes(n)).length },
+    { id: 'pattern-corner', label: '모서리 패턴', unit: '개', group: 'G4', distKey: 'pattern_corner', statKey: 'pattern_corner', calc: (nums) => nums.filter(n => [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42].includes(n)).length },
+    { id: 'pattern-triangle', label: '삼각형 패턴', unit: '개', group: 'G4', distKey: 'pattern_triangle', statKey: 'pattern_triangle', calc: (nums) => nums.filter(n => [4,10,11,12,16,17,18,19,20,24,25,26,32].includes(n)).length },
     { id: 'end-sum', label: '끝수합', unit: '', group: 'G5', distKey: 'end_sum', statKey: 'end_sum', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0) },
     { id: 'same-end', label: '동끝수', unit: '개', group: 'G5', distKey: 'same_end', statKey: 'same_end', calc: (nums) => {
         const ends = nums.map(n => n % 10);
@@ -37,16 +37,14 @@ const INDICATOR_CONFIG = [
     { id: 'span', label: 'Span(간격)', unit: '', group: 'G5', distKey: 'span', statKey: 'span', calc: (nums) => nums[5] - nums[0] }
 ];
 
-let globalStatsData = null; // calc 함수에서 참조하기 위해 전역 변수화
+let globalStatsData = null;
 
 function restoreMyNumbers() {
     const section = document.getElementById('my-numbers-section');
     const list = document.getElementById('my-numbers-list');
     if (!section || !list) return;
-
     const saved = localStorage.getItem('lastGeneratedNumbers');
     if (!saved) { section.style.display = 'none'; return; }
-
     try {
         const nums = JSON.parse(saved);
         if (Array.isArray(nums) && nums.length === 6) {
@@ -64,7 +62,6 @@ function restoreMyNumbers() {
 
 document.addEventListener('DOMContentLoaded', function() {
     restoreMyNumbers();
-
     fetch('advanced_stats.json?v=' + Date.now())
         .then(res => res.json())
         .then(data => {
@@ -72,18 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
             globalStatsData = data;
             const dists = data.distributions;
             const stats = data.stats_summary || {};
-
-            // [데이터 기반 자동화 루프] 차트 렌더링
             INDICATOR_CONFIG.forEach(cfg => {
                 const chartId = `${cfg.id}-chart`;
                 if (dists[cfg.distKey]) {
                     renderCurveChart(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey], cfg);
                 }
             });
-
-            if (data.recent_draws) {
-                renderMiniTables(data.recent_draws.slice(0, 6));
-            }
+            if (data.recent_draws) renderMiniTables(data.recent_draws.slice(0, 6));
             if (data.frequency) renderFrequencyChart(data.frequency);
         })
         .catch(err => console.error('Stats flow failed:', err));
@@ -91,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function renderCurveChart(elementId, distData, unit = '', statSummary = null, config = null) {
     const container = document.getElementById(elementId);
-    if (!container) return;
+    if (!container || !statSummary) return;
     container.innerHTML = '';
 
     const entries = Array.isArray(distData) ? distData : Object.entries(distData);
@@ -99,8 +91,8 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
 
     if (!Array.isArray(distData)) {
         entries.sort((a, b) => {
-            const valA = parseFloat(a[0].split(/:|-/)[0]);
-            const valB = parseFloat(b[0].split(/:|-/)[0]);
+            const valA = parseFloat(a[0].split(/[ :\-]/)[0]);
+            const valB = parseFloat(b[0].split(/[ :\-]/)[0]);
             return isNaN(valA) ? 0 : valA - valB;
         });
     }
@@ -122,50 +114,43 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     });
 
     const labelSet = new Set([0, points.length - 1]);
-    if (statSummary) {
-        const mu = statSummary.mean; const sd = statSummary.std;
-        const targets = [mu - 2*sd, mu - sd, mu, mu + sd, mu + 2*sd];
-        targets.forEach(t => {
-            let bestIdx = -1; let minD = Infinity;
-            points.forEach((p, idx) => {
-                const val = parseFloat(p.label.split(/:|-/)[0]);
-                const diff = Math.abs(val - t);
-                if (diff < minD) { minD = diff; bestIdx = idx; }
-            });
-            if (bestIdx !== -1) labelSet.add(bestIdx);
+    const mu = statSummary.mean; const sd = statSummary.std;
+    const targets = [mu - 2*sd, mu - sd, mu, mu + sd, mu + 2*sd];
+    targets.forEach(t => {
+        let bestIdx = -1; let minD = Infinity;
+        points.forEach((p, idx) => {
+            const val = parseFloat(p.label.split(/[ :\-]/)[0]);
+            const diff = Math.abs(val - t);
+            if (diff < minD) { minD = diff; bestIdx = idx; }
         });
-    }
+        if (bestIdx !== -1) labelSet.add(bestIdx);
+    });
 
     const sortedIdx = Array.from(labelSet).sort((a, b) => a - b);
     const finalSafeIndices = [];
     let lastX = -100;
     sortedIdx.forEach(idx => {
         const p = points[idx];
-        if (p.x - lastX > 45) {
-            finalSafeIndices.push(idx);
-            lastX = p.x;
-        }
+        if (p.x - lastX > 45) { finalSafeIndices.push(idx); lastX = p.x; }
     });
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    if (statSummary) {
-        const mu = statSummary.mean; const sd = statSummary.std;
-        const drawZone = (z, color) => {
-            const zPoints = points.filter(p => {
-                const val = parseFloat(p.label.split(/:|-/)[0]);
-                return !isNaN(val) && Math.abs(val - mu) <= sd * z;
-            });
-            if (zPoints.length > 1) {
-                const d = `M ${zPoints[0].x},${baselineY} ` + zPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${zPoints[zPoints.length-1].x},${baselineY} Z`;
-                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
-            }
-        };
-        drawZone(2, "rgba(52, 152, 219, 0.08)"); drawZone(1, "rgba(46, 204, 113, 0.15)");
-    }
+    // 존 그리기 로직 개선 (범위 내 포인트 필터링 정밀화)
+    const drawZone = (z, color) => {
+        const zPoints = points.filter(p => {
+            const val = parseFloat(p.label.split(/[ :\-]/)[0]);
+            return !isNaN(val) && Math.abs(val - mu) <= sd * z;
+        });
+        if (zPoints.length > 1) {
+            const d = `M ${zPoints[0].x},${baselineY} ` + zPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${zPoints[zPoints.length-1].x},${baselineY} Z`;
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
+        }
+    };
+    drawZone(2, "rgba(52, 152, 219, 0.08)"); drawZone(1, "rgba(46, 204, 113, 0.15)");
 
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -177,7 +162,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
             circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
-
             const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
             txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
             txt.setAttribute("fill", "#2c3e50"); txt.style.fontSize = "0.65rem"; txt.style.fontWeight = "bold";
@@ -185,17 +169,15 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         }
     });
 
-    // [개선] INDICATOR_CONFIG의 calc 로직을 사용하여 모든 지표에서 '내 번호' 표시
     const saved = localStorage.getItem('lastGeneratedNumbers');
     if (saved && config && config.calc) {
         try {
             const nums = JSON.parse(saved);
             const myVal = config.calc(nums.sort((a,b)=>a-b), globalStatsData);
-
             if (myVal !== null) {
                 let closestP = points[0]; let minD = Infinity;
                 points.forEach(p => {
-                    const v = parseFloat(p.label.split(/:|-/)[0]);
+                    const v = parseFloat(p.label.split(/[ :\-]/)[0]);
                     const d = Math.abs(v - myVal);
                     if (d < minD) { minD = d; closestP = p; }
                 });
@@ -221,7 +203,7 @@ function renderMiniTables(draws) {
         draws.forEach(draw => {
             const tr = document.createElement('tr');
             const balls = (draw.nums || []).map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
-            const val = draw[cfg.statKey] !== undefined ? draw[cfg.statKey] : '-';
+            const val = draw[cfg.statKey] !== undefined ? draw[cfg.statKey] : (draw[cfg.distKey] !== undefined ? draw[cfg.distKey] : '-');
             tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${balls}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);
         });
@@ -242,21 +224,13 @@ function renderFrequencyChart(data) {
     }
 }
 
-function isPrime(num) {
-    if (num <= 1) return false;
-    const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43];
-    return primes.includes(num);
-}
+function isPrime(num) { if (num <= 1) return false; return [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43].includes(num); }
 function isComposite(num) { return num > 1 && !isPrime(num); }
-
 function calculate_ac(nums) {
     const diffs = new Set();
-    for (let i = 0; i < nums.length; i++) {
-        for (let j = i + 1; j < nums.length; j++) { diffs.add(Math.abs(nums[i] - nums[j])); }
-    }
+    for (let i = 0; i < nums.length; i++) { for (let j = i + 1; j < nums.length; j++) { diffs.add(Math.abs(nums[i] - nums[j])); } }
     return diffs.size - (nums.length - 1);
 }
-
 function getBallColorClass(num) {
     if (num <= 10) return 'yellow'; if (num <= 20) return 'blue'; if (num <= 30) return 'red';
     if (num <= 40) return 'gray'; return 'green';
