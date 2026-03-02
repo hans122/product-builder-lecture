@@ -106,6 +106,16 @@ body {
     justify-content: flex-start;
 }
 
+/* 표 내부 구슬 레이아웃 가로 정렬 강제 */
+.table-nums, .pool-grid-win {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
 /* AI 예측 번호 풀 레이아웃 (표준 카드형) */
 .pool-container {
     padding: 24px;
