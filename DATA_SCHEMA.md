@@ -1,17 +1,19 @@
-# DATA_SCHEMA.md - Master Data & System Architecture (v5.1)
+# DATA_SCHEMA.md - Master Data & System Architecture (v5.3)
 
 ## 1. 시스템 아키텍처 (Core Engine)
 본 프로젝트는 `core.js`를 중심으로 하는 중앙 집중형 로직 및 데이터 관리 체계를 따른다.
 
 ### LottoCore 모듈 구성
-- **LottoConfig**: 모든 지표의 단일 소스(SSOT).
-- **LottoUtils**: 공통 유틸리티 및 Z-Score 판정 로직.
-- **LottoUI**: 컴포넌트 기반 렌더링 엔진.
-- **LottoDataManager**: 데이터 캐싱 서비스.
+- **LottoConfig (indicators.js)**: 28개 지표 및 [G0] 시너지 규칙을 정의한 단일 설정 파일.
+- **LottoUtils (core.js)**: 공통 유틸리티 및 Z-Score 판정 로직.
+- **LottoSynergy (core.js)**: 설정 기반 상관관계 분석 실행 엔진.
+- **LottoUI (core.js)**: 컴포넌트 기반 렌더링 엔진.
+- **LottoDataManager (core.js)**: 데이터 캐싱 서비스.
 
 ## 2. 지표 표준 매핑 테이블 (Master Mapping Table)
 | 분류 | 지표명 | distKey (분포) | statKey (요약) | drawKey (회차) | JS ID |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| **[G0]** | 시너지 분석 | - | - | - | `SYNERGY_RULES` |
 | **[G1]** | 총합 | `sum` | `sum` | `sum` | `sum` |
 | | 홀짝 비율 | `odd_even` | `odd_count` | `odd_even` | `odd-even` |
 | | 고저 비율 | `high_low` | `low_count` | `high_low` | `high-low` |
@@ -24,7 +26,7 @@
 | | 5배수 포함 | `multiple_5` | `multiple_5` | `m5` | `multiple-5` |
 | | 쌍수 포함 | `double_num` | `double_num` | `double` | `double` |
 | **[G4]** | 3분할 점유 | `bucket_15` | `bucket_15` | `b15` | `bucket-15` |
-| | 5분할 점유 | `bucket_9" | `bucket_9` | `b9` | `bucket-9` |
+| | 5분할 점유 | `bucket_9` | `bucket_9` | `b9` | `bucket-9` |
 | | 포함 색상수 | `color` | `color` | `color` | `color` |
 | | 모서리 패턴 | `pattern_corner` | `pattern_corner` | `p_corner` | `pattern-corner` |
 | | 삼각형 패턴 | `pattern_triangle` | `pattern_triangle` | `p_tri` | `pattern-triangle` |
@@ -36,8 +38,9 @@
 | | 끝 수 범위 | `last_num` | `last_num` | `last_num` | `last-num` |
 | | 평균 간격 | `mean_gap` | `mean_gap` | `mean_gap` | `mean-gap` |
 
-## 3. 시각화 및 UX 정책 (v5.1)
+## 3. 시각화 및 UX 정책 (v5.3)
 - **반올림 표준**: 모든 통계 지점은 `Math.round()`를 적용한다.
+- **7대 지점 체계**: [최소, 미니 세이프, 미니 옵티멀, 평균, 맥스 옵티멀, 맥스 세이프, 최대]로 정밀 관리.
 - **이중 빗금**: 세이프 존(-45° 파랑), 옵티멀 존(45° 녹색) 적용.
 - **차트 레이아웃**: 높이 200px, 하단 여백 40px, X축 가이드 라인 포함.
 - **상단 배지 제거**: 차트 상단 텍스트를 제거하고 하단 라벨로 정보 통합.
