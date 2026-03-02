@@ -9,132 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
     <meta name="google-adsense-account" content="ca-pub-9576362527820452">
-    <style>
-        :root { 
-            --primary-navy: #1a365d; 
-            --secondary-blue: #3182ce; 
-            --tetris-red: #e53e3e; 
-            --tetris-orange: #dd6b20; 
-            --tetris-blue: #3182ce; 
-            --tetris-green: #38a169;
-            --tetris-purple: #805ad5;
-            --bg-gray: #f7fafc; 
-        }
-
-        /* [v5.4] 테트리스 마스터 그리드 시스템 */
-        .tetris-container {
-            display: grid;
-            grid-template-columns: 320px 6fr 1fr 2fr; /* 로직:Hot:Neu:Cold 비율 */
-            grid-template-rows: repeat(5, auto);
-            grid-template-areas: 
-                "logic hot neu cold"
-                "logic hot neu cold"
-                "logic hot neu cold"
-                "stats hot neu cold"
-                "stats hot neu cold";
-            gap: 10px;
-            margin-bottom: 30px;
-            background: #cbd5e0; /* 테트리스 판 배경색 */
-            padding: 10px;
-            border-radius: 15px;
-            border: 4px solid #4a5568;
-        }
-
-        .tetris-piece {
-            background: white;
-            border-radius: 4px;
-            padding: 15px;
-            box-shadow: inset -4px -4px 0 rgba(0,0,0,0.1), inset 4px 4px 0 rgba(255,255,255,0.5);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        /* 각 조각별 고유 영역 및 색상 */
-        .piece-logic { grid-area: logic; border: 3px solid var(--tetris-purple); }
-        .piece-stats { grid-area: stats; border: 3px solid var(--tetris-blue); background: #ebf8ff; }
-        .piece-hot { grid-area: hot; border: 3px solid var(--tetris-red); }
-        .piece-neutral { grid-area: neu; border: 3px solid var(--tetris-orange); }
-        .piece-cold { grid-area: cold; border: 3px solid var(--tetris-green); }
-
-        .piece-header {
-            font-size: 0.75rem;
-            font-weight: 900;
-            margin-bottom: 10px;
-            color: #2d3748;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* 내부 공 그리드 최적화 */
-        .piece-hot .ball-container { grid-template-columns: repeat(6, 1fr); }
-        .piece-neutral .ball-container { grid-template-columns: repeat(1, 1fr); }
-        .piece-cold .ball-container { grid-template-columns: repeat(2, 1fr); }
-
-        .ball-container.mini.wrap {
-            display: grid;
-            gap: 4px;
-            justify-items: center;
-            align-content: center;
-            flex: 1;
-        }
-
-        /* 지표 그리드 (테트리스 내부용) */
-        .mini-analysis-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            flex: 1;
-        }
-        .mini-stat-item {
-            background: rgba(255,255,255,0.7);
-            padding: 5px;
-            border-radius: 4px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            border: 1px solid #bee3f8;
-        }
-        .mini-stat-item .label { font-size: 0.6rem; color: #4a5568; font-weight: bold; }
-        .mini-stat-item .value { font-size: 0.85rem; font-weight: 900; color: var(--primary-navy); }
-
-        .logic-text { font-size: 0.8rem; color: #4a5568; line-height: 1.4; margin: 0; }
-        .logic-text strong { color: var(--tetris-purple); display: block; margin-bottom: 5px; }
-
-        @media (max-width: 1100px) {
-            .tetris-container {
-                grid-template-columns: 1fr;
-                grid-template-areas: "logic" "stats" "hot" "neu" "cold";
-            }
-            .piece-hot .ball-container { grid-template-columns: repeat(10, 1fr); }
-            .piece-neutral .ball-container { grid-template-columns: repeat(5, 1fr); }
-            .piece-cold .ball-container { grid-template-columns: repeat(10, 1fr); }
-        }
-
-        /* 기존 스타일 유지 */
-        .summary-score-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
-        .summary-score-table td { padding: 25px 10px; text-align: center; border-right: 1px solid #edf2f7; }
-        .s-label { display: block; font-size: 0.85rem; color: #4a5568; font-weight: 700; margin-bottom: 10px; }
-        .s-value { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
-        .s-unit { font-size: 1rem; color: #718096; font-weight: 600; margin-left: 4px; }
-        .recommendation-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 20px; } 
-        .combo-card { background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; } 
-        .combo-card.clickable { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        .combo-card.clickable:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: var(--secondary-blue); }
-        .analyze-badge { margin-top: 10px; font-size: 0.7rem; color: var(--secondary-blue); font-weight: 700; border-top: 1px dashed #edf2f7; padding-top: 8px; }
-        .combo-card .ball-container { display: flex; justify-content: center; gap: 4px; margin-top: 5px; } 
-        .combo-card .ball { width: 30px; height: 30px; line-height: 30px; font-size: 0.8rem; } 
-        .combo-rank { position: absolute; top: -10px; left: 10px; background: var(--primary-navy); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; } 
-        .combo-meta { margin-top: 10px; font-size: 0.75rem; color: #a0aec0; } 
-        .prediction-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; } .prediction-table th { background: #f8fafc; padding: 15px 10px; text-align: center; color: #4a5568; font-weight: 700; border-bottom: 2px solid #edf2f7; } .prediction-table td { padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: center; vertical-align: middle; }
-        .hit-num { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; background: #e53e3e; color: white; border-radius: 50%; font-weight: bold; font-size: 0.7rem; }
-        .status-tag { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .status-tag.excellent { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
-    </style>
 </head>
 <body class="analysis-page">
     <header class="sticky-header">
@@ -150,68 +24,69 @@
                 </div>
             </div>
             <div id="last-draw-info" class="my-numbers-banner" style="display: none;">
-                <span class="banner-label">제1213회 당첨번호:</span>
+                <span class="banner-label">최근 당첨번호:</span>
                 <div id="last-draw-balls" class="ball-container mini"></div>
             </div>
         </div>
     </header>
 
     <div class="container wide">
-        <div class="tetris-container">
-            <!-- 1. 로직 조각 (3단 높이) -->
-            <section class="tetris-piece piece-logic">
-                <div class="piece-header">⚙️ Algorithm Logic</div>
-                <div class="logic-text">
-                    <strong>복합 가중치 모델 v3.0</strong>
-                    <p>이월/이웃 시너지(25%) + 출현 기세(35%) + 골든타임(25%) + 구간 밸런스(15%)를 결합한 지능형 연산 시스템입니다.</p>
+        <div class="analysis-layout-split">
+            <!-- 1. 분석 알고리즘 카드 -->
+            <section class="analysis-card">
+                <div class="card-header"><span class="icon">⚙️</span><h3>실시간 분석 알고리즘</h3></div>
+                <div style="padding: 24px;">
+                    <div style="margin-bottom: 20px;">
+                        <strong style="display: block; color: var(--primary-blue); font-size: 1rem; margin-bottom: 8px;">복합 가중치 모델 v3.0</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.6; margin: 0;">이월/이웃 시너지(25%) + 출현 기세(35%) + 골든타임(25%) + 구간 밸런스(15%)를 결합한 지능형 시스템입니다.</p>
+                    </div>
+                    
+                    <div id="analysis-source-title" style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 12px; padding-top: 15px; border-top: 1px dashed var(--border-light);">📊 실시간 분석 지표</div>
+                    <div id="analysis-target-balls" class="ball-container mini" style="margin-bottom: 15px; justify-content: center;"></div>
+                    
+                    <!-- 지표 그리드 -->
+                    <div id="main-indicator-grid" class="analysis-grid-horizontal" style="padding: 0; grid-template-columns: 1fr 1fr;">
+                        <div class="placeholder-text">데이터 로딩 중...</div>
+                    </div>
                 </div>
             </section>
 
-            <!-- 2. 지표 조각 (2단 높이) -->
-            <section class="tetris-piece piece-stats">
-                <div class="piece-header" id="analysis-source-title">📊 Real-time Stats</div>
-                <div id="analysis-target-balls" class="ball-container mini" style="margin-bottom: 8px;"></div>
-                
-                <!-- 동적 렌더링 마운트 포인트 -->
-                <div id="main-indicator-grid" class="analysis-grid-horizontal" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1;">
-                    <div class="placeholder-text" style="grid-column: span 2;">분석 대기 중...</div>
+            <!-- 2. AI 예측 번호 풀 카드 -->
+            <section class="analysis-card">
+                <div class="card-header"><span class="icon">🎯</span><h3>AI 예측 번호 풀 (Hot/Neutral/Cold)</h3></div>
+                <div class="pool-container"> 
+                    <div class="pool-box hot">
+                        <div class="pool-header">🔥 강력 추천 (Hot 30)</div>
+                        <div id="hot-pool-container" class="ball-container mini wrap"></div>
+                    </div>
+                    <div class="pool-box neutral">
+                        <div class="pool-header">⚠️ 전략 보류 (Neutral 5)</div>
+                        <div id="neutral-pool-container" class="ball-container mini wrap"></div>
+                    </div>
+                    <div class="pool-box cold">
+                        <div class="pool-header">❄️ 필터 제외 (Cold 10)</div>
+                        <div id="cold-pool-container" class="ball-container mini wrap"></div>
+                    </div>
                 </div>
-            </section>
-
-            <!-- 3. Hot 30 조각 (5단 높이) -->
-            <section class="tetris-piece piece-hot">
-                <div class="piece-header">🔥 Hot 30 (Recommend)</div>
-                <div id="hot-pool-container" class="ball-container mini wrap"></div>
-            </section>
-
-            <!-- 4. Neutral 5 조각 (5단 높이) -->
-            <section class="tetris-piece piece-neutral">
-                <div class="piece-header">⚠️ Neu 5</div>
-                <div id="neutral-pool-container" class="ball-container mini wrap"></div>
-            </section>
-
-            <!-- 5. Cold 10 조각 (5단 높이) -->
-            <section class="tetris-piece piece-cold">
-                <div class="piece-header">❄️ Cold 10</div>
-                <div id="cold-pool-container" class="ball-container mini wrap"></div>
             </section>
         </div>
 
-        <!-- 2. AI 엄선 추천 조합 -->
-        <section class="analysis-card recommendation-card" style="margin-bottom: 30px;">
-            <div class="card-header">
-                <span class="icon">✨</span>
-                <h3>AI 실전 압축 조합 (Top 5)</h3>
-                <button id="refresh-recommendations-btn" class="nav-btn small" style="margin-left: 15px; background: #edf2f7; color: #4a5568; border: 1px solid #cbd5e0; cursor: pointer; padding: 4px 10px;">🔄 조합 새로고침</button>
-                <p style="font-size: 0.8rem; color: #718096; margin-left: auto;">* 지능형 패턴 유사도 필터 적용</p>
+        <!-- 3. AI 엄선 추천 조합 -->
+        <section class="analysis-card recommendation-card">
+            <div class="card-header" style="justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="icon">✨</span>
+                    <h3>AI 실전 압축 조합 (Top 5)</h3>
+                </div>
+                <button id="refresh-recommendations-btn" class="nav-btn small" style="background: var(--primary-blue-soft); color: var(--primary-blue); font-weight: bold; border: none; cursor: pointer;">🔄 조합 새로고침</button>
             </div>
             <div class="recommendation-grid" id="ai-combinations-container">
                 <div class="placeholder-text">지능형 연산 중...</div>
             </div>
         </section>
 
-        <!-- 3. 성과 요약 스코어보드 -->
-        <section class="analysis-card" id="summary-stat-board" style="display: none; margin-bottom: 30px; padding: 0; overflow: hidden;">
+        <!-- 4. 성과 요약 스코어보드 -->
+        <section class="analysis-card" id="summary-stat-board" style="display: none; padding: 0;">
             <table class="summary-score-table">
                 <tr>
                     <td><span class="s-label">📈 풀 내 평균 적중</span><div class="s-value-group"><span id="avg-hit-count" class="s-value c-blue">...</span><span class="s-unit">개</span></div></td>
@@ -222,8 +97,8 @@
             </table>
         </section>
 
-        <!-- 4. 상세 시뮬레이션 내역 -->
-        <section class="analysis-card table-card">
+        <!-- 5. 상세 시뮬레이션 내역 -->
+        <section class="analysis-card">
             <div class="card-header"><span class="icon">📋</span><h3>과거 회차별 적중 실적 (최근 20회)</h3></div>
             <div class="table-responsive">
                 <table class="prediction-table">

@@ -68,114 +68,69 @@ body {
 .nav-btn.small:hover { background: var(--primary-blue-soft); color: var(--primary-blue); }
 .nav-btn.small.active { background: var(--primary-blue); color: white; }
 
-/* [v6.1] Tetris Premium Design System */
-
-/* 테트리스 마스터 판 (Container) */
-.tetris-container {
-    display: grid;
-    grid-template-columns: 320px 6fr 1fr 2fr; /* 로직:Hot:Neu:Cold 비율 */
-    grid-template-rows: repeat(5, minmax(60px, auto));
-    grid-template-areas: 
-        "logic hot neu cold"
-        "logic hot neu cold"
-        "logic hot neu cold"
-        "stats hot neu cold"
-        "stats hot neu cold";
-    gap: 12px;
-    margin-bottom: 30px;
-    background: #e5e8eb; /* 테트리스 판 배경 */
-    padding: 15px;
-    border-radius: 24px;
-    border: 6px solid #191f28; /* 강렬한 프레임 */
-    box-shadow: inset 0 10px 30px rgba(0,0,0,0.1);
-}
-
-/* 개별 테트리스 조각 (Piece) */
-.tetris-piece {
+/* Card System (v6.0) */
+.analysis-card {
     background: var(--bg-card);
-    border-radius: 12px;
-    padding: 20px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 
-        inset -4px -4px 0 rgba(0,0,0,0.05), 
-        inset 4px 4px 0 rgba(255,255,255,0.8),
-        0 4px 10px rgba(0,0,0,0.05);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-light);
+    margin-bottom: 24px;
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease-out both;
 }
 
-.tetris-piece:hover {
-    transform: scale(1.02);
-    z-index: 10;
-    box-shadow: 0 10px 30px rgba(49, 130, 246, 0.15);
-}
-
-/* 조각별 영역 할당 및 테두리 포인트 컬러 */
-.piece-logic { grid-area: logic; border-bottom: 8px solid var(--primary-blue); }
-.piece-stats { grid-area: stats; border-bottom: 8px solid #805ad5; background: #f9f8ff; }
-.piece-hot { grid-area: hot; border-bottom: 8px solid var(--danger-red); }
-.piece-neutral { grid-area: neu; border-bottom: 8px solid var(--warning-orange); }
-.piece-cold { grid-area: cold; border-bottom: 8px solid var(--success-green); }
-
-.piece-header {
-    font-size: 0.7rem;
-    font-weight: 900;
-    margin-bottom: 12px;
-    color: var(--text-light);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
+    background: #fcfcfd;
+}
+.card-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+
+/* AI 예측 번호 풀 레이아웃 (표준 카드형) */
+.pool-container {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-/* 내부 공 그리드 (5행 정렬 강제) */
-.piece-hot .ball-container { grid-template-columns: repeat(6, 1fr); }
-.piece-neutral .ball-container { grid-template-columns: repeat(1, 1fr); }
-.piece-cold .ball-container { grid-template-columns: repeat(2, 1fr); }
-
-.ball-container.mini.wrap {
-    display: grid;
-    gap: 6px;
-    justify-items: center;
-    align-content: center;
-    flex: 1;
-}
-
-/* 모바일 대응: 조각별 스택 */
-@media (max-width: 1100px) {
-    .tetris-container {
-        grid-template-columns: 1fr;
-        grid-template-areas: 
-            "logic"
-            "stats"
-            "hot"
-            "neu"
-            "cold";
-        border-width: 4px;
-    }
-}
-
-/* 기존 유틸리티 스타일 유지 */
-.logic-text { font-size: 0.85rem; color: var(--text-sub); line-height: 1.6; }
-.logic-text strong { color: var(--primary-blue); display: block; margin-bottom: 8px; font-size: 1rem; }
-
-.mini-analysis-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    flex: 1;
-}
-.mini-stat-item {
-    background: white;
-    padding: 8px;
-    border-radius: 8px;
-    text-align: center;
+.pool-box {
+    padding: 16px;
+    border-radius: var(--radius-md);
+    background: #f8fafc;
     border: 1px solid var(--border-light);
 }
-.mini-stat-item .label { font-size: 0.65rem; color: var(--text-light); font-weight: bold; }
-.mini-stat-item .value { font-size: 0.9rem; font-weight: 800; color: var(--primary-blue); }
+
+.pool-header {
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pool-box.hot { border-left: 4px solid var(--danger-red); }
+.pool-box.neutral { border-left: 4px solid var(--warning-orange); }
+.pool-box.cold { border-left: 4px solid var(--success-green); }
+
+.ball-container.mini.wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.analysis-layout-split {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+    align-items: start;
+}
 
 /* 로또 구슬 프리미엄 디자인 (v6.0) */
 .ball {
