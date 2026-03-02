@@ -1,6 +1,23 @@
 let statsData = null;
-let manualNumbers = new Set(); // 사용자가 직접 클릭한 번호
-let autoNumbers = new Set();   // 시스템이 채워준 번호
+let manualNumbers = new Set();
+let autoNumbers = new Set();
+
+const INDICATOR_CONFIG = [
+    { group: 'G1', id: 'sum', label: '합계 점수', distKey: 'sum', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
+    { group: 'G2', id: 'odd-even', label: '홀짝 비율', distKey: 'odd_even', statKey: 'odd_count', calc: (nums) => {
+        const odds = nums.filter(n => n % 2 !== 0).length;
+        return `${odds}:${6 - odds}`;
+    }},
+    { group: 'G2', id: 'high-low', label: '고저 비율', distKey: 'high_low', statKey: 'low_count', calc: (nums) => {
+        const lows = nums.filter(n => n <= 22).length;
+        return `${lows}:${6 - lows}`;
+    }},
+    { group: 'G3', id: 'prime', label: '소수 출현', distKey: 'prime', statKey: 'prime', calc: (nums) => nums.filter(isPrime).length },
+    { group: 'G3', id: 'composite', label: '합성수 출현', distKey: 'composite', statKey: 'composite', calc: (nums) => nums.filter(isComposite).length },
+    { group: 'G3', id: 'multiple-3', label: '3의 배수', distKey: 'multiple_3', statKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length },
+    { group: 'G4', id: 'ac', label: 'AC 지수', distKey: 'ac', statKey: 'ac', calc: (nums) => calculate_ac(nums) },
+    { group: 'G5', id: 'end-sum', label: '끝수 합계', distKey: 'end_sum', statKey: 'end_sum', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0) }
+];
 
 function isPrime(num) {
     if (num <= 1) return false;
@@ -8,16 +25,12 @@ function isPrime(num) {
     return primes.includes(num);
 }
 
-function isComposite(num) {
-    return num > 1 && !isPrime(num);
-}
+function isComposite(num) { return num > 1 && !isPrime(num); }
 
 function calculate_ac(nums) {
     const diffs = new Set();
     for (let i = 0; i < nums.length; i++) {
-        for (let j = i + 1; j < nums.length; j++) {
-            diffs.add(Math.abs(nums[i] - nums[j]));
-        }
+        for (let j = i + 1; j < nums.length; j++) { diffs.add(Math.abs(nums[i] - nums[j])); }
     }
     return diffs.size - (nums.length - 1);
 }
@@ -45,10 +58,7 @@ function toggleNumber(num) {
         autoNumbers.delete(num);
         btn.classList.remove('selected');
     } else {
-        if (manualNumbers.size + autoNumbers.size >= 6) {
-            alert('최대 6개까지만 선택 가능합니다.');
-            return;
-        }
+        if (manualNumbers.size + autoNumbers.size >= 6) { alert('최대 6개까지만 선택 가능합니다.'); return; }
         manualNumbers.add(num);
         btn.classList.add('selected-manual');
     }
@@ -81,10 +91,7 @@ function updateSelectedBallsDisplay() {
 }
 
 function saveSelection() {
-    const data = {
-        manual: Array.from(manualNumbers),
-        auto: Array.from(autoNumbers)
-    };
+    const data = { manual: Array.from(manualNumbers), auto: Array.from(autoNumbers) };
     localStorage.setItem('combination_saved_picks', JSON.stringify(data));
 }
 
@@ -171,7 +178,6 @@ function runDetailedAnalysis() {
     const currentNumbers = [...manualNumbers, ...autoNumbers].sort((a, b) => a - b);
     if (currentNumbers.length !== 6) { alert('6개 번호를 선택해주세요.'); return; }
 
-    // 분석 시점에 번호를 최근 번호로 저장 (통계 페이지 연동)
     localStorage.setItem('lastGeneratedNumbers', JSON.stringify(currentNumbers));
 
     const reportSection = document.getElementById('report-section');
@@ -184,14 +190,11 @@ function runDetailedAnalysis() {
     const dists = statsData.distributions;
     const stats = statsData.stats_summary;
 
-    renderAnalysisRow('G1: 합계 점수', currentNumbers.reduce((a, b) => a + b, 0), dists.sum, stats.sum);
-    renderAnalysisRow('G2: 홀짝 비율', currentNumbers.filter(n => n % 2 !== 0).length + ":" + currentNumbers.filter(n => n % 2 === 0).length, dists.odd_even, stats.odd_count);
-    renderAnalysisRow('G2: 고저 비율', currentNumbers.filter(n => n <= 22).length + ":" + currentNumbers.filter(n => n > 22).length, dists.high_low, stats.low_count);
-    renderAnalysisRow('G3: 소수 출현', currentNumbers.filter(isPrime).length, dists.prime, stats.prime);
-    renderAnalysisRow('G3: 합성수 출현', currentNumbers.filter(isComposite).length, dists.composite, stats.composite);
-    renderAnalysisRow('G3: 3의 배수', currentNumbers.filter(n => n % 3 === 0).length, dists.multiple_3, stats.multiple_3);
-    renderAnalysisRow('G4: AC 지수', calculate_ac(currentNumbers), dists.ac, stats.ac);
-    renderAnalysisRow('G5: 끝수 합계', currentNumbers.reduce((a, b) => a + (b % 10), 0), dists.end_sum, stats.end_sum);
+    // [데이터 기반 자동화 루프] 상세 분석 결과 생성
+    INDICATOR_CONFIG.forEach(cfg => {
+        const value = cfg.calc(currentNumbers);
+        renderAnalysisRow(`${cfg.group}: ${cfg.label}`, value, dists[cfg.distKey], stats[cfg.statKey]);
+    });
 }
 
 function renderAnalysisRow(label, value, distData, statSummary) {

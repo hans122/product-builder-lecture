@@ -1,14 +1,39 @@
-// [통합] 데이터 복구 및 동기화 로직
+// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계
+const INDICATOR_CONFIG = [
+    { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum' },
+    { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count' },
+    { id: 'high-low', label: '고저 비율', unit: ' : ', group: 'G1', distKey: 'high_low', statKey: 'low_count' },
+    { id: 'period-1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1' },
+    { id: 'neighbor', label: '이웃수', unit: '개', group: 'G2', distKey: 'neighbor', statKey: 'neighbor' },
+    { id: 'period-1-2', label: '1~2회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_2', statKey: 'period_1_2' },
+    { id: 'period-1-3', label: '1~3회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_3', statKey: 'period_1_3' },
+    { id: 'consecutive', label: '연속번호 쌍', unit: '쌍', group: 'G2', distKey: 'consecutive', statKey: 'consecutive' },
+    { id: 'prime', label: '소수 포함', unit: '개', group: 'G3', distKey: 'prime', statKey: 'prime' },
+    { id: 'composite', label: '합성수 포함', unit: '개', group: 'G3', distKey: 'composite', statKey: 'composite' },
+    { id: 'multiple-3', label: '3배수 포함', unit: '개', group: 'G3', distKey: 'multiple_3', statKey: 'multiple_3' },
+    { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'm5' },
+    { id: 'square', label: '제곱수 포함', unit: '개', group: 'G3', distKey: 'square', statKey: 'square' },
+    { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double' },
+    { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'b15' },
+    { id: 'bucket-9', label: '5분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'b9' },
+    { id: 'bucket-5', label: '9분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'b5' },
+    { id: 'bucket-3', label: '15분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'b3' },
+    { id: 'color', label: '포함 색상수', unit: '색상', group: 'G4', distKey: 'color', statKey: 'color' },
+    { id: 'pattern-corner', label: '모서리 패턴', unit: '개', group: 'G4', distKey: 'pattern_corner', statKey: 'p_corner' },
+    { id: 'pattern-triangle', label: '삼각형 패턴', unit: '개', group: 'G4', distKey: 'pattern_triangle', statKey: 'p_tri' },
+    { id: 'end-sum', label: '끝수합', unit: '', group: 'G5', distKey: 'end_sum', statKey: 'end_sum' },
+    { id: 'same-end', label: '동끝수', unit: '개', group: 'G5', distKey: 'same_end', statKey: 'same_end' },
+    { id: 'ac', label: 'AC값', unit: '', group: 'G5', distKey: 'ac', statKey: 'ac' },
+    { id: 'span', label: 'Span(간격)', unit: '', group: 'G5', distKey: 'span', statKey: 'span' }
+];
+
 function restoreMyNumbers() {
     const section = document.getElementById('my-numbers-section');
     const list = document.getElementById('my-numbers-list');
     if (!section || !list) return;
 
     const saved = localStorage.getItem('lastGeneratedNumbers');
-    if (!saved) {
-        section.style.display = 'none';
-        return;
-    }
+    if (!saved) { section.style.display = 'none'; return; }
 
     try {
         const nums = JSON.parse(saved);
@@ -21,20 +46,13 @@ function restoreMyNumbers() {
                 b.innerText = n;
                 list.appendChild(b);
             });
-        } else {
-            section.style.display = 'none';
-        }
-    } catch (e) {
-        console.error('Data Restore Error:', e);
-        section.style.display = 'none';
-    }
+        } else { section.style.display = 'none'; }
+    } catch (e) { section.style.display = 'none'; }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 배너부터 즉시 복구 (사용자 경험 우선)
     restoreMyNumbers();
 
-    // 2. 통계 데이터 패칭
     fetch('advanced_stats.json?v=' + Date.now())
         .then(res => res.json())
         .then(data => {
@@ -42,34 +60,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const dists = data.distributions;
             const stats = data.stats_summary || {};
 
-            // 차트 렌더링 (G1~G5 표준 순서)
-            if (dists.sum) renderCurveChart('sum-chart', dists.sum, '', stats.sum);
-            if (dists.odd_even) renderCurveChart('odd-even-chart', dists.odd_even, ' : ', stats.odd_count);
-            if (dists.high_low) renderCurveChart('high-low-chart', dists.high_low, ' : ', stats.low_count);
-            if (dists.period_1) renderCurveChart('period-1-chart', dists.period_1, '개', stats.period_1);
-            if (dists.neighbor) renderCurveChart('neighbor-chart', dists.neighbor, '개', stats.neighbor);
-            if (dists.period_1_2) renderCurveChart('period-1-2-chart', dists.period_1_2, '개', stats.period_1_2);
-            if (dists.period_1_3) renderCurveChart('period-1-3-chart', dists.period_1_3, '개', stats.period_1_3);
-            if (dists.consecutive) renderCurveChart('consecutive-chart', dists.consecutive, '쌍', stats.consecutive);
-            if (dists.prime) renderCurveChart('prime-chart', dists.prime, '개', stats.prime);
-            if (dists.composite) renderCurveChart('composite-chart', dists.composite, '개', stats.composite);
-            if (dists.multiple_3) renderCurveChart('multiple-3-chart', dists.multiple_3, '개', stats.multiple_3);
-            if (dists.multiple_5) renderCurveChart('multiple-5-chart', dists.multiple_5, '개', stats.multiple_5);
-            if (dists.square) renderCurveChart('square-chart', dists.square, '개', stats.square);
-            if (dists.double_num) renderCurveChart('double-chart', dists.double_num, '개', stats.double_num);
-            if (dists.bucket_15) renderCurveChart('bucket-15-chart', dists.bucket_15, '구간', stats.bucket_15);
-            if (dists.bucket_9) renderCurveChart('bucket-9-chart', dists.bucket_9, '구간', stats.bucket_9);
-            if (dists.bucket_5) renderCurveChart('bucket-5-chart', dists.bucket_5, '구간', stats.bucket_5);
-            if (dists.bucket_3) renderCurveChart('bucket-3-chart', dists.bucket_3, '구간', stats.bucket_3);
-            if (dists.color) renderCurveChart('color-chart', dists.color, '색상', stats.color);
-            if (dists.pattern_corner) renderCurveChart('pattern-corner-chart', dists.pattern_corner, '개', stats.pattern_corner);
-            if (dists.pattern_triangle) renderCurveChart('pattern-triangle-chart', dists.pattern_triangle, '개', stats.pattern_triangle);
-            if (dists.end_sum) renderCurveChart('end-sum-chart', dists.end_sum, '', stats.end_sum);
-            if (dists.same_end) renderCurveChart('same-end-chart', dists.same_end, '개', stats.same_end);
-            if (dists.ac) renderCurveChart('ac-chart', dists.ac, '', stats.ac);
-            if (dists.span) renderCurveChart('span-chart', dists.span, '', stats.span);
+            // [데이터 기반 자동화 루프] 차트 렌더링
+            INDICATOR_CONFIG.forEach(cfg => {
+                const chartId = `${cfg.id}-chart`;
+                if (dists[cfg.distKey]) {
+                    renderCurveChart(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey]);
+                }
+            });
 
-            if (data.recent_draws) setTimeout(() => renderMiniTables(data.recent_draws.slice(0, 6)), 100);
+            if (data.recent_draws) {
+                renderMiniTables(data.recent_draws.slice(0, 6));
+            }
             if (data.frequency) renderFrequencyChart(data.frequency);
         })
         .catch(err => console.error('Stats flow failed:', err));
@@ -201,40 +202,17 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null) {
 }
 
 function renderMiniTables(draws) {
-    const config = [
-        { id: 'sum-mini-body', key: 'sum' },
-        { id: 'odd-even-mini-body', key: 'odd_even' },
-        { id: 'high-low-mini-body', key: 'high_low' },
-        { id: 'period-1-mini-body', key: 'period_1' },
-        { id: 'neighbor-mini-body', key: 'neighbor' },
-        { id: 'period-1-2-mini-body', key: 'period_1_2' },
-        { id: 'period-1-3-mini-body', key: 'period_1_3' },
-        { id: 'consecutive-mini-body', key: 'consecutive' },
-        { id: 'prime-mini-body', key: 'prime' },
-        { id: 'composite-mini-body', key: 'composite' },
-        { id: 'multiple-3-mini-body', key: 'multiple_3' },
-        { id: 'multiple-5-mini-body', key: 'm5' },
-        { id: 'square-mini-body', key: 'square' },
-        { id: 'double-mini-body', key: 'double' },
-        { id: 'bucket-15-mini-body', key: 'b15' },
-        { id: 'bucket-9-mini-body', key: 'b9' },
-        { id: 'bucket-5-mini-body', key: 'b5' },
-        { id: 'bucket-3-mini-body', key: 'b3' },
-        { id: 'color-mini-body', key: 'color' },
-        { id: 'pattern-corner-mini-body', key: 'p_corner' },
-        { id: 'pattern-triangle-mini-body', key: 'p_tri' },
-        { id: 'end-sum-mini-body', key: 'end_sum' },
-        { id: 'same-end-mini-body', key: 'same_end' },
-        { id: 'ac-mini-body', key: 'ac' },
-        { id: 'span-mini-body', key: 'span' }
-    ];
-    config.forEach(item => {
-        const tbody = document.getElementById(item.id); if (!tbody) return;
+    // [데이터 기반 자동화 루프] 표 렌더링
+    INDICATOR_CONFIG.forEach(cfg => {
+        const bodyId = `${cfg.id}-mini-body`;
+        const tbody = document.getElementById(bodyId);
+        if (!tbody) return;
+
         tbody.innerHTML = '';
         draws.forEach(draw => {
             const tr = document.createElement('tr');
             const balls = (draw.nums || []).map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
-            const val = draw[item.key] !== undefined ? draw[item.key] : '-';
+            const val = draw[cfg.statKey] !== undefined ? draw[cfg.statKey] : '-';
             tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${balls}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);
         });
