@@ -108,15 +108,29 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     xAxis.setAttribute("stroke", "#edf2f7"); xAxis.setAttribute("stroke-width", "1.5");
     svg.appendChild(xAxis);
 
-    const hatchId = `hatch-optimal-${elementId}`;
+    const hatchIdOptimal = `hatch-optimal-${elementId}`;
+    const hatchIdSafe = `hatch-safe-${elementId}`;
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-    const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-    pattern.setAttribute("id", hatchId); pattern.setAttribute("patternUnits", "userSpaceOnUse");
-    pattern.setAttribute("width", "4"); pattern.setAttribute("height", "4"); pattern.setAttribute("patternTransform", "rotate(45)");
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", "0"); line.setAttribute("y1", "0"); line.setAttribute("x2", "0"); line.setAttribute("y2", "4");
-    line.setAttribute("stroke", "rgba(46, 204, 113, 0.6)"); line.setAttribute("stroke-width", "1.5");
-    pattern.appendChild(line); defs.appendChild(pattern); svg.appendChild(defs);
+    
+    // [옵티멀] 녹색 빗금 (45도)
+    const patternOpt = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+    patternOpt.setAttribute("id", hatchIdOptimal); patternOpt.setAttribute("patternUnits", "userSpaceOnUse");
+    patternOpt.setAttribute("width", "4"); patternOpt.setAttribute("height", "4"); patternOpt.setAttribute("patternTransform", "rotate(45)");
+    const lineOpt = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    lineOpt.setAttribute("x1", "0"); lineOpt.setAttribute("y1", "0"); lineOpt.setAttribute("x2", "0"); lineOpt.setAttribute("y2", "4");
+    lineOpt.setAttribute("stroke", "rgba(46, 204, 113, 0.6)"); lineOpt.setAttribute("stroke-width", "1.5");
+    patternOpt.appendChild(lineOpt); defs.appendChild(patternOpt);
+
+    // [세이프] 파란색 빗금 (-45도)
+    const patternSafe = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+    patternSafe.setAttribute("id", hatchIdSafe); patternSafe.setAttribute("patternUnits", "userSpaceOnUse");
+    patternSafe.setAttribute("width", "4"); patternSafe.setAttribute("height", "4"); patternSafe.setAttribute("patternTransform", "rotate(-45)");
+    const lineSafe = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    lineSafe.setAttribute("x1", "0"); lineSafe.setAttribute("y1", "0"); lineSafe.setAttribute("x2", "0"); lineSafe.setAttribute("y2", "4");
+    lineSafe.setAttribute("stroke", "rgba(52, 152, 219, 0.4)"); lineSafe.setAttribute("stroke-width", "1.2");
+    patternSafe.appendChild(lineSafe); defs.appendChild(patternSafe);
+    
+    svg.appendChild(defs);
 
     const drawZone = (z, color) => {
         const minBound = Math.round(mu - z * sd);
@@ -134,7 +148,13 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
             path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
         }
     };
-    drawZone(2, "rgba(52, 152, 219, 0.12)"); drawZone(1, `url(#${hatchId})`); drawZone(1, "rgba(46, 204, 113, 0.05)");
+    // 레이어 순서: 세이프 빗금(-45도) -> 옵티멀 빗금(45도)
+    drawZone(2, `url(#${hatchIdSafe})`); 
+    drawZone(1, `url(#${hatchIdOptimal})`); 
+    // 가시성을 위해 아주 연한 배경색 살짝 추가
+    drawZone(2, "rgba(52, 152, 219, 0.03)");
+    drawZone(1, "rgba(46, 204, 113, 0.03)"); 
+
 
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
     const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
