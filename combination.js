@@ -163,12 +163,12 @@ function renderAnalysisRow(label, value, distData, statSummary) {
     const tr = document.createElement('tr');
     
     let status = LottoUtils.getZStatus(value, statSummary);
-    let opinion = '안정적인 데이터 분포 내에 있습니다.';
+    let opinion = '가장 안정적인 핵심 데이터 구간에 있습니다.';
     
-    if (status === 'warning') opinion = '통계적 희귀 구간입니다. 신중한 선택이 필요합니다.';
-    else if (status === 'safe') opinion = '평균에서 약간 벗어난 구간입니다.';
+    if (status === 'danger') opinion = '상위 5% 미만의 아주 희귀한 패턴입니다.';
+    else if (status === 'warning') opinion = '세이프를 벗어나 쏠림이 발생하는 경계 구간입니다.';
 
-    const statusText = status === 'warning' ? '위험' : (status === 'safe' ? '주의' : '세이프');
+    const statusText = status === 'danger' ? '위험' : (status === 'warning' ? '주의' : '세이프');
     tr.innerHTML = `<td><strong>${label}</strong></td><td>${value}</td><td><span class="status-badge ${status}">${statusText}</span></td><td class="text-left">${opinion}</td>`;
     tbody.appendChild(tr);
 }

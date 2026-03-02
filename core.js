@@ -76,13 +76,15 @@ const LottoUtils = {
         if (num <= 10) return 'yellow'; if (num <= 20) return 'blue';
         if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
     },
+    // 정규분포 기반 3단계 등급 판정 (v5.2)
     getZStatus: (val, stat) => {
         if (!stat || stat.std === 0) return 'safe';
         const numVal = (typeof val === 'string' && val.includes(':')) ? parseFloat(val.split(':')[0]) : parseFloat(val);
         const z = Math.abs(numVal - stat.mean) / stat.std;
-        if (z <= 1.0) return 'optimal';
-        if (z <= 2.0) return 'safe';
-        return 'warning';
+        
+        if (z <= 1.0) return 'safe';    // 핵심 안정 구간 (상위 약 68%)
+        if (z <= 2.0) return 'warning'; // 경계 구간 (상위 68%~95%)
+        return 'danger';                // 희귀 구간 (상위 95% 초과)
     },
     logError: (msg, context = '') => {
         console.error(`[LottoCore Error] ${msg}`, context);
