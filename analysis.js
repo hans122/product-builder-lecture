@@ -2,8 +2,8 @@
 // 주의: id는 HTML 요소의 ID와 일치해야 함 (하이픈 사용)
 const INDICATOR_CONFIG = [
     { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
-    { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
-    { id: 'high-low', label: '고저 비율', unit: ' : ', group: 'G1', distKey: 'high_low', statKey: 'low_count', drawKey: 'high_low', calc: (nums) => nums.filter(n => n <= 22).length },
+    { id: 'odd-even', label: '홀짝 비율', unit: '', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
+    { id: 'high-low', label: '고저 비율', unit: '', group: 'G1', distKey: 'high_low', statKey: 'low_count', drawKey: 'high_low', calc: (nums) => nums.filter(n => n <= 22).length },
     { id: 'period_1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1', drawKey: 'period_1', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : null },
     { id: 'neighbor', label: '이웃수', unit: '개', group: 'G2', distKey: 'neighbor', statKey: 'neighbor', drawKey: 'neighbor', calc: (nums, data) => {
         if (!data || !data.last_3_draws) return null;
