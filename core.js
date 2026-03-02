@@ -83,10 +83,17 @@ const LottoUI = {
         let tip = '';
         if (stat) {
             const optMin = Math.max(0, Math.round(stat.mean - stat.std));
-            const optMax = Math.round(stat.mean + stat.std);
+            let optMax = Math.round(stat.mean + stat.std);
             const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
-            const safeMax = Math.round(stat.mean + 2 * stat.std);
-            tip = `data-tip="[${cfg.label}] 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})"`;
+            let safeMax = Math.round(stat.mean + 2 * stat.std);
+
+            // [추가] 물리적 최대값(maxLimit) 보정
+            if (cfg.maxLimit) {
+                optMax = Math.min(cfg.maxLimit, optMax);
+                safeMax = Math.min(cfg.maxLimit, safeMax);
+            }
+
+            tip = `data-tip="[${cfg.label}] 세이프: ${safeMin}~${safeMax}${cfg.unit} (옵티멀: ${optMin}~${optMax}${cfg.unit})"`;
         }
 
         item.innerHTML = `

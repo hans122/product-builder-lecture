@@ -49,12 +49,19 @@ function updateGuideStats(data) {
         return `<strong>${prob}%(${count}/${total})</strong>`;
     };
 
-    const getZoneInfo = (stat, dist) => {
+    const getZoneInfo = (stat, dist, cfg) => {
         if (!stat || !dist) return null;
         const optMin = Math.max(0, Math.round(stat.mean - stat.std));
-        const optMax = Math.round(stat.mean + stat.std);
+        let optMax = Math.round(stat.mean + stat.std);
         const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
-        const safeMax = Math.round(stat.mean + 2 * stat.std);
+        let safeMax = Math.round(stat.mean + 2 * stat.std);
+
+        // [추가] 물리적 최대값(maxLimit) 보정
+        if (cfg && cfg.maxLimit) {
+            optMax = Math.min(cfg.maxLimit, optMax);
+            safeMax = Math.min(cfg.maxLimit, safeMax);
+        }
+
         let optHits = 0; let safeHits = 0;
         Object.entries(dist).forEach(([label, count]) => {
             let val = parseInt(label.split(/[ :\-]/)[0]);
@@ -70,7 +77,7 @@ function updateGuideStats(data) {
     LottoConfig.INDICATORS.forEach(cfg => {
         const container = document.getElementById(`${cfg.id}-stat-container`);
         const tipElem = document.getElementById(`${cfg.id}-tip`);
-        const info = getZoneInfo(stats[cfg.statKey], dists[cfg.distKey]);
+        const info = getZoneInfo(stats[cfg.statKey], dists[cfg.distKey], cfg);
 
         if (info) {
             if (container) {

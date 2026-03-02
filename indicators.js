@@ -26,11 +26,12 @@ const LottoConfig = {
         { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'multiple_5', drawKey: 'm5', calc: (nums) => nums.filter(n => n % 5 === 0).length },
         { id: 'square', label: '제곱수 포함', unit: '개', group: 'G3', distKey: 'square', statKey: 'square', drawKey: 'square', calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length },
         { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double_num', drawKey: 'double', calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length },
-        { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'bucket_15', drawKey: 'b15', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size },
-        { id: 'bucket-9', label: '5분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'bucket_9', drawKey: 'b9', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size },
-        { id: 'bucket-5', label: '9분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'bucket_5', drawKey: 'b5', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size },
-        { id: 'bucket-3', label: '15분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'bucket_3', drawKey: 'b3', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/3))).size },
-        { id: 'color', label: '포함 색상수', unit: '색상', group: 'G4', distKey: 'color', statKey: 'color', drawKey: 'color', calc: (nums) => new Set(nums.map(LottoUtils.getBallColorClass)).size },
+        { id: 'bucket-15', label: '3분할(15개씩) 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'bucket_15', drawKey: 'b15', maxLimit: 3, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size },
+        { id: 'bucket-9', label: '5분할(9개씩) 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'bucket_9', drawKey: 'b9', maxLimit: 5, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size },
+        { id: 'bucket-5', label: '9분할(5개씩) 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'bucket_5', drawKey: 'b5', maxLimit: 9, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size },
+        { id: 'bucket-3', label: '15분할(3개씩) 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'bucket_3', drawKey: 'b3', maxLimit: 15, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/3))).size },
+        { id: 'color', label: '포함 색상수', unit: '색상', group: 'G4', distKey: 'color', statKey: 'color', drawKey: 'color', maxLimit: 5, calc: (nums) => new Set(nums.map(LottoUtils.getBallColorClass)).size },
+
         { id: 'pattern-corner', label: '모서리 패턴', unit: '개', group: 'G4', distKey: 'pattern_corner', statKey: 'pattern_corner', drawKey: 'p_corner', calc: (nums) => {
             const corners = [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42];
             return nums.filter(n => corners.includes(n)).length;
