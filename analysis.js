@@ -1,40 +1,41 @@
-// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계 (JSON 데이터와 100% 일치화)
+// [표준 지표 설정] 데이터 생성 로직(analyze_data.py)과 JSON 키값 100% 동기화
 const INDICATOR_CONFIG = [
-    { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
-    { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
-    { id: 'high-low', label: '고저 비율', unit: ' : ', group: 'G1', distKey: 'high_low', statKey: 'low_count', calc: (nums) => nums.filter(n => n <= 22).length },
-    { id: 'period-1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : null },
-    { id: 'neighbor', label: '이웃수', unit: '개', group: 'G2', distKey: 'neighbor', statKey: 'neighbor', calc: (nums, data) => {
+    { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
+    { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
+    { id: 'high-low', label: '고저 비율', unit: ' : ', group: 'G1', distKey: 'high_low', statKey: 'low_count', drawKey: 'high_low', calc: (nums) => nums.filter(n => n <= 22).length },
+    { id: 'period-1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1', drawKey: 'period_1', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : null },
+    { id: 'neighbor', label: '이웃수', unit: '개', group: 'G2', distKey: 'neighbor', statKey: 'neighbor', drawKey: 'neighbor', calc: (nums, data) => {
         if (!data || !data.last_3_draws) return null;
         const neighbors = new Set();
         data.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
         return nums.filter(n => neighbors.has(n)).length;
     }},
-    { id: 'period-1-2', label: '1~2회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_2', statKey: 'period_1_2', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length : null },
-    { id: 'period-1-3', label: '1~3회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_3', statKey: 'period_1_3', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[]), ...(data.last_3_draws[2]||[])]).has(n)).length : null },
-    { id: 'consecutive', label: '연속번호 쌍', unit: '쌍', group: 'G2', distKey: 'consecutive', statKey: 'consecutive', calc: (nums) => {
+    { id: 'period-1-2', label: '1~2회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_2', statKey: 'period_1_2', drawKey: 'period_1_2', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length : null },
+    { id: 'period-1-3', label: '1~3회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_3', statKey: 'period_1_3', drawKey: 'period_1_3', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[]), ...(data.last_3_draws[2]||[])]).has(n)).length : null },
+    { id: 'consecutive', label: '연속번호 쌍', unit: '쌍', group: 'G2', distKey: 'consecutive', statKey: 'consecutive', drawKey: 'consecutive', calc: (nums) => {
         let cnt = 0; for (let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) cnt++; return cnt;
     }},
-    { id: 'prime', label: '소수 포함', unit: '개', group: 'G3', distKey: 'prime', statKey: 'prime', calc: (nums) => nums.filter(isPrime).length },
-    { id: 'composite', label: '합성수 포함', unit: '개', group: 'G3', distKey: 'composite', statKey: 'composite', calc: (nums) => nums.filter(isComposite).length },
-    { id: 'multiple-3', label: '3배수 포함', unit: '개', group: 'G3', distKey: 'multiple_3', statKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length },
-    { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'multiple_5', calc: (nums) => nums.filter(n => n % 5 === 0).length },
-    { id: 'square', label: '제곱수 포함', unit: '개', group: 'G3', distKey: 'square', statKey: 'square', calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length },
-    { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double_num', calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length },
-    { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'bucket_15', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size },
-    { id: 'bucket-9', label: '5분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'bucket_9', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size },
-    { id: 'bucket-5', label: '9분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'bucket_5', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size },
-    { id: 'bucket-3', label: '15분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'bucket_3', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/3))).size },
-    { id: 'color', label: '포함 색상수', unit: '색상', group: 'G4', distKey: 'color', statKey: 'color', calc: (nums) => new Set(nums.map(getBallColorClass)).size },
-    { id: 'pattern-corner', label: '모서리 패턴', unit: '개', group: 'G4', distKey: 'pattern_corner', statKey: 'pattern_corner', calc: (nums) => nums.filter(n => [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42].includes(n)).length },
-    { id: 'pattern-triangle', label: '삼각형 패턴', unit: '개', group: 'G4', distKey: 'pattern_triangle', statKey: 'pattern_triangle', calc: (nums) => nums.filter(n => [4,10,11,12,16,17,18,19,20,24,25,26,32].includes(n)).length },
-    { id: 'end-sum', label: '끝수합', unit: '', group: 'G5', distKey: 'end_sum', statKey: 'end_sum', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0) },
-    { id: 'same-end', label: '동끝수', unit: '개', group: 'G5', distKey: 'same_end', statKey: 'same_end', calc: (nums) => {
+    { id: 'prime', label: '소수 포함', unit: '개', group: 'G3', distKey: 'prime', statKey: 'prime', drawKey: 'prime', calc: (nums) => nums.filter(isPrime).length },
+    { id: 'composite', label: '합성수 포함', unit: '개', group: 'G3', distKey: 'composite', statKey: 'composite', drawKey: 'composite', calc: (nums) => nums.filter(isComposite).length },
+    { id: 'multiple-3', label: '3배수 포함', unit: '개', group: 'G3', distKey: 'multiple_3', statKey: 'multiple_3', drawKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length },
+    { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'multiple_5', drawKey: 'm5', calc: (nums) => nums.filter(n => n % 5 === 0).length },
+    { id: 'square', label: '제곱수 포함', unit: '개', group: 'G3', distKey: 'square', statKey: 'square', drawKey: 'square', calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length },
+    { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double_num', drawKey: 'double', calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length },
+    { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'bucket_15', drawKey: 'b15', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size },
+    { id: 'bucket-9', label: '5분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'bucket_9', drawKey: 'b9', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size },
+    { id: 'bucket-5', label: '9분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'bucket_5', drawKey: 'b5', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size },
+    { id: 'bucket-3', label: '15분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'bucket_3', drawKey: 'b3', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/3))).size },
+    { id: 'color', label: '포함 색상수', unit: '색상', group: 'G4', distKey: 'color', statKey: 'color', drawKey: 'color', calc: (nums) => new Set(nums.map(getBallColorClass)).size },
+    { id: 'pattern-corner', label: '모서리 패턴', unit: '개', group: 'G4', distKey: 'pattern_corner', statKey: 'pattern_corner', drawKey: 'p_corner', calc: (nums) => nums.filter(n => [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42].includes(n)).length },
+    { id: 'pattern-triangle', label: '삼각형 패턴', unit: '개', group: 'G4', distKey: 'pattern_triangle', statKey: 'pattern_triangle', drawKey: 'p_tri', calc: (nums) => nums.filter(n => [4,10,11,12,16,17,18,19,20,24,25,26,32].includes(n)).length },
+    { id: 'end-sum', label: '끝수합', unit: '', group: 'G5', distKey: 'end_sum', statKey: 'end_sum', drawKey: 'end_sum', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0) },
+    { id: 'same-end', label: '동끝수', unit: '개', group: 'G5', distKey: 'same_end', statKey: 'same_end', drawKey: 'same_end', calc: (nums) => {
         const ends = nums.map(n => n % 10);
-        return Math.max(...Object.values(ends.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {})));
+        const counts = ends.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
+        return Math.max(...Object.values(counts));
     }},
-    { id: 'ac', label: 'AC값', unit: '', group: 'G5', distKey: 'ac', statKey: 'ac', calc: (nums) => calculate_ac(nums) },
-    { id: 'span', label: 'Span(간격)', unit: '', group: 'G5', distKey: 'span', statKey: 'span', calc: (nums) => nums[5] - nums[0] }
+    { id: 'ac', label: 'AC값', unit: '', group: 'G5', distKey: 'ac', statKey: 'ac', drawKey: 'ac', calc: (nums) => calculate_ac(nums) },
+    { id: 'span', label: 'Span(간격)', unit: '', group: 'G5', distKey: 'span', statKey: 'span', drawKey: 'span', calc: (nums) => nums[nums.length-1] - nums[0] }
 ];
 
 let globalStatsData = null;
@@ -144,7 +145,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-    // [패턴 ID 고유화] 차트별 고유 ID 부여로 빗금 표시 문제 해결
     const hatchId = `hatch-optimal-${elementId}`;
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
@@ -181,7 +181,7 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         }
     };
     drawZone(2, "rgba(52, 152, 219, 0.12)"); 
-    drawZone(1, `url(#${hatchId})`); // 고유 패턴 ID 참조
+    drawZone(1, `url(#${hatchId})`); 
     drawZone(1, "rgba(46, 204, 113, 0.05)"); 
 
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
@@ -238,7 +238,8 @@ function renderMiniTables(draws) {
         draws.forEach(draw => {
             const tr = document.createElement('tr');
             const balls = (draw.nums || []).map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
-            const val = draw[cfg.statKey] !== undefined ? draw[cfg.statKey] : (draw[cfg.distKey] !== undefined ? draw[cfg.distKey] : '-');
+            // JSON 회차별 데이터 키(drawKey)를 우선 참조
+            const val = draw[cfg.drawKey] !== undefined ? draw[cfg.drawKey] : (draw[cfg.statKey] !== undefined ? draw[cfg.statKey] : '-');
             tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${balls}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);
         });
