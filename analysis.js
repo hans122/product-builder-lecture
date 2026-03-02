@@ -135,23 +135,32 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         const y = baselineY - (e[1] / maxFreq) * chartHeight;
         return { x, y, label: e[0], value: e[1], index: i };
     });
+const labelMap = new Map(); // index -> { cls, val }
 
-    const labelSet = new Set();
-    const finalLabels = [];
-    statPoints.forEach(sp => {
-        let bestIdx = -1; let minD = Infinity;
-        points.forEach((p, idx) => {
-            const val = parseFloat(p.label.split(/[ :\-]/)[0]);
-            const diff = Math.abs(val - sp.val);
-            if (diff < minD) { minD = diff; bestIdx = idx; }
-        });
-        if (bestIdx !== -1 && !labelSet.has(bestIdx)) {
-            labelSet.add(bestIdx);
-            finalLabels.push({ index: bestIdx, cls: sp.cls, val: sp.val });
-        }
+// 우선순위 정의 (더 좁은 구역일수록 높은 우선순위)
+const priority = { 'optimal-zone': 3, 'safe-zone': 2, 'min-max': 1 };
+
+statPoints.forEach(sp => {
+    let bestIdx = -1; let minD = Infinity;
+    points.forEach((p, idx) => {
+        const val = parseFloat(p.label.split(/[ :\-]/)[0]);
+        const diff = Math.abs(val - sp.val);
+        if (diff < minD) { minD = diff; bestIdx = idx; }
     });
 
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    if (bestIdx !== -1) {
+        const existing = labelMap.get(bestIdx);
+        if (!existing || priority[sp.cls] > priority[existing.cls]) {
+            labelMap.set(bestIdx, { cls: sp.cls, val: sp.val });
+        }
+    }
+});
+
+const finalLabels = Array.from(labelMap.entries()).map(([index, info]) => ({
+    index, cls: info.cls, val: info.val
+})).sort((a, b) => a.index - b.index);
+
+const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
