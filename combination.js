@@ -4,18 +4,18 @@ let autoNumbers = new Set();
 
 const INDICATOR_CONFIG = [
     { group: 'G1', id: 'sum', label: '합계 점수', distKey: 'sum', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
-    { group: 'G2', id: 'odd-even', label: '홀짝 비율', distKey: 'odd_even', statKey: 'odd_count', calc: (nums) => {
+    { group: 'G1', id: 'odd-even', label: '홀짝 비율', distKey: 'odd_even', statKey: 'odd_count', calc: (nums) => {
         const odds = nums.filter(n => n % 2 !== 0).length;
         return `${odds}:${6 - odds}`;
     }},
-    { group: 'G2', id: 'high-low', label: '고저 비율', distKey: 'high_low', statKey: 'low_count', calc: (nums) => {
+    { group: 'G1', id: 'high-low', label: '고저 비율', distKey: 'high_low', statKey: 'low_count', calc: (nums) => {
         const lows = nums.filter(n => n <= 22).length;
         return `${lows}:${6 - lows}`;
     }},
     { group: 'G3', id: 'prime', label: '소수 출현', distKey: 'prime', statKey: 'prime', calc: (nums) => nums.filter(isPrime).length },
     { group: 'G3', id: 'composite', label: '합성수 출현', distKey: 'composite', statKey: 'composite', calc: (nums) => nums.filter(isComposite).length },
     { group: 'G3', id: 'multiple-3', label: '3의 배수', distKey: 'multiple_3', statKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length },
-    { group: 'G4', id: 'ac', label: 'AC 지수', distKey: 'ac', statKey: 'ac', calc: (nums) => calculate_ac(nums) },
+    { group: 'G5', id: 'ac', label: 'AC 지수', distKey: 'ac', statKey: 'ac', calc: (nums) => calculate_ac(nums) },
     { group: 'G5', id: 'end-sum', label: '끝수 합계', distKey: 'end_sum', statKey: 'end_sum', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0) }
 ];
 
@@ -190,7 +190,6 @@ function runDetailedAnalysis() {
     const dists = statsData.distributions;
     const stats = statsData.stats_summary;
 
-    // [데이터 기반 자동화 루프] 상세 분석 결과 생성
     INDICATOR_CONFIG.forEach(cfg => {
         const value = cfg.calc(currentNumbers);
         renderAnalysisRow(`${cfg.group}: ${cfg.label}`, value, dists[cfg.distKey], stats[cfg.statKey]);

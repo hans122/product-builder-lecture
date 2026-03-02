@@ -1,17 +1,17 @@
-// [표준 지표 설정] 데이터 생성 로직(analyze_data.py)과 JSON 키값 100% 동기화
+// [표준 지표 설정] DATA_SCHEMA.md(v4.0) 마스터 매핑 테이블 엄격 준수
 const INDICATOR_CONFIG = [
     { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
     { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
     { id: 'high-low', label: '고저 비율', unit: ' : ', group: 'G1', distKey: 'high_low', statKey: 'low_count', drawKey: 'high_low', calc: (nums) => nums.filter(n => n <= 22).length },
-    { id: 'period-1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1', drawKey: 'period_1', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : null },
+    { id: 'period_1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1', drawKey: 'period_1', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : null },
     { id: 'neighbor', label: '이웃수', unit: '개', group: 'G2', distKey: 'neighbor', statKey: 'neighbor', drawKey: 'neighbor', calc: (nums, data) => {
         if (!data || !data.last_3_draws) return null;
         const neighbors = new Set();
         data.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
         return nums.filter(n => neighbors.has(n)).length;
     }},
-    { id: 'period-1-2', label: '1~2회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_2', statKey: 'period_1_2', drawKey: 'period_1_2', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length : null },
-    { id: 'period-1-3', label: '1~3회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_3', statKey: 'period_1_3', drawKey: 'period_1_3', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[]), ...(data.last_3_draws[2]||[])]).has(n)).length : null },
+    { id: 'period_1_2', label: '1~2회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_2', statKey: 'period_1_2', drawKey: 'period_1_2', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length : null },
+    { id: 'period_1_3', label: '1~3회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_3', statKey: 'period_1_3', drawKey: 'period_1_3', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[]), ...(data.last_3_draws[2]||[])]).has(n)).length : null },
     { id: 'consecutive', label: '연속번호 쌍', unit: '쌍', group: 'G2', distKey: 'consecutive', statKey: 'consecutive', drawKey: 'consecutive', calc: (nums) => {
         let cnt = 0; for (let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) cnt++; return cnt;
     }},
@@ -111,6 +111,16 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         { label: '맥스 세이프', val: Math.min(maxVal, Math.round(mu + 2*sd)), cls: 'safe-zone' },
         { label: '최대', val: maxVal, cls: 'min-max' }
     ];
+
+    const bContainer = document.createElement('div');
+    bContainer.className = 'stat-badge-container';
+    statPoints.forEach(p => {
+        const badge = document.createElement('div');
+        badge.className = `stat-badge ${p.cls}`;
+        badge.innerHTML = `${p.val}${unit.trim()}`;
+        bContainer.appendChild(badge);
+    });
+    container.appendChild(bContainer);
 
     const width = container.clientWidth || 600;
     const height = 180;
@@ -238,7 +248,6 @@ function renderMiniTables(draws) {
         draws.forEach(draw => {
             const tr = document.createElement('tr');
             const balls = (draw.nums || []).map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
-            // JSON 회차별 데이터 키(drawKey)를 우선 참조
             const val = draw[cfg.drawKey] !== undefined ? draw[cfg.drawKey] : (draw[cfg.statKey] !== undefined ? draw[cfg.statKey] : '-');
             tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${balls}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);

@@ -40,6 +40,20 @@
                         <div class="logic-item"><strong>복합 가중치 모델 v2.2</strong><p>사용자 이월/이웃 로직(25%) + 최근 기세(35%) + 중기 안정성(20%) + 주기/밸런스(20%)를 합산하여 번호별 점수를 산출합니다.</p></div>
                         <div class="logic-item"><strong>검증 방식</strong><p>매 회차마다 '당시 알 수 있었던 데이터'만 사용하여 적중률을 정직하게 시뮬레이션합니다.</p></div>
                     </div>
+                    
+                    <!-- 실시간 지표 분석 그리드 추가 -->
+                    <div style="padding: 0 20px 20px;">
+                        <div class="group-sub-title">📡 실시간 분석 지표 (G1~G5)</div>
+                        <div class="analysis-grid-horizontal">
+                            <div class="analysis-item clickable"><span class="label">합계</span><span id="sum" class="value">-</span></div>
+                            <div class="analysis-item clickable"><span class="label">홀짝</span><span id="odd-even" class="value">-</span></div>
+                            <div class="analysis-item clickable"><span class="label">고저</span><span id="high-low" class="value">-</span></div>
+                            <div class="analysis-item clickable"><span class="label">이월</span><span id="period_1" class="value">-</span></div>
+                            <div class="analysis-item clickable"><span class="label">이웃</span><span id="neighbor" class="value">-</span></div>
+                            <div class="analysis-item clickable"><span class="label">AC</span><span id="ac" class="value">-</span></div>
+                        </div>
+                        <p style="font-size: 0.7rem; color: #a0aec0; margin-top: 10px; text-align: center;">* 클릭 시 상세 통계 화면으로 이동</p>
+                    </div>
                 </section>
                 <section class="analysis-card pool-card">
                     <div class="pool-container">

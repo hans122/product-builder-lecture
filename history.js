@@ -1,3 +1,32 @@
+// [표준 지표 설정] DATA_SCHEMA.md(v4.0) 마스터 매핑 테이블 엄격 준수
+const INDICATOR_CONFIG = [
+    { id: 'sum', label: '총합', distKey: 'sum', statKey: 'sum', drawKey: 'sum' },
+    { id: 'odd-even', label: '홀짝', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even' },
+    { id: 'high-low', label: '고저', distKey: 'high_low', statKey: 'low_count', drawKey: 'high_low' },
+    { id: 'period_1', label: '이월', distKey: 'period_1', statKey: 'period_1', drawKey: 'period_1' },
+    { id: 'neighbor', label: '이웃', distKey: 'neighbor', statKey: 'neighbor', drawKey: 'neighbor' },
+    { id: 'period_1_2', label: '1~2회', distKey: 'period_1_2', statKey: 'period_1_2', drawKey: 'period_1_2' },
+    { id: 'period_1_3', label: '1~3회', distKey: 'period_1_3', statKey: 'period_1_3', drawKey: 'period_1_3' },
+    { id: 'consecutive', label: '연번', distKey: 'consecutive', statKey: 'consecutive', drawKey: 'consecutive' },
+    { id: 'prime', label: '소수', distKey: 'prime', statKey: 'prime', drawKey: 'prime' },
+    { id: 'composite', label: '합성', distKey: 'composite', statKey: 'composite', drawKey: 'composite' },
+    { id: 'multiple-3', label: '3배수', distKey: 'multiple_3', statKey: 'multiple_3', drawKey: 'multiple_3' },
+    { id: 'multiple-5', label: '5배수', distKey: 'multiple_5', statKey: 'multiple_5', drawKey: 'm5' },
+    { id: 'square', label: '제곱', distKey: 'square', statKey: 'square', drawKey: 'square' },
+    { id: 'double', label: '쌍수', distKey: 'double_num', statKey: 'double_num', drawKey: 'double' },
+    { id: 'bucket-15', label: '3분할', distKey: 'bucket_15', statKey: 'bucket_15', drawKey: 'b15' },
+    { id: 'bucket-9', label: '5분할', distKey: 'bucket_9', statKey: 'bucket_9', drawKey: 'b9' },
+    { id: 'bucket-5', label: '9분할', distKey: 'bucket_5', statKey: 'bucket_5', drawKey: 'b5' },
+    { id: 'bucket-3', label: '15분할', distKey: 'bucket_3', statKey: 'bucket_3', drawKey: 'b3' },
+    { id: 'color', label: '색상', distKey: 'color', statKey: 'color', drawKey: 'color' },
+    { id: 'pattern-corner', label: '모서리', distKey: 'pattern_corner', statKey: 'pattern_corner', drawKey: 'p_corner' },
+    { id: 'pattern-triangle', label: '삼각형', distKey: 'pattern_triangle', statKey: 'pattern_triangle', drawKey: 'p_tri' },
+    { id: 'end-sum', label: '끝수합', distKey: 'end_sum', statKey: 'end_sum', drawKey: 'end_sum' },
+    { id: 'same-end', label: '동끝수', distKey: 'same_end', statKey: 'same_end', drawKey: 'same_end' },
+    { id: 'ac', label: 'AC', distKey: 'ac', statKey: 'ac', drawKey: 'ac' },
+    { id: 'span', label: 'Span', distKey: 'span', statKey: 'span', drawKey: 'span' }
+];
+
 document.addEventListener('DOMContentLoaded', function() {
     fetch('advanced_stats.json?v=' + Date.now())
         .then(res => res.json())
@@ -46,48 +75,22 @@ function renderHistoryTable(draws, statsSummary) {
         const tr = document.createElement('tr');
         const ballsHtml = (draw.nums || []).map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
         
-        tr.innerHTML = `
-            <td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
-            <td><div class="table-nums">${ballsHtml}</div></td>
-            <!-- G1 -->
-            <td class="stat-val ${getZoneClass(draw.sum, statsSummary.sum)}">${draw.sum}</td>
-            <td class="stat-val ${getZoneClass(draw.odd_even, statsSummary.odd_count)}">${draw.odd_even}</td>
-            <td class="stat-val ${getZoneClass(draw.high_low, statsSummary.low_count)}">${draw.high_low}</td>
-            <!-- G2 -->
-            <td class="stat-val ${getZoneClass(draw.period_1, statsSummary.period_1)}">${draw.period_1}</td>
-            <td class="stat-val ${getZoneClass(draw.neighbor, statsSummary.neighbor)}">${draw.neighbor}</td>
-            <td class="stat-val ${getZoneClass(draw.period_1_2, statsSummary.period_1_2)}">${draw.period_1_2}</td>
-            <td class="stat-val ${getZoneClass(draw.period_1_3, statsSummary.period_1_3)}">${draw.period_1_3}</td>
-            <td class="stat-val ${getZoneClass(draw.consecutive, statsSummary.consecutive)}">${draw.consecutive}</td>
-            <!-- G3 -->
-            <td class="stat-val ${getZoneClass(draw.prime, statsSummary.prime)}">${draw.prime}</td>
-            <td class="stat-val ${getZoneClass(draw.composite, statsSummary.composite)}">${draw.composite}</td>
-            <td class="stat-val ${getZoneClass(draw.multiple_3, statsSummary.multiple_3)}">${draw.multiple_3}</td>
-            <td class="stat-val ${getZoneClass(draw.m5, statsSummary.multiple_5)}">${draw.m5}</td>
-            <td class="stat-val ${getZoneClass(draw.square, statsSummary.square)}">${draw.square}</td>
-            <td class="stat-val ${getZoneClass(draw.double, statsSummary.double_num)}">${draw.double}</td>
-            <!-- G4 -->
-            <td class="stat-val ${getZoneClass(draw.b15, statsSummary.bucket_15)}">${draw.b15}</td>
-            <td class="stat-val ${getZoneClass(draw.b9, statsSummary.bucket_9)}">${draw.b9}</td>
-            <td class="stat-val ${getZoneClass(draw.b5, statsSummary.bucket_5)}">${draw.b5}</td>
-            <td class="stat-val ${getZoneClass(draw.b3, statsSummary.bucket_3)}">${draw.b3}</td>
-            <td class="stat-val ${getZoneClass(draw.color, statsSummary.color)}">${draw.color}</td>
-            <td class="stat-val ${getZoneClass(draw.p_corner, statsSummary.pattern_corner)}">${draw.p_corner}</td>
-            <td class="stat-val ${getZoneClass(draw.p_tri, statsSummary.pattern_triangle)}">${draw.p_tri}</td>
-            <!-- G5 -->
-            <td class="stat-val ${getZoneClass(draw.end_sum, statsSummary.end_sum)}">${draw.end_sum}</td>
-            <td class="stat-val ${getZoneClass(draw.same_end, statsSummary.same_end)}">${draw.same_end}</td>
-            <td class="stat-val ${getZoneClass(draw.ac, statsSummary.ac)}">${draw.ac}</td>
-            <td class="stat-val ${getZoneClass(draw.span, statsSummary.span)}">${draw.span}</td>
-        `;
+        let rowHtml = `<td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
+                       <td><div class="table-nums">${ballsHtml}</div></td>`;
+        
+        // [데이터 기반 자동화 루프] 테이블 셀 생성
+        INDICATOR_CONFIG.forEach(cfg => {
+            const val = draw[cfg.drawKey] !== undefined ? draw[cfg.drawKey] : '-';
+            const statusClass = getZoneClass(val, statsSummary[cfg.statKey]);
+            rowHtml += `<td class="stat-val ${statusClass}">${val}</td>`;
+        });
+        
+        tr.innerHTML = rowHtml;
         tbody.appendChild(tr);
     });
 }
 
 function getBallColorClass(num) {
-    if (num <= 10) return 'yellow';
-    if (num <= 20) return 'blue';
-    if (num <= 30) return 'red';
-    if (num <= 40) return 'gray';
-    return 'green';
+    if (num <= 10) return 'yellow'; if (num <= 20) return 'blue';
+    if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
 }

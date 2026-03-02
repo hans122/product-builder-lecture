@@ -2,7 +2,7 @@
 
 ## [MANDATORY RULES]
 1. **Unified Classification (G1~G5)**: 모든 UI는 `DATA_SCHEMA.md`에 정의된 5대 표준 분류 순서와 항목명을 엄격히 준수한다.
-2. **Data-Driven Automation (SSOT)**: 지표 추가/수정 시 각 JS 파일의 `INDICATOR_CONFIG` 설정을 통해 관리하며, 하드코딩된 반복 로직을 지양한다.
+2. **Data-Driven Automation (Master Mapping)**: 모든 데이터 키값(distKey, statKey, drawKey) 및 JS ID는 `DATA_SCHEMA.md`의 마스터 매핑 테이블을 절대적 기준으로 삼는다. 불일치 발견 시 코드가 아닌 문서를 먼저 확인한다.
 3. **Anchor Centering Policy**: 통계 섹션의 앵커 이동 시 반드시 `scroll-margin-top: 50vh`를 유지하여 제목이 화면 상하 정중앙에 위치하게 한다.
 4. **Statistical Visualization Refinement**: 차트 라벨은 통계 구역(Min/Max, Safe, Optimal)과 색상을 동기화(회색/파란색/초록색)하여 수치적 일관성을 유지한다.
 5. **Sticky Header Integrity**: `sticky-header` 내부의 `header-inner`, `my-numbers-banner`, `intro-text-section` 구조를 유지하여 고정 영역의 완성도를 보장한다.

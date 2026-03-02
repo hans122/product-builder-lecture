@@ -1,53 +1,22 @@
 let statsData = null;
 
 const INDICATOR_CONFIG = [
-    { id: 'total-sum', label: '합계', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
-    { id: 'odd-even-ratio', label: '홀수', statKey: 'odd_count', calc: (nums) => {
+    { id: 'sum', label: '합계', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
+    { id: 'odd-even', label: '홀수', statKey: 'odd_count', calc: (nums) => {
         const odds = nums.filter(n => n % 2 !== 0).length;
         return `${odds}:${6 - odds}`;
     }},
-    { id: 'high-low-ratio', label: '저번호', statKey: 'low_count', calc: (nums) => {
+    { id: 'high-low', label: '저번호', statKey: 'low_count', calc: (nums) => {
         const lows = nums.filter(n => n <= 22).length;
         return `${lows}:${6 - lows}`;
     }},
-    { id: 'period-1-count', label: '이월수', statKey: 'period_1', calc: (nums, data) => nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length + '개' },
-    { id: 'neighbor-count', label: '이웃수', statKey: 'neighbor', calc: (nums, data) => {
+    { id: 'period_1', label: '이월수', statKey: 'period_1', calc: (nums, data) => nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length + '개' },
+    { id: 'neighbor', label: '이웃수', statKey: 'neighbor', calc: (nums, data) => {
         const neighbors = new Set();
         data.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
         return nums.filter(n => neighbors.has(n)).length + '개';
     }},
-    { id: 'p1-cum-2', selector: '#p1-cum-2 .value', label: '1~2회전', statKey: 'period_1_2', calc: (nums, data) => nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length + '개' },
-    { id: 'p1-cum-3', selector: '#p1-cum-3 .value', label: '1~3회전', statKey: 'period_1_3', calc: (nums, data) => nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[]), ...(data.last_3_draws[2]||[])]).has(n)).length + '개' },
-    { id: 'consecutive-count', label: '연번', statKey: 'consecutive', calc: (nums) => {
-        let cnt = 0; for (let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) cnt++;
-        return cnt + '쌍';
-    }},
-    { id: 'prime-count', label: '소수', statKey: 'prime', calc: (nums) => nums.filter(isPrime).length + '개' },
-    { id: 'composite-count', label: '합성수', statKey: 'composite', calc: (nums) => nums.filter(isComposite).length + '개' },
-    { id: 'multiple-3-count', label: '3배수', statKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length + '개' },
-    { id: 'multiple-5-count', label: '5배수', statKey: 'multiple_5', calc: (nums) => nums.filter(n => n % 5 === 0).length + '개' },
-    { id: 'square-count', label: '제곱수', statKey: 'square', calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length + '개' },
-    { id: 'double-count', label: '쌍수', statKey: 'double_num', calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length + '개' },
-    { id: 'bucket-15-count', label: '3분할', statKey: 'bucket_15', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size + '구간' },
-    { id: 'bucket-9-count', label: '5분할', statKey: 'bucket_9', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size + '구간' },
-    { id: 'bucket-5-count', label: '9분할', statKey: 'bucket_5', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size + '구간' },
-    { id: 'bucket-3-count', label: '15분할', statKey: 'bucket_3', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/3))).size + '구간' },
-    { id: 'color-count', label: '색상수', statKey: 'color', calc: (nums) => new Set(nums.map(getBallColorClass)).size + '색' },
-    { id: 'pattern-corner-count', label: '모서리', statKey: 'pattern_corner', calc: (nums) => {
-        const corners = [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42];
-        return nums.filter(n => corners.includes(n)).length + '개';
-    }},
-    { id: 'pattern-triangle-count', label: '삼각형', statKey: 'pattern_triangle', calc: (nums) => {
-        const triangle = [4,10,11,12,16,17,18,19,20,24,25,26,32];
-        return nums.filter(n => triangle.includes(n)).length + '개';
-    }},
-    { id: 'end-sum-value', label: '끝수합', statKey: 'end_sum', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0) },
-    { id: 'same-end-count', label: '동끝수', statKey: 'same_end', calc: (nums) => {
-        const ends = nums.map(n => n % 10);
-        return Math.max(...Object.values(ends.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {}))) + '개';
-    }},
-    { id: 'ac-value', label: 'AC값', statKey: 'ac', calc: (nums) => calculate_ac(nums) },
-    { id: 'span-value', label: 'Span', statKey: 'span', calc: (nums) => nums[5] - nums[0] }
+    { id: 'ac', label: 'AC값', statKey: 'ac', calc: (nums) => calculate_ac(nums) }
 ];
 
 function isPrime(num) {
@@ -109,9 +78,8 @@ function analyzeNumbers(numbers) {
         return 'warning';
     };
 
-    // [데이터 기반 자동화 루프]
     INDICATOR_CONFIG.forEach(cfg => {
-        const element = cfg.selector ? document.querySelector(cfg.selector) : document.getElementById(cfg.id);
+        const element = document.getElementById(cfg.id);
         if (!element) return;
         
         const value = cfg.calc(numbers, statsData);
@@ -126,14 +94,7 @@ function updateAnalysisItem(element, text, status, label, stat) {
     const parent = element.closest('.analysis-item');
     if (parent) {
         parent.className = 'analysis-item ' + status;
-        const link = element.closest('.analysis-item-link');
-        if (link && stat) {
-            const optMin = Math.max(0, Math.round(stat.mean - stat.std));
-            const optMax = Math.round(stat.mean + stat.std);
-            const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
-            const safeMax = Math.round(stat.mean + 2 * stat.std);
-            link.setAttribute('data-tip', `[${label}] 권장 세이프: ${safeMin}~${safeMax} (옵티멀: ${optMin}~${optMax})`);
-        }
+        // 툴팁 등은 템플릿에 data-tip이 있을 때만 동작
     }
 }
 
