@@ -159,45 +159,49 @@ body {
     align-items: start;
 }
 
-/* 로또 구슬 프리미엄 디자인 (v6.2 - 원형 복구) */
+/* 로또 구슬 플랫 미니멀 디자인 (v6.3) */
 .ball {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%; /* 완벽한 원형 복구 */
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    font-weight: 900;
+    font-weight: 800; /* 숫자에 집중 */
     font-size: 1.1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 -3px 6px rgba(0,0,0,0.2);
     position: relative;
-    border: 1.5px solid rgba(255,255,255,0.3);
-    animation: ballPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-    transition: all 0.2s ease;
-    z-index: 1;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 최소한의 띄움만 유지 */
 }
 
-.ball::before {
-    content: "";
-    position: absolute;
-    top: 3px; left: 8px; right: 8px;
-    height: 35%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
-    border-radius: 50% 50% 40% 40%; /* 상단 하이라이트 */
-}
+/* 3D 효과 제거 */
+.ball::before, .ball::after { display: none !important; }
 
 .ball:hover {
-    transform: scale(1.15);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-    z-index: 10;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
 }
 
 .ball.mini { 
-    width: 32px; height: 32px; border-radius: 50%; font-size: 0.85rem; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1), inset 0 -2px 3px rgba(0,0,0,0.15); 
+    width: 28px; 
+    height: 28px; 
+    font-size: 0.8rem;
+    box-shadow: none; 
 }
-.ball.mini::before { top: 2px; left: 5px; right: 5px; }
+
+/* 세련된 플랫 컬러 팔레트 (Toss-Style) */
+.yellow { background-color: #ffcc00 !important; color: #191f28 !important; } /* 노랑은 검정 글씨가 더 미니멀함 */
+.blue { background-color: #3182f6 !important; }
+.red { background-color: #f04452 !important; }
+.gray { background-color: #adb5bd !important; }
+.green { background-color: #2ecc71 !important; }
+
+/* 수동 선택 미니멀 강조 */
+.ball.manual {
+    box-shadow: 0 0 0 3px var(--text-main);
+}
 
 @keyframes ballPop {
     from { opacity: 0; transform: scale(0.5); }
