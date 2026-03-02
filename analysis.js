@@ -201,14 +201,41 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null) {
 }
 
 function renderMiniTables(draws) {
-    const config = [{ id: 'sum-mini-body', key: 'sum' }, { id: 'ac-mini-body', key: 'ac' }, { id: 'end-sum-mini-body', key: 'end_sum' }];
+    const config = [
+        { id: 'sum-mini-body', key: 'sum' },
+        { id: 'odd-even-mini-body', key: 'odd_even' },
+        { id: 'high-low-mini-body', key: 'high_low' },
+        { id: 'period-1-mini-body', key: 'period_1' },
+        { id: 'neighbor-mini-body', key: 'neighbor' },
+        { id: 'period-1-2-mini-body', key: 'period_1_2' },
+        { id: 'period-1-3-mini-body', key: 'period_1_3' },
+        { id: 'consecutive-mini-body', key: 'consecutive' },
+        { id: 'prime-mini-body', key: 'prime' },
+        { id: 'composite-mini-body', key: 'composite' },
+        { id: 'multiple-3-mini-body', key: 'multiple_3' },
+        { id: 'multiple-5-mini-body', key: 'm5' },
+        { id: 'square-mini-body', key: 'square' },
+        { id: 'double-mini-body', key: 'double' },
+        { id: 'bucket-15-mini-body', key: 'b15' },
+        { id: 'bucket-9-mini-body', key: 'b9' },
+        { id: 'bucket-5-mini-body', key: 'b5' },
+        { id: 'bucket-3-mini-body', key: 'b3' },
+        { id: 'color-mini-body', key: 'color' },
+        { id: 'pattern-corner-mini-body', key: 'p_corner' },
+        { id: 'pattern-triangle-mini-body', key: 'p_tri' },
+        { id: 'end-sum-mini-body', key: 'end_sum' },
+        { id: 'same-end-mini-body', key: 'same_end' },
+        { id: 'ac-mini-body', key: 'ac' },
+        { id: 'span-mini-body', key: 'span' }
+    ];
     config.forEach(item => {
         const tbody = document.getElementById(item.id); if (!tbody) return;
         tbody.innerHTML = '';
         draws.forEach(draw => {
             const tr = document.createElement('tr');
             const balls = (draw.nums || []).map(n => `<div class="table-ball mini ${getBallColorClass(n)}">${n}</div>`).join('');
-            tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${balls}</div></td><td><strong>${draw[item.key] || '-'}</strong></td>`;
+            const val = draw[item.key] !== undefined ? draw[item.key] : '-';
+            tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${balls}</div></td><td><strong>${val}</strong></td>`;
             tbody.appendChild(tr);
         });
     });
