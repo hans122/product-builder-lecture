@@ -127,7 +127,7 @@ function runDetailedAnalysis() {
     const stats = combinationStatsData.stats_summary;
 
     // [LottoCore 통합 연동] 핵심 지표 분석 루프
-    const labIndicatorIds = ['sum', 'odd-even', 'high-low', 'prime', 'composite', 'multiple-3', 'ac', 'end-sum'];
+    const labIndicatorIds = ['sum', 'odd-even', 'high-low', 'prime', 'composite', 'multiple-3', 'ac', 'end-sum', 'first-num', 'last-num', 'mean-gap'];
     
     LottoConfig.INDICATORS.filter(cfg => labIndicatorIds.includes(cfg.id)).forEach(cfg => {
         const value = cfg.calc(currentNumbers, combinationStatsData);

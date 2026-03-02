@@ -17,204 +17,172 @@ def calculate_ac(nums):
 
 def analyze():
     draws = []
-    with open('lt645.csv', mode='r', encoding='utf-8') as file:
-        reader = csv.reader(file)
+    # CSV 데이터 로드 (v4.3 규격: 회차, 날짜, 번호1~6, 보너스)
+    with open('lt645.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
         header = next(reader)
-        col_indices = {name: i for i, name in enumerate(header)}
         for row in reader:
             if not row: continue
-            draw_no = int(row[col_indices['회차']])
-            nums = sorted([int(row[col_indices[f'당첨번호{i}']]) for i in range(1, 7)])
-            draws.append({'no': draw_no, 'nums': nums, 'date': row[col_indices['추첨일']].strip("'")})
+            nums = [int(x) for x in row[2:8]]
+            draws.append({
+                "no": int(row[0]),
+                "date": row[1].strip("'"),
+                "nums": sorted(nums)
+            })
 
     draws.sort(key=lambda x: x['no'])
     
-    frequency = Counter()
-    distributions = {
-        "odd_even": Counter(), "high_low": Counter(), "consecutive": Counter(),
-        "prime": Counter(), "composite": Counter(), "multiple_3": Counter(),
-        "period_1": Counter(), "period_1_2": Counter(), "period_1_3": Counter(),
-        "neighbor": Counter(), "sum": Counter(), "end_sum": Counter(), "same_end": Counter(),
-        "square": Counter(), "multiple_5": Counter(), "double_num": Counter(),
-        "bucket_15": Counter(), "bucket_9": Counter(), "bucket_5": Counter(), "bucket_3": Counter(),
-        "color": Counter(), "pattern_corner": Counter(), "pattern_triangle": Counter(),
-        "ac": Counter(), "span": Counter()
+    # 지표 산출용 초기화
+    raw_metrics = {
+        "sum": [], "odd_count": [], "low_count": [], "period_1": [], "neighbor": [],
+        "period_1_2": [], "period_1_3": [], "consecutive": [], "prime": [], "composite": [],
+        "multiple_3": [], "multiple_5": [], "square": [], "double_num": [],
+        "bucket_15": [], "bucket_9": [], "bucket_5": [], "bucket_3": [], "color": [],
+        "pattern_corner": [], "pattern_triangle": [], "end_sum": [], "same_end": [], "ac": [], "span": [],
+        "first_num": [], "last_num": [], "mean_gap": []
     }
-
-    # 통계 요약을 위해 모든 지표의 원본 리스트를 관리
-    raw_metrics = {k: [] for k in distributions.keys()}
-    # 홀짝/고저는 별도 숫자 리스트로 관리
-    raw_metrics["odd_count"] = []
-    raw_metrics["low_count"] = []
-
-    corners = {1, 2, 8, 9, 6, 7, 13, 14, 29, 30, 36, 37, 34, 35, 41, 42}
-    triangle = {4, 10, 11, 12, 16, 17, 18, 19, 20, 24, 25, 26, 32}
     
+    # distributions는 distKey 기준으로 초기화
+    dist_keys = [
+        "sum", "odd_even", "high_low", "period_1", "neighbor", "period_1_2", "period_1_3",
+        "consecutive", "prime", "composite", "multiple_3", "multiple_5", "square", "double_num",
+        "bucket_15", "bucket_9", "bucket_5", "bucket_3", "color", "pattern_corner", "pattern_triangle",
+        "end_sum", "same_end", "ac", "span", "first_num", "last_num", "mean_gap"
+    ]
+    distributions = {k: Counter() for k in dist_keys}
     processed_data = []
     
-    for i in range(len(draws)):
-        draw = draws[i]
-        nums_list = draw['nums']
-        nums_set = set(nums_list)
-        for n in nums_list: frequency[n] += 1
-        
-        # 지표 계산
-        odds = len([n for n in nums_list if n % 2 != 0])
-        raw_metrics["odd_count"].append(odds)
-        lows = len([n for n in nums_list if n <= 22])
-        raw_metrics["low_count"].append(lows)
-        
-        consecutive = 0
-        for j in range(len(nums_list)-1):
-            if nums_list[j] + 1 == nums_list[j+1]: consecutive += 1
-        raw_metrics["consecutive"].append(consecutive)
-            
-        total_sum = sum(nums_list)
-        raw_metrics["sum"].append(total_sum)
-        
-        primes = len([n for n in nums_list if is_prime(n)])
-        raw_metrics["prime"].append(primes)
-        
-        composites = len([n for n in nums_list if is_composite(n)])
-        raw_metrics["composite"].append(composites)
-        
-        m3s = len([n for n in nums_list if n % 3 == 0])
-        raw_metrics["multiple_3"].append(m3s)
-        
-        p1_val = 0
-        neighbor_val = 0
-        if i >= 1:
-            prev_1 = set(draws[i-1]['nums'])
-            p1_val = len(nums_set.intersection(prev_1))
-            neighbors = set()
-            for n in prev_1:
-                if n > 1: neighbors.add(n-1)
-                if n < 45: neighbors.add(n+1)
-            neighbor_val = len(nums_set.intersection(neighbors))
-        raw_metrics["period_1"].append(p1_val)
-        raw_metrics["neighbor"].append(neighbor_val)
+    # 패턴용 구역 정의
+    corners = [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42]
+    triangle = [4,10,11,12,16,17,18,19,20,24,25,26,32]
 
-        p1_2_val = len(nums_set.intersection(set(draws[max(0, i-1)]['nums']).union(set(draws[max(0, i-2)]['nums'])))) if i >= 2 else 0
-        p1_3_val = len(nums_set.intersection(set(draws[max(0, i-1)]['nums']).union(set(draws[max(0, i-2)]['nums'])).union(set(draws[max(0, i-3)]['nums'])))) if i >= 3 else 0
-        raw_metrics["period_1_2"].append(p1_2_val)
-        raw_metrics["period_1_3"].append(p1_3_val)
+    for i, draw in enumerate(draws):
+        nums_list = draw["nums"]
+        prev_nums = set(draws[i-1]["nums"]) if i > 0 else set()
+        prev_2 = (set(draws[i-1]["nums"]) | set(draws[i-2]["nums"])) if i > 1 else prev_nums
+        prev_3 = (set(draws[i-1]["nums"]) | set(draws[i-2]["nums"]) | set(draws[i-3]["nums"])) if i > 2 else prev_2
+        
+        neighbors = set()
+        for n in prev_nums:
+            if n > 1: neighbors.add(n-1)
+            if n < 45: neighbors.add(n+1)
 
-        end_digits = [n % 10 for n in nums_list]
-        es_val = sum(end_digits)
-        raw_metrics["end_sum"].append(es_val)
-        
-        max_same_end = Counter(end_digits).most_common(1)[0][1]
-        raw_metrics["same_end"].append(max_same_end)
-        
-        square_cnt = len([n for n in nums_list if n in [1,4,9,16,25,36]])
-        raw_metrics["square"].append(square_cnt)
-        
-        m5_cnt = len([n for n in nums_list if n % 5 == 0])
-        raw_metrics["multiple_5"].append(m5_cnt)
-        
-        double_cnt = len([n for n in nums_list if n in [11,22,33,44]])
-        raw_metrics["double_num"].append(double_cnt)
-        
+        # 기초 계산
+        s = sum(nums_list)
+        oc = len([n for n in nums_list if n % 2 != 0])
+        lc = len([n for n in nums_list if n <= 22])
+        p1 = len([n for n in nums_list if n in prev_nums])
+        nb = len([n for n in nums_list if n in neighbors])
+        p12 = len([n for n in nums_list if n in prev_2])
+        p13 = len([n for n in nums_list if n in prev_3])
+        cons = sum(1 for j in range(5) if nums_list[j]+1 == nums_list[j+1])
+        prime = len([n for n in nums_list if is_prime(n)])
+        comp = len([n for n in nums_list if is_composite(n)])
+        m3 = len([n for n in nums_list if n % 3 == 0])
+        m5 = len([n for n in nums_list if n % 5 == 0])
+        sq = len([n for n in nums_list if n in [1,4,9,16,25,36]])
+        db = len([n for n in nums_list if n in [11,22,33,44]])
         b15 = len(set((n-1)//15 for n in nums_list))
         b9 = len(set((n-1)//9 for n in nums_list))
         b5 = len(set((n-1)//5 for n in nums_list))
         b3 = len(set((n-1)//3 for n in nums_list))
-        raw_metrics["bucket_15"].append(b15)
-        raw_metrics["bucket_9"].append(b9)
-        raw_metrics["bucket_5"].append(b5)
-        raw_metrics["bucket_3"].append(b3)
         
         colors = set()
         for n in nums_list:
-            if n <= 10: colors.add('yellow')
-            elif n <= 20: colors.add('blue')
-            elif n <= 30: colors.add('red')
-            elif n <= 40: colors.add('gray')
-            else: colors.add('green')
-        color_cnt = len(colors)
-        raw_metrics["color"].append(color_cnt)
+            if n <= 10: colors.add("Y")
+            elif n <= 20: colors.add("B")
+            elif n <= 30: colors.add("R")
+            elif n <= 40: colors.add("G")
+            else: colors.add("GR")
         
         p_corner = len([n for n in nums_list if n in corners])
         p_tri = len([n for n in nums_list if n in triangle])
-        raw_metrics["pattern_corner"].append(p_corner)
-        raw_metrics["pattern_triangle"].append(p_tri)
+        es = sum(n % 10 for n in nums_list)
+        ends = [n % 10 for n in nums_list]
+        se = max(Counter(ends).values())
+        ac = calculate_ac(nums_list)
+        span = nums_list[-1] - nums_list[0]
         
-        ac_val = calculate_ac(nums_list)
-        raw_metrics["ac"].append(ac_val)
+        # [신규] G6 지표 계산
+        f_num = nums_list[0]
+        l_num = nums_list[-1]
+        m_gap = round(span / 5, 1)
+
+        metrics = {
+            "sum": s, "odd_even": f"{oc}:{6-oc}", "high_low": f"{lc}:{6-lc}",
+            "period_1": p1, "neighbor": nb, "period_1_2": p12, "period_1_3": p13,
+            "consecutive": cons, "prime": prime, "composite": comp,
+            "multiple_3": m3, "m5": m5, "square": sq, "double": db,
+            "b15": b15, "b9": b9, "b5": b5, "b3": b3, "color": len(colors),
+            "p_corner": p_corner, "p_tri": p_tri, "end_sum": es, "same_end": se,
+            "ac": ac, "span": span,
+            "first_num": f_num, "last_num": l_num, "mean_gap": m_gap
+        }
         
-        span_val = nums_list[-1] - nums_list[0]
-        raw_metrics["span"].append(span_val)
+        processed_data.append({"no": draw["no"], "date": draw["date"], "nums": nums_list, **metrics})
+        
+        # 분포 및 원본 통계용 데이터 축적
+        for k, v in metrics.items():
+            # 실제 수치값 추출 (statKey용)
+            if k == "odd_even": val_for_stat = oc
+            elif k == "high_low": val_for_stat = lc
+            else: val_for_stat = v
 
-        # Counter 분포 업데이트
-        distributions["odd_even"][f"{odds}:{6-odds}"] += 1
-        distributions["high_low"][f"{lows}:{6-lows}"] += 1
-        distributions["consecutive"][consecutive] += 1
-        distributions["prime"][primes] += 1
-        distributions["composite"][composites] += 1
-        distributions["multiple_3"][m3s] += 1
-        distributions["neighbor"][neighbor_val] += 1
-        distributions["period_1"][p1_val] += 1
-        distributions["period_1_2"][p1_2_val] += 1
-        distributions["period_1_3"][p1_3_val] += 1
-        distributions["same_end"][max_same_end] += 1
-        distributions["square"][square_cnt] += 1
-        distributions["multiple_5"][m5_cnt] += 1
-        distributions["double_num"][double_cnt] += 1
-        distributions["bucket_15"][b15] += 1
-        distributions["bucket_9"][b9] += 1
-        distributions["bucket_5"][b5] += 1
-        distributions["bucket_3"][b3] += 1
-        distributions["color"][color_cnt] += 1
-        distributions["pattern_corner"][p_corner] += 1
-        distributions["pattern_triangle"][p_tri] += 1
-        distributions["ac"][ac_val] += 1
-        distributions["span"][span_val] += 1
-        distributions["end_sum"][es_val] += 1
-        distributions["sum"][total_sum] += 1
+            # distKey 매핑 (JSON 표준 분포용)
+            dist_k = k
+            if k == "multiple_5" or k == "m5": dist_k = "multiple_5"
+            elif k == "double": dist_k = "double_num"
+            elif k in ["b15", "bucket_15"]: dist_k = "bucket_15"
+            elif k in ["b9", "bucket_9"]: dist_k = "bucket_9"
+            elif k in ["b5", "bucket_5"]: dist_k = "bucket_5"
+            elif k in ["b3", "bucket_3"]: dist_k = "bucket_3"
+            elif k in ["p_corner", "pattern_corner"]: dist_k = "pattern_corner"
+            elif k in ["p_tri", "pattern_triangle"]: dist_k = "pattern_triangle"
+            
+            distributions[dist_k][v] += 1
+            
+            # statKey 매핑 (JSON 요약 표준용)
+            stat_k = k
+            if k == "odd_even": stat_k = "odd_count"
+            elif k == "high_low": stat_k = "low_count"
+            elif k == "multiple_5" or k == "m5": stat_k = "multiple_5"
+            elif k == "double": stat_k = "double_num"
+            elif k in ["b15", "bucket_15"]: stat_k = "bucket_15"
+            elif k in ["b9", "bucket_9"]: stat_k = "bucket_9"
+            elif k in ["b5", "bucket_5"]: stat_k = "bucket_5"
+            elif k in ["b3", "bucket_3"]: stat_k = "bucket_3"
+            elif k in ["p_corner", "pattern_corner"]: stat_k = "pattern_corner"
+            elif k in ["p_tri", "pattern_triangle"]: stat_k = "pattern_triangle"
+            
+            if stat_k in raw_metrics:
+                raw_metrics[stat_k].append(val_for_stat)
 
-        processed_data.append({
-            "no": draw['no'], "date": draw['date'], "nums": nums_list, "sum": total_sum,
-            "odd_even": f"{odds}:{6-odds}", "high_low": f"{lows}:{6-lows}", "consecutive": consecutive,
-            "prime": primes, "composite": composites, "multiple_3": m3s,
-            "period_1": p1_val, "period_1_2": p1_2_val, "period_1_3": p1_3_val,
-            "neighbor": neighbor_val, "ac": ac_val, "span": span_val,
-            "b15": b15, "b9": b9, "b5": b5, "b3": b3, "color": color_cnt,
-            "p_corner": p_corner, "p_tri": p_tri, "end_sum": es_val, "same_end": max_same_end,
-            "square": square_cnt, "m5": m5_cnt, "double": double_cnt
-        })
+    # 통계 요약 계산
+    stats_summary = {}
+    for k, v_list in raw_metrics.items():
+        if not v_list: continue
+        mean = sum(v_list) / len(v_list)
+        var = sum((x - mean) ** 2 for x in v_list) / len(v_list)
+        stats_summary[k] = {"mean": round(mean, 2), "std": round(var ** 0.5, 2)}
 
-    def get_stats(values):
-        if not values: return {"mean": 0, "std": 0}
-        n = len(values)
-        mean = sum(values) / n
-        variance = sum((x - mean) ** 2 for x in values) / n
-        return {"mean": round(mean, 2), "std": round(variance ** 0.5, 2)}
-
-    # 모든 지표에 대한 요약 생성
-    stats_summary = {k: get_stats(v) for k, v in raw_metrics.items()}
-
-    recent_20_freq = Counter()
-    for d in draws[-20:]:
-        for n in d['nums']: recent_20_freq[n] += 1
-
+    # 결과 저장
     result = {
-        "frequency": {str(k): v for k, v in frequency.items()},
-        "recent_20_frequency": {str(k): v for k, v in recent_20_freq.items()},
-        "distributions": {k: dict(v) for k, v in distributions.items()},
-        "stats_summary": stats_summary,
         "total_draws": len(draws),
-        "last_3_draws": [d['nums'] for d in draws[-3:][::-1]],
+        "last_3_draws": [d["nums"] for d in draws[-3:][::-1]],
+        "stats_summary": stats_summary,
+        "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
+        "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
+        "recent_20_frequency": dict(Counter([n for d in draws[-20:] for n in d["nums"]])),
         "recent_draws": processed_data[::-1][:30]
     }
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
     
-    # frequency.json 업데이트 추가
     with open('frequency.json', 'w', encoding='utf-8') as f:
-        json.dump({str(k): v for k, v in frequency.items()}, f, ensure_ascii=False, indent=4)
+        json.dump({str(k): v for k, v in result["frequency"].items()}, f, ensure_ascii=False, indent=4)
         
-    print(f"Success: Full metrics with SD up to draw {draws[-1]['no']}")
+    print(f"Success: Full metrics including G6 up to draw {draws[-1]['no']}")
 
 if __name__ == "__main__":
     analyze()

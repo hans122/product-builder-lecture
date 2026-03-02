@@ -27,7 +27,10 @@ const TIPS = {
     'end-sum': `일의 자리 숫자들의 합계인 끝수합은 <strong>"{safe}"</strong> 범위 내에서 가장 많이 형성됩니다.`,
     'same-end': `동끝수(일의 자리가 같은 번호)는 <strong>"{safe}"</strong>개 포함될 때 당첨 확률이 비약적으로 상승합니다.`,
     'ac': `산술적 복잡도(AC)는 <strong>"{safe}"</strong> 이상을 유지해야 실제 당첨 번호와 유사한 무작위성을 가집니다.`,
-    'span': `가장 큰 수와 작은 수의 차이(Span)는 <strong>"{safe}"</strong> 범위일 때 가장 강력한 당첨 에너지를 가집니다.`
+    'span': `가장 큰 수와 작은 수의 차이(Span)는 <strong>"{safe}"</strong> 범위일 때 가장 강력한 당첨 에너지를 가집니다.`,
+    'first-num': `조합의 시작인 첫 번째 숫자는 <strong>"{safe}"</strong> 구간 내에서 선택하는 것이 통계적으로 매우 안정적입니다.`,
+    'last-num': `조합의 마무리인 마지막 숫자는 <strong>"{safe}"</strong> 구간에 위치할 때 당첨권 진입 확률이 높아집니다.`,
+    'mean-gap': `번호들 사이의 평균 간격이 <strong>"{safe}"</strong> 범위에 있어야 번호가 너무 뭉치거나 퍼지지 않은 이상적 밸런스를 갖춥니다.`
 };
 
 document.addEventListener('DOMContentLoaded', async function() {

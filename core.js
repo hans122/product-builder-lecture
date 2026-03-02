@@ -52,11 +52,18 @@ const LottoConfig = {
             return Math.max(...Object.values(counts));
         }},
         { id: 'ac', label: 'AC값', unit: '', group: 'G5', distKey: 'ac', statKey: 'ac', drawKey: 'ac', calc: (nums) => LottoUtils.calculateAC(nums) },
-        { id: 'span', label: 'Span(간격)', unit: '', group: 'G5', distKey: 'span', statKey: 'span', drawKey: 'span', calc: (nums) => nums[nums.length-1] - nums[0] }
+        { id: 'span', label: 'Span(간격)', unit: '', group: 'G5', distKey: 'span', statKey: 'span', drawKey: 'span', calc: (nums) => nums[nums.length-1] - nums[0] },
+        { id: 'first-num', label: '첫 수 범위', unit: '', group: 'G6', distKey: 'first_num', statKey: 'first_num', drawKey: 'first_num', calc: (nums) => nums[0] },
+        { id: 'last-num', label: '끝 수 범위', unit: '', group: 'G6', distKey: 'last_num', statKey: 'last_num', drawKey: 'last_num', calc: (nums) => nums[nums.length-1] },
+        { id: 'mean-gap', label: '평균 간격', unit: '', group: 'G6', distKey: 'mean_gap', statKey: 'mean_gap', drawKey: 'mean_gap', calc: (nums) => LottoUtils.round((nums[nums.length-1] - nums[0]) / 5, 1) }
     ]
 };
 
 const LottoUtils = {
+    round: (val, precision = 0) => {
+        const factor = Math.pow(10, precision);
+        return Math.round(val * factor) / factor;
+    },
     isPrime: (n) => [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43].includes(n),
     isComposite: (n) => n > 1 && !LottoUtils.isPrime(n),
     calculateAC: (nums) => {
