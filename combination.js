@@ -144,13 +144,13 @@ function renderSynergyReport(nums) {
     if (synergyResults.length === 0) {
         // 모순이 없는 경우: 일반 행과 동일한 톤으로 출력
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>[G7] 조합 정합성 시너지</strong></td><td>-</td><td><span class="status-badge safe">세이프</span></td><td class="text-left">지표 간 충돌이 없는 매우 논리적인 조합입니다.</td>`;
+        tr.innerHTML = `<td><strong>[G0] 조합 정합성 시너지</strong></td><td>-</td><td><span class="status-badge safe">세이프</span></td><td class="text-left">지표 간 충돌이 없는 매우 논리적인 조합입니다.</td>`;
         tbody.appendChild(tr);
     } else {
         synergyResults.forEach(res => {
             const tr = document.createElement('tr');
             const statusText = res.status === 'warning' ? '주의' : '세이프';
-            tr.innerHTML = `<td><strong>[G7] ${res.label}</strong></td><td>-</td><td><span class="status-badge ${res.status}">${statusText}</span></td><td class="text-left">${res.desc}</td>`;
+            tr.innerHTML = `<td><strong>[G0] ${res.label}</strong></td><td>-</td><td><span class="status-badge ${res.status}">${statusText}</span></td><td class="text-left">${res.desc}</td>`;
             tbody.appendChild(tr);
         });
     }

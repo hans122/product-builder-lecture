@@ -91,6 +91,9 @@ const LottoUtils = {
     }
 };
 
+/**
+ * LottoSynergy - 지표 간 상관관계 및 정합성 분석 엔진 (G0)
+ */
 const LottoSynergy = {
     check: (nums, data) => {
         const results = [];
