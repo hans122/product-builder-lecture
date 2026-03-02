@@ -116,38 +116,48 @@
 
     <style>
         /* AI 추천 조합 섹션 리뉴얼 (v6.4) */
-        /* AI 추천 조합 섹션 리뉴얼 (콤팩트 가로 카드 v7.5) */
+        /* AI 추천 조합 섹션 리뉴얼 (콤팩트 가로 카드 v7.6) */
         .recommendation-grid {
-            display: flex; /* grid 대신 flex로 변경하여 한 줄 유지 용이 */
+            display: flex;
             flex-direction: row;
-            overflow-x: auto; /* 넘칠 경우 가로 스크롤 */
-            gap: 12px;
-            padding: 24px;
-            -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
+            justify-content: space-between; /* 카드들을 양 끝으로 균등 배치 */
+            overflow-x: hidden; /* 데스크탑에서는 스크롤바 강제 제거 */
+            gap: 10px; /* 간격 미세 축소 */
+            padding: 20px 0; /* 좌우 패딩 제거하여 공간 확보 */
         }
-
-        /* 스크롤바 디자인 (미니멀) */
-        .recommendation-grid::-webkit-scrollbar { height: 4px; }
-        .recommendation-grid::-webkit-scrollbar-track { background: transparent; }
-        .recommendation-grid::-webkit-scrollbar-thumb { background: #e5e8eb; border-radius: 10px; }
 
         .combo-card {
             background: white;
             border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
-            padding: 14px 10px; /* 패딩 축소 */
+            padding: 14px 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            min-height: 210px; /* 높이도 미세하게 축소 */
-            width: 170px; /* 너비 190px -> 170px 축소 */
-            min-width: 160px;
-            flex-shrink: 0;
+            min-height: 210px;
+            width: calc(20% - 10px); /* 전체의 20%에서 간격을 뺀 만큼 정확히 할당 */
+            min-width: 150px; /* 최소 너비 추가 축소 */
+            flex-shrink: 1; /* 공간 부족 시 유연하게 줄어들도록 허용 */
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             text-align: center;
         }
+
+        /* 모바일에서만 가로 스크롤 허용 */
+        @media (max-width: 900px) {
+            .recommendation-grid {
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding: 20px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .combo-card {
+                width: 170px;
+                flex-shrink: 0;
+            }
+        }
+
 
         .combo-card:hover {
             transform: translateY(-5px);
