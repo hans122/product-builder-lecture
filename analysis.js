@@ -176,13 +176,29 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     curvePath.setAttribute("stroke", "#3498db"); curvePath.setAttribute("stroke-width", "2"); svg.appendChild(curvePath);
 
     points.forEach(p => {
-        if (finalSafeIndices.includes(p.index)) {
+        const labelInfo = statPoints.find(sp => {
+            const val = parseFloat(p.label.split(/[ :\-]/)[0]);
+            return val === sp.val;
+        });
+
+        if (labelSet.has(p.index)) {
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
             circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
+
             const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
             txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
-            txt.setAttribute("fill", "#2c3e50"); txt.style.fontSize = "0.65rem"; txt.style.fontWeight = "bold";
+            
+            // 색상 적용
+            let textColor = "#2c3e50"; // 기본값
+            if (labelInfo) {
+                if (labelInfo.cls === 'min-max') textColor = "#718096";
+                else if (labelInfo.cls === 'safe-zone') textColor = "#3498db";
+                else if (labelInfo.cls === 'optimal-zone') textColor = "#27ae60";
+            }
+            
+            txt.setAttribute("fill", textColor);
+            txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
             txt.textContent = p.label + unit; svg.appendChild(txt);
         }
     });
