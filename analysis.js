@@ -155,18 +155,29 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
+// 존 그리기 로직 개선 (범위 내 포인트 필터링 및 폴리곤 생성 정밀화)
+const drawZone = (z, color) => {
+    const threshold = sd * z;
+    const zPoints = points.filter(p => {
+        const val = parseFloat(p.label.split(/[ :\-]/)[0]);
+        return !isNaN(val) && Math.abs(val - mu) <= threshold + 0.0001; // 부동소수점 오차 방지
+    });
 
-    const drawZone = (z, color) => {
-        const zPoints = points.filter(p => {
-            const val = parseFloat(p.label.split(/[ :\-]/)[0]);
-            return !isNaN(val) && Math.abs(val - mu) <= sd * z;
-        });
-        if (zPoints.length > 1) {
-            const d = `M ${zPoints[0].x},${baselineY} ` + zPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${zPoints[zPoints.length-1].x},${baselineY} Z`;
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
-        }
-    };
+    if (zPoints.length > 0) {
+        // 구역의 시작과 끝을 데이터 포인트의 실제 X좌표로 정밀 매핑
+        const firstP = zPoints[0];
+        const lastP = zPoints[zPoints.length - 1];
+
+        let d = `M ${firstP.x},${baselineY} `;
+        zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
+        d += `L ${lastP.x},${baselineY} Z`;
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute("fill", color);
+        svg.appendChild(path);
+    }
+};
     drawZone(2, "rgba(52, 152, 219, 0.08)"); drawZone(1, "rgba(46, 204, 113, 0.15)");
 
     const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
