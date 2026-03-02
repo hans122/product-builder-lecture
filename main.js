@@ -54,6 +54,6 @@ window.analyzeNumbers = function(numbers) {
     }
 
     // 메인 그리드 동적 렌더링
-    const mainIndicatorIds = ['sum', 'odd-even', 'high-low', 'period_1', 'neighbor', 'ac'];
+    const mainIndicatorIds = LottoConfig.PAGES.INDEX;
     LottoUI.renderIndicatorGrid('main-indicator-grid', mainIndicatorIds, numbers, mainStatsData);
 };

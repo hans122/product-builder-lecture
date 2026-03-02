@@ -32,41 +32,26 @@ function renderHistoryTable(draws, statsSummary) {
     const tbody = document.getElementById('history-analysis-body');
     if (!thead || !tbody) return;
 
-    // 1. 헤더 자동 생성 (데이터 중심의 고정 너비 할당)
-    let headHtml = '<tr>';
-    headHtml += `<th style="width: 65px; min-width: 65px;">회차</th>`;
-    headHtml += `<th style="width: 155px; min-width: 155px;">당첨번호</th>`;
-
+    // 1. 헤더 자동 생성 (대각선 효과 적용)
+    let headHtml = '<tr><th style="width: 65px; min-width: 65px;">회차</th><th style="width: 155px; min-width: 155px;">당첨번호</th>';
     LottoConfig.INDICATORS.forEach(cfg => {
-        // 대각선 효과를 위한 wrapper 구조 추가
-        headHtml += `<th class="slant-column">
-                        <div class="slant-wrapper"><span>${cfg.label}</span></div>
-                     </th>`;
+        headHtml += `<th class="slant-column"><div class="slant-wrapper"><span>${cfg.label}</span></div></th>`;
     });
     headHtml += '</tr>';
     thead.innerHTML = headHtml;
 
-    // 2. 바디 데이터 생성
+    // 2. 바디 데이터 생성 (LottoUtils.getZStatus 활용)
     tbody.innerHTML = '';
     draws.forEach(draw => {
         const tr = document.createElement('tr');
-        const ballsHtml = (draw.nums || []).map(n => `<div class="table-ball mini ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('');
-        
-        let rowHtml = `<td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td>
-                       <td><div class="table-nums">${ballsHtml}</div></td>`;
+        const ballsHtml = (draw.nums || []).map(n => LottoUI.createBall(n, true).outerHTML).join('');
+        let rowHtml = `<td><strong>${draw.no}</strong><br><small style="color:#999">${draw.date}</small></td><td><div class="table-nums">${ballsHtml}</div></td>`;
         
         LottoConfig.INDICATORS.forEach(cfg => {
             const val = draw[cfg.drawKey] !== undefined ? draw[cfg.drawKey] : '-';
             const status = LottoUtils.getZStatus(val, statsSummary[cfg.statKey]);
-            
-            let statusClass = '';
-            if (status === 'safe') statusClass = 'text-safe';
-            else if (status === 'warning') statusClass = 'text-warning';
-            else if (status === 'danger') statusClass = 'text-danger';
-
-            rowHtml += `<td class="stat-val ${statusClass}">${val}</td>`;
+            rowHtml += `<td class="stat-val text-${status}">${val}</td>`;
         });
-        
         tr.innerHTML = rowHtml;
         tbody.appendChild(tr);
     });

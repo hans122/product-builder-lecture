@@ -30,11 +30,11 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
         for (let d = 0; d < history.length; d++) {
             if (history[d].nums.includes(i)) { gap = d; break; }
         }
-        if (gap >= 5 && gap <= 15) score += 25;
-        else if (gap > 30) score -= 15;
+        if (gap >= 5 && gap <= 15) score += 30; // 가중치 강화 (+25 -> +30)
+        else if (gap > 30) score -= 20; // 제외 패널티 강화 (-15 -> -20)
 
         // 3. 직전 회차 이월/이웃 시너지
-        if (lastDraw.nums.includes(i)) score += 12; // 이월수 가점
+        if (lastDraw.nums.includes(i)) score += 15; // 이월수 가점 (+12 -> +15)
         
         const neighbors = new Set();
         lastDraw.nums.forEach(n => { if(n>1) neighbors.add(n-1); if(n<45) neighbors.add(n+1); });
@@ -47,9 +47,9 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
     scores.sort((a, b) => b.score - a.score);
     
     return {
-        hot: scores.slice(0, 30).map(s => s.num).sort((a,b)=>a-b),
-        neutral: scores.slice(30, 35).map(s => s.num).sort((a,b)=>a-b),
-        cold: scores.slice(35, 45).map(s => s.num).sort((a,b)=>a-b)
+        hot: scores.slice(0, 25).map(s => s.num).sort((a,b)=>a-b),
+        neutral: scores.slice(25, 30).map(s => s.num).sort((a,b)=>a-b),
+        cold: scores.slice(30, 45).map(s => s.num).sort((a,b)=>a-b)
     };
 }
 

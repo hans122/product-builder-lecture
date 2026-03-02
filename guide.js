@@ -51,16 +51,29 @@ function updateGuideStats(data) {
 
     const getZoneInfo = (stat, dist, cfg) => {
         if (!stat || !dist) return null;
-        const optMin = Math.max(0, Math.round(stat.mean - stat.std));
+        
+        // [추가] 실제 데이터에서 최대값 추출 (Data-Driven Limit)
+        const dataValues = Object.keys(dist).map(label => {
+            const val = parseInt(label.split(/[ :\-]/)[0]);
+            return isNaN(val) ? 0 : val;
+        });
+        const dataMax = Math.max(...dataValues);
+        const dataMin = Math.min(...dataValues);
+
+        let optMin = Math.max(dataMin, Math.round(stat.mean - stat.std));
         let optMax = Math.round(stat.mean + stat.std);
-        const safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
+        let safeMin = Math.max(dataMin, Math.round(stat.mean - 2 * stat.std));
         let safeMax = Math.round(stat.mean + 2 * stat.std);
 
-        // [추가] 물리적 최대값(maxLimit) 보정
-        if (cfg && cfg.maxLimit) {
-            optMax = Math.min(cfg.maxLimit, optMax);
-            safeMax = Math.min(cfg.maxLimit, safeMax);
-        }
+        // [보정] 데이터 기반 한계치 및 설정된 한계치 엄격 적용
+        const limit = (cfg && cfg.maxLimit) ? Math.min(cfg.maxLimit, dataMax) : dataMax;
+        
+        optMax = Math.min(limit, optMax);
+        safeMax = Math.min(limit, safeMax);
+        
+        // 역전 방지
+        optMin = Math.min(optMin, optMax);
+        safeMin = Math.min(safeMin, safeMax);
 
         let optHits = 0; let safeHits = 0;
         Object.entries(dist).forEach(([label, count]) => {

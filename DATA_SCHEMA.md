@@ -13,7 +13,7 @@
 ## 2. 지표 표준 매핑 테이블 (Master Mapping Table)
 | 분류 | 지표명 | distKey (분포) | statKey (요약) | drawKey (회차) | JS ID |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **[G0]** | 시너지 분석 | - | - | - | `SYNERGY_RULES` |
+| **[G0]** | 복잡도 및 패턴 검증 | - | - | - | `SYNERGY_RULES` |
 | **[G1]** | 총합 | `sum` | `sum` | `sum` | `sum` |
 | | 홀짝 비율 | `odd_even` | `odd_count` | `odd_even` | `odd-even` |
 | | 고저 비율 | `high_low` | `low_count` | `high_low` | `high-low` |
