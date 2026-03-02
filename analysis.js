@@ -111,6 +111,17 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         { label: '최대', val: maxVal, cls: 'min-max' }
     ];
 
+    // 상단 배지 생성 (값만 표시)
+    const bContainer = document.createElement('div');
+    bContainer.className = 'stat-badge-container';
+    statPoints.forEach(p => {
+        const badge = document.createElement('div');
+        badge.className = `stat-badge ${p.cls}`;
+        badge.innerHTML = `${p.val}${unit.trim()}`;
+        bContainer.appendChild(badge);
+    });
+    container.appendChild(bContainer);
+
     const width = container.clientWidth || 600;
     const height = 180;
     const padding = 50;
