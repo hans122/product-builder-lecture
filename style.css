@@ -159,14 +159,6 @@ body {
     width: 100%;
 }
 
-/* 번호가 5개인 경우 좌측 정렬 보정 */
-#neutral-pool-container {
-    display: flex !important; /* 간격 통일을 위해 flex로 하되 gap만 맞춤 */
-    flex-wrap: wrap;
-    gap: 8px; /* pool-grid-10의 gap과 동일하게 설정 */
-    justify-content: flex-start;
-}
-
 /* 모바일 대응: 10개가 너무 좁을 경우 5개씩 6줄로 전환 */
 @media (max-width: 600px) {
     .pool-grid-10 {
