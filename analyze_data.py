@@ -209,6 +209,11 @@ def analyze():
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
+    
+    # frequency.json 업데이트 추가
+    with open('frequency.json', 'w', encoding='utf-8') as f:
+        json.dump({str(k): v for k, v in frequency.items()}, f, ensure_ascii=False, indent=4)
+        
     print(f"Success: Full metrics with SD up to draw {draws[-1]['no']}")
 
 if __name__ == "__main__":
