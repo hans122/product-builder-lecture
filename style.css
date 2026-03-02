@@ -89,6 +89,23 @@ body {
 }
 .card-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
 
+/* 로또 구슬 컨테이너 (기본 가로 정렬) */
+.ball-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.ball-container.mini { gap: 6px; }
+
+.ball-container.wrap {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
 /* AI 예측 번호 풀 레이아웃 (표준 카드형) */
 .pool-container {
     padding: 24px;
