@@ -1,31 +1,43 @@
-// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계
+// [표준 지표 설정] 모든 화면에서 공통으로 사용 가능하도록 설계 (계산 로직 calc 추가)
 const INDICATOR_CONFIG = [
-    { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum' },
-    { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count' },
-    { id: 'high-low', label: '고저 비율', unit: ' : ', group: 'G1', distKey: 'high_low', statKey: 'low_count' },
-    { id: 'period-1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1' },
-    { id: 'neighbor', label: '이웃수', unit: '개', group: 'G2', distKey: 'neighbor', statKey: 'neighbor' },
-    { id: 'period-1-2', label: '1~2회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_2', statKey: 'period_1_2' },
-    { id: 'period-1-3', label: '1~3회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_3', statKey: 'period_1_3' },
-    { id: 'consecutive', label: '연속번호 쌍', unit: '쌍', group: 'G2', distKey: 'consecutive', statKey: 'consecutive' },
-    { id: 'prime', label: '소수 포함', unit: '개', group: 'G3', distKey: 'prime', statKey: 'prime' },
-    { id: 'composite', label: '합성수 포함', unit: '개', group: 'G3', distKey: 'composite', statKey: 'composite' },
-    { id: 'multiple-3', label: '3배수 포함', unit: '개', group: 'G3', distKey: 'multiple_3', statKey: 'multiple_3' },
-    { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'm5' },
-    { id: 'square', label: '제곱수 포함', unit: '개', group: 'G3', distKey: 'square', statKey: 'square' },
-    { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double' },
-    { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'b15' },
-    { id: 'bucket-9', label: '5분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'b9' },
-    { id: 'bucket-5', label: '9분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'b5' },
-    { id: 'bucket-3', label: '15분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'b3' },
-    { id: 'color', label: '포함 색상수', unit: '색상', group: 'G4', distKey: 'color', statKey: 'color' },
-    { id: 'pattern-corner', label: '모서리 패턴', unit: '개', group: 'G4', distKey: 'pattern_corner', statKey: 'p_corner' },
-    { id: 'pattern-triangle', label: '삼각형 패턴', unit: '개', group: 'G4', distKey: 'pattern_triangle', statKey: 'p_tri' },
-    { id: 'end-sum', label: '끝수합', unit: '', group: 'G5', distKey: 'end_sum', statKey: 'end_sum' },
-    { id: 'same-end', label: '동끝수', unit: '개', group: 'G5', distKey: 'same_end', statKey: 'same_end' },
-    { id: 'ac', label: 'AC값', unit: '', group: 'G5', distKey: 'ac', statKey: 'ac' },
-    { id: 'span', label: 'Span(간격)', unit: '', group: 'G5', distKey: 'span', statKey: 'span' }
+    { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
+    { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
+    { id: 'high-low', label: '고저 비율', unit: ' : ', group: 'G1', distKey: 'high_low', statKey: 'low_count', calc: (nums) => nums.filter(n => n <= 22).length },
+    { id: 'period-1', label: '직전 1회차 매칭', unit: '개', group: 'G2', distKey: 'period_1', statKey: 'period_1', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : null },
+    { id: 'neighbor', label: '이웃수', unit: '개', group: 'G2', distKey: 'neighbor', statKey: 'neighbor', calc: (nums, data) => {
+        if (!data || !data.last_3_draws) return null;
+        const neighbors = new Set();
+        data.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
+        return nums.filter(n => neighbors.has(n)).length;
+    }},
+    { id: 'period-1-2', label: '1~2회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_2', statKey: 'period_1_2', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length : null },
+    { id: 'period-1-3', label: '1~3회전 윈도우', unit: '개', group: 'G2', distKey: 'period_1_3', statKey: 'period_1_3', calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[]), ...(data.last_3_draws[2]||[])]).has(n)).length : null },
+    { id: 'consecutive', label: '연속번호 쌍', unit: '쌍', group: 'G2', distKey: 'consecutive', statKey: 'consecutive', calc: (nums) => {
+        let cnt = 0; for (let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) cnt++; return cnt;
+    }},
+    { id: 'prime', label: '소수 포함', unit: '개', group: 'G3', distKey: 'prime', statKey: 'prime', calc: (nums) => nums.filter(isPrime).length },
+    { id: 'composite', label: '합성수 포함', unit: '개', group: 'G3', distKey: 'composite', statKey: 'composite', calc: (nums) => nums.filter(isComposite).length },
+    { id: 'multiple-3', label: '3배수 포함', unit: '개', group: 'G3', distKey: 'multiple_3', statKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length },
+    { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'm5', calc: (nums) => nums.filter(n => n % 5 === 0).length },
+    { id: 'square', label: '제곱수 포함', unit: '개', group: 'G3', distKey: 'square', statKey: 'square', calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length },
+    { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double', calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length },
+    { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'b15', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size },
+    { id: 'bucket-9', label: '5분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_9', statKey: 'b9', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size },
+    { id: 'bucket-5', label: '9분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_5', statKey: 'b5', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size },
+    { id: 'bucket-3', label: '15분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_3', statKey: 'b3', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/3))).size },
+    { id: 'color', label: '포함 색상수', unit: '색상', group: 'G4', distKey: 'color', statKey: 'color', calc: (nums) => new Set(nums.map(getBallColorClass)).size },
+    { id: 'pattern-corner', label: '모서리 패턴', unit: '개', group: 'G4', distKey: 'pattern_corner', statKey: 'p_corner', calc: (nums) => nums.filter(n => [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42].includes(n)).length },
+    { id: 'pattern-triangle', label: '삼각형 패턴', unit: '개', group: 'G4', distKey: 'pattern_triangle', statKey: 'p_tri', calc: (nums) => nums.filter(n => [4,10,11,12,16,17,18,19,20,24,25,26,32].includes(n)).length },
+    { id: 'end-sum', label: '끝수합', unit: '', group: 'G5', distKey: 'end_sum', statKey: 'end_sum', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0) },
+    { id: 'same-end', label: '동끝수', unit: '개', group: 'G5', distKey: 'same_end', statKey: 'same_end', calc: (nums) => {
+        const ends = nums.map(n => n % 10);
+        return Math.max(...Object.values(ends.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {})));
+    }},
+    { id: 'ac', label: 'AC값', unit: '', group: 'G5', distKey: 'ac', statKey: 'ac', calc: (nums) => calculate_ac(nums) },
+    { id: 'span', label: 'Span(간격)', unit: '', group: 'G5', distKey: 'span', statKey: 'span', calc: (nums) => nums[5] - nums[0] }
 ];
+
+let globalStatsData = null; // calc 함수에서 참조하기 위해 전역 변수화
 
 function restoreMyNumbers() {
     const section = document.getElementById('my-numbers-section');
@@ -57,6 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
             if (!data) return;
+            globalStatsData = data;
             const dists = data.distributions;
             const stats = data.stats_summary || {};
 
@@ -64,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             INDICATOR_CONFIG.forEach(cfg => {
                 const chartId = `${cfg.id}-chart`;
                 if (dists[cfg.distKey]) {
-                    renderCurveChart(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey]);
+                    renderCurveChart(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey], cfg);
                 }
             });
 
@@ -76,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(err => console.error('Stats flow failed:', err));
 });
 
-function renderCurveChart(elementId, distData, unit = '', statSummary = null) {
+function renderCurveChart(elementId, distData, unit = '', statSummary = null, config = null) {
     const container = document.getElementById(elementId);
     if (!container) return;
     container.innerHTML = '';
@@ -172,14 +185,12 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null) {
         }
     });
 
+    // [개선] INDICATOR_CONFIG의 calc 로직을 사용하여 모든 지표에서 '내 번호' 표시
     const saved = localStorage.getItem('lastGeneratedNumbers');
-    if (saved) {
+    if (saved && config && config.calc) {
         try {
             const nums = JSON.parse(saved);
-            let myVal = null;
-            if (elementId.includes('sum-chart')) myVal = nums.reduce((a,b)=>a+b, 0);
-            else if (elementId.includes('ac-chart')) myVal = calculate_ac(nums);
-            else if (elementId.includes('end-sum')) myVal = nums.reduce((a, b) => a + (b % 10), 0);
+            const myVal = config.calc(nums.sort((a,b)=>a-b), globalStatsData);
 
             if (myVal !== null) {
                 let closestP = points[0]; let minD = Infinity;
@@ -202,12 +213,10 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null) {
 }
 
 function renderMiniTables(draws) {
-    // [데이터 기반 자동화 루프] 표 렌더링
     INDICATOR_CONFIG.forEach(cfg => {
         const bodyId = `${cfg.id}-mini-body`;
         const tbody = document.getElementById(bodyId);
         if (!tbody) return;
-
         tbody.innerHTML = '';
         draws.forEach(draw => {
             const tr = document.createElement('tr');
@@ -232,6 +241,13 @@ function renderFrequencyChart(data) {
         w.appendChild(v); w.appendChild(b); w.appendChild(l); container.appendChild(w);
     }
 }
+
+function isPrime(num) {
+    if (num <= 1) return false;
+    const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43];
+    return primes.includes(num);
+}
+function isComposite(num) { return num > 1 && !isPrime(num); }
 
 function calculate_ac(nums) {
     const diffs = new Set();
