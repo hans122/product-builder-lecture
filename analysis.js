@@ -1,4 +1,4 @@
-// [표준 지표 설정] DATA_SCHEMA.md(v4.0) 마스터 매핑 테이블 엄격 준수
+// [표준 지표 설정] DATA_SCHEMA.md(v4.0) 마스터 매핑 테이블 및 반올림(Round) 정책 준수
 const INDICATOR_CONFIG = [
     { id: 'sum', label: '총합', unit: '', group: 'G1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
     { id: 'odd-even', label: '홀짝 비율', unit: ' : ', group: 'G1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', calc: (nums) => nums.filter(n => n % 2 !== 0).length },
@@ -17,8 +17,8 @@ const INDICATOR_CONFIG = [
     }},
     { id: 'prime', label: '소수 포함', unit: '개', group: 'G3', distKey: 'prime', statKey: 'prime', drawKey: 'prime', calc: (nums) => nums.filter(isPrime).length },
     { id: 'composite', label: '합성수 포함', unit: '개', group: 'G3', distKey: 'composite', statKey: 'composite', drawKey: 'composite', calc: (nums) => nums.filter(isComposite).length },
-    { id: 'multiple-3', label: '3배수 포함', unit: '개', group: 'G3', distKey: 'multiple_3', statKey: 'multiple_3', drawKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length },
-    { id: 'multiple-5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'multiple_5', drawKey: 'm5', calc: (nums) => nums.filter(n => n % 5 === 0).length },
+    { id: 'multiple_3', label: '3배수 포함', unit: '개', group: 'G3', distKey: 'multiple_3', statKey: 'multiple_3', drawKey: 'multiple_3', calc: (nums) => nums.filter(n => n % 3 === 0).length },
+    { id: 'multiple_5', label: '5배수 포함', unit: '개', group: 'G3', distKey: 'multiple_5', statKey: 'multiple_5', drawKey: 'm5', calc: (nums) => nums.filter(n => n % 5 === 0).length },
     { id: 'square', label: '제곱수 포함', unit: '개', group: 'G3', distKey: 'square', statKey: 'square', drawKey: 'square', calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length },
     { id: 'double', label: '쌍수 포함', unit: '개', group: 'G3', distKey: 'double_num', statKey: 'double_num', drawKey: 'double', calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length },
     { id: 'bucket-15', label: '3분할 점유', unit: '구간', group: 'G4', distKey: 'bucket_15', statKey: 'bucket_15', drawKey: 'b15', calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size },
@@ -103,35 +103,36 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const minVal = Math.min(...valKeys);
     const maxVal = Math.max(...valKeys);
 
-    // [개선] '평균' 지점을 추가하여 '1개' 등의 핵심 데이터 누락 방지
-    const statPoints = [
+    // [v4.2 표준 정책] 7대 핵심 통계 지점 정의 (반올림 기준)
+    const rawPoints = [
         { label: '최소', val: minVal, cls: 'min-max' },
-        { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2*sd)), cls: 'safe-zone' },
+        { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2 * sd)), cls: 'safe-zone' },
         { label: '미니 옵티멀', val: Math.max(minVal, Math.round(mu - sd)), cls: 'optimal-zone' },
-        { label: '평균', val: Math.round(mu), cls: 'optimal-zone' }, 
+        { label: '평균', val: Math.round(mu), cls: 'optimal-zone' },
         { label: '맥스 옵티멀', val: Math.min(maxVal, Math.round(mu + sd)), cls: 'optimal-zone' },
-        { label: '맥스 세이프', val: Math.min(maxVal, Math.round(mu + 2*sd)), cls: 'safe-zone' },
+        { label: '맥스 세이프', val: Math.min(maxVal, Math.round(mu + 2 * sd)), cls: 'safe-zone' },
         { label: '최대', val: maxVal, cls: 'min-max' }
     ];
 
+    // [중복 제거 및 우선순위 통합] 배지와 라벨이 100% 동일한 로직 공유
     const priority = { 'optimal-zone': 3, 'safe-zone': 2, 'min-max': 1 };
-    
-    // [중복 제거 로직 통합] 배지와 라벨이 동일한 데이터를 보게 함
-    const labelMap = new Map();
-    statPoints.forEach(sp => {
-        const existing = labelMap.get(sp.val);
-        if (!existing || priority[sp.cls] > priority[existing.cls]) {
-            labelMap.set(sp.val, { cls: sp.cls, label: sp.label });
+    const unifiedMap = new Map();
+    rawPoints.forEach(p => {
+        const existing = unifiedMap.get(p.val);
+        if (!existing || priority[p.cls] > priority[existing.cls]) {
+            unifiedMap.set(p.val, p);
         }
     });
 
-    // 상단 배지 생성 (중복 제거된 고유 값만 표시)
+    const finalPoints = Array.from(unifiedMap.values()).sort((a, b) => a.val - b.val);
+
+    // 상단 배지 생성 (값만 표시)
     const bContainer = document.createElement('div');
     bContainer.className = 'stat-badge-container';
-    Array.from(labelMap.entries()).sort((a, b) => a[0] - b[0]).forEach(([val, info]) => {
+    finalPoints.forEach(p => {
         const badge = document.createElement('div');
-        badge.className = `stat-badge ${info.cls}`;
-        badge.innerHTML = `${val}${unit.trim()}`;
+        badge.className = `stat-badge ${p.cls}`;
+        badge.innerHTML = `${p.val}${unit.trim()}`;
         bContainer.appendChild(badge);
     });
     container.appendChild(bContainer);
@@ -148,17 +149,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         const x = padding + (i / (entries.length - 1)) * chartWidth;
         const y = baselineY - (e[1] / maxFreq) * chartHeight;
         return { x, y, label: e[0], value: e[1], index: i };
-    });
-
-    const finalLabels = [];
-    labelMap.forEach((info, val) => {
-        let bestIdx = -1; let minD = Infinity;
-        points.forEach((p, idx) => {
-            const pVal = parseFloat(p.label.split(/[ :\-]/)[0]);
-            const diff = Math.abs(pVal - val);
-            if (diff < minD) { minD = diff; bestIdx = idx; }
-        });
-        if (bestIdx !== -1) finalLabels.push({ index: bestIdx, cls: info.cls });
     });
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -179,24 +169,19 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     pattern.appendChild(line); defs.appendChild(pattern); svg.appendChild(defs);
 
     const drawZone = (z, color) => {
-        // 라벨과 동일하게 반올림된 정수 경계를 기준으로 구역 설정
         const minBound = Math.round(mu - z * sd);
         const maxBound = Math.round(mu + z * sd);
-
         const zPoints = points.filter(p => {
             const pVal = parseFloat(p.label.split(/[ :\-]/)[0]);
             return !isNaN(pVal) && pVal >= minBound && pVal <= maxBound;
         });
-
         if (zPoints.length > 0) {
             const firstP = zPoints[0]; const lastP = zPoints[zPoints.length - 1];
             let d = "";
-            // 단일 포인트인 경우(예: 1개만 옵티멀일 때) 가시성 확보를 위해 너비 부여
             if (zPoints.length === 1) {
-                const w = 25; 
+                const w = 25;
                 d = `M ${firstP.x - w},${baselineY} L ${firstP.x - w},${firstP.y} L ${firstP.x + w},${firstP.y} L ${firstP.x + w},${baselineY} Z`;
             } else {
-                // 여러 포인트인 경우 점들을 잇고 아래 바닥까지 채움
                 d = `M ${firstP.x},${baselineY} `;
                 zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
                 d += `L ${lastP.x},${baselineY} Z`;
@@ -214,18 +199,32 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     curvePath.setAttribute("d", curvePathData); curvePath.setAttribute("fill", "none");
     curvePath.setAttribute("stroke", "#3498db"); curvePath.setAttribute("stroke-width", "2"); svg.appendChild(curvePath);
 
-    finalLabels.forEach(lb => {
-        const p = points[lb.index];
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
-        circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
-        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
-        let textColor = "#718096";
-        if (lb.cls === 'safe-zone') textColor = "#3498db";
-        else if (lb.cls === 'optimal-zone') textColor = "#27ae60";
-        txt.setAttribute("fill", textColor); txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
-        txt.textContent = p.label + unit; svg.appendChild(txt);
+    // [v4.2 하단 라벨 그리기] 상단 배지와 동일한 finalPoints 순회
+    finalPoints.forEach(fp => {
+        let bestIdx = -1; let minD = Infinity;
+        points.forEach((p, idx) => {
+            const pVal = parseFloat(p.label.split(/[ :\-]/)[0]);
+            const diff = Math.abs(pVal - fp.val);
+            if (diff < minD) { minD = diff; bestIdx = idx; }
+        });
+
+        if (bestIdx !== -1) {
+            const p = points[bestIdx];
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
+            circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
+
+            const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
+            
+            let textColor = "#718096";
+            if (fp.cls === 'safe-zone') textColor = "#3498db";
+            else if (fp.cls === 'optimal-zone') textColor = "#27ae60";
+            
+            txt.setAttribute("fill", textColor);
+            txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
+            txt.textContent = p.label + unit; svg.appendChild(txt);
+        }
     });
 
     const saved = localStorage.getItem('lastGeneratedNumbers');
