@@ -126,14 +126,14 @@ function runDetailedAnalysis() {
     const dists = combinationStatsData.distributions;
     const stats = combinationStatsData.stats_summary;
 
+    // [G7] 조합 정합성(Synergy) 분석을 최상단으로 배치
+    renderSynergyReport(currentNumbers);
+
     // [LottoCore 통합 연동] 모든 지표(G1~G6)를 리포트에 포함하여 전문성 강화
     LottoConfig.INDICATORS.forEach(cfg => {
         const value = cfg.calc(currentNumbers, combinationStatsData);
         renderAnalysisRow(`${cfg.group}: ${cfg.label}`, value, dists[cfg.distKey], stats[cfg.statKey]);
     });
-
-    // [G7] 조합 정합성(Synergy) 분석 추가
-    renderSynergyReport(currentNumbers);
 }
 
 function renderSynergyReport(nums) {
