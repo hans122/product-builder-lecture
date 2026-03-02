@@ -1,28 +1,30 @@
-# 로또 번호 분석 및 추천 서비스 SDD (v3.14)
+# SDD (System Design Document) - v4.0
 
-## 1. 외부 서비스 통합 및 인터랙션
-- **Disqus Comments Implementation**:
-    - 전 HTML 파일 하단에 `disqus_thread` 컨테이너 및 임베드 스크립트 적용.
-    - `disqus_config` 설정을 통해 `index`, `analysis`, `combination`, `history`, `guide`, `privacy` 등 각 페이지별 독립된 식별자 부여.
-- **Share-to-Comment Workflow**:
-    - 번호 생성(`main.js`) 및 정밀 분석(`combination.js`) 로직 종료 시점에 `showSharePrompt()` 함수 호출.
-    - `navigator.clipboard.writeText`를 활용한 번호 복사 및 공유 유도 텍스트 자동 생성.
+## 1. 시스템 아키텍처 개요
+본 시스템은 **`indicators.js` (설정)**와 **`core.js` (엔진)**를 핵심 축으로 하는 **Data-Driven Architecture**를 채택한다. 모든 UI 구성 요소와 분석 로직은 이 두 파일의 정의를 따르며, 개별 페이지(`index.html`, `analysis.html` 등)는 렌더링 결과만 출력하는 뷰(View)의 역할을 수행한다.
 
-## 2. 분석 엔진 및 알고리즘
-- **Combination State Persistence**: 
-    - `combination.js` 내 `saveSelection()` 및 `loadSavedSelection()` 구현.
-    - `manualNumbers`와 `autoNumbers` Set 객체를 JSON 직렬화하여 `localStorage`에 상주.
-- **AI Prediction Engine & Rolling Backtest**:
-    - `prediction.js`: 롤링 윈도우 기반 예측 로직 및 `generateSmartCombinations()`를 통한 필터링 조합 생성.
-    - [Refresh Logic]: `lastHotPool` 전역 상태를 활용하여 페이지 리로드 없이 비동기식 조합 재생성 지원.
-    - [Data Transfer]: 선택된 조합을 `pending_analysis_numbers` 키로 `localStorage`에 직렬화하여 페이지 간 데이터 공유.
-- **Auto-Analysis Mechanism**:
-    - `combination.js`: 로드 시 `localStorage`를 체크하여 대기 중인 번호가 있을 경우 즉시 마킹 UI 업데이트 및 `runDetailedAnalysis()` 자동 트리거.
-- **Cross-Browser UI Optimization**:
-    - 크롬 등 다양한 브라우저에서의 수치 찌부러짐 현상을 방지하기 위해 성과 요약 바에 표준 HTML Table 레이아웃 적용.
-- **Master Analysis Sequence Implementation**: `G1`~`G5` 표준 시퀀스 엄격 준수.
+## 2. 모듈별 상세 설계
+### 2.1. LottoConfig (indicators.js) - SSOT
+- 서비스의 모든 지표(G1~G6), 시너지 규칙(G0), 데이터 키 매핑을 관리하는 **단일 진실 공급원(Single Source of Truth)**.
+- 루프 기반 렌더링 엔진의 입력 소스로 활용됨.
 
-## 3. UI 레이아웃 및 시각화
-- **Interactive Share Section**: CSS 애니메이션(`fadeIn`)이 적용된 공유 유도 섹션(`share-prompt-section`) 구현.
-- **Anchor Scroll Optimization**: `style.css`의 `scroll-margin-top`을 `140px`로 고정하여 스티키 헤더에 의한 앵커 가려짐 현상 해결.
-- **Dynamic Real-time Tooltip**: 분석 항목 마우스 오버 시 실시간 계산된 옵티멀/세이프 범위 노출.
+### 2.2. LottoCore (core.js) - 통합 엔진
+- **LottoUtils**: Z-Score 기반 상태 판정, 공 색상 클래스 반환 등 공통 유틸리티 제공.
+- **LottoUI**: 동적 DOM 생성 및 SVG 차트 빌더. 컴포넌트 단위의 UI 일관성 보장.
+- **LottoSynergy**: 조합의 정합성을 검증하는 정밀 분석 로직 실행.
+- **LottoDataManager**: 로컬 스토리지와 서버 데이터를 연동하는 캐싱 레이어.
+
+### 2.3. Expert-Grade Table System
+- **Slanted Header**: CSS `transform: rotate(-45deg)`를 활용하여 고정된 열 너비 안에서 긴 텍스트를 가시화.
+- **Sticky Column**: `position: sticky`와 `z-index` 설정을 통해 스크롤 시에도 핵심 열(회차, 번호)을 브라우저 좌측에 고정.
+
+## 3. 데이터 흐름 (Data Flow)
+1. **수집**: `update_latest.py`가 외부 API에서 최신 데이터를 가져와 `lt645.csv`에 저장.
+2. **분석**: `analyze_data.py`가 CSV를 바탕으로 심층 통계를 생성하여 `advanced_stats.json` 빌드.
+3. **로드**: 브라우저 로드 시 `LottoDataManager`가 JSON 데이터를 캐싱.
+4. **렌더링**: `LottoUI`가 `LottoConfig` 설정을 순회하며 페이지별 맞춤형 UI(차트, 표, 리포트)를 동적 생성.
+
+## 4. 디자인 시스템 가이드라인
+- **Colors**: `--primary-blue` (#3182f6), `--danger-red` (#f04452), `--success-green` (#2ecc71).
+- **Typography**: Apple SD Gothic Neo, Noto Sans KR (700 Bold 기반).
+- **Interactive**: `scale(1.05)`, `translateY(-5px)` 등 미세한 애니메이션으로 피드백 제공.
