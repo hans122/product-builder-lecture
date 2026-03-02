@@ -52,9 +52,9 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
     scores.sort((a, b) => b.score - a.score);
     
     return {
-        hot: scores.slice(0, 25).map(s => s.num).sort((a,b)=>a-b),
-        neutral: scores.slice(25, 30).map(s => s.num).sort((a,b)=>a-b),
-        cold: scores.slice(30, 45).map(s => s.num).sort((a,b)=>a-b)
+        hot: scores.slice(0, 30).map(s => s.num).sort((a,b)=>a-b),
+        neutral: scores.slice(30, 35).map(s => s.num).sort((a,b)=>a-b),
+        cold: scores.slice(35, 45).map(s => s.num).sort((a,b)=>a-b)
     };
 }
 
