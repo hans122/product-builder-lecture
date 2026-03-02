@@ -176,14 +176,25 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         const threshold = sd * z;
         const zPoints = points.filter(p => {
             const val = parseFloat(p.label.split(/[ :\-]/)[0]);
-            return !isNaN(val) && Math.abs(val - mu) <= threshold + 0.0001; 
+            // 정수형 데이터 대응을 위해 아주 미세한 여유치(0.1) 추가
+            return !isNaN(val) && Math.abs(val - mu) <= threshold + 0.1; 
         });
+        
         if (zPoints.length > 0) {
             const firstP = zPoints[0];
             const lastP = zPoints[zPoints.length - 1];
-            let d = `M ${firstP.x},${baselineY} `;
-            zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
-            d += `L ${lastP.x},${baselineY} Z`;
+            
+            // 만약 포인트가 하나라면 해당 포인트를 중심으로 작은 영역 생성
+            let d = "";
+            if (zPoints.length === 1) {
+                const w = 20; // 최소 너비
+                d = `M ${firstP.x - w},${baselineY} L ${firstP.x - w},${firstP.y} L ${firstP.x + w},${firstP.y} L ${firstP.x + w},${baselineY} Z`;
+            } else {
+                d = `M ${firstP.x},${baselineY} `;
+                zPoints.forEach(p => { d += `L ${p.x},${p.y} `; });
+                d += `L ${lastP.x},${baselineY} Z`;
+            }
+
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
             path.setAttribute("d", d);
             path.setAttribute("fill", color);
