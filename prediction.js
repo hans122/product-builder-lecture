@@ -186,10 +186,24 @@ function runBacktest(draws) {
     testData.forEach((draw, index) => {
         const pools = getPredictionPoolsForRound(draws, index);
         const hits = draw.nums.filter(n => pools.hot.includes(n));
+        const neutralHits = draw.nums.filter(n => pools.neutral.includes(n));
         const fails = draw.nums.filter(n => pools.cold.includes(n));
         totalHits += hits.length;
         if (hits.length >= 5) jackpotCount++;
         if (fails.length === 0) perfectExclusions++;
+
+        // [복구 및 고도화] 마이크로 그리드 기반 번호 리스트 생성
+        const hotDisplay = pools.hot.map(n => 
+            draw.nums.includes(n) ? `<span class="micro-num hit">${n}</span>` : `<span class="micro-num">${n}</span>`
+        ).join(''); 
+
+        const neutralDisplay = pools.neutral.map(n => 
+            draw.nums.includes(n) ? `<span class="micro-num neutral-hit">${n}</span>` : `<span class="micro-num">${n}</span>`
+        ).join('');
+
+        const coldDisplay = pools.cold.map(n => 
+            draw.nums.includes(n) ? `<span class="micro-num fail">${n}</span>` : `<span class="micro-num">${n}</span>`
+        ).join('');
 
         const tr = document.createElement('tr');
         let statusTag = hits.length >= 5 ? '<span class="status-tag excellent">우수</span>' : (hits.length >= 4 ? '<span class="status-tag good">양호</span>' : '<span class="status-tag fail">보통</span>');
@@ -197,9 +211,20 @@ function runBacktest(draws) {
         tr.innerHTML = `
             <td>${draw.no}회</td>
             <td><div class="pool-grid-win">${draw.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('')}</div></td>
-            <td class="text-left"><div class="hit-summary-top">적중: <strong>${hits.length}개</strong></div></td>
-            <td class="text-left"><div class="hit-summary-top">보류수 적중: <strong>${draw.nums.filter(n => pools.neutral.includes(n)).length}개</strong></div></td>
-            <td class="text-left"><div class="fail-summary-top ${fails.length > 0 ? 'text-danger' : 'text-success'}">${fails.length > 0 ? `필터실패: ${fails.join(',')}` : '완벽제외'}</div></td>
+            <td class="text-left">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--primary-blue); margin-bottom: 5px;">적중 ${hits.length}개</div>
+                <div class="micro-num-grid">${hotDisplay}</div>
+            </td>
+            <td class="text-left">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--warning-orange); margin-bottom: 5px;">적중 ${neutralHits.length}개</div>
+                <div class="micro-num-grid">${neutralDisplay}</div>
+            </td>
+            <td class="text-left">
+                <div style="font-size: 0.75rem; font-weight: 800; color: ${fails.length > 0 ? 'var(--danger-red)' : 'var(--success-green)'}; margin-bottom: 5px;">
+                    ${fails.length > 0 ? '필터실패' : '완벽제외'}
+                </div>
+                <div class="micro-num-grid">${coldDisplay}</div>
+            </td>
             <td>${statusTag}</td>
         `;
         reportBody.appendChild(tr);
