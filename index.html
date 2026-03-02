@@ -144,28 +144,43 @@
         .s-unit { font-size: 1rem; color: #718096; font-weight: 600; margin-left: 4px; }
         .c-blue { color: #2b6cb0; } .c-green { color: #2f855a; } .c-orange { color: #c05621; } .c-red { color: #c53030; }
 
-        .analysis-layout-split { display: grid; grid-template-columns: 350px 1fr; gap: 20px; margin-bottom: 30px; }
-        .analysis-card { background: white; border-radius: 12px; box-shadow: var(--card-shadow); overflow: hidden; }
-        .card-header { padding: 15px 20px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; gap: 10px; background: #fcfcfd; }
+        .analysis-layout-split { 
+            display: grid; 
+            grid-template-columns: 350px 1fr; 
+            gap: 20px; 
+            margin-bottom: 30px; 
+            align-items: stretch; /* 좌우 카드 높이 동일화 */
+        }
+        .analysis-card { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: var(--card-shadow); 
+            overflow: hidden; 
+            display: flex; /* 내부 요소 제어를 위해 flex 도입 */
+            flex-direction: column;
+            height: 100%;
+        }
+        .card-header { padding: 15px 20px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; gap: 10px; background: #fcfcfd; flex-shrink: 0; }
         .card-header h3 { font-size: 1rem; margin: 0; color: var(--primary-navy); font-weight: 700; }
-        .logic-list { padding: 20px; } .logic-item { margin-bottom: 15px; } .logic-item strong { display: block; font-size: 0.9rem; color: var(--primary-navy); margin-bottom: 4px; } .logic-item p { font-size: 0.85rem; color: #718096; margin: 0; line-height: 1.5; }
         
-        /* [G0] 예측 번호 풀: 수학적 직사각형 레이아웃 (5행 정렬) */
+        /* [G0] 예측 번호 풀: 수학적 직사각형 레이아웃 (높이 100% 채움) */
         .pool-container { 
             padding: 20px; 
             display: grid; 
-            grid-template-columns: 6fr 1fr 2fr; /* 6:1:2 비율로 가로 폭 할당 */
+            grid-template-columns: 6fr 1fr 2fr; 
             gap: 12px; 
             background: #f8fafc; 
+            flex: 1; /* 부모 카드의 남은 높이를 모두 채움 */
             align-items: stretch;
         } 
         .pool-box { 
-            padding: 12px; 
+            padding: 15px; 
             border-radius: 8px; 
             background: white; 
             border: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
+            justify-content: space-between; /* 내부 헤더와 공 영역을 위아래로 밀어냄 */
         } 
         .pool-box.hot { border-top: 4px solid #e53e3e; } 
         .pool-box.neutral { border-top: 4px solid #dd6b20; } 
@@ -174,10 +189,11 @@
         .pool-header { 
             font-size: 0.75rem; 
             font-weight: 900; 
-            margin-bottom: 12px; 
+            margin-bottom: 15px; 
             color: #4a5568; 
             text-align: center;
             white-space: nowrap;
+            flex-shrink: 0;
         } 
 
         /* 각 풀별 고정 열(Column) 설정을 통해 직사각형 완성 */
@@ -187,8 +203,10 @@
 
         .ball-container.mini.wrap { 
             display: grid; 
-            gap: 4px; 
+            gap: 6px; 
             justify-items: center;
+            align-content: center; /* 공들을 수직 중앙으로 정렬하여 늘어짐 방지 */
+            flex: 1;
         }
         
         /* 모바일 대응 (비율 유지 또는 스택) */
