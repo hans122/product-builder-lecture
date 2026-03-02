@@ -97,13 +97,13 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         });
     }
 
-    // [추가] 통계 요약 배지 렌더링
     const mu = statSummary.mean; const sd = statSummary.std;
     const valKeys = entries.map(e => parseFloat(e[0].split(/[ :\-]/)[0])).filter(v => !isNaN(v));
     const minVal = Math.min(...valKeys);
     const maxVal = Math.max(...valKeys);
 
-    const badgeData = [
+    // 핵심 통계 6개 지점 정의 (상단 배지와 하단 라벨 공용)
+    const statPoints = [
         { label: '최소', val: minVal, cls: 'min-max' },
         { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2*sd)), cls: 'safe-zone' },
         { label: '미니 옵티멀', val: Math.max(minVal, Math.round(mu - sd)), cls: 'optimal-zone' },
@@ -112,12 +112,13 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         { label: '최대', val: maxVal, cls: 'min-max' }
     ];
 
+    // 상단 배지 생성 (값만 표시)
     const bContainer = document.createElement('div');
     bContainer.className = 'stat-badge-container';
-    badgeData.forEach(b => {
+    statPoints.forEach(p => {
         const badge = document.createElement('div');
-        badge.className = `stat-badge ${b.cls}`;
-        badge.innerHTML = `${b.val}${unit.trim()}`;
+        badge.className = `stat-badge ${p.cls}`;
+        badge.innerHTML = `${p.val}${unit.trim()}`;
         bContainer.appendChild(badge);
     });
     container.appendChild(bContainer);
@@ -138,25 +139,19 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
         return { x, y, label: e[0], value: e[1], index: i };
     });
 
-    const labelSet = new Set([0, points.length - 1]);
-    const targets = [mu - 2*sd, mu - sd, mu, mu + sd, mu + 2*sd];
-    targets.forEach(t => {
+    // [개선] 차트 하단 X축 라벨을 위 6개 지점과 정확히 일치하도록 설정
+    const labelSet = new Set();
+    statPoints.forEach(sp => {
         let bestIdx = -1; let minD = Infinity;
         points.forEach((p, idx) => {
             const val = parseFloat(p.label.split(/[ :\-]/)[0]);
-            const diff = Math.abs(val - t);
+            const diff = Math.abs(val - sp.val);
             if (diff < minD) { minD = diff; bestIdx = idx; }
         });
         if (bestIdx !== -1) labelSet.add(bestIdx);
     });
 
-    const sortedIdx = Array.from(labelSet).sort((a, b) => a - b);
-    const finalSafeIndices = [];
-    let lastX = -100;
-    sortedIdx.forEach(idx => {
-        const p = points[idx];
-        if (p.x - lastX > 45) { finalSafeIndices.push(idx); lastX = p.x; }
-    });
+    const finalSafeIndices = Array.from(labelSet).sort((a, b) => a - b);
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
