@@ -159,44 +159,45 @@ body {
     align-items: start;
 }
 
-/* 로또 구슬 프리미엄 디자인 (v6.0) */
+/* 로또 구슬 프리미엄 디자인 (v6.2 - 원형 복구) */
 .ball {
     width: 46px;
     height: 46px;
-    border-radius: 15px; /* Squircle 바이브 */
+    border-radius: 50%; /* 완벽한 원형 복구 */
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
     font-weight: 900;
     font-size: 1.1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12), inset 0 -2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 -3px 6px rgba(0,0,0,0.2);
     position: relative;
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1.5px solid rgba(255,255,255,0.3);
     animation: ballPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
     transition: all 0.2s ease;
+    z-index: 1;
 }
 
 .ball::before {
     content: "";
     position: absolute;
-    top: 2px; left: 2px; right: 2px;
-    height: 40%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%);
-    border-radius: 12px 12px 4px 4px;
+    top: 3px; left: 8px; right: 8px;
+    height: 35%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 50% 50% 40% 40%; /* 상단 하이라이트 */
 }
 
 .ball:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transform: scale(1.15);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
     z-index: 10;
 }
 
 .ball.mini { 
-    width: 32px; height: 32px; border-radius: 10px; font-size: 0.85rem; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08); 
+    width: 32px; height: 32px; border-radius: 50%; font-size: 0.85rem; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1), inset 0 -2px 3px rgba(0,0,0,0.15); 
 }
-.ball.mini::before { border-radius: 8px 8px 2px 2px; }
+.ball.mini::before { top: 2px; left: 5px; right: 5px; }
 
 @keyframes ballPop {
     from { opacity: 0; transform: scale(0.5); }
