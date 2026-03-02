@@ -104,11 +104,10 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const maxVal = Math.max(...valKeys);
 
     // [v4.2 표준 정책] 7대 핵심 통계 지점 정의 (반올림 기준)
-    const rawPoints = [
+    const statPoints = [
         { label: '최소', val: minVal, cls: 'min-max' },
         { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2 * sd)), cls: 'safe-zone' },
         { label: '미니 옵티멀', val: Math.max(minVal, Math.round(mu - sd)), cls: 'optimal-zone' },
-        { label: '평균', val: Math.round(mu), cls: 'optimal-zone' },
         { label: '맥스 옵티멀', val: Math.min(maxVal, Math.round(mu + sd)), cls: 'optimal-zone' },
         { label: '맥스 세이프', val: Math.min(maxVal, Math.round(mu + 2 * sd)), cls: 'safe-zone' },
         { label: '최대', val: maxVal, cls: 'min-max' }
