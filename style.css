@@ -440,7 +440,7 @@ body {
 }
 .status-badge.safe { background: #e7f9ed; color: #1ea54c; }
 .status-badge.warning { background: #fff5e6; color: #ff9500; }
-.status-badge.danger { background: #feecef; color: #f04452; }
+.status-badge.danger { background: var(--danger-red); color: white; box-shadow: 0 4px 10px rgba(240, 68, 82, 0.2); }
 
 /* [공통] 표 컨테이너 여백 보강 (v9.8 초압축) */
 .table-responsive {

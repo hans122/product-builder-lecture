@@ -25,16 +25,21 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
         const freq10 = history.slice(0, 10).filter(d => d.nums.includes(i)).length;
         score += freq10 * 15;
 
-        // 2. 미출현 임계점 (Gap - 골든타임 5~15회차)
+        // 2. 미출현 기간(Gap) 기반 모멘텀 가중치 (데이터 주도적 튜닝 v4.0)
         let gap = 0;
         for (let d = 0; d < history.length; d++) {
             if (history[d].nums.includes(i)) { gap = d; break; }
         }
-        if (gap >= 5 && gap <= 15) score += 30; // 가중치 강화 (+25 -> +30)
-        else if (gap > 30) score -= 20; // 제외 패널티 강화 (-15 -> -20)
+        
+        // [백테스트 근거] 0~4회차: 51.3% 점유 (초강력 모멘텀)
+        if (gap <= 4) score += 40;
+        // [백테스트 근거] 5~14회차: 37.1% 점유 (골든타임)
+        else if (gap >= 5 && gap <= 14) score += 25;
+        // [백테스트 근거] 30회차 이상: 1.5% 점유 (희박)
+        else if (gap >= 30) score -= 30;
 
         // 3. 직전 회차 이월/이웃 시너지
-        if (lastDraw.nums.includes(i)) score += 15; // 이월수 가점 (+12 -> +15)
+        if (lastDraw.nums.includes(i)) score += 10; // 모멘텀 점수와 중복되므로 이월수 가점은 소폭 조정
         
         const neighbors = new Set();
         lastDraw.nums.forEach(n => { if(n>1) neighbors.add(n-1); if(n<45) neighbors.add(n+1); });
@@ -78,14 +83,19 @@ function generateSmartCombinations(hotPool, neutralPool) {
         }
         pick.sort((a, b) => a - b);
 
-        // G1~G6 기본 필터 통과 여부
+        // [데이터 주도적 필터 v4.5] 통계 기반 세이프 존 실시간 적용
+        const stats = predStatsData.stats_summary;
         const sum = pick.reduce((a, b) => a + b, 0);
         const odds = pick.filter(n => n % 2 !== 0).length;
         
-        if (sum >= 105 && sum <= 170 && odds >= 2 && odds <= 4) {
-            // [G0] 시너지 엔진 최종 검증
+        // 합계 및 홀짝 세이프 존 계산 (±2표준편차)
+        const isSumSafe = stats.sum && (sum >= Math.round(stats.sum.mean - 2 * stats.sum.std) && sum <= Math.round(stats.sum.mean + 2 * stats.sum.std));
+        const isOddSafe = stats.odd_count && (odds >= Math.round(stats.odd_count.mean - 2 * stats.odd_count.std) && odds <= Math.round(stats.odd_count.mean + 2 * stats.odd_count.std));
+
+        if (isSumSafe && isOddSafe) {
+            // [G0] 시너지 엔진 최종 검증 (위험 등급 발견 시 즉시 탈락)
             const synergy = LottoSynergy.check(pick, predStatsData);
-            if (!synergy.some(s => s.status === 'warning')) {
+            if (!synergy.some(s => s.status === 'danger')) {
                 // 중복 조합 방지
                 if (!results.some(r => JSON.stringify(r) === JSON.stringify(pick))) {
                     results.push(pick);

@@ -65,7 +65,7 @@ const LottoConfig = {
         {
             id: 'syn-ls-high',
             label: '저번호-총합 상충',
-            status: 'warning',
+            status: 'danger',
             check: (v, s) => {
                 const isHighLowDanger = v['high-low'] >= (s.low_count ? Math.round(s.low_count.mean + s.low_count.std) : 5);
                 const isSumDanger = v['sum'] > (s.sum ? s.sum.mean + s.sum.std : 130);
@@ -76,7 +76,7 @@ const LottoConfig = {
         {
             id: 'syn-ls-low',
             label: '고번호-총합 상충',
-            status: 'warning',
+            status: 'danger',
             check: (v, s) => {
                 const isHighLowDanger = v['high-low'] <= (s.low_count ? Math.round(s.low_count.mean - s.low_count.std) : 1);
                 const isSumDanger = v['sum'] < (s.sum ? s.sum.mean - s.sum.std : 140);
@@ -87,13 +87,13 @@ const LottoConfig = {
         {
             id: 'syn-ac-consec',
             label: '복잡도 검증',
-            status: 'warning',
+            status: 'danger',
             check: (v, s) => {
-                const isHighAC = v['ac'] >= (s.ac ? Math.round(s.ac.mean + s.ac.std) : 9);
-                const isHighConsec = v['consecutive'] >= (s.consecutive ? Math.round(s.consecutive.mean + s.consecutive.std) : 2);
+                const isHighAC = v['ac'] >= (s.ac ? 10 : 10); // 최대값 고정
+                const isHighConsec = v['consecutive'] >= (s.consecutive ? 2 : 2); // 2쌍 고정
                 return isHighAC && isHighConsec;
             },
-            desc: '산술적 복잡도(AC)는 극히 높지만(Top 16%), 동시에 연속번호 쌍이 존재합니다. 통계적 상관관계 검증 결과, 인위적인 패턴의 가능성이 높아 실제 당첨 확률이 희박한 조합으로 판정됩니다.'
+            desc: '산술적 복잡도(AC)가 물리적 최대치(10)임에도 불구하고 연속번호가 2쌍 이상 존재합니다. 통계적 상관관계 검증 결과, 인위적인 패턴의 가능성이 극히 높아 실제 당첨 확률이 희박한 조합으로 판정됩니다.'
         },
         {
             id: 'syn-span-gap',

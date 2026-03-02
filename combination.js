@@ -138,9 +138,12 @@ function runDetailedAnalysis() {
         tbody.appendChild(tr);
     } else {
         synergyResults.forEach(res => {
-            if (res.status === 'warning') { totalScore -= 10; warningCount++; }
+            // [등급별 감점 차별화] Danger: -25점, Warning: -10점
+            if (res.status === 'danger') { totalScore -= 25; dangerCount++; }
+            else if (res.status === 'warning') { totalScore -= 10; warningCount++; }
+            
             const tr = document.createElement('tr');
-            const statusText = res.status === 'warning' ? '주의' : '세이프';
+            const statusText = res.status === 'danger' ? '위험' : (res.status === 'warning' ? '주의' : '세이프');
             tr.innerHTML = `<td><strong>[G0] ${res.label}</strong></td><td>-</td><td><span class="status-badge ${res.status}">${statusText}</span></td><td class="text-left">${res.desc}</td>`;
             tbody.appendChild(tr);
         });
