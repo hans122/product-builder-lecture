@@ -441,22 +441,29 @@ body {
     background: white;
 }
 
-/* 표 헤더가 많을 때의 텍스트 정렬 및 간격 */
+/* 표 헤더가 많을 때의 텍스트 정렬 및 간격 (초콤팩트 v8.6) */
 .results-table th, .prediction-table th, .history-table th {
     background: #f8fafc;
-    padding: 16px 12px; /* 헤더 안쪽 여백 확대 */
+    padding: 12px 4px; /* 좌우 패딩을 4px로 극도로 축소 */
     color: var(--text-sub);
-    font-size: 0.8rem;
+    font-size: 0.72rem; /* 폰트 크기 축소 */
     text-align: center;
     font-weight: 700;
     border-bottom: 2px solid #edf2f7;
-    white-space: nowrap; /* 헤더 줄바꿈 방지 */
+    line-height: 1.2;
+    /* white-space: nowrap; 제거 - 필요시 줄바꿈 허용하여 너비 압축 */
 }
 
-/* 히스토리 표 전용 미세 조정 */
-.history-table td {
-    padding: 12px 8px;
-    text-align: center;
+/* 데이터 셀도 함께 압축 */
+.results-table td, .prediction-table td, .history-table td {
+    padding: 10px 4px;
+    font-size: 0.8rem;
+}
+
+/* 특정 열 너비 강제 고정 (지표 열들) */
+.history-table th:not(:first-child):not(:nth-child(2)),
+.history-table td:not(:first-child):not(:nth-child(2)) {
+    min-width: 40px; /* 지표 열들이 너무 넓어지지 않게 고정 */
 }
 
 .prediction-table tbody tr:hover {
