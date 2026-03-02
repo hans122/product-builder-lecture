@@ -102,7 +102,6 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const minVal = Math.min(...valKeys);
     const maxVal = Math.max(...valKeys);
 
-    // 핵심 통계 6개 지점 정의 (상단 배지와 하단 라벨 공용)
     const statPoints = [
         { label: '최소', val: minVal, cls: 'min-max' },
         { label: '미니 세이프', val: Math.max(minVal, Math.round(mu - 2*sd)), cls: 'safe-zone' },
@@ -119,17 +118,15 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     const chartHeight = height - 50;
     const baselineY = height - 25;
 
-    const values = entries.map(e => e[1]);
-    const maxFreq = Math.max(...values, 1);
-
+    const maxFreq = Math.max(...entries.map(e => e[1]), 1);
     const points = entries.map((e, i) => {
         const x = padding + (i / (entries.length - 1)) * chartWidth;
         const y = baselineY - (e[1] / maxFreq) * chartHeight;
         return { x, y, label: e[0], value: e[1], index: i };
     });
 
-    // [개선] 차트 하단 X축 라벨을 위 6개 지점과 정확히 일치하도록 설정
     const labelSet = new Set();
+    const finalLabels = [];
     statPoints.forEach(sp => {
         let bestIdx = -1; let minD = Infinity;
         points.forEach((p, idx) => {
@@ -137,10 +134,12 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
             const diff = Math.abs(val - sp.val);
             if (diff < minD) { minD = diff; bestIdx = idx; }
         });
-        if (bestIdx !== -1) labelSet.add(bestIdx);
+        // 중복 인덱스 방지 (값이 같더라도 가장 적절한 지점 하나만 라벨링)
+        if (bestIdx !== -1 && !labelSet.has(bestIdx)) {
+            labelSet.add(bestIdx);
+            finalLabels.push({ index: bestIdx, cls: sp.cls, val: sp.val });
+        }
     });
-
-    const finalSafeIndices = Array.from(labelSet).sort((a, b) => a - b);
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
@@ -164,32 +163,23 @@ function renderCurveChart(elementId, distData, unit = '', statSummary = null, co
     curvePath.setAttribute("d", curvePathData); curvePath.setAttribute("fill", "none");
     curvePath.setAttribute("stroke", "#3498db"); curvePath.setAttribute("stroke-width", "2"); svg.appendChild(curvePath);
 
-    points.forEach(p => {
-        const labelInfo = statPoints.find(sp => {
-            const val = parseFloat(p.label.split(/[ :\-]/)[0]);
-            return val === sp.val;
-        });
+    // X축 라벨 및 포인트 그리기
+    finalLabels.forEach(lb => {
+        const p = points[lb.index];
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
+        circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
 
-        if (labelSet.has(p.index)) {
-            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 3);
-            circle.setAttribute("fill", "#2980b9"); svg.appendChild(circle);
-
-            const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
-            
-            // 색상 적용
-            let textColor = "#2c3e50"; // 기본값
-            if (labelInfo) {
-                if (labelInfo.cls === 'min-max') textColor = "#718096";
-                else if (labelInfo.cls === 'safe-zone') textColor = "#3498db";
-                else if (labelInfo.cls === 'optimal-zone') textColor = "#27ae60";
-            }
-            
-            txt.setAttribute("fill", textColor);
-            txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
-            txt.textContent = p.label + unit; svg.appendChild(txt);
-        }
+        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
+        
+        let textColor = "#718096";
+        if (lb.cls === 'safe-zone') textColor = "#3498db";
+        else if (lb.cls === 'optimal-zone') textColor = "#27ae60";
+        
+        txt.setAttribute("fill", textColor);
+        txt.style.fontSize = "0.75rem"; txt.style.fontWeight = "900";
+        txt.textContent = p.label + unit; svg.appendChild(txt);
     });
 
     const saved = localStorage.getItem('lastGeneratedNumbers');
