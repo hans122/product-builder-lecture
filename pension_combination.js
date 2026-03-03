@@ -104,14 +104,33 @@ document.addEventListener('DOMContentLoaded', function() {
         var gradeColor = grade === 'S' ? '#3182f6' : (grade === 'A' ? '#2ecc71' : (grade === 'B' ? '#ff9500' : '#f04452'));
 
         // HTML 렌더링 (8가지 모든 지표 명시적 추가)
+        var comboHtml = '<div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; padding: 15px; background: white; border-radius: 12px; border: 1px solid #edf2f7;">' +
+                        '<div style="display: flex; flex-direction: column; align-items: center; padding-right: 12px; border-right: 2px solid #f1f5f9;">' +
+                            '<span style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; margin-bottom: 4px;">조</span>' +
+                            '<div class="pension-ball group small" style="width:32px; height:32px; font-size:1rem;">' + state.group + '</div>' +
+                        '</div>' +
+                        '<div style="display: flex; gap: 4px;">';
+        
+        for (var i = 0; i < digits.length; i++) {
+            comboHtml += '<div style="display: flex; flex-direction: column; align-items: center;">' +
+                         '<span style="font-size: 0.5rem; color: #cbd5e1; font-weight: 800; margin-bottom: 4px;">' + (i+1) + '위</span>' +
+                         '<div class="pension-ball small" style="width:28px; height:28px; font-size:0.9rem;">' + digits[i] + '</div>' +
+                         '</div>';
+        }
+        comboHtml += '</div></div>';
+
         resultsArea.innerHTML = 
-            '<div class="result-summary" style="margin-bottom: 30px; display: flex; align-items: center; gap: 25px; background: #f8faff; padding: 25px; border-radius: 16px;">' +
-                '<div class="score-badge" style="width: 100px; height: 100px; border: 6px solid ' + gradeColor + '33; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white;">' +
-                    '<span style="font-size: 2.8rem; font-weight: 900; color:' + gradeColor + ';">' + grade + '</span>' +
-                '</div>' +
-                '<div class="grade-info">' +
-                    '<h3 style="margin: 0 0 5px 0;">종합 점수: <span style="color:' + gradeColor + ';">' + score + '점</span></h3>' +
-                    '<p style="font-size: 0.85rem; color: #64748b; margin: 0;">통계적 밸런스 점수이며 실제 당첨 확률과는 차이가 있을 수 있습니다.</p>' +
+            '<div class="result-summary" style="margin-bottom: 30px; display: flex; flex-direction: column; background: #f8faff; padding: 25px; border-radius: 16px;">' +
+                '<div style="width: 100%; text-align: center; margin-bottom: 15px;"><span style="font-size: 0.8rem; color: #64748b; font-weight: 700;">분석 대상 조합</span></div>' +
+                comboHtml + 
+                '<div style="display: flex; align-items: center; gap: 20px; justify-content: center; border-top: 1px solid #eef2ff; padding-top: 20px;">' +
+                    '<div class="score-badge" style="width: 80px; height: 80px; border: 5px solid ' + gradeColor + '33; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white;">' +
+                        '<span style="font-size: 2.2rem; font-weight: 900; color:' + gradeColor + ';">' + grade + '</span>' +
+                    '</div>' +
+                    '<div class="grade-info">' +
+                        '<h3 style="margin: 0 0 5px 0;">종합 점수: <span style="color:' + gradeColor + ';">' + score + '점</span></h3>' +
+                        '<p style="font-size: 0.8rem; color: #64748b; margin: 0;">통계적 정합성 신뢰도 기반</p>' +
+                    '</div>' +
                 '</div>' +
             '</div>' +
             

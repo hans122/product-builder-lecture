@@ -323,22 +323,29 @@ var LottoUI = {
 
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
-    // [Smart Sync] 로컬 캐시 유효성 검사 (하루 단위)
+    // [Smart Sync] 버전 기반 캐시 (시스템 버전이 바뀌면 즉시 갱신)
+    SYSTEM_VERSION: '8.6', 
     getCacheKey: function() {
-        var d = new Date();
-        return 'lotto_data_' + d.getFullYear() + (d.getMonth() + 1) + d.getDate();
+        return 'lotto_data_v' + this.SYSTEM_VERSION;
     },
     getStats: function(callback) {
         if (typeof Promise !== 'undefined' && !callback) {
             return new Promise(function(resolve) { LottoDataManager.getStats(function(data) { resolve(data); }); });
         }
         
-        // 1. 메모리 캐시 확인
         if (this.cache.lotto) { if(callback) callback(this.cache.lotto); return; }
         
-        // 2. 로컬 스토리지 캐시 확인 (0초 로딩)
         var cacheKey = this.getCacheKey();
         var localData = localStorage.getItem(cacheKey);
+        
+        // 이전 버전의 캐시가 있다면 모두 삭제 (중요!)
+        for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            if (key && key.indexOf('lotto_data_') === 0 && key !== cacheKey) {
+                localStorage.removeItem(key);
+            }
+        }
+
         if (localData) {
             try {
                 var parsed = JSON.parse(localData);

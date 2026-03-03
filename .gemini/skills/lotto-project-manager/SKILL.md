@@ -1,29 +1,28 @@
-# Lotto Project Manager Skill (v8.0)
+# Lotto Project Manager Skill (v8.6)
 
 AI 로또/연금 분석 서비스의 데이터 무결성 및 아키텍처 가디언 스킬입니다.
 
-## 🛡️ 핵심 아키텍처: 이모탈 가디언 (v8.0)
-1. **0초 로딩 (Persistent Cache)**: `localStorage`를 활용하여 페이지 이동 및 재접속 시 즉시 데이터를 렌더링한다.
-2. **불사신 엔진 (Error Isolation)**: 개별 지표 계산(`calc`) 오류 시 해당 항목만 격리(Isolation)하고 전체 시스템 마비를 방지한다.
-3. **데이터 검증 (Schema Validator)**: JSON/CSV 로드 직후 구조적 결함을 즉시 검사하여 깨진 데이터 유입을 차단한다.
-4. **지능형 동기화 (Smart Sync)**: 매일 첫 접속 시에만 서버 데이터를 갱신하여 자원을 최적화한다.
+## 🛡️ 핵심 아키텍처: 이모탈 가디언 (v8.6)
+1. **0초 로딩 (Persistent Cache)**: `localStorage` 기반 v8.6 시스템 버전 관리로 즉시 업데이트 보장.
+2. **불사신 엔진 (Error Isolation)**: 지표 계산 오류 시 해당 항목만 격리(Isolation) 처리.
+3. **지능형 동기화 (Smart Sync)**: 매일 첫 접속 또는 시스템 버전 변경 시 서버 데이터 갱신.
 
-## 📊 분석 지표 표준
-### 로또 (G1~G6) + [G0] 심화 시너지
-- **[G0] 상관관계 분석**: 
-  - `syn-bucket-sum`: 구간 편중 및 총합 부조화 감지 (오탐지율 0.16%)
-  - `syn-ac-none-consec`: 극대 복잡도(AC 10) 및 연번 부재 감지 (오탐지율 8.24%)
-  - `syn-endsum-sameend`: 끝수 합 및 동끝수 집중 감지 (오탐지율 1.32%)
+## 🔮 AI 예측 전략 (Backtest Proven)
+최근 100회차 백테스트(Time-Slice 방식)를 통해 검증된 5대 전략을 운용한다.
+- **💎 다차원 최적화 (Standard)**: 평균 적중률 최상 (Avg 0.87)
+- **📊 패턴 유사도형 (Trend)**: 최근 흐름 추종
+- **🔥 기세 추종형 (Hot)**: 다출현 번호 집중 (당첨 변별력 입증)
+- **⚖️ 밸런스 가중형 (Balanced)**: 수치적 대칭 최적화
+- **🛡️ 데이터 방어형 (Defensive)**: 장기 미출현 번호 전략적 포함 (이변 대비)
 
-### 연금복권 (P1~P8)
-- **[P5] 자리수 역학**: 이월수 및 이웃수 이동 패턴 분석
-- **[P6] 미출현 주기 (Gap)**: 자리수별 숫자 미출현 회차 히트맵 (임계점 분석)
-- **[P8] 구조적 패턴**: 대칭형, 계단형, 등차수열 등 배열의 특수성 감지
+## 🎟️ 연금복권 UI/UX 표준
+- **티켓형 레이아웃**: 모든 연금 조합은 '조(사각 박스)'와 '6자리 번호(원형 공)'를 물리적으로 분리하여 렌더링한다.
+- **전문가용 정밀 리포트**: P1~P8 지표를 종합하여 100점 만점 스코어 및 S/A/B/C 등급을 산출한다.
+- **신뢰도 지표**: AI 추천 시 통계적 정합성(Confidence) 수치를 %로 명시한다.
 
 ## 🛠️ 구현 원칙
-- **ES5 Hyper Stability**: 모든 코어 로직은 구형 WebView 및 IE11 호환을 위해 ES5 문법을 유지한다.
-- **Visual Warm-up**: 데이터 로딩 찰나의 순간에는 **Skeleton UI**를 통해 체감 속도를 극대화한다.
-- **SSOT**: 모든 지표 설정은 `indicators.js`를, 엔진은 `core.js`를 유일한 진실의 원천으로 삼는다.
+- **ES5 Hyper Stability**: 구형 WebView 호환을 위해 `var`, `function` 기반의 ES5 문법을 엄격히 준수한다.
+- **Cache Busting**: 주요 로직 수정 시 `core.js`의 `SYSTEM_VERSION`을 반드시 상향한다.
 
 ## 🔄 버전 관리 및 배포
 - 작업 완료 후 반드시 `node .gemini/skills/lotto-project-manager/scripts/bump_version.cjs`를 실행하여 문서 동기화를 수행한다.

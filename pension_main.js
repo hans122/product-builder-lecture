@@ -48,12 +48,38 @@ document.addEventListener('DOMContentLoaded', function() {
 function renderLastDraw(draw) {
     var container = document.getElementById('pension-last-draw');
     if (!container) return;
-    var groupBall = '<div class="pension-ball group">' + draw.group + '</div>';
-    var numBalls = '';
-    for (var i = 0; i < draw.nums.length; i++) {
-        numBalls += '<div class="pension-ball">' + draw.nums[i] + '</div>';
+    
+    // AI 한줄평 생성 (간이 로직)
+    var sum = 0;
+    for(var i=0; i<draw.nums.length; i++) sum += draw.nums[i];
+    var insight = sum >= 20 && sum <= 34 ? "통계적 골든존(안정)" : "수치 편중 발생(특이)";
+
+    var html = 
+        '<div style="width: 100%; padding: 20px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center;">' +
+            '<div style="margin-bottom: 15px; font-size: 0.75rem; font-weight: 800; color: #ff8c00;">' +
+                '🎟️ 제 ' + draw.drawNo + '회 당첨 결과 분석' +
+            '</div>' +
+            '<div style="display: flex; align-items: center; justify-content: center; gap: 10px; background: white; padding: 15px 25px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">' +
+                '<div style="display: flex; flex-direction: column; align-items: center; padding-right: 15px; border-right: 2px solid #f1f5f9;">' +
+                    '<span style="font-size: 0.65rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">조</span>' +
+                    '<div style="width: 36px; height: 36px; background: #ff8c00; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem;">' + draw.group + '</div>' +
+                '</div>' +
+                '<div style="display: flex; gap: 6px;">';
+    
+    for (var j = 0; j < draw.nums.length; j++) {
+        html += '<div style="display: flex; flex-direction: column; align-items: center;">' +
+                '<span style="font-size: 0.55rem; color: #cbd5e1; font-weight: 800; margin-bottom: 4px;">' + (j+1) + '위</span>' +
+                '<div style="width: 32px; height: 32px; background: #f1f5f9; color: #1e293b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; border: 1px solid #e2e8f0;">' + draw.nums[j] + '</div>' +
+                '</div>';
     }
-    container.innerHTML = '<span style="font-size: 0.9rem; font-weight: 800; margin-right: 15px; color: #64748b;">' + draw.drawNo + '회:</span> ' + groupBall + ' ' + numBalls;
+
+    html += '</div></div>' +
+            '<div style="margin-top: 15px; font-size: 0.7rem; color: #64748b; font-weight: 600;">' +
+                'AI 데이터 총평: <span style="color: #3182f6;">' + insight + '</span>' +
+            '</div>' +
+        '</div>';
+    
+    container.innerHTML = html;
 }
 
 function renderIndicators(draw) {
@@ -126,23 +152,34 @@ function renderRecommendations(bestPicks) {
         { label: "🛡️ 데이터 방어형", desc: "안정적 패턴" }
     ];
 
-    while (combos.length < 5 && attempts < 500) {
+    // [Immortal Engine] 고득점 조합 필터링 (최소 85점)
+    while (combos.length < 5 && attempts < 2000) {
         attempts++;
         var group = Math.floor(Math.random() * 5) + 1;
         var nums = [];
-        var sum = 0;
         for (var i = 0; i < 6; i++) {
-            var pick = bestPicks[i][Math.floor(Math.random() * 3)];
-            nums.push(pick);
-            sum += pick;
+            // 각 자리의 Top 3에서 70%, 나머지에서 30% 확률로 추출하여 유연성 확보
+            if (Math.random() < 0.7) nums.push(bestPicks[i][Math.floor(Math.random() * 3)]);
+            else nums.push(Math.floor(Math.random() * 10));
         }
-        // 중복 조합 방지
-        var key = group + ":" + nums.join('');
-        var isDuplicate = false;
-        for(var j=0; j<combos.length; j++) { if(combos[j].group + ":" + combos[j].nums.join('') === key) isDuplicate = true; }
 
-        if (!isDuplicate && sum >= 20 && sum <= 34) {
-            combos.push({ group: group, nums: nums, sum: sum });
+        // 통계 검증 실행
+        var b = PensionUtils.analyzeBalance(nums);
+        var p = PensionUtils.analyzePatterns(nums);
+        var s = PensionUtils.analyzeStructure(nums);
+        
+        // 점수 계산 (85점 이상만 통과)
+        var score = 100;
+        if (b.sum < 20 || b.sum > 35) score -= 20;
+        if (p.maxOccur >= 3) score -= 30; // 중복 숫자 과다 시 강력 감점 (사용자 지적 사항 반영)
+        if (p.seq >= 3) score -= 15;
+        if (s.symmetry || s.step) score -= 10;
+
+        if (score >= 85) {
+            var key = group + ":" + nums.join('');
+            var isDup = false;
+            for(var j=0; j<combos.length; j++) { if(combos[j].key === key) isDup = true; }
+            if (!isDup) combos.push({ group: group, nums: nums, sum: b.sum, score: score, key: key });
         }
     }
 
@@ -151,11 +188,14 @@ function renderRecommendations(bestPicks) {
         var c = combos[k];
         html += '<div class="p-combo-card" style="flex: 1; min-width: 170px; margin: 5px; padding: 15px;">';
         html += '<span class="p-combo-rank" style="font-size: 0.65rem;">' + strategies[k].label + '</span>';
-        html += '<div class="pension-ball-row" style="margin: 10px 0;"><div class="pension-ball group small">' + c.group + '</div>';
+        
+        var ballHtml = '<div class="pension-ball group small">' + c.group + '</div>';
         for (var m = 0; m < c.nums.length; m++) {
-            html += '<div class="pension-ball small">' + c.nums[m] + '</div>';
+            ballHtml += '<div class="pension-ball small">' + c.nums[m] + '</div>';
         }
-        html += '</div><div style="font-size: 0.7rem; color: #94a3b8;">합계: ' + c.sum + ' | ' + strategies[k].desc + '</div></div>';
+        
+        html += '<div class="pension-ball-row" style="margin: 10px 0;">' + ballHtml + '</div>';
+        html += '<div style="font-size: 0.7rem; color: #94a3b8;">신뢰도: <span style="color:#2ecc71; font-weight:bold;">' + c.score + '%</span> | 합계: ' + c.sum + '</div></div>';
     }
     container.innerHTML = html;
 }
