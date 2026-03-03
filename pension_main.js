@@ -182,20 +182,31 @@ function renderRecommendations(bestPicks) {
             if (!isDup) combos.push({ group: group, nums: nums, sum: b.sum, score: score, key: key });
         }
     }
+var html = '';
+for (var k = 0; k < combos.length; k++) {
+    var c = combos[k];
+    html += '<div class="p-combo-card" style="flex: 1; min-width: 180px; margin: 5px; padding: 15px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; flex-direction: column; align-items: center;">';
+    html += '<span class="p-combo-rank" style="font-size: 0.65rem; background: #fff4e6; color: #ff8c00; padding: 2px 8px; border-radius: 10px; font-weight: 800; margin-bottom: 10px;">' + strategies[k].label + '</span>';
 
-    var html = '';
-    for (var k = 0; k < combos.length; k++) {
-        var c = combos[k];
-        html += '<div class="p-combo-card" style="flex: 1; min-width: 170px; margin: 5px; padding: 15px;">';
-        html += '<span class="p-combo-rank" style="font-size: 0.65rem;">' + strategies[k].label + '</span>';
-        
-        var ballHtml = '<div class="pension-ball group small">' + c.group + '</div>';
-        for (var m = 0; m < c.nums.length; m++) {
-            ballHtml += '<div class="pension-ball small">' + c.nums[m] + '</div>';
-        }
-        
-        html += '<div class="pension-ball-row" style="margin: 10px 0;">' + ballHtml + '</div>';
-        html += '<div style="font-size: 0.7rem; color: #94a3b8;">신뢰도: <span style="color:#2ecc71; font-weight:bold;">' + c.score + '%</span> | 합계: ' + c.sum + '</div></div>';
+    // 조 섹션
+    var ballHtml = '<div style="display: flex; flex-direction: column; align-items: center; padding-right: 8px; border-right: 1px solid #f1f5f9; margin-right: 8px;">' +
+                   '<span style="font-size: 0.5rem; color: #94a3b8; font-weight: bold; margin-bottom: 3px;">조</span>' +
+                   '<div class="pension-ball group small" style="width:28px; height:28px; font-size:0.9rem; background: #ff8c00; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900;">' + c.group + '</div>' +
+                   '</div>';
+
+    // 번호 섹션
+    ballHtml += '<div style="display: flex; gap: 3px;">';
+    for (var m = 0; m < c.nums.length; m++) {
+        ballHtml += '<div style="display: flex; flex-direction: column; align-items: center;">' +
+                    '<span style="font-size: 0.45rem; color: #cbd5e1; font-weight: bold; margin-bottom: 3px;">' + (m+1) + '</span>' +
+                    '<div class="pension-ball small" style="width:24px; height:28px; font-size:0.85rem; background: #f1f5f9; color: #1e293b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 1px solid #e2e8f0;">' + c.nums[m] + '</div>' +
+                    '</div>';
     }
-    container.innerHTML = html;
+    ballHtml += '</div>';
+
+    html += '<div style="display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">' + ballHtml + '</div>';
+    html += '<div style="font-size: 0.65rem; color: #94a3b8; width: 100%; text-align: center;">신뢰도: <span style="color:#2ecc71; font-weight:bold;">' + c.score + '%</span> | 합계: ' + c.sum + '</div></div>';
 }
+container.innerHTML = html;
+}
+
