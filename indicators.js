@@ -105,6 +105,39 @@ const LottoConfig = {
                 return isWideSpan && isNarrowGap;
             },
             desc: '전체 범위(Span)에 비해 번호 간 평균 간격이 너무 좁아 특정 구역에 뭉침 현상이 의심됩니다. 통계적 분산 원리에 부합하지 않는 패턴입니다.'
+        },
+        {
+            id: 'syn-bucket-sum',
+            label: '구간 편중 및 총합 부조화',
+            status: 'warning',
+            check: (v, s) => {
+                const isBucketSkewed = v['bucket-15'] <= 1; // 한 구간에 몰림
+                const isSumAverage = v['sum'] >= 130 && v['sum'] <= 150; // 그런데 총합은 평균적
+                return isBucketSkewed && isSumAverage;
+            },
+            desc: '특정 구간(15개 단위)에 번호가 과도하게 밀집되어 있음에도 총합은 평균치를 유지하고 있습니다. 이는 특정 구역 내에서 극단적인 번호 선택이 이루어진 인위적 패턴일 가능성이 큽니다.'
+        },
+        {
+            id: 'syn-ac-none-consec',
+            label: '극대 복잡도 및 연번 부재',
+            status: 'warning',
+            check: (v, s) => {
+                const isMaxAC = v['ac'] >= 10;
+                const isNoConsec = v['consecutive'] === 0;
+                return isMaxAC && isNoConsec;
+            },
+            desc: '산술적 복잡도가 물리적 최대치임에도 연속번호가 전혀 발견되지 않는 극히 인위적인 패턴입니다. 역대 당첨 데이터 전수 조사 결과, 변별력이 매우 높은 기피 대상 조합입니다.'
+        },
+        {
+            id: 'syn-endsum-sameend',
+            label: '끝수 편중 감지',
+            status: 'danger',
+            check: (v, s) => {
+                const isLowEndSum = v['end-sum'] <= 15;
+                const isHighSameEnd = v['same-end'] >= 3;
+                return isLowEndSum && isHighSameEnd;
+            },
+            desc: '끝수의 합이 매우 낮으면서 동일한 끝수가 3개 이상 집중된 극단적 편중 조합입니다. 통계적 균형이 완전히 무너진 상태로 실전 당첨 확률이 매우 희박합니다.'
         }
     ]
 };

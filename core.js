@@ -1,302 +1,394 @@
 /**
- * LottoCore v5.3 - 고도화된 지능형 엔진
- * 설정 기반 시너지 분석(G0) 및 공통 유틸리티
+ * LottoCore v8.0 - 이모탈 가디언 (Immortal Guardian Architecture)
+ * - 0초 로딩 (LocalStorage Persistent Caching)
+ * - 불사신 렌더링 (Loop Error Isolation)
+ * - 시각적 예열 (Skeleton UI & Perceived Performance)
+ * - 지능형 동기화 (Daily Smart Sync)
  */
 
-const LottoUtils = {
-    round: (val, precision = 0) => {
-        const factor = Math.pow(10, precision);
+var LottoUtils = {
+    round: function(val, precision) {
+        var p = precision || 0;
+        var factor = Math.pow(10, p);
         return Math.round(val * factor) / factor;
     },
-    isPrime: (n) => [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43].includes(n),
-    isComposite: (n) => n > 1 && !LottoUtils.isPrime(n),
-    calculateAC: (nums) => {
-        const diffs = new Set();
-        for (let i = 0; i < nums.length; i++) {
-            for (let j = i + 1; j < nums.length; j++) { diffs.add(Math.abs(nums[i] - nums[j])); }
-        }
-        return diffs.size - (nums.length - 1);
+    isPrime: function(n) {
+        var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43];
+        for (var i = 0; i < primes.length; i++) { if (primes[i] === n) return true; }
+        return false;
     },
-    getBallColorClass: (num) => {
+    isComposite: function(n) { return n > 1 && !this.isPrime(n); },
+    calculateAC: function(nums) {
+        var diffs = {}; var count = 0;
+        for (var i = 0; i < nums.length; i++) {
+            for (var j = i + 1; j < nums.length; j++) {
+                var d = Math.abs(nums[i] - nums[j]);
+                if (!diffs[d]) { diffs[d] = true; count++; }
+            }
+        }
+        return count - (nums.length - 1);
+    },
+    getBallColorClass: function(num) {
         if (num <= 10) return 'yellow'; if (num <= 20) return 'blue';
         if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
     },
-    getZStatus: (val, stat) => {
+    getZStatus: function(val, stat) {
         if (!stat || stat.std === 0) return 'safe';
-        const numVal = (typeof val === 'string' && val.includes(':')) ? parseFloat(val.split(':')[0]) : parseFloat(val);
-        const z = Math.abs(numVal - stat.mean) / stat.std;
-        if (z <= 1.0) return 'safe';
-        if (z <= 2.0) return 'warning';
-        return 'danger';
+        var numVal = (typeof val === 'string' && val.indexOf(':') !== -1) ? parseFloat(val.split(':')[0]) : parseFloat(val);
+        var z = Math.abs(numVal - stat.mean) / stat.std;
+        if (z <= 1.0) return 'safe'; if (z <= 2.0) return 'warning'; return 'danger';
     },
-    logError: (msg, context = '') => {
-        console.error(`[LottoCore Error] ${msg}`, context);
+    padLeft: function(str, length, char) {
+        str = String(str); while (str.length < length) { str = char + str; } return str;
+    },
+    logError: function(msg, context) {
+        console.error('[LottoCore Error] ' + msg, context || '');
+        var notifier = document.getElementById('global-error-notifier');
+        if (!notifier) {
+            notifier = document.createElement('div');
+            notifier.id = 'global-error-notifier';
+            document.body.appendChild(notifier);
+        }
+        notifier.innerText = '⚠️ 서비스 일시적 불안정 (일부 지표 점검 중)';
+        notifier.style.display = 'block';
+        setTimeout(function() { notifier.style.display = 'none'; }, 3000);
     }
 };
 
-/**
- * LottoSynergy - 설정 기반 상관관계 분석 엔진 (G0)
- * indicators.js의 SYNERGY_RULES 설정을 동적으로 실행함
- */
-const LottoSynergy = {
-    check: (nums, data) => {
-        const results = [];
-        
-        // 1. 규칙 실행에 필요한 모든 지표 값 사전 계산
-        const indicatorValues = {};
-        LottoConfig.INDICATORS.forEach(cfg => {
-            indicatorValues[cfg.id] = cfg.calc(nums, data);
-        });
-
-        // 2. 설정된 시너지 규칙들을 순회하며 검사 (자동화 핵심)
-        const stats = (data && data.stats_summary) ? data.stats_summary : {};
-        LottoConfig.SYNERGY_RULES.forEach(rule => {
-            if (rule.check(indicatorValues, stats)) {
-                results.push({
-                    id: rule.id,
-                    label: rule.label,
-                    status: rule.status,
-                    desc: rule.desc
-                });
+var PensionUtils = {
+    analyzePatterns: function(numsArr) {
+        var uniqueSet = {}; var counts = {};
+        var maxSeq = 1, curSeq = 1, maxRep = 1, curRep = 1;
+        for (var i = 0; i < numsArr.length; i++) {
+            var n = numsArr[i]; uniqueSet[n] = true; counts[n] = (counts[n] || 0) + 1;
+            if (i > 0) {
+                if (Math.abs(n - numsArr[i-1]) === 1) curSeq++;
+                else { if(curSeq > maxSeq) maxSeq = curSeq; curSeq = 1; }
+                if (n === numsArr[i-1]) curRep++;
+                else { if(curRep > maxRep) maxRep = curRep; curRep = 1; }
             }
-        });
-
-        return results;
+        }
+        if(curSeq > maxSeq) maxSeq = curSeq; if(curRep > maxRep) maxRep = curRep;
+        var maxO = 0; for (var k in counts) { if (counts[k] > maxO) maxO = counts[k]; }
+        var uniqueCount = 0; for (var key in uniqueSet) { if(uniqueSet.hasOwnProperty(key)) uniqueCount++; }
+        return { seq: maxSeq === 1 ? 0 : maxSeq, adjRep: maxRep, maxOccur: maxO, unique: uniqueCount };
+    },
+    analyzeBalance: function(numsArr) {
+        var primes = [2, 3, 5, 7]; var odd = 0, low = 0, prime = 0, sum = 0;
+        for (var i = 0; i < numsArr.length; i++) {
+            var n = numsArr[i]; if (n % 2 !== 0) odd++; if (n <= 4) low++;
+            for (var j = 0; j < primes.length; j++) { if (primes[j] === n) { prime++; break; } }
+            sum += n;
+        }
+        return { odd: odd, low: low, prime: prime, sum: sum };
+    },
+    // [P5] 자리수별 이월/이웃 분석
+    analyzeDynamics: function(current, previous) {
+        var res = { carry: 0, neighbor: 0 };
+        if (!previous) return res;
+        for (var i = 0; i < 6; i++) {
+            if (current[i] === previous[i]) res.carry++;
+            else if (Math.abs(current[i] - previous[i]) === 1) res.neighbor++;
+        }
+        return res;
+    },
+    // [P8] 구조적 패턴 분석 (계단, 대칭, 등차)
+    analyzeStructure: function(nums) {
+        var isSymmetry = true;
+        for (var i = 0; i < 3; i++) { if (nums[i] !== nums[5 - i]) { isSymmetry = false; break; } }
+        
+        var diff = nums[1] - nums[0];
+        var isArithmetic = true;
+        for (var j = 1; j < 5; j++) { if (nums[j+1] - nums[j] !== diff) { isArithmetic = false; break; } }
+        
+        return { 
+            symmetry: isSymmetry, 
+            arithmetic: isArithmetic,
+            step: isArithmetic && (diff === 1 || diff === -1)
+        };
     }
 };
 
-/**
- * LottoUI - 컴포넌트 기반 UI 렌더링 엔진
- */
-const LottoUI = {
-    // 로또 공 생성
-    createBall: (num, isMini = false) => {
-        const ball = document.createElement('div');
-        ball.className = `ball ${isMini ? 'mini' : ''} ${LottoUtils.getBallColorClass(num)}`;
+var LottoUI = {
+    // [P6] 미출현 주기(Gap) 히트맵 렌더러
+    renderGapChart: function(containerId, gapData) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var html = '<div class="gap-chart-grid" style="display:grid; grid-template-columns: repeat(11, 1fr); gap: 2px;">';
+        // 헤더
+        html += '<div style="background:#f8fafc;"></div>';
+        for (var h = 0; h <= 9; h++) html += '<div style="text-align:center; font-size:0.6rem; font-weight:bold; background:#f8fafc; padding:4px 0;">' + h + '</div>';
+        
+        var labels = ['십만','만','천','백','십','일'];
+        for (var i = 0; i < 6; i++) {
+            html += '<div style="font-size:0.65rem; font-weight:bold; color:#64748b; display:flex; align-items:center; justify-content:center; background:#f8fafc;">' + labels[i] + '</div>';
+            for (var n = 0; n <= 9; n++) {
+                var gap = gapData[i][n];
+                var color = gap > 20 ? '#f04452' : (gap > 10 ? '#ff9500' : (gap === 0 ? '#3182f6' : '#94a3b8'));
+                var opacity = gap === 0 ? 1 : Math.min(0.8, 0.2 + (gap / 40));
+                html += '<div style="text-align:center; padding:8px 0; font-size:0.7rem; font-weight:800; color:white; background:' + color + '; opacity:' + opacity + '; border-radius:2px;">' + gap + '</div>';
+            }
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    },
+    // [Guardian] 스켈레톤 UI 생성기 (데이터 로드 전 시각적 피드백)
+    showSkeletons: function(containerId, count) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var html = '';
+        for (var i = 0; i < (count || 6); i++) {
+            html += '<div class="analysis-item skeleton-box">' +
+                    '<div class="skeleton-text"></div><div class="skeleton-value"></div></div>';
+        }
+        container.innerHTML = html;
+    },
+    createBall: function(num, isMini) {
+        var ball = document.createElement('div');
+        ball.className = 'ball ' + (isMini ? 'mini' : '') + ' ' + LottoUtils.getBallColorClass(num);
         ball.innerText = num;
         return ball;
     },
-    // 분석 지표 아이템 생성
-    createAnalysisItem: (cfg, value, status, stat) => {
-        const item = document.createElement('div');
-        item.className = `analysis-item ${status}`;
-        
-        let tip = '';
+    createAnalysisItem: function(cfg, value, status, stat) {
+        var item = document.createElement('div');
+        item.className = 'analysis-item ' + status;
+        var tip = '';
         if (stat) {
-            let optMin = Math.max(0, Math.round(stat.mean - stat.std));
-            let optMax = Math.round(stat.mean + stat.std);
-            let safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
-            let safeMax = Math.round(stat.mean + 2 * stat.std);
-
-            // [보정] 물리적 최대값(maxLimit) 엄격 적용
+            var optMin = Math.max(0, Math.round(stat.mean - stat.std));
+            var optMax = Math.round(stat.mean + stat.std);
+            var safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
+            var safeMax = Math.round(stat.mean + 2 * stat.std);
             if (cfg.maxLimit) {
-                optMax = Math.min(cfg.maxLimit, optMax);
-                safeMax = Math.min(cfg.maxLimit, safeMax);
-                optMin = Math.min(optMin, optMax);
-                safeMin = Math.min(safeMin, safeMax);
+                optMax = Math.min(cfg.maxLimit, optMax); safeMax = Math.min(cfg.maxLimit, safeMax);
+                optMin = Math.min(optMin, optMax); safeMin = Math.min(safeMin, safeMax);
             }
-
-            tip = `data-tip="[${cfg.label}] 세이프: ${safeMin}~${safeMax}${cfg.unit} (옵티멀: ${optMin}~${optMax}${cfg.unit})"`;
+            tip = 'data-tip="[' + cfg.label + '] 세이프: ' + safeMin + '~' + safeMax + (cfg.unit||'') + ' (옵티멀: ' + optMin + '~' + optMax + (cfg.unit||'') + ')"';
         }
-
-        item.innerHTML = `
-            <a href="analysis.html#${cfg.id}-section" class="analysis-item-link" ${tip}>
-                <span class="label">${cfg.label}</span>
-                <span id="${cfg.id}" class="value">${value}</span>
-            </a>
-        `;
+        item.innerHTML = '<a href="analysis.html#' + cfg.id + '-section" class="analysis-item-link" ' + tip + '>' +
+                '<span class="label">' + cfg.label + '</span>' +
+                '<span id="' + cfg.id + '" class="value">' + value + '</span>' +
+                '</a>';
         return item;
     },
-    // [추가] 핀테크 스타일 SVG 곡선 차트 생성기
-    createCurveChart: (containerId, distData, unit = '', statSummary = null, config = null, highlightValue = null) => {
-        const container = document.getElementById(containerId);
-        if (!container || !statSummary) return;
-        container.innerHTML = '';
-
-        const entries = Array.isArray(distData) ? distData : Object.entries(distData);
-        if (entries.length < 2) return;
-
-        if (!Array.isArray(distData)) {
-            entries.sort((a, b) => {
-                const valA = parseFloat(a[0].split(/[ :\-]/)[0]);
-                const valB = parseFloat(b[0].split(/[ :\-]/)[0]);
-                return isNaN(valA) ? 0 : valA - valB;
-            });
-        }
-
-        const mu = statSummary.mean; const sd = statSummary.std;
-        const valKeys = entries.map(e => parseFloat(e[0].split(/[ :\-]/)[0])).filter(v => !isNaN(v));
-        if (valKeys.length === 0) return;
-
-        // 데이터 기반 한계치 추출
-        const dataMax = Math.max(...valKeys);
-        const dataMin = Math.min(...valKeys);
-        const limit = (config && config.maxLimit) ? Math.min(config.maxLimit, dataMax) : dataMax;
-
-        const rawPoints = [
-            { label: '최소', val: dataMin, cls: 'min-max' },
-            { label: '미니 세이프', val: Math.max(dataMin, Math.round(mu - 2 * sd)), cls: 'safe-zone' },
-            { label: '미니 옵티멀', val: Math.max(dataMin, Math.round(mu - sd)), cls: 'optimal-zone' },
-            { label: '맥스 옵티멀', val: Math.min(limit, Math.round(mu + sd)), cls: 'optimal-zone' },
-            { label: '맥스 세이프', val: Math.min(limit, Math.round(mu + 2 * sd)), cls: 'safe-zone' },
-            { label: '최대', val: limit, cls: 'min-max' }
-        ];
-
-        const priority = { 'optimal-zone': 3, 'safe-zone': 2, 'min-max': 1 };
-        const unifiedMap = new Map();
-        rawPoints.forEach(p => {
-            const existing = unifiedMap.get(p.val);
-            if (!existing || priority[p.cls] > priority[existing.cls]) { unifiedMap.set(p.val, p); }
-        });
-        const finalPoints = Array.from(unifiedMap.values()).sort((a, b) => a.val - b.val);
-
-        const width = container.clientWidth || 600;
-        const height = 200; const padding = 50;
-        const chartWidth = width - padding * 2;
-        const chartHeight = height - 70;
-        const baselineY = height - 40;
-
-        const maxFreq = Math.max(...entries.map(e => e[1]), 1);
-        const points = entries.map((e, i) => {
-            const x = padding + (i / (entries.length - 1)) * chartWidth;
-            const y = baselineY - (e[1] / maxFreq) * chartHeight;
-            return { x, y, label: e[0], value: e[1], index: i };
-        });
-
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-        svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
-
-        const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-        const filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
-        filter.setAttribute("id", `shadow-${containerId}`);
-        filter.innerHTML = `<feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(49, 130, 246, 0.2)"/>`;
-        defs.appendChild(filter);
-
-        const hatchIdOptimal = `hatch-opt-${containerId}`;
-        const hatchIdSafe = `hatch-safe-${containerId}`;
-
-        const patternOpt = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-        patternOpt.setAttribute("id", hatchIdOptimal); patternOpt.setAttribute("patternUnits", "userSpaceOnUse");
-        patternOpt.setAttribute("width", "6"); patternOpt.setAttribute("height", "6"); patternOpt.setAttribute("patternTransform", "rotate(45)");
-        patternOpt.innerHTML = `<line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.5" opacity="0.4"/>`;
-        defs.appendChild(patternOpt);
-
-        const patternSafe = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-        patternSafe.setAttribute("id", hatchIdSafe); patternSafe.setAttribute("patternUnits", "userSpaceOnUse");
-        patternSafe.setAttribute("width", "6"); patternSafe.setAttribute("height", "6"); patternSafe.setAttribute("patternTransform", "rotate(-45)");
-        patternSafe.innerHTML = `<line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" opacity="0.2"/>`;
-        defs.appendChild(patternSafe);
-        svg.appendChild(defs);
-
-        const drawZone = (z, color) => {
-            const minBound = Math.round(mu - z * sd);
-            const maxBound = Math.min(limit, Math.round(mu + z * sd));
-            const zPoints = points.filter(p => {
-                const pVal = parseFloat(p.label.split(/[ :\-]/)[0]);
-                return !isNaN(pVal) && pVal >= minBound && pVal <= maxBound;
-            });
-            if (zPoints.length > 0) {
-                const firstP = zPoints[0]; const lastP = zPoints[zPoints.length - 1];
-                let d = zPoints.length === 1 ? 
-                    `M ${firstP.x-25},${baselineY} L ${firstP.x-25},${firstP.y} L ${firstP.x+25},${firstP.y} L ${firstP.x+25},${baselineY} Z` :
-                    `M ${firstP.x},${baselineY} ` + zPoints.map(p => `L ${p.x},${p.y}`).join(' ') + ` L ${lastP.x},${baselineY} Z`;
-                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
+    renderIndicatorGrid: function(containerId, indicatorIds, numbers, statsData) {
+        var container = document.getElementById(containerId);
+        if (!container) return; container.innerHTML = '';
+        var summary = statsData.stats_summary || {};
+        var indicators = LottoConfig.INDICATORS;
+        for (var i = 0; i < indicatorIds.length; i++) {
+            var targetId = indicatorIds[i];
+            var cfg = null;
+            for (var k = 0; k < indicators.length; k++) { if (indicators[k].id === targetId) { cfg = indicators[k]; break; } }
+            
+            if (cfg) {
+                // [Immortal] 개별 지표 렌더링을 try-catch로 격리
+                try {
+                    var val = cfg.calc(numbers, statsData);
+                    var status = LottoUtils.getZStatus(val, summary[cfg.statKey]);
+                    container.appendChild(this.createAnalysisItem(cfg, val, status, summary[cfg.statKey]));
+                } catch (e) {
+                    LottoUtils.logError('Indicator Error: ' + cfg.id, e);
+                    var errorItem = document.createElement('div');
+                    errorItem.className = 'analysis-item error-isolation';
+                    errorItem.innerHTML = '<span class="label">' + cfg.label + '</span><span class="value">점검 중</span>';
+                    container.appendChild(errorItem);
+                }
             }
-        };
+        }
+    },
+    createCurveChart: function(containerId, distData, unit, statSummary, config, highlightValue) {
+        var container = document.getElementById(containerId);
+        if (!container) return; container.innerHTML = '';
+        try {
+            var entries = [];
+            if (Array.isArray(distData)) { entries = distData; } 
+            else {
+                for (var key in distData) { if(distData.hasOwnProperty(key)) entries.push([key, distData[key]]); }
+                entries.sort(function(a, b) {
+                    var valA = parseFloat(a[0].split(/[ :\-]/)[0]);
+                    var valB = parseFloat(b[0].split(/[ :\-]/)[0]);
+                    return isNaN(valA) ? 0 : valA - valB;
+                });
+            }
+            if (entries.length < 2) throw new Error('Not enough data');
 
-        drawZone(2, `url(#${hatchIdSafe})`); 
-        drawZone(1, `url(#${hatchIdOptimal})`); 
+            var mu = statSummary.mean; var sd = statSummary.std;
+            var valKeys = [];
+            for (var i = 0; i < entries.length; i++) {
+                var v = parseFloat(entries[i][0].split(/[ :\-]/)[0]);
+                if (!isNaN(v)) valKeys.push(v);
+            }
+            if (valKeys.length === 0) throw new Error('Invalid keys');
 
-        const curvePathData = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
-        const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        curvePath.setAttribute("d", curvePathData); curvePath.setAttribute("fill", "none");
-        curvePath.setAttribute("stroke", "#3182f6"); curvePath.setAttribute("stroke-width", "3"); 
-        curvePath.setAttribute("filter", `url(#shadow-${containerId})`);
-        svg.appendChild(curvePath);
+            var dataMax = Math.max.apply(null, valKeys);
+            var dataMin = Math.min.apply(null, valKeys);
+            var limit = (config && config.maxLimit) ? Math.min(config.maxLimit, dataMax) : dataMax;
 
-        finalPoints.forEach(fp => {
-            let bestIdx = -1; let minD = Infinity;
-            points.forEach((p, idx) => {
-                const pVal = parseFloat(p.label.split(/[ :\-]/)[0]);
-                const diff = Math.abs(pVal - fp.val);
-                if (diff < minD) { minD = diff; bestIdx = idx; }
-            });
-            if (bestIdx !== -1) {
-                const p = points[bestIdx];
-                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y); circle.setAttribute("r", 4);
-                circle.setAttribute("fill", "#3182f6"); circle.setAttribute("stroke", "white"); circle.setAttribute("stroke-width", "2");
+            var width = container.clientWidth || 600;
+            var height = 200; var padding = 50;
+            var chartWidth = width - padding * 2;
+            var chartHeight = height - 70;
+            var baselineY = height - 40;
+
+            var maxFreq = 1;
+            for (var fIdx = 0; fIdx < entries.length; fIdx++) { if(entries[fIdx][1] > maxFreq) maxFreq = entries[fIdx][1]; }
+
+            var points = [];
+            for (var i = 0; i < entries.length; i++) {
+                var x = padding + (i / (entries.length - 1)) * chartWidth;
+                var y = baselineY - (entries[i][1] / maxFreq) * chartHeight;
+                points.push({ x: x, y: y, label: entries[i][0], value: entries[i][1] });
+            }
+
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+            svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
+            
+            var hatchIdOpt = "hatch-opt-" + containerId;
+            var hatchIdSafe = "hatch-safe-" + containerId;
+            var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            defs.innerHTML = '<pattern id="' + hatchIdOpt + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.5" opacity="0.4"/></pattern>' +
+                             '<pattern id="' + hatchIdSafe + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" opacity="0.2"/></pattern>';
+            svg.appendChild(defs);
+
+            var drawZone = function(z, color) {
+                var minB = Math.round(mu - z * sd);
+                var maxB = Math.min(limit, Math.round(mu + z * sd));
+                var zPoints = [];
+                for (var i = 0; i < points.length; i++) {
+                    var pV = parseFloat(points[i].label.split(/[ :\-]/)[0]);
+                    if (!isNaN(pV) && pV >= minB && pV <= maxB) zPoints.push(points[i]);
+                }
+                if (zPoints.length > 0) {
+                    var d = "M " + zPoints[0].x + "," + baselineY;
+                    for (var j = 0; j < zPoints.length; j++) { d += " L " + zPoints[j].x + "," + zPoints[j].y; }
+                    d += " L " + zPoints[zPoints.length - 1].x + "," + baselineY + " Z";
+                    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
+                }
+            };
+            drawZone(2, "url(#" + hatchIdSafe + ")"); drawZone(1, "url(#" + hatchIdOpt + ")");
+
+            var curveD = "M " + points[0].x + "," + points[0].y;
+            for (var i = 1; i < points.length; i++) { curveD += " L " + points[i].x + "," + points[i].y; }
+            var curve = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
+            svg.appendChild(curve);
+
+            if (highlightValue !== null) {
+                var cp = points[0]; var md = Infinity;
+                for (var i = 0; i < points.length; i++) {
+                    var d = Math.abs(parseFloat(points[i].label.split(/[ :\-]/)[0]) - highlightValue);
+                    if (d < md) { md = d; cp = points[i]; }
+                }
+                var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", cp.x); circle.setAttribute("cy", cp.y); circle.setAttribute("r", 7); circle.setAttribute("fill", "#f04452"); circle.setAttribute("stroke", "white"); circle.setAttribute("stroke-width", "2");
                 svg.appendChild(circle);
-
-                const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                txt.setAttribute("x", p.x); txt.setAttribute("y", height); txt.setAttribute("text-anchor", "middle");
-                let textColor = fp.cls === 'safe-zone' ? "#3182f6" : (fp.cls === 'optimal-zone' ? "#2ecc71" : "#8b95a1");
-                txt.setAttribute("fill", textColor); txt.style.fontSize = "0.8rem"; txt.style.fontWeight = "700";
-                txt.textContent = p.label + unit; svg.appendChild(txt);
             }
-        });
-
-        if (highlightValue !== null) {
-            let closestP = points[0]; let minD = Infinity;
-            points.forEach(p => {
-                const v = parseFloat(p.label.split(/[ :\-]/)[0]); const d = Math.abs(v - highlightValue);
-                if (d < minD) { minD = d; closestP = p; }
-            });
-            const mc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            mc.setAttribute("cx", closestP.x); mc.setAttribute("cy", closestP.y); mc.setAttribute("r", 7);
-            mc.setAttribute("fill", "#f04452"); mc.setAttribute("stroke", "white"); mc.setAttribute("stroke-width", "2");
-            svg.appendChild(mc);
-        }
-        container.appendChild(svg);
+            container.appendChild(svg);
+        } catch (e) { LottoUtils.logError('Chart Error', e); container.innerHTML = '<p style="text-align:center; padding: 20px; font-size:0.8rem; color:#999;">데이터 부족으로 차트를 그릴 수 없습니다.</p>'; }
     },
-    // [추가] 공통 미니 표 렌더러
-    renderMiniTable: (containerId, draws, indicatorConfig) => {
-        const tbody = document.getElementById(containerId);
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        draws.forEach(draw => {
-            const tr = document.createElement('tr');
-            const ballsHtml = (draw.nums || []).map(n => LottoUI.createBall(n, true).outerHTML).join('');
-            const val = draw[indicatorConfig.drawKey] !== undefined ? draw[indicatorConfig.drawKey] : (draw[indicatorConfig.statKey] !== undefined ? draw[indicatorConfig.statKey] : '-');
-            tr.innerHTML = `<td>${draw.no}회</td><td><div class="table-nums">${ballsHtml}</div></td><td><strong>${val}</strong></td>`;
+    renderMiniTable: function(containerId, draws, indicatorConfig) {
+        var tbody = document.getElementById(containerId);
+        if (!tbody) return; tbody.innerHTML = '';
+        for (var i = 0; i < draws.length; i++) {
+            var draw = draws[i]; var tr = document.createElement('tr');
+            var ballsHtml = ''; for (var j = 0; j < draw.nums.length; j++) { ballsHtml += LottoUI.createBall(draw.nums[j], true).outerHTML; }
+            var val = draw[indicatorConfig.drawKey] !== undefined ? draw[indicatorConfig.drawKey] : (draw[indicatorConfig.statKey] !== undefined ? draw[indicatorConfig.statKey] : '-');
+            tr.innerHTML = '<td>' + draw.no + '회</td><td><div class="table-nums">' + ballsHtml + '</div></td><td><strong>' + val + '</strong></td>';
             tbody.appendChild(tr);
-        });
+        }
     },
-    // 지표 그리드 자동 빌드 (Mount Point에 설정된 지표들 주입)
-    renderIndicatorGrid: (containerId, indicatorIds, numbers, statsData) => {
-        const container = document.getElementById(containerId);
+    renderBarChart: function(containerId, freqData, unitLabel, themeColor) {
+        var container = document.getElementById(containerId);
         if (!container) return;
-        container.innerHTML = '';
-        
-        const summary = statsData.stats_summary || {};
-        LottoConfig.INDICATORS.filter(cfg => indicatorIds.includes(cfg.id)).forEach(cfg => {
-            const val = cfg.calc(numbers, statsData);
-            const status = LottoUtils.getZStatus(val, summary[cfg.statKey]);
-            const item = LottoUI.createAnalysisItem(cfg, val, status, summary[cfg.statKey]);
-            container.appendChild(item);
-        });
+        var color = themeColor || '#ff8c00';
+        var keys = []; for (var k in freqData) { if(freqData.hasOwnProperty(k)) keys.push(Number(k)); }
+        keys.sort(function(a, b) { return a - b; });
+        var max = 0; for (var i = 0; i < keys.length; i++) { if (freqData[keys[i]] > max) max = freqData[keys[i]]; }
+        if (max === 0) max = 1;
+        var html = '<div style="display: flex; align-items: flex-end; height: 100%; border-bottom: 2px solid #edf2f7; padding-bottom: 5px;">';
+        for (var j = 0; j < keys.length; j++) {
+            var key = keys[j]; var f = freqData[key] || 0; var h = Math.max(4, (f / max) * 100);
+            var label = (key === 0 || (key === 1 && containerId === 'repeat-dist-chart')) ? '없음' : key + unitLabel;
+            html += '<div style="flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin: 0 2px;">' +
+                    '<span style="font-size: 0.6rem; color: #94a3b8;">' + f + '</span>' +
+                    '<div style="width: 100%; height: ' + h + '%; background: ' + color + '; border-radius: 3px; opacity: ' + (0.4 + (h/150)) + ';"></div>' +
+                    '<span style="font-size: 0.65rem; font-weight: bold; color: #475569; margin-top: 4px; white-space: nowrap;">' + label + '</span>' +
+                    '</div>';
+        }
+        html += '</div>'; container.innerHTML = html;
     }
 };
 
-// [추가] 글로벌 에러 모니터링
-window.addEventListener('error', (e) => {
-    LottoUtils.logError('Runtime Error', { message: e.message, filename: e.filename, lineno: e.lineno });
-});
-
-const LottoDataManager = {
-    cache: null,
-    async getStats() {
-        if (this.cache) return this.cache;
-        try {
-            const res = await fetch('advanced_stats.json?v=' + Date.now());
-            if (!res.ok) throw new Error('Network response was not ok');
-            this.cache = await res.json();
-            return this.cache;
-        } catch (err) {
-            LottoUtils.logError('Data Fetch Failed', err);
-            return null;
+var LottoDataManager = {
+    cache: { lotto: null, pension: null },
+    // [Smart Sync] 로컬 캐시 유효성 검사 (하루 단위)
+    getCacheKey: function() {
+        var d = new Date();
+        return 'lotto_data_' + d.getFullYear() + (d.getMonth() + 1) + d.getDate();
+    },
+    getStats: function(callback) {
+        if (typeof Promise !== 'undefined' && !callback) {
+            return new Promise(function(resolve) { LottoDataManager.getStats(function(data) { resolve(data); }); });
         }
+        
+        // 1. 메모리 캐시 확인
+        if (this.cache.lotto) { if(callback) callback(this.cache.lotto); return; }
+        
+        // 2. 로컬 스토리지 캐시 확인 (0초 로딩)
+        var cacheKey = this.getCacheKey();
+        var localData = localStorage.getItem(cacheKey);
+        if (localData) {
+            try {
+                var parsed = JSON.parse(localData);
+                this.cache.lotto = parsed;
+                if (callback) callback(parsed);
+                return;
+            } catch (e) { localStorage.removeItem(cacheKey); }
+        }
+
+        // 3. 서버에서 새 데이터 가져오기
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'advanced_stats.json?v=' + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                try {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data && data.stats_summary) {
+                        LottoDataManager.cache.lotto = data;
+                        localStorage.setItem(cacheKey, xhr.responseText); // 로컬에 저장
+                        if (callback) callback(data);
+                    }
+                } catch (e) { LottoUtils.logError('Data Parse Failed', e); if (callback) callback(null); }
+            }
+        };
+        xhr.send();
+    },
+    getPensionRecords: function(callback) {
+        if (this.cache.pension) { if(callback) callback(this.cache.pension); return; }
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'pt720.csv?v=' + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var lines = xhr.responseText.replace(/\r/g, '').split('\n');
+                var data = [];
+                for (var i = 1; i < lines.length; i++) {
+                    if (!lines[i]) continue;
+                    var parts = lines[i].split(','); if (parts.length < 4) continue;
+                    var rawNums = LottoUtils.padLeft(parts[3].replace(/^\s+|\s+$/g, ''), 6, '0');
+                    var numArr = []; for(var n=0; n<6; n++) { numArr.push(Number(rawNums.charAt(n))); }
+                    data.push({ drawNo: parts[0], date: parts[1], group: parts[2].replace(/^\s+|\s+$/g, ''), nums: numArr });
+                }
+                LottoDataManager.cache.pension = data;
+                if(callback) callback(data);
+            }
+        };
+        xhr.send();
     }
+};
+
+window.onerror = function(msg, url, lineNo, colNo, error) {
+    LottoUtils.logError('Unhandled Runtime Error', { msg: msg, line: lineNo });
+    return false;
 };

@@ -55,18 +55,48 @@ body {
 .header-top-row { display: flex; justify-content: space-between; align-items: center; }
 .logo { font-weight: 900; font-size: 1.2rem; color: var(--primary-blue); letter-spacing: -0.5px; }
 
-.nav-links { display: flex; gap: 8px; }
+.nav-links { display: flex; gap: 6px; align-items: center; }
+.site-switcher {
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    background: #f1f3f5;
+    border-radius: 12px;
+    margin-right: 15px;
+    border: 1px solid var(--border-light);
+}
+.switcher-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-decoration: none;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+.switcher-btn.lotto { color: #8b95a1; }
+.switcher-btn.pension { color: #8b95a1; }
+.switcher-btn.active {
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.switcher-btn.active.lotto { color: var(--primary-blue); }
+.switcher-btn.active.pension { color: #ff8c00; } /* 연금 강조색: 오렌지 */
+
 .nav-btn.small {
-    padding: 8px 16px;
+    padding: 8px 14px;
     border-radius: 10px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-sub);
     text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s;
 }
-.nav-btn.small:hover { background: var(--primary-blue-soft); color: var(--primary-blue); }
+.nav-btn.small:hover { background: var(--bg-card); color: var(--primary-blue); }
 .nav-btn.small.active { background: var(--primary-blue); color: white; }
+.nav-btn.pension-theme.active { background: #ff8c00; color: white; }
 
 /* Card System (v6.0) */
 .analysis-card {
@@ -861,5 +891,41 @@ body {
     padding: 2px 6px;
     border-radius: 4px;
 }
-.filter-perf.success { color: var(--success-green); background: #e7f9ed; }
-.filter-perf.fail { color: var(--danger-red); background: #feecef; }
+/* [v8.0] Skeleton UI & Guardian Notifier */
+.skeleton-box {
+    background: linear-gradient(90deg, #f2f4f6 25%, #e5e8eb 50%, #f2f4f6 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 12px;
+}
+
+.skeleton-text { height: 16px; margin-bottom: 8px; width: 60%; }
+.skeleton-value { height: 24px; width: 40%; }
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+#global-error-notifier {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f04452;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    box-shadow: 0 8px 20px rgba(240, 68, 82, 0.3);
+    z-index: 10000;
+    display: none;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.analysis-item.error-isolation {
+    border: 1px dashed #f04452;
+    background: #fff5f6;
+}
+.analysis-item.error-isolation .value { color: #f04452; font-size: 0.8rem; }

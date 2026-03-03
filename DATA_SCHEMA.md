@@ -39,11 +39,22 @@
 | | 동끝수 | `same_end` | `same_end` | `same_end` | `same-end` |
 | | AC값 | `ac` | `ac` | `ac` | `ac` |
 | | Span(간격) | `span` | `span` | `span` | `span` |
-| **[G6]** | 첫 수 범위 | `first_num` | `first_num` | `first_num` | `first-num` |
-| | 끝 수 범위 | `last_num` | `last_num` | `last_num` | `last-num` |
-| | 평균 간격 | `mean_gap` | `mean_gap` | `mean_gap` | `mean-gap` |
+| **[G6]** | 평균 간격 | `mean_gap` | `mean_gap` | `mean_gap` | `first-num` |
 
-## 3. 시각화 및 UX 정책 (v6.0)
+## 3. 연금복권 지표 매핑 (Pension Master Mapping)
+| 분류 | 지표명 | 설명 | 데이터 키 | JS ID |
+| :--- | :--- | :--- | :--- | :--- |
+| **[P1]** | 자리수 빈도 | 6개 자리별 0~9 출현 횟수 | `pos_freq` | `p-pos-freq` |
+| **[P2]** | 반복 패턴 | 동일 숫자 연속 출현 (더블, 트리플 등) | `repeat_cnt` | `p-repeat` |
+| | 연속 패턴 | 순차적 숫자 출현 (123, 789 등) | `seq_len` | `p-sequence` |
+| **[P3]** | 조별 분포 | 1~5조 출현 횟수 | `group_dist` | `p-group` |
+| **[P4]** | 수치 균형 | 6자리 숫자 합계 및 홀짝 비율 | `p_sum`, `p_oe` | `p-balance` |
+| **[P5]** | 자리수별 이월/이웃 | 각 자리 숫자의 직전 회차 대비 변화 (이월, 이웃) | `pos_dynamics` | `p-pos-dyn` |
+| **[P6]** | 미출현 주기 (Gap) | 각 자리별 0~9 숫자가 마지막으로 나온 지 지난 회차 수 | `digit_gap` | `p-digit-gap` |
+| **[P7]** | 합계 분포 곡선 | 6자리 숫자 합계(0~54)의 통계적 분포 및 골든 존 | `sum_curve` | `p-sum-curve` |
+| **[P8]** | 구조적 패턴 | 계단형(123), 대칭형(123321), 등차 등 특수 배열 감지 | `struct_pattern` | `p-struct` |
+
+## 4. 시각화 및 UX 정책 (v6.0)
 - **Expert Table System**: 가로로 긴 표는 45도 대각선 헤더 및 틀 고정(Sticky)을 필수 적용한다.
 - **Grid Layout**: 예측 번호 풀은 10열 그리드를 기본으로 정밀 정렬한다.
 - **Performance Grading**: 성과 지표는 S/A/B/C 등급제로 정량화하여 표시한다.

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연금복권 720+ AI 분석&예측 - 데이터 기반 자동화 시스템</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="analysis-page">
+    <header class="sticky-header">
+        <div class="header-inner">
+            <div class="header-top-row">
+                <div class="logo" style="color: #ff8c00;">🎟️ PENSION LAB</div>
+                <div class="nav-links">
+                    <div class="site-switcher">
+                        <a href="index.html" class="switcher-btn lotto">🍀 로또 6/45</a>
+                        <a href="pension_main.html" class="switcher-btn pension active">🎟️ 연금 720+</a>
+                    </div>
+                    <a href="pension_main.html" class="nav-btn small pension-theme active">🔮 AI 분석</a>
+                    <a href="pension_analysis.html" class="nav-btn small pension-theme">📊 통계분석</a>
+                    <a href="pension_combination.html" class="nav-btn small pension-theme">🎯 조합분석</a>
+                    <a href="pension.html" class="nav-btn small pension-theme">📋 히스토리</a>
+                    <a href="pension_guide.html" class="nav-btn small pension-theme">📖 가이드</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container wide">
+        <div class="analysis-layout-split" style="display: flex; gap: 24px; margin-bottom: 24px;">
+            <!-- 1. AI 분석 알고리즘 카드 -->
+            <section class="analysis-card" style="flex: 1;">
+                <div class="card-header"><span class="icon">⚙️</span><h3>연금 AI 분석 알고리즘</h3></div>
+                <div style="padding: 24px;">
+                    <div style="margin-bottom: 20px;">
+                        <strong style="display: block; color: #ff8c00; font-size: 1rem; margin-bottom: 8px;">자리수별 가중치 모델 v1.0</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.6; margin: 0;">각 자리의 독립적 출현 기세(40%) + 전회차 이월 시너지(30%) + 수치 균형 밸런스(30%)를 결합한 연금 특화 분석 시스템입니다.</p>
+                    </div>
+                    
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 12px; padding-top: 15px; border-top: 1px dashed var(--border-light);">📊 실시간 분석 지표 (최근 당첨)</div>
+                    <div id="pension-last-draw" class="ball-container" style="justify-content: center; margin-bottom: 20px;">
+                        <!-- JS에서 최신 당첨번호 주입 -->
+                    </div>
+                    
+                    <div id="pension-indicator-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <!-- 분석 요약 데이터 주입 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. AI 추천 숫자 풀 -->
+            <section class="analysis-card" style="flex: 1.2;">
+                <div class="card-header"><span class="icon">🎯</span><h3>AI 자리별 최적 숫자 (Best Picks)</h3></div>
+                <div style="padding: 24px;">
+                    <div class="pension-best-grid" id="pension-best-digits">
+                        <!-- 각 자리별 추천 숫자 3개씩 노출 -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 3. AI 엄선 추천 조합 -->
+        <section class="analysis-card">
+            <div class="card-header" style="justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="icon">✨</span>
+                    <h3>AI 실전 압축 조합 (Top 5)</h3>
+                </div>
+                <button id="refresh-pension-btn" class="nav-btn small" style="background: #fff4e6; color: #ff8c00; font-weight: bold; border: none; cursor: pointer;">🔄 조합 새로고침</button>
+            </div>
+            <div id="pension-recommendations" style="display: flex; gap: 15px; padding: 24px; justify-content: space-between; flex-wrap: wrap;">
+                <!-- 추천 조합 카드 주입 -->
+            </div>
+        </section>
+
+        <footer class="standard-footer"><p class="disclaimer">※ 본 서비스는 통계적 분석 결과이며 실제 당첨을 보장하지 않습니다.</p></footer>
+    </div>
+
+    <style>
+        .pension-best-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .best-box { background: #f8fafc; border-radius: 12px; padding: 15px; border: 1px solid #e2e8f0; text-align: center; }
+        .best-label { font-size: 0.75rem; color: #64748b; font-weight: bold; display: block; margin-bottom: 10px; }
+        .best-nums { display: flex; justify-content: center; gap: 5px; }
+        .best-num { width: 30px; height: 30px; border-radius: 50%; background: white; border: 2px solid #ff8c00; color: #ff8c00; font-weight: 900; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+        .best-num.rank-1 { background: #ff8c00; color: white; }
+
+        .p-combo-card { flex: 1; min-width: 280px; background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; text-align: center; transition: all 0.3s; cursor: pointer; }
+        .p-combo-card:hover { transform: translateY(-5px); border-color: #ff8c00; box-shadow: 0 10px 20px rgba(255,140,0,0.1); }
+        .p-combo-rank { font-size: 0.75rem; font-weight: 900; color: #ff8c00; background: #fff4e6; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 15px; }
+        
+        .pension-ball-row { display: flex; justify-content: center; align-items: center; gap: 4px; margin: 15px 0; }
+        .pension-ball.small { width: 30px; height: 30px; font-size: 0.9rem; }
+        
+        @media (max-width: 1024px) {
+            .analysis-layout-split { flex-direction: column; }
+            .pension-best-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+
+    <script src="core.js"></script>
+    <script src="pension_main.js"></script>
+    <script src="consent.js"></script>
+</body>
+</html>

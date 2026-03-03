@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연금복권 720+ 분석 지표 가이드</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        .logic-card { background: white; padding: 2rem; border-radius: 15px; border: 1px solid #eee; margin-bottom: 2rem; }
+        .logic-card h3 { margin-top: 0; border-bottom: 2px solid #ff8c00; padding-bottom: 10px; margin-bottom: 20px; font-weight: 800; color: #ff8c00; }
+        .sub-item-label { font-weight: 800; color: #334155; margin-top: 25px; display: block; font-size: 1.1rem; border-left: 4px solid #ff8c00; padding-left: 10px; }
+        .stat-highlight { background: #fff4e6; padding: 1rem; border-radius: 10px; border-left: 4px solid #ff8c00; margin: 10px 0; font-weight: bold; color: #e67e22; font-size: 0.9rem; }
+        .strategy-tip { 
+            background: #f8fafc; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            border-left: 4px solid #334155; 
+            margin-top: 8px; 
+            font-size: 0.85rem; 
+            color: #475569; 
+            line-height: 1.5;
+        }
+        .strategy-tip strong { color: #334155; }
+        .guide-desc { font-size: 0.9rem; color: #4a5568; line-height: 1.7; margin-top: 10px; }
+        .live-val { color: #ff8c00; font-weight: 900; }
+    </style>
+</head>
+<body class="analysis-page">
+    <header class="sticky-header">
+        <div class="header-inner">
+            <div class="header-top-row">
+                <h1 style="color: #ff8c00;">📖 연금 지표 가이드</h1>
+                <div class="nav-links">
+                    <div class="site-switcher">
+                        <a href="index.html" class="switcher-btn lotto">🍀 로또 6/45</a>
+                        <a href="pension_main.html" class="switcher-btn pension active">🎟️ 연금 720+</a>
+                    </div>
+                    <a href="pension_main.html" class="nav-btn small pension-theme">🔮 AI 분석</a>
+                    <a href="pension_analysis.html" class="nav-btn small pension-theme">📊 통계분석</a>
+                    <a href="pension_combination.html" class="nav-btn small pension-theme">🎯 조합분석</a>
+                    <a href="pension.html" class="nav-btn small pension-theme">📋 히스토리</a>
+                    <a href="pension_guide.html" class="nav-btn small pension-theme active">📖 가이드</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container wide">
+        <p class="subtitle">연금복권 720+의 당첨 확률을 높이는 과학적 데이터 분석 가이드입니다. (실시간 데이터 연동 중)</p>
+        
+        <!-- [P1] 자리수별 독립 빈도 -->
+        <section class="logic-card">
+            <h3>📍 [P1] 자리수별 독립 빈도</h3>
+            
+            <span class="sub-item-label">1. 각 자리수(십만~일)별 출현 빈도</span>
+            <div class="guide-desc">
+                <strong>설명:</strong> 연금복권은 7개의 독립된 추첨기로 결정됩니다. 각 자리마다 0~9까지 숫자가 나올 확률은 동일하지만, 실제 흐름에서는 특정 숫자가 반복되거나 정체되는 현상이 발생합니다.
+            </div>
+            <div class="stat-highlight">
+                <strong>실시간 데이터:</strong> 현재 역대 당첨 데이터상 각 자리별로 가장 많이 출현한 숫자는 <span id="p1-hot-numbers" class="live-val">분석 중...</span>입니다.
+            </div>
+            <p class="strategy-tip">
+                <strong>💡 분석 팁:</strong> 통계 화면의 6개 자리수 차트를 확인하여, 각 자리별로 가장 기세가 좋은 숫자와 장기간 나오지 않은 숫자를 조합하여 확률적 균형을 맞추세요.
+            </p>
+        </section>
+
+        <!-- [P2] 배열 패턴 분석 -->
+        <section class="logic-card">
+            <h3>📍 [P2] 배열 패턴 및 구성 분석</h3>
+            
+            <span class="sub-item-label">1. 연속 숫자 패턴 (Sequence)</span>
+            <div class="guide-desc">
+                <strong>설명:</strong> '12', '789' 처럼 숫자가 1씩 차이나며 이어지는 흐름을 분석합니다.
+            </div>
+            <div class="stat-highlight">
+                <strong>실시간 데이터:</strong> 역대 당첨 번호 중 2개 이상의 연속 숫자가 포함될 확률은 현재 <span id="p2-seq-rate" class="live-val">...</span>%로 관찰됩니다.
+            </div>
+            <p class="strategy-tip"><strong>💡 팁:</strong> 완전히 끊어진 번호보다 2개 정도의 숫자가 이어지는 조합이 유리합니다.</p>
+
+            <span class="sub-item-label">2. 연속 반복 패턴 (Adjacent Repeat)</span>
+            <div class="guide-desc">
+                <strong>설명:</strong> '55', '000' 처럼 동일한 숫자가 바로 옆에 붙어서 출현하는 패턴입니다.
+            </div>
+            <div class="stat-highlight">
+                <strong>실시간 데이터:</strong> 3회 이상 연속 반복(트리플)되는 희귀 패턴의 발생 확률은 현재 <span id="p2-repeat-rate" class="live-val">...</span>%입니다.
+            </div>
+            <p class="strategy-tip"><strong>💡 팁:</strong> 인위적인 '777' 같은 배치는 피하고, 중복은 최대 2회까지만 허용하세요.</p>
+
+            <span class="sub-item-label">3. 중복 포함 분석 (Scattered Repeat)</span>
+            <div class="guide-desc">
+                <strong>설명:</strong> 위치와 상관없이 6자리 중 동일한 숫자가 여러 번 등장하는지 분석합니다.
+            </div>
+            <div class="stat-highlight">
+                <strong>실시간 데이터:</strong> 위치와 상관없이 동일 숫자가 2개 이상 포함된 경우는 전체의 <span id="p2-scatter-rate" class="live-val">...</span>%입니다.
+            </div>
+        </section>
+
+        <!-- [P3] 조별 당첨 분포 -->
+        <section class="logic-card">
+            <h3>📍 [P3] 조별 당첨 분포</h3>
+            
+            <span class="sub-item-label">1. 1~5조 출현 밸런스</span>
+            <div class="guide-desc">
+                <strong>설명:</strong> 연금복권의 첫 단추인 '조'의 당첨 분포를 확인합니다.
+            </div>
+            <div class="stat-highlight">
+                <strong>실시간 데이터:</strong> 현재까지 역대 가장 많이 당첨된 조는 <span id="p3-best-group" class="live-val">...</span>입니다.
+            </div>
+            <p class="strategy-tip">
+                <strong>🎰 선택 전략:</strong> 최근 출현 빈도가 가장 낮은 '미출현 조'를 공략하여 확률 회귀 원칙을 이용해 보세요.
+            </p>
+        </section>
+
+        <!-- [P4] 수치 균형 -->
+        <section class="logic-card">
+            <h3>📍 [P4] 수치 균형</h3>
+            
+            <span class="sub-item-label">1. 6자리 숫자 합계 (Sum)</span>
+            <div class="guide-desc">
+                <strong>설명:</strong> 조를 제외한 나머지 6자리 숫자의 전체 합계를 분석합니다.
+            </div>
+            <div class="stat-highlight">
+                <strong>실시간 데이터:</strong> 합계가 20~34 사이인 '골든 존'에 당첨 번호가 포함될 확률은 현재 <span id="p4-golden-rate" class="live-val">...</span>%입니다.
+            </div>
+        </section>
+
+        <!-- [P5] 회차 간 상관관계 -->
+        <section class="logic-card">
+            <h3>📍 [P5] 회차 간 상관관계 (이월/이웃)</h3>
+            
+            <span class="sub-item-label">1. 자리 이월 및 이웃수</span>
+            <div class="guide-desc">
+                <strong>설명:</strong> 직전 회차 당첨 번호와의 연관성을 분석합니다.
+            </div>
+            <div class="stat-highlight">
+                <strong>실시간 데이터:</strong> 전회차 숫자가 1개 이상 같은 자리에 이월될 확률은 약 <span id="p5-carry-rate" class="live-val">...</span>%입니다.
+            </div>
+        </section>
+
+        <!-- [P6] 세부 균형 분석 -->
+        <section class="logic-card">
+            <h3>📍 [P6] 세부 균형 분석 (홀짝/고저/소수)</h3>
+            
+            <span class="sub-item-label">1. 홀짝 및 고저 비율</span>
+            <div class="stat-highlight">
+                <strong>실시간 데이터:</strong> 홀짝 3:3 균형 비율은 <span id="p6-odd-rate" class="live-val">...</span>%, 고저 3:3 균형 비율은 <span id="p6-low-rate" class="live-val">...</span>% 확률을 보입니다.
+            </div>
+            <p class="strategy-tip">
+                <strong>💡 분석 팁:</strong> 소수(2,3,5,7)가 2~4개 포함될 확률은 <span id="p6-prime-rate" class="live-val">...</span>%입니다.
+            </p>
+        </section>
+
+        <footer class="standard-footer">
+            <p class="disclaimer">※ 본 가이드는 역대 당첨 데이터를 실시간으로 분석한 결과입니다.</p>
+        </footer>
+    </div>
+    <script src="pension_guide.js"></script>
+    <script src="consent.js"></script>
+</body>
+</html>
