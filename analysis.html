@@ -46,12 +46,15 @@
         <!-- [STRATEGY] 15회차 골든타임 전략 그룹 보드 -->
         <div class="group-header">⚡ 15회차 집중 분석: 골든타임 전략 그룹</div>
         <section class="analysis-card strategy-board" style="background: #f0f7ff; border: 1px solid #3182f633; margin-bottom: 24px;">
+            <!-- 기존 보드 내용 -->
             <div class="card-header" style="background: transparent; border-bottom: 1px solid #3182f611; padding: 15px 20px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 1.2rem;">🚀</span>
                     <h3 style="color: #1e293b;">최근 15회차 당첨 흐름 기반 그룹핑</h3>
                 </div>
-                <span style="font-size: 0.7rem; color: #3182f6; font-weight: 800;">데이터 모멘텀 분석 기준</span>
+                <div id="over-appearance-alert" style="display: none; background: #feecef; color: #f04452; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; border: 1px solid #f0445233; animation: pulse 2s infinite;">
+                    ⚠️ 과출현 위험 번호 감지
+                </div>
             </div>
             <div class="strategy-groups-wrapper" style="display: flex; gap: 15px; padding: 20px; flex-wrap: wrap;">
                 <div class="s-group-box hot" style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 12px; border-top: 4px solid #f04452; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">

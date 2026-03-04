@@ -49,6 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
             renderStrategyGroup('group-warm-container', groups.warm, 'warm-count');
             renderStrategyGroup('group-cold-container', groups.cold, 'cold-count');
             
+            // [v9.6] 과출현 위험 번호 감지 및 경고
+            renderOverAppearanceAlert(data.recent_draws.slice(0, 5));
+
             // [v9.4] 번호별 흐름 타임라인 렌더링
             renderFlowMap(data.recent_draws.slice(0, 15));
         }
@@ -151,4 +154,34 @@ function renderFlowMap(recentDraws) {
     }
     html += '</tbody></table>';
     root.innerHTML = html;
+}
+
+function renderOverAppearanceAlert(recent5) {
+    var alertBox = document.getElementById('over-appearance-alert');
+    if (!alertBox || !recent5) return;
+
+    var counts = {};
+    for (var i = 0; i < recent5.length; i++) {
+        var nums = recent5[i].nums;
+        for (var j = 0; j < nums.length; j++) {
+            counts[nums[j]] = (counts[nums[j]] || 0) + 1;
+        }
+    }
+
+    var dangerNums = [];
+    var warningNums = [];
+    for (var num in counts) {
+        if (counts[num] >= 4) dangerNums.push(num);
+        else if (counts[num] === 3) warningNums.push(num);
+    }
+
+    if (dangerNums.length > 0 || warningNums.length > 0) {
+        alertBox.style.display = 'inline-block';
+        var msg = '⚠️ 과출현 감지: ';
+        if (dangerNums.length > 0) msg += '<span style="text-decoration: underline;">위험(' + dangerNums.join(',') + ')</span> ';
+        if (warningNums.length > 0) msg += '주의(' + warningNums.join(',') + ')';
+        alertBox.innerHTML = msg;
+    } else {
+        alertBox.style.display = 'none';
+    }
 }
