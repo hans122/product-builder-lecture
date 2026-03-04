@@ -276,31 +276,59 @@ function runBacktest(draws) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('[Prediction] DOMContentLoaded - Initiating data load');
+    console.log('[Prediction] DOMContentLoaded');
+    var containers = ['hot-pool-container', 'neutral-pool-container', 'cold-pool-container', 'ai-combinations-container', 'backtest-report-body'];
+    
+    function setStatus(msg) {
+        for(var i=0; i<containers.length; i++) {
+            var el = document.getElementById(containers[i]);
+            if(el) { el.innerHTML = '<div style="font-size:0.7rem; color:#94a3b8; padding:10px;">' + msg + '</div>'; }
+        }
+    }
+
+    setStatus("⏳ 지능형 연산 대기 중...");
     
     function init() {
+        console.log('[Prediction] Init starting');
+        if (typeof LottoDataManager === 'undefined') {
+            setStatus("❌ LottoDataManager 로드 실패");
+            return;
+        }
+
         LottoDataManager.getStats(function(data) {
-            if (!data || !data.recent_draws || data.recent_draws.length < 10) {
-                console.error('[Prediction] Insufficient data for AI analysis:', data);
-                var containers = ['ai-combinations-container', 'backtest-report-body'];
-                for(var i=0; i<containers.length; i++) {
-                    var el = document.getElementById(containers[i]);
-                    if(el) el.innerHTML = '<div style="padding:40px; text-align:center; color:#94a3b8;">데이터 분석 준비 중 (충분한 회차 데이터가 필요합니다)</div>';
-                }
+            if (!data) {
+                setStatus("❌ 데이터 로드 실패 (Null)");
+                return;
+            }
+            if (!data.recent_draws || data.recent_draws.length < 10) {
+                setStatus("❌ 분석 데이터 부족 (최소 10회차 필요)");
+                console.error('[Prediction] Data error:', data);
                 return;
             }
             
-            console.log('[Prediction] Data loaded successfully, rendering components');
-            predStatsData = data;
-            var pools = getPredictionPoolsForRound(data.recent_draws, -1);
-            renderPools(pools.hot, pools.neutral, pools.cold);
-            generateSmartCombinations(pools);
-            runBacktest(data.recent_draws);
+            try {
+                predStatsData = data;
+                var pools = getPredictionPoolsForRound(data.recent_draws, -1);
+                
+                // 1. 예측 풀 렌더링
+                renderPools(pools.hot, pools.neutral, pools.cold);
+                
+                // 2. 추천 조합 렌더링
+                generateSmartCombinations(pools);
+                
+                // 3. 백테스트 렌더링
+                runBacktest(data.recent_draws);
+                
+                console.log('[Prediction] All components rendered');
+            } catch (e) {
+                console.error('[Prediction] Rendering Error:', e);
+                setStatus("❌ 렌더링 엔진 오류: " + e.message);
+            }
         });
     }
 
-    // 데이터가 준비될 때까지 잠시 대기 후 실행 (다른 스크립트와의 충돌 방지)
-    setTimeout(init, 100);
+    // 초기화 실행
+    setTimeout(init, 200);
 
     var refreshBtn = document.getElementById('refresh-recommendations-btn');
     if (refreshBtn) {
