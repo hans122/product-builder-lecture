@@ -276,72 +276,47 @@ function runBacktest(draws) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('[Prediction] DOMContentLoaded');
-    var containers = ['hot-pool-container', 'neutral-pool-container', 'cold-pool-container', 'ai-combinations-container', 'backtest-report-body'];
+    console.log('[Prediction] Starting initialization...');
     
-    function setStatus(msg) {
-        for(var i=0; i<containers.length; i++) {
-            var el = document.getElementById(containers[i]);
-            if(el) { el.innerHTML = '<div style="font-size:0.7rem; color:#94a3b8; padding:10px;">' + msg + '</div>'; }
-        }
+    // 강제 초기 상태 표시
+    var poolBoxIds = ['hot-pool-container', 'neutral-pool-container', 'cold-pool-container'];
+    for(var i=0; i<poolBoxIds.length; i++) {
+        var el = document.getElementById(poolBoxIds[i]);
+        if(el) el.innerHTML = '<span style="font-size:0.7rem; color:#94a3b8;">분석 대기 중...</span>';
     }
 
-    setStatus("⏳ 지능형 연산 대기 중...");
-    
     function init() {
-        console.log('[Prediction] Init starting');
         if (typeof LottoDataManager === 'undefined') {
-            setStatus("❌ LottoDataManager 로드 실패");
+            console.error('[Prediction] LottoDataManager missing');
             return;
         }
 
         LottoDataManager.getStats(function(data) {
-            if (!data) {
-                setStatus("❌ 데이터 로드 실패 (Null)");
-                return;
-            }
-            if (!data.recent_draws || data.recent_draws.length < 10) {
-                setStatus("❌ 분석 데이터 부족 (최소 10회차 필요)");
-                console.error('[Prediction] Data error:', data);
-                return;
-            }
-            
+            console.log('[Prediction] Data received:', data ? 'Yes' : 'No');
+            if (!data) return;
+
+            // 1. 예측 풀 렌더링 (격리)
+            try {
+                var pools = getPredictionPoolsForRound(data.recent_draws || [], -1);
+                renderPools(pools.hot, pools.neutral, pools.cold);
+                console.log('[Prediction] Pools rendered');
+            } catch (e1) { console.error('[Prediction] Pool render error:', e1); }
+
+            // 2. 추천 조합 (격리)
             try {
                 predStatsData = data;
-                var pools = getPredictionPoolsForRound(data.recent_draws, -1);
-                
-                // 1. 예측 풀 렌더링
-                renderPools(pools.hot, pools.neutral, pools.cold);
-                
-                // 2. 추천 조합 렌더링
                 generateSmartCombinations(pools);
-                
-                // 3. 백테스트 렌더링
-                runBacktest(data.recent_draws);
-                
-                console.log('[Prediction] All components rendered');
-            } catch (e) {
-                console.error('[Prediction] Rendering Error:', e);
-                setStatus("❌ 렌더링 엔진 오류: " + e.message);
-            }
+                console.log('[Prediction] Combinations rendered');
+            } catch (e2) { console.error('[Prediction] Combo render error:', e2); }
+
+            // 3. 백테스트 (격리)
+            try {
+                runBacktest(data.recent_draws || []);
+                console.log('[Prediction] Backtest rendered');
+            } catch (e3) { console.error('[Prediction] Backtest render error:', e3); }
         });
     }
 
-    // 초기화 실행
-    setTimeout(init, 200);
-
-    var refreshBtn = document.getElementById('refresh-recommendations-btn');
-    if (refreshBtn) {
-        refreshBtn.onclick = function() {
-            var btn = this;
-            btn.innerText = "⏳ 지능형 연산 중...";
-            LottoDataManager.getStats(function(data) {
-                if (data && data.recent_draws) {
-                    var pools = getPredictionPoolsForRound(data.recent_draws, -1);
-                    generateSmartCombinations(pools);
-                }
-                btn.innerText = "🔄 조합 새로고침";
-            });
-        };
-    }
+    // 약간의 지연 후 실행 (DOM 및 core.js 완벽 로드 보장)
+    setTimeout(init, 300);
 });
