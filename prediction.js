@@ -136,18 +136,31 @@ function generateSmartCombinations(pools) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
-    predStatsData = await LottoDataManager.getStats();
-    if (!predStatsData) return;
-    const pools = getPredictionPoolsForRound(predStatsData.recent_draws, -1);
-    generateSmartCombinations(pools);
-    if (typeof runBacktest === 'function') runBacktest(predStatsData.recent_draws);
+document.addEventListener('DOMContentLoaded', function() {
+    // [Guardian] WebView 및 사생활 보호 모드 호환성 강화를 위해 Callback 패턴 적용
+    LottoDataManager.getStats(function(data) {
+        if (!data) return;
+        predStatsData = data;
+        
+        // 1. 예측 풀 계산 및 렌더링 (이 부분이 누락되었었습니다!)
+        const pools = getPredictionPoolsForRound(data.recent_draws, -1);
+        renderPools(pools.hot, pools.neutral, pools.cold);
+        
+        // 2. AI 추천 조합 생성
+        generateSmartCombinations(pools);
+        
+        // 3. 백테스트 실행
+        if (typeof runBacktest === 'function') runBacktest(data.recent_draws);
+    });
 
     document.getElementById('refresh-recommendations-btn')?.addEventListener('click', function() {
-        this.innerText = "⏳ 지능형 연산 중...";
-        setTimeout(() => {
-            generateSmartCombinations(getPredictionPoolsForRound(predStatsData.recent_draws, -1));
-            this.innerText = "🔄 조합 새로고침";
-        }, 400);
+        const btn = this;
+        btn.innerText = "⏳ 지능형 연산 중...";
+        LottoDataManager.getStats(function(data) {
+            if (data) {
+                generateSmartCombinations(getPredictionPoolsForRound(data.recent_draws, -1));
+            }
+            btn.innerText = "🔄 조합 새로고침";
+        });
     });
 });

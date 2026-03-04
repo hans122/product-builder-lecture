@@ -324,7 +324,7 @@ var LottoUI = {
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
     // [Smart Sync] 버전 기반 캐시 (시스템 버전이 바뀌면 즉시 갱신)
-    SYSTEM_VERSION: '8.7', 
+    SYSTEM_VERSION: '8.9', 
     getCacheKey: function() {
         return 'lotto_data_v' + this.SYSTEM_VERSION;
     },
@@ -336,15 +336,19 @@ var LottoDataManager = {
         if (this.cache.lotto) { if(callback) callback(this.cache.lotto); return; }
         
         var cacheKey = this.getCacheKey();
-        var localData = localStorage.getItem(cacheKey);
+        var localData = null;
         
-        // 이전 버전의 캐시가 있다면 모두 삭제 (중요!)
-        for (var i = 0; i < localStorage.length; i++) {
-            var key = localStorage.key(i);
-            if (key && key.indexOf('lotto_data_') === 0 && key !== cacheKey) {
-                localStorage.removeItem(key);
+        // [Guardian] 사생활 보호 모드에서의 LocalStorage 접근 보호
+        try {
+            localData = localStorage.getItem(cacheKey);
+            // 이전 버전의 캐시가 있다면 모두 삭제
+            for (var i = 0; i < localStorage.length; i++) {
+                var key = localStorage.key(i);
+                if (key && key.indexOf('lotto_data_') === 0 && key !== cacheKey) {
+                    localStorage.removeItem(key);
+                }
             }
-        }
+        } catch (e) { LottoUtils.logError('LocalStorage Access Denied (Private Mode?)'); }
 
         if (localData) {
             try {
@@ -352,7 +356,9 @@ var LottoDataManager = {
                 this.cache.lotto = parsed;
                 if (callback) callback(parsed);
                 return;
-            } catch (e) { localStorage.removeItem(cacheKey); }
+            } catch (e) { 
+                try { localStorage.removeItem(cacheKey); } catch(ex) {} 
+            }
         }
 
         // 3. 서버에서 새 데이터 가져오기
