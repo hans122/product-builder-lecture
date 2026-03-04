@@ -128,6 +128,29 @@ function renderFlowMap(recentDraws) {
     var root = document.getElementById('flow-map-root');
     if (!root || !recentDraws || recentDraws.length === 0) return;
 
+    // [v9.9] 과출현 등급 사전 계산 (맵 연동용)
+    var riskMap = {};
+    for (var n = 1; n <= 45; n++) {
+        var c5 = 0, c7 = 0, c10 = 0, streak = 0;
+        for (var i = 0; i < 10; i++) {
+            if (recentDraws[i] && recentDraws[i].nums.indexOf(n) !== -1) {
+                if (i < 5) c5++;
+                if (i < 7) c7++;
+                c10++;
+            }
+        }
+        for (var s = 0; s < recentDraws.length; s++) {
+            if (recentDraws[s].nums.indexOf(n) !== -1) streak++;
+            else break;
+        }
+        
+        var risk = 'normal';
+        if (streak >= 5 || c7 >= 5 || c10 >= 6) risk = 'danger';
+        else if (c5 >= 4) risk = 'warning';
+        else if (c5 === 3) risk = 'caution';
+        riskMap[n] = risk;
+    }
+
     var html = '<table class="flow-table"><thead><tr><th class="num-label">번호</th>';
     for (var i = 0; i < recentDraws.length; i++) {
         html += '<th>' + recentDraws[i].no + '회</th>';
@@ -135,7 +158,11 @@ function renderFlowMap(recentDraws) {
     html += '</tr></thead><tbody>';
 
     for (var num = 1; num <= 45; num++) {
-        html += '<tr><td class="num-label">' + num + '</td>';
+        var riskClass = riskMap[num] === 'danger' ? ' style="background:#fff1f2;"' : 
+                        (riskMap[num] === 'warning' ? ' style="background:#fffbeb;"' : '');
+        var riskIcon = riskMap[num] === 'danger' ? '🚨' : (riskMap[num] === 'warning' ? '⚠️' : '');
+        
+        html += '<tr' + riskClass + '><td class="num-label">' + riskIcon + num + '</td>';
         for (var j = 0; j < recentDraws.length; j++) {
             var draw = recentDraws[j];
             var isHit = false;
