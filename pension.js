@@ -1,45 +1,46 @@
 /**
- * Pension History Engine v2.1 (ES5 Safe Mode)
+ * Pension History Script v2.0 - Expert Mode (Immortal Guardian)
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    var historyBody = document.getElementById('pension-history-body');
-    if (!historyBody) return;
-
-    try {
-        // 콜백 방식으로 데이터 로드
-        LottoDataManager.getPensionRecords(function(records) {
-            if (!records || records.length === 0) {
-                historyBody.innerHTML = '<tr><td colspan="4" class="placeholder">등록된 당첨 데이터가 없습니다.</td></tr>';
-                return;
-            }
-
-            var html = '';
-            for (var i = 0; i < records.length; i++) {
-                var rec = records[i];
-                var numBallsHtml = '';
-                for (var j = 0; j < rec.nums.length; j++) {
-                    numBallsHtml += '<span class="pension-ball">' + rec.nums[j] + '</span>';
-                }
-
-                var drawDate = rec.date;
-                var formattedDate = drawDate;
-                if (drawDate.length === 8) {
-                    formattedDate = drawDate.substring(0,4) + '.' + drawDate.substring(4,6) + '.' + drawDate.substring(6,8);
-                }
-
-                html += '<tr>';
-                html += '<td class="draw-no">' + rec.drawNo + '회</td>';
-                html += '<td><span class="pension-ball group">' + rec.group + '</span></td>';
-                html += '<td style="text-align: left;"><div style="display: flex; align-items: center; justify-content: center;">' + numBallsHtml + '</div></td>';
-                html += '<td><span class="status-badge safe" style="background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;">' + formattedDate + '</span></td>';
-                html += '</tr>';
-            }
-            historyBody.innerHTML = html;
-        });
-
-    } catch (error) {
-        console.error('Pension History Error:', error);
-        historyBody.innerHTML = '<tr><td colspan="4" class="placeholder">데이터를 로드하는 중 오류가 발생했습니다.</td></tr>';
-    }
+    LottoDataManager.getPensionRecords(function(records) {
+        if (!records) return;
+        renderExpertTable(records);
+    });
 });
+
+function renderExpertTable(records) {
+    var tbody = document.getElementById('pension-history-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    for (var i = 0; i < records.length; i++) {
+        var draw = records[i];
+        var tr = document.createElement('tr');
+        
+        // 지표 계산
+        var balance = PensionUtils.analyzeBalance(draw.nums);
+        var pattern = PensionUtils.analyzePatterns(draw.nums);
+        
+        // 회차/조 틀고정 열
+        var html = '<td class="sticky-col first"><strong>' + draw.drawNo + '회</strong></td>' +
+                   '<td class="sticky-col second"><div class="pension-ball group small">' + draw.group + '</div></td>';
+        
+        // 6자리 번호 (개별 셀)
+        for (var j = 0; j < draw.nums.length; j++) {
+            var n = draw.nums[j];
+            var colorClass = n >= 5 ? 'blue' : 'yellow'; // 연금만의 간이 색상 구분
+            html += '<td><div class="pension-ball small ' + colorClass + '" style="margin:0 auto; width:26px; height:26px; font-size:0.85rem;">' + n + '</div></td>';
+        }
+        
+        // 통계 지표 열
+        var sumStatus = balance.sum >= 20 && balance.sum <= 34 ? 'c-blue' : 'c-red';
+        html += '<td class="' + sumStatus + '"><strong>' + balance.sum + '</strong></td>' +
+                '<td>' + (6 - balance.odd) + ':' + balance.odd + '</td>' +
+                '<td><span class="status-tag ' + (pattern.maxOccur >= 3 ? 'fail' : 'excellent') + '">' + 
+                (pattern.maxOccur >= 3 ? '편중' : '균형') + '</span></td>';
+        
+        tr.innerHTML = html;
+        tbody.appendChild(tr);
+    }
+}

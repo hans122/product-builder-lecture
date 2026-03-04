@@ -139,5 +139,33 @@ const LottoConfig = {
             },
             desc: '끝수의 합이 매우 낮으면서 동일한 끝수가 3개 이상 집중된 극단적 편중 조합입니다. 통계적 균형이 완전히 무너진 상태로 실전 당첨 확률이 매우 희박합니다.'
         }
+    ],
+
+    // 4. 연금복권 시너지 규칙 (P0)
+    PENSION_SYNERGY_RULES: [
+        {
+            id: 'p-syn-sum-repeat',
+            label: '합계-중복수 부조화',
+            status: 'warning',
+            check: (digits) => {
+                const sum = digits.reduce((a, b) => a + b, 0);
+                const counts = {};
+                digits.forEach(n => counts[n] = (counts[n] || 0) + 1);
+                const maxOccur = Math.max(...Object.values(counts));
+                return maxOccur >= 3 && (sum < 15 || sum > 40);
+            },
+            desc: '특정 숫자가 3회 이상 반복되면서 전체 합계가 극단적 대역에 위치하고 있습니다. 통계적으로 출현 빈도가 매우 낮은 인위적 패턴입니다.'
+        },
+        {
+            id: 'p-syn-parity-skew',
+            label: '자리수별 홀짝 편중',
+            status: 'warning',
+            check: (digits) => {
+                const firstHalf = digits.slice(0, 3).filter(n => n % 2 === 0).length;
+                const secondHalf = digits.slice(3, 6).filter(n => n % 2 === 0).length;
+                return (firstHalf === 3 && secondHalf === 0) || (firstHalf === 0 && secondHalf === 3);
+            },
+            desc: '앞쪽 3자리와 뒤쪽 3자리의 홀짝 밸런스가 극단적으로 갈리는 현상이 포착되었습니다. 독립 시행 환경에서도 드문 배치 패턴입니다.'
+        }
     ]
 };

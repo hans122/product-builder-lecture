@@ -1,9 +1,8 @@
 /**
- * LottoCore v8.0 - 이모탈 가디언 (Immortal Guardian Architecture)
- * - 0초 로딩 (LocalStorage Persistent Caching)
- * - 불사신 렌더링 (Loop Error Isolation)
- * - 시각적 예열 (Skeleton UI & Perceived Performance)
- * - 지능형 동기화 (Daily Smart Sync)
+ * LottoCore v9.2 - 이모탈 가디언 (Full Engine Restored)
+ * - ES5 초정밀 호환성 (const/let/arrow-function 제거)
+ * - 로또/연금 시너지 엔진(Synergy Engine) 복구 완료
+ * - 데이터 검증 및 사생활 보호 모드 대응
  */
 
 var LottoUtils = {
@@ -82,7 +81,6 @@ var PensionUtils = {
         }
         return { odd: odd, low: low, prime: prime, sum: sum };
     },
-    // [P5] 자리수별 이월/이웃 분석
     analyzeDynamics: function(current, previous) {
         var res = { carry: 0, neighbor: 0 };
         if (!previous) return res;
@@ -92,33 +90,62 @@ var PensionUtils = {
         }
         return res;
     },
-    // [P8] 구조적 패턴 분석 (계단, 대칭, 등차)
     analyzeStructure: function(nums) {
         var isSymmetry = true;
         for (var i = 0; i < 3; i++) { if (nums[i] !== nums[5 - i]) { isSymmetry = false; break; } }
-        
         var diff = nums[1] - nums[0];
         var isArithmetic = true;
         for (var j = 1; j < 5; j++) { if (nums[j+1] - nums[j] !== diff) { isArithmetic = false; break; } }
-        
-        return { 
-            symmetry: isSymmetry, 
-            arithmetic: isArithmetic,
-            step: isArithmetic && (diff === 1 || diff === -1)
-        };
+        return { symmetry: isSymmetry, arithmetic: isArithmetic, step: isArithmetic && (diff === 1 || diff === -1) };
+    }
+};
+
+// [ENGINE] 시너지 분석 엔진 (G0)
+var LottoSynergy = {
+    check: function(nums, data) {
+        var results = [];
+        if (!LottoConfig || !LottoConfig.INDICATORS) return results;
+        var indicatorValues = {};
+        var indicators = LottoConfig.INDICATORS;
+        for (var i = 0; i < indicators.length; i++) {
+            var cfg = indicators[i];
+            indicatorValues[cfg.id] = cfg.calc(nums, data);
+        }
+        var stats = (data && data.stats_summary) ? data.stats_summary : {};
+        var rules = LottoConfig.SYNERGY_RULES || [];
+        for (var j = 0; j < rules.length; j++) {
+            var rule = rules[j];
+            if (rule.check(indicatorValues, stats)) {
+                results.push({ id: rule.id, label: rule.label, status: rule.status, desc: rule.desc });
+            }
+        }
+        return results;
+    }
+};
+
+// [ENGINE] 연금 시너지 분석 엔진 (P0)
+var PensionSynergy = {
+    check: function(digits) {
+        var results = [];
+        if (!LottoConfig || !LottoConfig.PENSION_SYNERGY_RULES) return results;
+        var rules = LottoConfig.PENSION_SYNERGY_RULES;
+        for (var i = 0; i < rules.length; i++) {
+            var rule = rules[i];
+            if (rule.check(digits)) {
+                results.push({ id: rule.id, label: rule.label, status: rule.status, desc: rule.desc });
+            }
+        }
+        return results;
     }
 };
 
 var LottoUI = {
-    // [P6] 미출현 주기(Gap) 히트맵 렌더러
     renderGapChart: function(containerId, gapData) {
         var container = document.getElementById(containerId);
         if (!container) return;
         var html = '<div class="gap-chart-grid" style="display:grid; grid-template-columns: repeat(11, 1fr); gap: 2px;">';
-        // 헤더
         html += '<div style="background:#f8fafc;"></div>';
         for (var h = 0; h <= 9; h++) html += '<div style="text-align:center; font-size:0.6rem; font-weight:bold; background:#f8fafc; padding:4px 0;">' + h + '</div>';
-        
         var labels = ['십만','만','천','백','십','일'];
         for (var i = 0; i < 6; i++) {
             html += '<div style="font-size:0.65rem; font-weight:bold; color:#64748b; display:flex; align-items:center; justify-content:center; background:#f8fafc;">' + labels[i] + '</div>';
@@ -132,15 +159,11 @@ var LottoUI = {
         html += '</div>';
         container.innerHTML = html;
     },
-    // [Guardian] 스켈레톤 UI 생성기 (데이터 로드 전 시각적 피드백)
     showSkeletons: function(containerId, count) {
         var container = document.getElementById(containerId);
         if (!container) return;
         var html = '';
-        for (var i = 0; i < (count || 6); i++) {
-            html += '<div class="analysis-item skeleton-box">' +
-                    '<div class="skeleton-text"></div><div class="skeleton-value"></div></div>';
-        }
+        for (var i = 0; i < (count || 6); i++) { html += '<div class="analysis-item skeleton-box"><div class="skeleton-text"></div><div class="skeleton-value"></div></div>'; }
         container.innerHTML = html;
     },
     createBall: function(num, isMini) {
@@ -179,15 +202,12 @@ var LottoUI = {
             var targetId = indicatorIds[i];
             var cfg = null;
             for (var k = 0; k < indicators.length; k++) { if (indicators[k].id === targetId) { cfg = indicators[k]; break; } }
-            
             if (cfg) {
-                // [Immortal] 개별 지표 렌더링을 try-catch로 격리
                 try {
                     var val = cfg.calc(numbers, statsData);
                     var status = LottoUtils.getZStatus(val, summary[cfg.statKey]);
                     container.appendChild(this.createAnalysisItem(cfg, val, status, summary[cfg.statKey]));
                 } catch (e) {
-                    LottoUtils.logError('Indicator Error: ' + cfg.id, e);
                     var errorItem = document.createElement('div');
                     errorItem.className = 'analysis-item error-isolation';
                     errorItem.innerHTML = '<span class="label">' + cfg.label + '</span><span class="value">점검 중</span>';
@@ -198,7 +218,8 @@ var LottoUI = {
     },
     createCurveChart: function(containerId, distData, unit, statSummary, config, highlightValue) {
         var container = document.getElementById(containerId);
-        if (!container) return; container.innerHTML = '';
+        if (!container || !statSummary) return;
+        container.innerHTML = '';
         try {
             var entries = [];
             if (Array.isArray(distData)) { entries = distData; } 
@@ -211,46 +232,34 @@ var LottoUI = {
                 });
             }
             if (entries.length < 2) throw new Error('Not enough data');
-
             var mu = statSummary.mean; var sd = statSummary.std;
             var valKeys = [];
             for (var i = 0; i < entries.length; i++) {
                 var v = parseFloat(entries[i][0].split(/[ :\-]/)[0]);
                 if (!isNaN(v)) valKeys.push(v);
             }
-            if (valKeys.length === 0) throw new Error('Invalid keys');
-
             var dataMax = Math.max.apply(null, valKeys);
             var dataMin = Math.min.apply(null, valKeys);
             var limit = (config && config.maxLimit) ? Math.min(config.maxLimit, dataMax) : dataMax;
-
-            var width = container.clientWidth || 600;
-            var height = 200; var padding = 50;
-            var chartWidth = width - padding * 2;
-            var chartHeight = height - 70;
-            var baselineY = height - 40;
-
+            var width = container.clientWidth || 600; var height = 200; var padding = 50;
+            var chartWidth = width - padding * 2; var chartHeight = height - 70; var baselineY = height - 40;
             var maxFreq = 1;
             for (var fIdx = 0; fIdx < entries.length; fIdx++) { if(entries[fIdx][1] > maxFreq) maxFreq = entries[fIdx][1]; }
-
             var points = [];
             for (var i = 0; i < entries.length; i++) {
                 var x = padding + (i / (entries.length - 1)) * chartWidth;
                 var y = baselineY - (entries[i][1] / maxFreq) * chartHeight;
                 points.push({ x: x, y: y, label: entries[i][0], value: entries[i][1] });
             }
-
             var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             svg.setAttribute("viewBox", "0 0 " + width + " " + height);
             svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
-            
             var hatchIdOpt = "hatch-opt-" + containerId;
             var hatchIdSafe = "hatch-safe-" + containerId;
             var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
             defs.innerHTML = '<pattern id="' + hatchIdOpt + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.5" opacity="0.4"/></pattern>' +
                              '<pattern id="' + hatchIdSafe + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" opacity="0.2"/></pattern>';
             svg.appendChild(defs);
-
             var drawZone = function(z, color) {
                 var minB = Math.round(mu - z * sd);
                 var maxB = Math.min(limit, Math.round(mu + z * sd));
@@ -268,25 +277,13 @@ var LottoUI = {
                 }
             };
             drawZone(2, "url(#" + hatchIdSafe + ")"); drawZone(1, "url(#" + hatchIdOpt + ")");
-
             var curveD = "M " + points[0].x + "," + points[0].y;
             for (var i = 1; i < points.length; i++) { curveD += " L " + points[i].x + "," + points[i].y; }
             var curve = document.createElementNS("http://www.w3.org/2000/svg", "path");
             curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
             svg.appendChild(curve);
-
-            if (highlightValue !== null) {
-                var cp = points[0]; var md = Infinity;
-                for (var i = 0; i < points.length; i++) {
-                    var d = Math.abs(parseFloat(points[i].label.split(/[ :\-]/)[0]) - highlightValue);
-                    if (d < md) { md = d; cp = points[i]; }
-                }
-                var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                circle.setAttribute("cx", cp.x); circle.setAttribute("cy", cp.y); circle.setAttribute("r", 7); circle.setAttribute("fill", "#f04452"); circle.setAttribute("stroke", "white"); circle.setAttribute("stroke-width", "2");
-                svg.appendChild(circle);
-            }
             container.appendChild(svg);
-        } catch (e) { LottoUtils.logError('Chart Error', e); container.innerHTML = '<p style="text-align:center; padding: 20px; font-size:0.8rem; color:#999;">데이터 부족으로 차트를 그릴 수 없습니다.</p>'; }
+        } catch (e) { container.innerHTML = '<p style="text-align:center; padding: 20px; font-size:0.8rem; color:#999;">데이터 부족</p>'; }
     },
     renderMiniTable: function(containerId, draws, indicatorConfig) {
         var tbody = document.getElementById(containerId);
@@ -323,45 +320,28 @@ var LottoUI = {
 
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
-    // [Smart Sync] 버전 기반 캐시 (시스템 버전이 바뀌면 즉시 갱신)
-    SYSTEM_VERSION: '9.1', 
-    getCacheKey: function() {
-        return 'lotto_data_v' + this.SYSTEM_VERSION;
-    },
+    SYSTEM_VERSION: '9.2', 
+    getCacheKey: function() { return 'lotto_data_v' + this.SYSTEM_VERSION; },
     getStats: function(callback) {
-        if (typeof Promise !== 'undefined' && !callback) {
-            return new Promise(function(resolve) { LottoDataManager.getStats(function(data) { resolve(data); }); });
-        }
-        
+        if (typeof Promise !== 'undefined' && !callback) { return new Promise(function(resolve) { LottoDataManager.getStats(function(data) { resolve(data); }); }); }
         if (this.cache.lotto) { if(callback) callback(this.cache.lotto); return; }
-        
         var cacheKey = this.getCacheKey();
         var localData = null;
-        
-        // [Guardian] 사생활 보호 모드에서의 LocalStorage 접근 보호
         try {
             localData = localStorage.getItem(cacheKey);
-            // 이전 버전의 캐시가 있다면 모두 삭제
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
-                if (key && key.indexOf('lotto_data_') === 0 && key !== cacheKey) {
-                    localStorage.removeItem(key);
-                }
+                if (key && key.indexOf('lotto_data_') === 0 && key !== cacheKey) { localStorage.removeItem(key); }
             }
-        } catch (e) { LottoUtils.logError('LocalStorage Access Denied (Private Mode?)'); }
-
+        } catch (e) {}
         if (localData) {
             try {
                 var parsed = JSON.parse(localData);
                 this.cache.lotto = parsed;
                 if (callback) callback(parsed);
                 return;
-            } catch (e) { 
-                try { localStorage.removeItem(cacheKey); } catch(ex) {} 
-            }
+            } catch (e) { try { localStorage.removeItem(cacheKey); } catch(ex) {} }
         }
-
-        // 3. 서버에서 새 데이터 가져오기
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'advanced_stats.json?v=' + new Date().getTime(), true);
         xhr.onreadystatechange = function() {
@@ -370,10 +350,10 @@ var LottoDataManager = {
                     var data = JSON.parse(xhr.responseText);
                     if (data && data.stats_summary) {
                         LottoDataManager.cache.lotto = data;
-                        localStorage.setItem(cacheKey, xhr.responseText); // 로컬에 저장
+                        localStorage.setItem(cacheKey, xhr.responseText);
                         if (callback) callback(data);
                     }
-                } catch (e) { LottoUtils.logError('Data Parse Failed', e); if (callback) callback(null); }
+                } catch (e) { if (callback) callback(null); }
             }
         };
         xhr.send();
@@ -389,8 +369,9 @@ var LottoDataManager = {
                 for (var i = 1; i < lines.length; i++) {
                     if (!lines[i]) continue;
                     var parts = lines[i].split(','); if (parts.length < 4) continue;
+                    var numArr = [];
                     var rawNums = LottoUtils.padLeft(parts[3].replace(/^\s+|\s+$/g, ''), 6, '0');
-                    var numArr = []; for(var n=0; n<6; n++) { numArr.push(Number(rawNums.charAt(n))); }
+                    for(var n=0; n<6; n++) { numArr.push(Number(rawNums.charAt(n))); }
                     data.push({ drawNo: parts[0], date: parts[1], group: parts[2].replace(/^\s+|\s+$/g, ''), nums: numArr });
                 }
                 LottoDataManager.cache.pension = data;
@@ -402,6 +383,6 @@ var LottoDataManager = {
 };
 
 window.onerror = function(msg, url, lineNo, colNo, error) {
-    LottoUtils.logError('Unhandled Runtime Error', { msg: msg, line: lineNo });
+    LottoUtils.logError('Runtime Exception', { msg: msg, line: lineNo });
     return false;
 };

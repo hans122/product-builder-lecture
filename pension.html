@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>연금복권 720+ 역대 당첨 히스토리</title>
+    <title>연금복권 720+ 역대 당첨 히스토리 (전문가용)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <meta name="description" content="연금복권 720+ 역대 당첨 번호를 한눈에 확인하세요. 조 단위부터 각 자리수까지 정밀한 히스토리를 제공합니다.">
 </head>
 <body class="analysis-page">
     <header class="sticky-header">
         <div class="header-inner">
             <div class="header-top-row">
-                <h1>🎟️ 연금복권 720+</h1>
+                <h1 style="color: #ff8c00;">📋 연금 히스토리</h1>
                 <div class="nav-links">
                     <div class="site-switcher">
                         <a href="index.html" class="switcher-btn lotto">🍀 로또 6/45</a>
@@ -31,74 +30,43 @@
     </header>
 
     <div class="container wide">
-        <p class="subtitle">연금복권 720+의 역대 당첨 번호와 패턴을 분석합니다</p>
+        <p class="subtitle">연금복권의 자리수별 흐름을 한눈에 파악할 수 있는 전문가용 데이터 시트입니다</p>
 
-        <section class="analysis-card">
-            <div class="card-header">
-                <h3>📋 역대 당첨 내역</h3>
+        <!-- 전문가용 히스토리 표 -->
+        <section class="analysis-card" style="padding: 0; overflow: hidden;">
+            <div class="card-header" style="padding: 20px;">
+                <h3>📊 역대 당첨 번호 데이터 시트</h3>
+                <span class="status-badge safe">실시간 동기화 완료</span>
             </div>
-            <div class="table-responsive">
-                <table class="results-table expert-table">
+            
+            <div class="table-container expert-mode" style="overflow-x: auto; max-height: 700px;">
+                <table class="expert-table" id="pension-history-table">
                     <thead>
                         <tr>
-                            <th style="width: 80px;">회차</th>
-                            <th style="width: 60px;">조</th>
-                            <th>당첨 번호</th>
-                            <th style="width: 120px;">추첨일</th>
+                            <th class="sticky-col first">회차</th>
+                            <th class="sticky-col second">조</th>
+                            <th><div class="slanted">1위(십만)</div></th>
+                            <th><div class="slanted">2위(만)</div></th>
+                            <th><div class="slanted">3위(천)</div></th>
+                            <th><div class="slanted">4위(백)</div></th>
+                            <th><div class="slanted">5위(십)</div></th>
+                            <th><div class="slanted">6위(일)</div></th>
+                            <th>합계</th>
+                            <th>홀짝</th>
+                            <th>패턴</th>
                         </tr>
                     </thead>
                     <tbody id="pension-history-body">
                         <!-- JS에서 데이터 로드 -->
-                        <tr>
-                            <td colspan="4" class="placeholder">데이터를 불러오는 중입니다...</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
         <footer class="standard-footer">
-            <p class="disclaimer">※ 본 데이터는 공공데이터 및 역대 당첨 결과를 바탕으로 제공됩니다.</p>
+            <p class="disclaimer">※ 연금복권 데이터는 매주 목요일 추첨 직후 자동으로 업데이트됩니다.</p>
         </footer>
     </div>
-
-    <style>
-        .pension-ball {
-            display: inline-flex;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #f1f3f5;
-            color: #495057;
-            font-weight: 700;
-            align-items: center;
-            justify-content: center;
-            margin: 0 4px;
-            font-size: 1.1rem;
-            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1);
-        }
-        .pension-ball.group {
-            background: var(--primary-blue);
-            color: white;
-            margin-right: 15px;
-            position: relative;
-        }
-        .pension-ball.group::after {
-            content: "조";
-            position: absolute;
-            right: -18px;
-            color: var(--text-main);
-            font-size: 0.85rem;
-        }
-        .expert-table td {
-            padding: 15px 10px;
-            font-size: 0.95rem;
-        }
-        .draw-no {
-            font-weight: 900;
-            color: var(--primary-blue);
-        }
-    </style>
 
     <script src="core.js"></script>
     <script src="pension.js"></script>
