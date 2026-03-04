@@ -23,9 +23,21 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
         for (var g = 0; g < history.length; g++) {
             if (history[g].nums.indexOf(i) !== -1) { gap = g; break; }
         }
-        if (gap <= 4) score += 40;
-        else if (gap >= 5 && gap <= 14) score += 25;
-        else if (gap >= 30) score -= 30;
+        
+        // [v9.5] 과출현 억제 필터 (사용자 인사이트 반영)
+        // 최근 5회 중 4회 이상 출현한 번호는 강력한 감점 부여 (제외수 처리)
+        var recent5Count = 0;
+        for (var r5 = 0; r5 < 5; r5++) {
+            if (history[r5] && history[r5].nums.indexOf(i) !== -1) recent5Count++;
+        }
+        if (recent5Count >= 4) {
+            score -= 100; // 강력한 패널티
+        } else {
+            // 정상 가중치 로직
+            if (gap <= 4) score += 40;
+            else if (gap >= 5 && gap <= 14) score += 25;
+            else if (gap >= 30) score -= 30;
+        }
 
         if (lastDraw.nums.indexOf(i) !== -1) score += 10;
         
