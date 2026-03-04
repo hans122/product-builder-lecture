@@ -48,6 +48,9 @@ document.addEventListener('DOMContentLoaded', function() {
             renderStrategyGroup('group-hot-container', groups.hot, 'hot-count');
             renderStrategyGroup('group-warm-container', groups.warm, 'warm-count');
             renderStrategyGroup('group-cold-container', groups.cold, 'cold-count');
+            
+            // [v9.4] 번호별 흐름 타임라인 렌더링
+            renderFlowMap(data.recent_draws.slice(0, 15));
         }
 
         // 2. 설정 기반 차트 및 미니 표 자동 렌더링
@@ -112,4 +115,40 @@ function renderFrequencyChart(data) {
         wrapper.appendChild(label);
         container.appendChild(wrapper);
     }
+}
+
+function renderFlowMap(recentDraws) {
+    var root = document.getElementById('flow-map-root');
+    if (!root || !recentDraws || recentDraws.length === 0) return;
+
+    var html = '<table class="flow-table"><thead><tr><th class="num-label">번호</th>';
+    for (var i = 0; i < recentDraws.length; i++) {
+        html += '<th>' + recentDraws[i].no + '회</th>';
+    }
+    html += '</tr></thead><tbody>';
+
+    for (var num = 1; num <= 45; num++) {
+        html += '<tr><td class="num-label">' + num + '</td>';
+        for (var j = 0; j < recentDraws.length; j++) {
+            var draw = recentDraws[j];
+            var isHit = false;
+            for(var k=0; k<draw.nums.length; k++) { if(draw.nums[k] === num) { isHit = true; break; } }
+            
+            if (isHit) {
+                var isCarry = false;
+                if (j > 0) {
+                    var nextDraw = recentDraws[j-1];
+                    for(var c=0; c<nextDraw.nums.length; c++) { if(nextDraw.nums[c] === num) { isCarry = true; break; } }
+                }
+                var colorClass = LottoUtils.getBallColorClass(num);
+                var carryClass = isCarry ? ' carry-over' : '';
+                html += '<td><div class="flow-dot ' + colorClass + carryClass + '">' + num + '</div></td>';
+            } else {
+                html += '<td></td>';
+            }
+        }
+        html += '</tr>';
+    }
+    html += '</tbody></table>';
+    root.innerHTML = html;
 }

@@ -81,6 +81,21 @@
             </div>
         </section>
 
+        <!-- [STRATEGY] 최근 15회차 번호 흐름 타임라인 -->
+        <div class="group-header">🌊 번호별 출현 흐름 타임라인 (최근 15회차)</div>
+        <section class="analysis-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3>📉 번호별 출현 꼬리(Trail) 추적</h3>
+                <span style="font-size: 0.7rem; color: #64748b;">공 표시 = 해당 회차 당첨</span>
+            </div>
+            <div style="padding: 20px;">
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 15px;">번호가 언제 연달아 나왔는지 흐름을 파악하세요. 겹치는 구간이 많을수록 현재 기세가 살아있는 번호입니다.</p>
+                <div id="flow-map-root" class="flow-map-container">
+                    <!-- JS에서 테이블 렌더링 -->
+                </div>
+            </div>
+        </section>
+
         <!-- [G1] 기본 균형 -->
         <div class="group-header">📍 [G1] 기본 균형 및 합계</div>
         <section class="analysis-card" id="sum-section">

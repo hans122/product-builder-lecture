@@ -924,8 +924,36 @@ body {
     animation: fadeInUp 0.4s ease-out;
 }
 
-.analysis-item.error-isolation {
-    border: 1px dashed #f04452;
-    background: #fff5f6;
+/* [v9.4] Appearance Flow Map Styles */
+.flow-map-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
 }
-.analysis-item.error-isolation .value { color: #f04452; font-size: 0.8rem; }
+.flow-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7rem;
+}
+.flow-table th, .flow-table td {
+    padding: 4px 2px;
+    text-align: center;
+    border: 1px solid #f1f5f9;
+}
+.flow-table th { background: #f8fafc; color: #64748b; font-weight: 800; min-width: 35px; }
+.flow-table td.num-label { font-weight: 900; color: #1e293b; background: #f8fafc; width: 40px; position: sticky; left: 0; z-index: 10; }
+.flow-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 0.65rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.flow-dot.carry-over { border: 2px solid #334155; transform: scale(1.1); }
