@@ -276,14 +276,31 @@ function runBacktest(draws) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    LottoDataManager.getStats(function(data) {
-        if (!data) return;
-        predStatsData = data;
-        var pools = getPredictionPoolsForRound(data.recent_draws, -1);
-        renderPools(pools.hot, pools.neutral, pools.cold);
-        generateSmartCombinations(pools);
-        runBacktest(data.recent_draws);
-    });
+    console.log('[Prediction] DOMContentLoaded - Initiating data load');
+    
+    function init() {
+        LottoDataManager.getStats(function(data) {
+            if (!data || !data.recent_draws || data.recent_draws.length < 10) {
+                console.error('[Prediction] Insufficient data for AI analysis:', data);
+                var containers = ['ai-combinations-container', 'backtest-report-body'];
+                for(var i=0; i<containers.length; i++) {
+                    var el = document.getElementById(containers[i]);
+                    if(el) el.innerHTML = '<div style="padding:40px; text-align:center; color:#94a3b8;">데이터 분석 준비 중 (충분한 회차 데이터가 필요합니다)</div>';
+                }
+                return;
+            }
+            
+            console.log('[Prediction] Data loaded successfully, rendering components');
+            predStatsData = data;
+            var pools = getPredictionPoolsForRound(data.recent_draws, -1);
+            renderPools(pools.hot, pools.neutral, pools.cold);
+            generateSmartCombinations(pools);
+            runBacktest(data.recent_draws);
+        });
+    }
+
+    // 데이터가 준비될 때까지 잠시 대기 후 실행 (다른 스크립트와의 충돌 방지)
+    setTimeout(init, 100);
 
     var refreshBtn = document.getElementById('refresh-recommendations-btn');
     if (refreshBtn) {
@@ -291,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var btn = this;
             btn.innerText = "⏳ 지능형 연산 중...";
             LottoDataManager.getStats(function(data) {
-                if (data) {
+                if (data && data.recent_draws) {
                     var pools = getPredictionPoolsForRound(data.recent_draws, -1);
                     generateSmartCombinations(pools);
                 }
