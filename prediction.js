@@ -24,16 +24,23 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
             if (history[g].nums.indexOf(i) !== -1) { gap = g; break; }
         }
         
-        // [v9.5] 과출현 억제 필터 (사용자 인사이트 반영)
-        // 최근 5회 중 4회 이상 출현한 번호는 강력한 감점 부여 (제외수 처리)
-        var recent5Count = 0;
-        for (var r5 = 0; r5 < 5; r5++) {
-            if (history[r5] && history[r5].nums.indexOf(i) !== -1) recent5Count++;
-        }
-        if (recent5Count >= 4) {
-            score -= 100; // 강력한 패널티
+        // [v9.7] 3단계 입체적 과출현 억제 필터 (Grid Search 검증 결과 반영)
+        var recent5 = 0; for (var r5 = 0; r5 < 5; r5++) { if (history[r5] && history[r5].nums.indexOf(i) !== -1) recent5++; }
+        var recent7 = 0; for (var r7 = 0; r7 < 7; r7++) { if (history[r7] && history[r7].nums.indexOf(i) !== -1) recent7++; }
+        var recent10 = 0; for (var r10 = 0; r10 < 10; r10++) { if (history[r10] && history[r10].nums.indexOf(i) !== -1) recent10++; }
+        
+        // 5회 연속 출현 여부 (물리적 한계)
+        var streak5 = true;
+        for (var s5 = 0; s5 < 5; s5++) { if (!history[s5] || history[s5].nums.indexOf(i) === -1) { streak5 = false; break; } }
+
+        if (streak5 || recent7 >= 5 || recent10 >= 6) {
+            score -= 150; // [LEVEL 3/2] 절대 금지 및 위험 (강력 배제)
+        } else if (recent5 >= 4) {
+            score -= 80;  // [LEVEL 2] 과부하 (배제 권장)
+        } else if (recent5 === 3) {
+            score -= 30;  // [LEVEL 1] 주의 (가중치 감소)
         } else {
-            // 정상 가중치 로직
+            // 정상 가중치
             if (gap <= 4) score += 40;
             else if (gap >= 5 && gap <= 14) score += 25;
             else if (gap >= 30) score -= 30;

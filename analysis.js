@@ -156,31 +156,57 @@ function renderFlowMap(recentDraws) {
     root.innerHTML = html;
 }
 
-function renderOverAppearanceAlert(recent5) {
+function renderOverAppearanceAlert(recentDraws) {
     var alertBox = document.getElementById('over-appearance-alert');
-    if (!alertBox || !recent5) return;
+    if (!alertBox || !recentDraws || recentDraws.length < 10) return;
 
-    var counts = {};
-    for (var i = 0; i < recent5.length; i++) {
-        var nums = recent5[i].nums;
+    var counts5 = {};
+    var counts7 = {};
+    var counts10 = {};
+    var streaks = {};
+
+    // 1. 통계 집계
+    for (var i = 0; i < 10; i++) {
+        var nums = recentDraws[i].nums;
         for (var j = 0; j < nums.length; j++) {
-            counts[nums[j]] = (counts[nums[j]] || 0) + 1;
+            var n = nums[j];
+            if (i < 5) counts5[n] = (counts5[n] || 0) + 1;
+            if (i < 7) counts7[n] = (counts7[n] || 0) + 1;
+            counts10[n] = (counts10[n] || 0) + 1;
         }
     }
 
-    var dangerNums = [];
-    var warningNums = [];
-    for (var num in counts) {
-        if (counts[num] >= 4) dangerNums.push(num);
-        else if (counts[num] === 3) warningNums.push(num);
+    // 2. 연속 출현(Streak) 계산
+    for (var num = 1; num <= 45; num++) {
+        var streak = 0;
+        for (var k = 0; k < recentDraws.length; k++) {
+            if (recentDraws[k].nums.indexOf(num) !== -1) streak++;
+            else break;
+        }
+        if (streak > 1) streaks[num] = streak;
     }
 
-    if (dangerNums.length > 0 || warningNums.length > 0) {
-        alertBox.style.display = 'inline-block';
-        var msg = '⚠️ 과출현 감지: ';
-        if (dangerNums.length > 0) msg += '<span style="text-decoration: underline;">위험(' + dangerNums.join(',') + ')</span> ';
-        if (warningNums.length > 0) msg += '주의(' + warningNums.join(',') + ')';
-        alertBox.innerHTML = msg;
+    var danger = [];  // LEVEL 3 (Streak 5 OR Recent 7>=5 OR Recent 10>=6)
+    var warning = []; // LEVEL 2 (Recent 5>=4)
+    var caution = []; // LEVEL 1 (Recent 5=3)
+
+    for (var n = 1; n <= 45; n++) {
+        if ((streaks[n] >= 5) || (counts7[n] >= 5) || (counts10[n] >= 6)) danger.push(n);
+        else if (counts5[n] >= 4) warning.push(n);
+        else if (counts5[n] === 3) caution.push(n);
+    }
+
+    if (danger.length > 0 || warning.length > 0 || caution.length > 0) {
+        alertBox.style.display = 'inline-flex';
+        alertBox.style.alignItems = 'center';
+        alertBox.style.gap = '10px';
+        
+        var html = '<span style="font-weight:800; color:#1e293b;">⚠️ 과출현:</span>';
+        if (danger.length > 0) html += '<span style="color:#f04452; font-weight:900;">위험(' + danger.join(',') + ')</span>';
+        if (warning.length > 0) html += '<span style="color:#ff9500; font-weight:800;">주의(' + warning.join(',') + ')</span>';
+        if (caution.length > 0) html += '<span style="color:#3182f6; font-weight:700;">관찰(' + caution.join(',') + ')</span>';
+        
+        alertBox.innerHTML = html;
     } else {
         alertBox.style.display = 'none';
     }
