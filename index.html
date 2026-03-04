@@ -252,9 +252,35 @@
         .s-unit { font-size: 1rem; color: #718096; font-weight: 600; margin-left: 4px; }
         .c-blue { color: #2b6cb0; } .c-green { color: #2f855a; } .c-orange { color: #c05621; } .c-red { color: #c53030; }
 
-        .prediction-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; } 
-        .prediction-table th { background: #f8fafc; padding: 15px 10px; text-align: center; color: #4a5568; font-weight: 700; border-bottom: 2px solid #edf2f7; } 
-        .prediction-table td { padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: center; vertical-align: middle; }
+        .prediction-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; } 
+        .prediction-table th { background: #f8fafc; padding: 12px 8px; text-align: center; color: #4a5568; font-weight: 700; border-bottom: 2px solid #edf2f7; } 
+        .prediction-table td { padding: 12px 8px; border-bottom: 1px solid #edf2f7; text-align: center; vertical-align: middle; }
+        
+        /* 백테스트 테이블용 초미니 구슬 (18px) */
+        .prediction-table .ball.mini {
+            width: 18px !important;
+            height: 18px !important;
+            font-size: 0.6rem !important;
+            line-height: 18px !important;
+        }
+        
+        /* 10열 그리드 컨테이너 최적화 */
+        .pool-grid-compact {
+            display: grid !important;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            width: 200px; /* 18px * 10 + gap 고려 */
+            margin: 0 auto;
+        }
+
+        .prediction-table .status-tag {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.75rem;
+        }
+        .status-tag.excellent { background: #e6fffa; color: #2ecc71; }
+        .status-tag.normal { background: #f7fafc; color: #718096; }
         
         .analysis-layout-split { display: grid; grid-template-columns: 380px 1fr; gap: 24px; margin-bottom: 24px; align-items: start; }
         

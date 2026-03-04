@@ -215,12 +215,16 @@ function runBacktest(draws) {
         winBallsHtml += '</div>';
 
         // 추천 풀 (30개) 요약 렌더링
-        var hotPoolHtml = '<div style="display:grid; grid-template-columns: repeat(10, 1fr); gap:1px; max-width:140px; margin:0 auto;">';
+        var hotPoolHtml = '<div class="pool-grid-compact">';
         for (var hp = 0; hp < pools.hot.length; hp++) {
             var isHit = draw.nums.indexOf(pools.hot[hp]) !== -1;
             var b = LottoUI.createBall(pools.hot[hp], true);
-            if (isHit) b.style.boxShadow = '0 0 0 2px var(--success-green)';
-            else b.style.opacity = '0.3';
+            if (isHit) {
+                b.style.boxShadow = '0 0 0 1px #2ecc71';
+                b.style.border = '1px solid white';
+            } else {
+                b.style.opacity = '0.3';
+            }
             hotPoolHtml += b.outerHTML;
         }
         hotPoolHtml += '</div>';
@@ -230,18 +234,18 @@ function runBacktest(draws) {
         for (var np = 0; np < pools.neutral.length; np++) {
             var isNHit = draw.nums.indexOf(pools.neutral[np]) !== -1;
             var nb = LottoUI.createBall(pools.neutral[np], true);
-            if (isNHit) nb.style.boxShadow = '0 0 0 2px var(--success-green)';
+            if (isNHit) nb.style.boxShadow = '0 0 0 1px #2ecc71';
             else nb.style.opacity = '0.3';
             neutralPoolHtml += nb.outerHTML;
         }
         neutralPoolHtml += '</div>';
 
         // 필터 제외 (10개)
-        var coldPoolHtml = '<div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:1px; max-width:70px; margin:0 auto;">';
+        var coldPoolHtml = '<div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:1px; width:100px; margin:0 auto;">';
         for (var cp = 0; cp < pools.cold.length; cp++) {
             var isCHit = draw.nums.indexOf(pools.cold[cp]) !== -1;
             var cb = LottoUI.createBall(pools.cold[cp], true);
-            if (isCHit) cb.style.background = 'var(--danger-red)'; // 제외 실패 강조
+            if (isCHit) cb.style.background = '#f04452'; // 제외 실패 강조
             else cb.style.opacity = '0.3';
             coldPoolHtml += cb.outerHTML;
         }
