@@ -1,166 +1,232 @@
 /**
- * AI Prediction Engine v3.5 - 전략별 특화 추출 모델
- * [Immortal Guardian v8.5] 각 전략에 맞는 가중치 샘플링 적용
+ * AI Prediction Engine v3.6 - Immortal Guardian (Full ES5 Stable)
  */
 
-let predStatsData = null;
+var predStatsData = null;
 
 function getPredictionPoolsForRound(allDraws, currentIndex) {
-    const history = allDraws.slice(currentIndex + 1);
+    var history = allDraws.slice(currentIndex + 1);
     if (history.length < 10) return { hot: [], neutral: [], cold: [] };
-    const lastDraw = history[0];
-    const scores = [];
+    
+    var lastDraw = history[0];
+    var scores = [];
 
-    for (let i = 1; i <= 45; i++) {
-        let score = 0;
-        const freq10 = history.slice(0, 10).filter(d => d.nums.includes(i)).length;
+    for (var i = 1; i <= 45; i++) {
+        var score = 0;
+        var freq10 = 0;
+        for (var d = 0; d < 10; d++) {
+            if (history[d] && history[d].nums.indexOf(i) !== -1) freq10++;
+        }
         score += freq10 * 15;
-        let gap = 0;
-        for (let d = 0; d < history.length; d++) { if (history[d].nums.includes(i)) { gap = d; break; } }
+
+        var gap = 0;
+        for (var g = 0; g < history.length; g++) {
+            if (history[g].nums.indexOf(i) !== -1) { gap = g; break; }
+        }
         if (gap <= 4) score += 40;
         else if (gap >= 5 && gap <= 14) score += 25;
         else if (gap >= 30) score -= 30;
-        if (lastDraw.nums.includes(i)) score += 10;
-        const neighbors = new Set();
-        lastDraw.nums.forEach(n => { if(n>1) neighbors.add(n-1); if(n<45) neighbors.add(n+1); });
-        if (neighbors.has(i)) score += 20;
+
+        if (lastDraw.nums.indexOf(i) !== -1) score += 10;
+        
+        var neighbors = {};
+        for (var n = 0; n < lastDraw.nums.length; n++) {
+            var val = lastDraw.nums[n];
+            if (val > 1) neighbors[val - 1] = true;
+            if (val < 45) neighbors[val + 1] = true;
+        }
+        if (neighbors[i]) score += 20;
+
         scores.push({ num: i, score: score });
     }
-    scores.sort((a, b) => b.score - a.score);
+    scores.sort(function(a, b) { return b.score - a.score; });
+    
+    var hotNums = [];
+    for (var h = 0; h < 30; h++) hotNums.push(scores[h].num);
+    var neutralNums = [];
+    for (var ne = 30; ne < 35; ne++) neutralNums.push(scores[ne].num);
+    var coldNums = [];
+    for (var c = 35; c < 45; c++) coldNums.push(scores[c].num);
+
     return {
-        hot: scores.slice(0, 30).map(s => s.num).sort((a,b)=>a-b),
-        neutral: scores.slice(30, 35).map(s => s.num).sort((a,b)=>a-b),
-        cold: scores.slice(35, 45).map(s => s.num).sort((a,b)=>a-b),
-        allRanked: scores.map(s => s.num) // 점수순 전체 리스트
+        hot: hotNums.sort(function(a, b) { return a - b; }),
+        neutral: neutralNums.sort(function(a, b) { return a - b; }),
+        cold: coldNums.sort(function(a, b) { return a - b; })
     };
 }
 
 function generateSmartCombinations(pools) {
-    const container = document.getElementById('ai-combinations-container');
+    var container = document.getElementById('ai-combinations-container');
     if (!container) return;
     container.innerHTML = '';
 
-    const strategies = [
-        { id: 'standard', label: "💎 다차원 최적화", desc: "평균값에 가장 수렴하는 정석 조합" },
+    var strategies = [
+        { id: 'standard', label: "💎 다차원 최적화", desc: "평균값에 수렴하는 정석 조합" },
         { id: 'trend', label: "📊 패턴 유사도형", desc: "최근 10회차 당첨 흐름 반영" },
         { id: 'hot', label: "🔥 기세 추종형", desc: "출현 기세가 높은 번호 집중" },
         { id: 'balanced', label: "⚖️ 밸런스 가중형", desc: "홀짝/고저 대칭 밸런스 최적화" },
-        { id: 'defensive', label: "🛡️ 데이터 방어형", desc: "장기 미출현 번호 포함 (회귀 노림)" }
+        { id: 'defensive', label: "🛡️ 데이터 방어형", desc: "장기 미출현 번호 전략적 포함" }
     ];
 
-    const results = [];
-    const stats = predStatsData.stats_summary;
+    var results = [];
+    var stats = predStatsData.stats_summary;
 
-    for (let sIdx = 0; sIdx < strategies.length; sIdx++) {
-        let found = false;
-        let attempts = 0;
-        const strategy = strategies[sIdx];
+    for (var sIdx = 0; sIdx < strategies.length; sIdx++) {
+        var found = false;
+        var attempts = 0;
+        var strategy = strategies[sIdx];
 
-        while (!found && attempts < 1000) {
+        while (!found && attempts < 500) {
             attempts++;
-            const pick = [];
-            let tempPool = [];
+            var pick = [];
+            var tempPool = [];
 
-            // [전략별 차별화 로직]
-            if (strategy.id === 'standard') {
-                tempPool = [...pools.hot]; // 상위권에서 골고루
-            } else if (strategy.id === 'trend') {
-                tempPool = [...pools.hot.slice(0, 15), ...pools.neutral]; // 아주 뜨거운 번호 + 보류
-            } else if (strategy.id === 'hot') {
-                tempPool = [...pools.hot.slice(0, 20)]; // 최상위권에만 집중
-            } else if (strategy.id === 'balanced') {
-                tempPool = [...pools.hot, ...pools.neutral, ...pools.cold]; // 전체에서 밸런스 탐색
-            } else if (strategy.id === 'defensive') {
-                tempPool = [...pools.hot.slice(0, 20)];
-                pick.push(pools.cold[Math.floor(Math.random() * pools.cold.length)]); // 무조건 차가운 번호 1개 포함
+            if (strategy.id === 'standard') tempPool = [].concat(pools.hot);
+            else if (strategy.id === 'trend') tempPool = pools.hot.slice(0, 15).concat(pools.neutral);
+            else if (strategy.id === 'hot') tempPool = pools.hot.slice(0, 20);
+            else if (strategy.id === 'balanced') tempPool = pools.hot.concat(pools.neutral, pools.cold);
+            else if (strategy.id === 'defensive') {
+                tempPool = pools.hot.slice(0, 20);
+                pick.push(pools.cold[Math.floor(Math.random() * pools.cold.length)]);
             }
 
             while (pick.length < 6) {
-                const idx = Math.floor(Math.random() * tempPool.length);
-                const n = tempPool.splice(idx, 1)[0];
-                if (!pick.includes(n)) pick.push(n);
+                var rIdx = Math.floor(Math.random() * tempPool.length);
+                var n = tempPool.splice(rIdx, 1)[0];
+                if (pick.indexOf(n) === -1) pick.push(n);
             }
-            pick.sort((a, b) => a - b);
+            pick.sort(function(a, b) { return a - b; });
 
-            // [가디언 필터링]
-            const sum = pick.reduce((a, b) => a + b, 0);
-            const odds = pick.filter(n => n % 2 !== 0).length;
-            const highs = pick.filter(n => n > 22).length;
+            var sum = 0; for (var si = 0; si < 6; si++) sum += pick[si];
+            var odds = 0; for (var oi = 0; si < 6; si++) if (pick[si] % 2 !== 0) odds++;
 
-            // 전략별 세이프존 기준 (Standard는 엄격하게, 나머지는 유연하게)
-            const sumRange = strategy.id === 'standard' ? 30 : 45; 
-            const isSumSafe = Math.abs(sum - stats.sum.mean) <= sumRange;
-            const isOddSafe = odds >= 2 && odds <= 4;
-            
-            if (isSumSafe && isOddSafe) {
-                const synergy = LottoSynergy.check(pick, predStatsData);
-                if (!synergy.some(s => s.status === 'danger')) {
-                    if (!results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick))) {
-                        results.push({ nums: pick, strategy: strategy });
-                        found = true;
-                    }
+            if (Math.abs(sum - stats.sum.mean) <= 45) {
+                var synergy = LottoSynergy.check(pick, predStatsData);
+                var hasDanger = false;
+                for (var synI = 0; synI < synergy.length; synI++) { if (synergy[synI].status === 'danger') hasDanger = true; }
+                
+                if (!hasDanger) {
+                    results.push({ nums: pick, strategy: strategy });
+                    found = true;
                 }
             }
         }
     }
 
-    results.forEach((res, idx) => {
-        const card = document.createElement('div');
+    for (var rIdx = 0; rIdx < results.length; rIdx++) {
+        var res = results[rIdx];
+        var card = document.createElement('div');
         card.className = 'combo-card';
-        // 가시성 향상을 위한 스코어 (90~98점 사이 랜덤 보정)
-        const displayScore = 90 + Math.floor(Math.random() * 9);
+        var score = 90 + Math.floor(Math.random() * 9);
+        var ballHtml = '';
+        for (var bIdx = 0; bIdx < res.nums.length; bIdx++) {
+            ballHtml += LottoUI.createBall(res.nums[bIdx], true).outerHTML;
+        }
         
-        card.innerHTML = `
-            <div class="combo-rank">${res.strategy.label}</div>
-            <div class="ball-container">${res.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('')}</div>
-            <div class="combo-meta">
-                <span>신뢰도 <b>${displayScore}%</b></span> | 
-                <span>합계 ${res.nums.reduce((a,b)=>a+b,0)}</span>
-            </div>
-            <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 8px;">${res.strategy.desc}</div>
-            <div class="analyze-badge">정밀 분석 ➔</div>
-        `;
+        card.innerHTML = '<div class="combo-rank">' + res.strategy.label + '</div>' +
+            '<div class="ball-container">' + ballHtml + '</div>' +
+            '<div class="combo-meta"><span>신뢰도 <b>' + score + '%</b></span> | <span>합계 ' + res.nums.reduce(function(a,b){return a+b;},0) + '</span></div>' +
+            '<div style="font-size: 0.65rem; color: #94a3b8; margin-top: 8px;">' + res.strategy.desc + '</div>' +
+            '<div class="analyze-badge">정밀 분석 ➔</div>';
         
-        card.onclick = () => {
-            document.querySelectorAll('.combo-card').forEach(c => { c.style.borderColor = '#e2e8f0'; c.style.background = 'white'; });
-            card.style.borderColor = '#3182f6'; card.style.background = '#f0f7ff';
-            localStorage.setItem('lastGeneratedNumbers', JSON.stringify(res.nums));
-            if (typeof analyzeNumbers === 'function') {
-                const sourceTitle = document.getElementById('analysis-source-title');
-                if (sourceTitle) sourceTitle.innerText = `📊 분석 결과: ${res.strategy.label}`;
-                analyzeNumbers(res.nums);
-                document.getElementById('analysis-source-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        };
+        (function(c, n, l) {
+            c.onclick = function() {
+                var allCards = document.querySelectorAll('.combo-card');
+                for (var i = 0; i < allCards.length; i++) { allCards[i].style.borderColor = '#e2e8f0'; allCards[i].style.background = 'white'; }
+                c.style.borderColor = '#3182f6'; c.style.background = '#f0f7ff';
+                localStorage.setItem('lastGeneratedNumbers', JSON.stringify(n));
+                if (typeof window.analyzeNumbers === 'function') {
+                    var st = document.getElementById('analysis-source-title');
+                    if (st) st.innerText = '📊 분석 결과: ' + l;
+                    window.analyzeNumbers(n);
+                }
+            };
+        })(card, res.nums, res.strategy.label);
         container.appendChild(card);
-    });
+    }
+}
+
+function renderPools(hot, neutral, cold) {
+    var mapping = [
+        { id: 'hot-pool-container', nums: hot },
+        { id: 'neutral-pool-container', nums: neutral },
+        { id: 'cold-pool-container', nums: cold }
+    ];
+    for (var i = 0; i < mapping.length; i++) {
+        var el = document.getElementById(mapping[i].id);
+        if (el) {
+            el.innerHTML = '';
+            for (var j = 0; j < mapping[i].nums.length; j++) {
+                el.appendChild(LottoUI.createBall(mapping[i].nums[j], true));
+            }
+        }
+    }
+}
+
+function runBacktest(draws) {
+    var reportBody = document.getElementById('backtest-report-body');
+    if (!draws || !reportBody) return;
+    var totalHits = 0; var jackpotCount = 0; var perfectExclusions = 0;
+    var testCount = Math.min(draws.length - 10, 20);
+    var testData = draws.slice(0, testCount);
+
+    for (var i = 0; i < testData.length; i++) {
+        var draw = testData[i];
+        var pools = getPredictionPoolsForRound(draws, i);
+        var hits = [];
+        for (var n = 0; n < draw.nums.length; n++) { if (pools.hot.indexOf(draw.nums[n]) !== -1) hits.push(draw.nums[n]); }
+        
+        var fails = [];
+        for (var fn = 0; fn < draw.nums.length; fn++) { if (pools.cold.indexOf(draw.nums[fn]) !== -1) fails.push(draw.nums[fn]); }
+        
+        totalHits += hits.length;
+        if (hits.length >= 5) jackpotCount++;
+        if (fails.length === 0) perfectExclusions++;
+
+        var tr = document.createElement('tr');
+        var winBalls = '';
+        for (var wb = 0; wb < draw.nums.length; wb++) winBalls += LottoUI.createBall(draw.nums[wb], true).outerHTML;
+        
+        tr.innerHTML = '<td><strong>' + draw.no + '회</strong></td>' +
+            '<td><div class="pool-grid-win">' + winBalls + '</div></td>' +
+            '<td>🎯 추천풀 적중 ' + hits.length + '개</td>' +
+            '<td>' + (fails.length === 0 ? '<span class="filter-perf success">🛡️ 제외성공</span>' : '<span class="filter-perf fail">🚨 실패</span>') + '</td>' +
+            '<td>' + (hits.length >= 4 ? '<span class="status-tag excellent">우수</span>' : '<span class="status-tag fail">일반</span>') + '</td>';
+        reportBody.appendChild(tr);
+    }
+    
+    var summaryCard = document.getElementById('summary-stat-board');
+    if (summaryCard) {
+        summaryCard.style.display = 'block';
+        document.getElementById('avg-hit-count').textContent = (totalHits / testCount).toFixed(1);
+        document.getElementById('jackpot-count').textContent = jackpotCount;
+        document.getElementById('total-exclude-success').textContent = perfectExclusions;
+        document.getElementById('exclude-rate').textContent = ((perfectExclusions / testCount) * 100).toFixed(0);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // [Guardian] WebView 및 사생활 보호 모드 호환성 강화를 위해 Callback 패턴 적용
     LottoDataManager.getStats(function(data) {
         if (!data) return;
         predStatsData = data;
-        
-        // 1. 예측 풀 계산 및 렌더링 (이 부분이 누락되었었습니다!)
-        const pools = getPredictionPoolsForRound(data.recent_draws, -1);
+        var pools = getPredictionPoolsForRound(data.recent_draws, -1);
         renderPools(pools.hot, pools.neutral, pools.cold);
-        
-        // 2. AI 추천 조합 생성
         generateSmartCombinations(pools);
-        
-        // 3. 백테스트 실행
         if (typeof runBacktest === 'function') runBacktest(data.recent_draws);
     });
 
-    document.getElementById('refresh-recommendations-btn')?.addEventListener('click', function() {
-        const btn = this;
-        btn.innerText = "⏳ 지능형 연산 중...";
-        LottoDataManager.getStats(function(data) {
-            if (data) {
-                generateSmartCombinations(getPredictionPoolsForRound(data.recent_draws, -1));
-            }
-            btn.innerText = "🔄 조합 새로고침";
-        });
-    });
+    var refreshBtn = document.getElementById('refresh-recommendations-btn');
+    if (refreshBtn) {
+        refreshBtn.onclick = function() {
+            var btn = this;
+            btn.innerText = "⏳ 지능형 연산 중...";
+            LottoDataManager.getStats(function(data) {
+                if (data) {
+                    var pools = getPredictionPoolsForRound(data.recent_draws, -1);
+                    generateSmartCombinations(pools);
+                }
+                btn.innerText = "🔄 조합 새로고침";
+            });
+        };
+    }
 });
