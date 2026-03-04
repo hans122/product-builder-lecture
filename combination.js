@@ -1,29 +1,42 @@
 /**
- * My Combination Analysis - LottoCore v4.3 기반 리팩토링
+ * My Combination Analysis v7.0 - Immortal Guardian (ES5 Stable & Over-appearance Integration)
  */
 
-let combinationStatsData = null;
-let manualNumbers = new Set();
-let autoNumbers = new Set();
+var combinationStatsData = null;
+var manualNumbers = new Set ? new Set() : { // Set 폴리필 간이 구현 (구형 환경 대응)
+    data: [],
+    add: function(v){ if(!this.has(v)) this.data.push(v); },
+    delete: function(v){ var idx = this.data.indexOf(v); if(idx!==-1) this.data.splice(idx,1); },
+    has: function(v){ return this.data.indexOf(v) !== -1; },
+    clear: function(){ this.data = []; },
+    get size(){ return this.data.length; },
+    forEach: function(fn){ for(var i=0; i<this.data.length; i++) fn(this.data[i]); }
+};
+var autoNumbers = Object.create(manualNumbers); autoNumbers.data = [];
 
-document.addEventListener('DOMContentLoaded', async function() {
-    combinationStatsData = await LottoDataManager.getStats();
-    initNumberSelector();
-    loadSavedSelection();
+document.addEventListener('DOMContentLoaded', function() {
+    LottoDataManager.getStats(function(data) {
+        if (!data) return;
+        combinationStatsData = data;
+        initNumberSelector();
+        loadSavedSelection();
 
-    const pending = localStorage.getItem('pending_analysis_numbers');
-    if (pending) {
-        try {
-            const numbers = JSON.parse(pending); manualNumbers.clear(); autoNumbers.clear();
-            numbers.forEach(num => {
-                manualNumbers.add(num);
-                const btn = document.getElementById(`select-ball-${num}`);
-                if (btn) btn.classList.add('selected-manual');
-            });
-            updateSelectedBallsDisplay();
-            setTimeout(() => { runDetailedAnalysis(); localStorage.removeItem('pending_analysis_numbers'); }, 500);
-        } catch (e) { console.error(e); }
-    }
+        var pending = localStorage.getItem('pending_analysis_numbers');
+        if (pending) {
+            try {
+                var numbers = JSON.parse(pending);
+                manualNumbers.clear(); autoNumbers.clear();
+                for (var i = 0; i < numbers.length; i++) {
+                    var num = numbers[i];
+                    manualNumbers.add(num);
+                    var btn = document.getElementById('select-ball-' + num);
+                    if (btn) btn.className = 'select-ball selected-manual';
+                }
+                updateSelectedBallsDisplay();
+                setTimeout(function() { runDetailedAnalysis(); localStorage.removeItem('pending_analysis_numbers'); }, 500);
+            } catch (e) {}
+        }
+    });
 
     document.getElementById('semi-auto-btn')?.addEventListener('click', semiAutoSelect);
     document.getElementById('reset-btn')?.addEventListener('click', resetSelection);
@@ -31,42 +44,42 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 function initNumberSelector() {
-    const container = document.getElementById('number-selector');
+    var container = document.getElementById('number-selector');
     if (!container) return;
     container.innerHTML = '';
-    for (let i = 1; i <= 45; i++) {
-        const btn = document.createElement('button');
+    for (var i = 1; i <= 45; i++) {
+        var btn = document.createElement('button');
         btn.className = 'select-ball';
-        btn.id = `select-ball-${i}`;
+        btn.id = 'select-ball-' + i;
         btn.innerText = i;
-        btn.addEventListener('click', () => toggleNumber(i));
+        (function(num) { btn.onclick = function() { toggleNumber(num); }; })(i);
         container.appendChild(btn);
     }
 }
 
 function toggleNumber(num) {
-    const btn = document.getElementById(`select-ball-${num}`);
+    var btn = document.getElementById('select-ball-' + num);
     if (manualNumbers.has(num)) {
         manualNumbers.delete(num);
-        btn.classList.remove('selected-manual');
+        btn.className = 'select-ball';
     } else if (autoNumbers.has(num)) {
         autoNumbers.delete(num);
-        btn.classList.remove('selected');
+        btn.className = 'select-ball';
     } else {
         if (manualNumbers.size + autoNumbers.size >= 6) { alert('최대 6개까지만 선택 가능합니다.'); return; }
         manualNumbers.add(num);
-        btn.classList.add('selected-manual');
+        btn.className = 'select-ball selected-manual';
     }
     saveSelection();
     updateSelectedBallsDisplay();
 }
 
 function updateSelectedBallsDisplay() {
-    const container = document.getElementById('selected-balls');
-    const analyzeBtn = document.getElementById('analyze-my-btn');
+    var container = document.getElementById('selected-balls');
+    var analyzeBtn = document.getElementById('analyze-my-btn');
     if (!container || !analyzeBtn) return;
     
-    const totalCount = manualNumbers.size + autoNumbers.size;
+    var totalCount = manualNumbers.size + autoNumbers.size;
     if (totalCount === 0) {
         container.innerHTML = '<div class="placeholder">번호를 선택해주세요</div>';
         analyzeBtn.disabled = true;
@@ -74,180 +87,151 @@ function updateSelectedBallsDisplay() {
     }
 
     container.innerHTML = '';
-    const allSelected = [...manualNumbers, ...autoNumbers].sort((a, b) => a - b);
-    allSelected.forEach(num => {
-        const ball = document.createElement('div');
-        ball.className = `ball mini ${LottoUtils.getBallColorClass(num)}`;
-        if (manualNumbers.has(num)) ball.classList.add('manual');
+    var allSelected = [];
+    manualNumbers.forEach(function(n){ allSelected.push(n); });
+    autoNumbers.forEach(function(n){ allSelected.push(n); });
+    allSelected.sort(function(a, b) { return a - b; });
+
+    for (var i = 0; i < allSelected.length; i++) {
+        var num = allSelected[i];
+        var ball = document.createElement('div');
+        ball.className = 'ball mini ' + LottoUtils.getBallColorClass(num) + (manualNumbers.has(num) ? ' manual' : '');
         ball.innerText = num;
         container.appendChild(ball);
-    });
+    }
     analyzeBtn.disabled = (totalCount !== 6);
-}
-
-function saveSelection() {
-    const data = { manual: Array.from(manualNumbers), auto: Array.from(autoNumbers) };
-    localStorage.setItem('combination_saved_picks', JSON.stringify(data));
-}
-
-function loadSavedSelection() {
-    const saved = localStorage.getItem('combination_saved_picks');
-    if (!saved) return;
-    try {
-        const data = JSON.parse(saved);
-        data.manual.forEach(num => {
-            manualNumbers.add(num);
-            const btn = document.getElementById(`select-ball-${num}`);
-            if (btn) btn.classList.add('selected-manual');
-        });
-        data.auto.forEach(num => {
-            autoNumbers.add(num);
-            const btn = document.getElementById(`select-ball-${num}`);
-            if (btn) btn.classList.add('selected');
-        });
-        updateSelectedBallsDisplay();
-    } catch (e) { console.error('Load failed:', e); }
 }
 
 function runDetailedAnalysis() {
     if (!combinationStatsData) return;
-    const currentNumbers = [...manualNumbers, ...autoNumbers].sort((a, b) => a - b);
-    if (currentNumbers.length !== 6) { alert('6개 번호를 선택해주세요.'); return; }
+    var currentNumbers = [];
+    manualNumbers.forEach(function(n){ currentNumbers.push(n); });
+    autoNumbers.forEach(function(n){ currentNumbers.push(n); });
+    currentNumbers.sort(function(a, b) { return a - b; });
 
+    if (currentNumbers.length !== 6) { alert('6개 번호를 선택해주세요.'); return; }
     localStorage.setItem('lastGeneratedNumbers', JSON.stringify(currentNumbers));
 
-    const reportSection = document.getElementById('report-section');
+    var reportSection = document.getElementById('report-section');
     if (reportSection) reportSection.style.display = 'block';
 
-    const tbody = document.getElementById('analysis-report-body');
+    var tbody = document.getElementById('analysis-report-body');
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const dists = combinationStatsData.distributions;
-    const stats = combinationStatsData.stats_summary;
+    var dists = combinationStatsData.distributions;
+    var stats = combinationStatsData.stats_summary;
+    var totalScore = 100;
+    var dangerCount = 0;
+    var warningCount = 0;
 
-    let totalScore = 100;
-    let dangerCount = 0;
-    let warningCount = 0;
+    // [v10.0 추가] 과출현 위험 번호 감지
+    var overAppNums = [];
+    var recent5 = combinationStatsData.recent_draws.slice(0, 5);
+    var counts5 = {};
+    for (var i = 0; i < 5; i++) {
+        var dr = recent5[i].nums;
+        for (var j = 0; j < 6; j++) { counts5[dr[j]] = (counts5[dr[j]] || 0) + 1; }
+    }
+    for (var k = 0; k < 6; k++) { if (counts5[currentNumbers[k]] >= 4) overAppNums.push(currentNumbers[k]); }
 
-    // [G7] 조합 정합성(Synergy) 분석
-    const synergyResults = LottoSynergy.check(currentNumbers, combinationStatsData);
-    if (synergyResults.length === 0) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>[G0] 조합 정합성 시너지</strong></td><td>-</td><td><span class="status-badge safe">세이프</span></td><td class="text-left">지표 간 충돌이 없는 매우 논리적인 조합입니다.</td>`;
+    if (overAppNums.length > 0) {
+        totalScore -= 30; dangerCount++;
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td><strong style="color:#f04452;">🚨 과출현 임계 경보</strong></td><td>-</td><td><span class="status-badge danger">위험</span></td><td class="text-left">선택한 번호 중 [' + overAppNums.join(',') + ']은(는) 물리적 한계치에 도달하여 당첨 확률이 희박합니다.</td>';
         tbody.appendChild(tr);
-    } else {
-        synergyResults.forEach(res => {
-            // [등급별 감점 차별화] Danger: -25점, Warning: -10점
-            if (res.status === 'danger') { totalScore -= 25; dangerCount++; }
-            else if (res.status === 'warning') { totalScore -= 10; warningCount++; }
-            
-            const tr = document.createElement('tr');
-            const statusText = res.status === 'danger' ? '위험' : (res.status === 'warning' ? '주의' : '세이프');
-            tr.innerHTML = `<td><strong>[G0] ${res.label}</strong></td><td>-</td><td><span class="status-badge ${res.status}">${statusText}</span></td><td class="text-left">${res.desc}</td>`;
-            tbody.appendChild(tr);
-        });
     }
 
-    // [LottoCore 통합 연동] 모든 지표(G1~G6) 리포트 및 스코어 차감
-    LottoConfig.INDICATORS.forEach(cfg => {
-        const value = cfg.calc(currentNumbers, combinationStatsData);
-        const status = LottoUtils.getZStatus(value, stats[cfg.statKey]);
-        
+    // 시너지 분석
+    var synergyResults = LottoSynergy.check(currentNumbers, combinationStatsData);
+    for (var s = 0; s < synergyResults.length; s++) {
+        var res = synergyResults[s];
+        if (res.status === 'danger') { totalScore -= 25; dangerCount++; }
+        else if (res.status === 'warning') { totalScore -= 10; warningCount++; }
+        var trS = document.createElement('tr');
+        trS.innerHTML = '<td><strong>[G0] ' + res.label + '</strong></td><td>-</td><td><span class="status-badge ' + res.status + '">' + res.status + '</span></td><td class="text-left">' + res.desc + '</td>';
+        tbody.appendChild(trS);
+    }
+
+    // G1~G6 모든 지표 분석
+    var indicators = LottoConfig.INDICATORS;
+    for (var idx = 0; idx < indicators.length; idx++) {
+        var cfg = indicators[idx];
+        var val = cfg.calc(currentNumbers, combinationStatsData);
+        var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
         if (status === 'danger') { totalScore -= 15; dangerCount++; }
         else if (status === 'warning') { totalScore -= 5; warningCount++; }
+        renderAnalysisRow(cfg.group + ': ' + cfg.label, val, status);
+    }
 
-        renderAnalysisRow(`${cfg.group}: ${cfg.label}`, value, dists[cfg.distKey], stats[cfg.statKey]);
-    });
-
-    // 최종 스코어 보정 및 UI 반영
+    // 최종 결과 UI 반영
     totalScore = Math.max(5, totalScore);
-    const scoreEl = document.getElementById('combination-score');
-    const gradeEl = document.getElementById('combination-grade');
-    const commentEl = document.getElementById('grade-comment');
-
-    if (scoreEl) {
-        scoreEl.innerText = totalScore;
-        // 스코어 색상 동적 변경
-        if (totalScore >= 80) scoreEl.style.color = 'var(--primary-blue)';
-        else if (totalScore >= 60) scoreEl.style.color = 'var(--warning-orange)';
-        else scoreEl.style.color = 'var(--danger-red)';
-    }
-
+    document.getElementById('combination-score').innerText = totalScore;
+    var grade = totalScore >= 90 ? 'S' : (totalScore >= 80 ? 'A' : (totalScore >= 70 ? 'B' : (totalScore >= 60 ? 'C' : 'D')));
+    var gradeEl = document.getElementById('combination-grade');
     if (gradeEl) {
-        let grade = 'S';
-        if (totalScore >= 90) grade = 'S';
-        else if (totalScore >= 80) grade = 'A';
-        else if (totalScore >= 70) grade = 'B';
-        else if (totalScore >= 60) grade = 'C';
-        else grade = 'D';
-        gradeEl.innerText = `${grade}등급`;
-        gradeEl.style.color = scoreEl.style.color;
-    }
-
-    if (commentEl) {
-        if (dangerCount > 0) commentEl.innerText = `위험 지표가 ${dangerCount}개 발견되었습니다. 매우 희귀한 패턴의 조합입니다.`;
-        else if (warningCount > 2) commentEl.innerText = `주의 지표가 ${warningCount}개로 다소 치우친 조합입니다. 균형 조절을 권장합니다.`;
-        else commentEl.innerText = '역대 당첨 데이터의 핵심 구간에 부합하는 매우 이상적인 조합입니다.';
+        gradeEl.innerText = grade + '등급';
+        var color = totalScore >= 80 ? '#3182f6' : (totalScore >= 60 ? '#ff9500' : '#f04452');
+        gradeEl.style.color = color;
+        document.getElementById('combination-score').style.color = color;
     }
 }
 
-function renderAnalysisRow(label, value, distData, statSummary) {
-    const tbody = document.getElementById('analysis-report-body');
-    const tr = document.createElement('tr');
-    
-    let status = LottoUtils.getZStatus(value, statSummary);
-    let opinion = '가장 안정적인 핵심 데이터 구간에 있습니다.';
-    
-    if (status === 'danger') opinion = '상위 5% 미만의 아주 희귀한 패턴입니다.';
-    else if (status === 'warning') opinion = '세이프를 벗어나 쏠림이 발생하는 경계 구간입니다.';
-
-    const statusText = status === 'danger' ? '위험' : (status === 'warning' ? '주의' : '세이프');
-    tr.innerHTML = `<td><strong>${label}</strong></td><td>${value}</td><td><span class="status-badge ${status}">${statusText}</span></td><td class="text-left">${opinion}</td>`;
+function renderAnalysisRow(label, value, status) {
+    var tbody = document.getElementById('analysis-report-body');
+    var tr = document.createElement('tr');
+    var statusText = status === 'danger' ? '위험' : (status === 'warning' ? '주의' : '세이프');
+    var opinion = status === 'danger' ? '매우 희귀한 패턴' : (status === 'warning' ? '경계 구간' : '안정적 구간');
+    tr.innerHTML = '<td><strong>' + label + '</strong></td><td>' + value + '</td><td><span class="status-badge ' + status + '">' + statusText + '</span></td><td class="text-left">' + opinion + '</td>';
     tbody.appendChild(tr);
+}
+
+function saveSelection() {
+    var m = []; manualNumbers.forEach(function(n){ m.push(n); });
+    var a = []; autoNumbers.forEach(function(n){ a.push(n); });
+    localStorage.setItem('combination_saved_picks', JSON.stringify({ manual: m, auto: a }));
+}
+
+function loadSavedSelection() {
+    var saved = localStorage.getItem('combination_saved_picks');
+    if (!saved) return;
+    try {
+        var data = JSON.parse(saved);
+        for(var i=0; i<data.manual.length; i++) { manualNumbers.add(data.manual[i]); var b = document.getElementById('select-ball-' + data.manual[i]); if(b) b.className = 'select-ball selected-manual'; }
+        for(var j=0; j<data.auto.length; j++) { autoNumbers.add(data.auto[j]); var ba = document.getElementById('select-ball-' + data.auto[j]); if(ba) ba.className = 'select-ball selected'; }
+        updateSelectedBallsDisplay();
+    } catch (e) {}
 }
 
 function semiAutoSelect() {
     if (manualNumbers.size >= 6) return;
     autoNumbers.clear();
-    document.querySelectorAll('.select-ball').forEach((btn, idx) => {
-        if (!manualNumbers.has(idx + 1)) btn.classList.remove('selected');
-    });
-
-    if (!combinationStatsData) return;
-    const freq = combinationStatsData.frequency || {};
-    const recentFreq = combinationStatsData.recent_20_frequency || {};
-    const scores = [];
-    for (let i = 1; i <= 45; i++) {
-        const totalScore = ((freq[i] || 0) * 0.4) + ((recentFreq[i] || 0) * 25.0 * 0.6); 
-        scores.push({ num: i, score: totalScore });
-    }
-    scores.sort((a, b) => b.score - a.score);
+    for (var i = 1; i <= 45; i++) { if (!manualNumbers.has(i)) { var btn = document.getElementById('select-ball-' + i); if(btn) btn.className = 'select-ball'; } }
     
-    const gold = scores.slice(0, 9).map(x => x.num);
-    const silver = scores.slice(9, 23).map(x => x.num);
-    const normal = scores.slice(23, 36).map(x => x.num);
-
-    const weightedCandidates = [...gold, ...gold, ...silver, ...silver, ...normal].filter(n => !manualNumbers.has(n));
+    var freq = combinationStatsData.frequency || {};
+    var r20 = combinationStatsData.recent_20_frequency || {};
+    var scores = [];
+    for (var n = 1; n <= 45; n++) { scores.push({ n: n, s: ((freq[n]||0)*0.4) + ((r20[n]||0)*15) }); }
+    scores.sort(function(a,b){ return b.s - a.s; });
     
-    while (manualNumbers.size + autoNumbers.size < 6 && weightedCandidates.length > 0) {
-        const idx = Math.floor(Math.random() * weightedCandidates.length);
-        const num = weightedCandidates[idx];
-        if (!manualNumbers.has(num) && !autoNumbers.has(num)) autoNumbers.add(num);
-        weightedCandidates.splice(idx, 1);
+    var pool = [];
+    for(var k=0; k<15; k++) { if(!manualNumbers.has(scores[k].n)) pool.push(scores[k].n); }
+    
+    while (manualNumbers.size + autoNumbers.size < 6 && pool.length > 0) {
+        var rIdx = Math.floor(Math.random() * pool.length);
+        var pick = pool.splice(rIdx, 1)[0];
+        autoNumbers.add(pick);
+        var bSelected = document.getElementById('select-ball-' + pick);
+        if(bSelected) bSelected.className = 'select-ball selected';
     }
-    autoNumbers.forEach(num => {
-        const btn = document.getElementById(`select-ball-${num}`);
-        if (btn) btn.classList.add('selected');
-    });
     saveSelection();
     updateSelectedBallsDisplay();
 }
 
 function resetSelection() {
     manualNumbers.clear(); autoNumbers.clear();
-    document.querySelectorAll('.select-ball').forEach(btn => btn.classList.remove('selected', 'selected-manual'));
+    for(var i=1; i<=45; i++) { var btn = document.getElementById('select-ball-' + i); if(btn) btn.className = 'select-ball'; }
     localStorage.removeItem('combination_saved_picks');
     updateSelectedBallsDisplay();
-    const rs = document.getElementById('report-section'); if (rs) rs.style.display = 'none';
+    var rs = document.getElementById('report-section'); if(rs) rs.style.display = 'none';
 }

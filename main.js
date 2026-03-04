@@ -16,6 +16,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!data) return;
         mainStatsData = data;
 
+        // [v10.0 이식] 15회차 전략 그룹 렌더링
+        if (data.recent_draws) {
+            var groups = LottoUtils.getStrategyGroups(data.recent_draws);
+            renderMainStrategyGroup('group-hot-container', groups.hot);
+            renderMainStrategyGroup('group-warm-container', groups.warm);
+            renderMainStrategyGroup('group-cold-container', groups.cold);
+            
+            // 과출현 경보
+            renderMainOverAppearanceAlert(data.recent_draws);
+        }
+
         // 최근 당첨 번호 정보 표시 (상단 배너)
         if (data.recent_draws && data.recent_draws.length > 0) {
             var lastDraw = data.recent_draws[0];
@@ -69,3 +80,33 @@ window.analyzeNumbers = function(numbers) {
     var mainIndicatorIds = LottoConfig.PAGES.INDEX;
     LottoUI.renderIndicatorGrid('main-indicator-grid', mainIndicatorIds, numbers, mainStatsData);
 };
+
+// [v10.0 Helper] 전략 그룹 렌더링
+function renderMainStrategyGroup(containerId, nums) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    for (var i = 0; i < nums.length; i++) {
+        container.appendChild(LottoUI.createBall(nums[i], true));
+    }
+}
+
+// [v10.0 Helper] 과출현 경보 렌더링
+function renderMainOverAppearanceAlert(recentDraws) {
+    var alertBox = document.getElementById('over-appearance-alert');
+    if (!alertBox || !recentDraws) return;
+
+    var counts5 = {}; var danger = [];
+    for (var i = 0; i < 5; i++) {
+        var nums = recentDraws[i].nums;
+        for (var j = 0; j < nums.length; j++) { counts5[nums[j]] = (counts5[nums[j]] || 0) + 1; }
+    }
+    for (var n in counts5) { if (counts5[n] >= 4) danger.push(n); }
+
+    if (danger.length > 0) {
+        alertBox.style.display = 'block';
+        alertBox.innerHTML = '⚠️ 과출현 위험: ' + danger.join(',');
+    } else {
+        alertBox.style.display = 'none';
+    }
+}

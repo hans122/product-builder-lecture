@@ -92,7 +92,7 @@ function generateSmartCombinations(pools) {
         var attempts = 0;
         var strategy = strategies[sIdx];
 
-        while (!found && attempts < 500) {
+        while (!found && attempts < 1000) { // 시도 횟수 상향
             attempts++;
             var pick = [];
             var tempPool = [];
@@ -106,25 +106,31 @@ function generateSmartCombinations(pools) {
                 pick.push(pools.cold[Math.floor(Math.random() * pools.cold.length)]);
             }
 
-            while (pick.length < 6) {
-                var rIdx = Math.floor(Math.random() * tempPool.length);
-                var n = tempPool.splice(rIdx, 1)[0];
+            // 풀이 부족할 경우를 대비한 안전 장치
+            if (!tempPool || tempPool.length < 6) tempPool = pools.hot.concat(pools.neutral);
+
+            var localPool = [].concat(tempPool);
+            while (pick.length < 6 && localPool.length > 0) {
+                var rIdx = Math.floor(Math.random() * localPool.length);
+                var n = localPool.splice(rIdx, 1)[0];
                 if (n && pick.indexOf(n) === -1) pick.push(n);
             }
             pick.sort(function(a, b) { return a - b; });
 
-            var sum = 0; for (var si = 0; si < 6; si++) sum += pick[si];
-            var odds = 0; for (var oi = 0; oi < 6; oi++) if (pick[oi] % 2 !== 0) odds++;
+            if (pick.length < 6) continue;
 
-            if (Math.abs(sum - stats.sum.mean) <= 45) {
-                var synergy = LottoSynergy.check(pick, predStatsData);
-                var hasDanger = false;
-                for (var synI = 0; synI < synergy.length; synI++) { if (synergy[synI].status === 'danger') hasDanger = true; }
-                
-                if (!hasDanger) {
-                    results.push({ nums: pick, strategy: strategy });
-                    found = true;
-                }
+            var sum = 0; for (var si = 0; si < 6; si++) sum += pick[si];
+            var stats = predStatsData.stats_summary;
+            
+            // 시너지 체크 (실패 시에도 500회 이후에는 완화된 기준으로 적용)
+            var synergy = LottoSynergy.check(pick, predStatsData);
+            var hasDanger = false;
+            for (var synI = 0; synI < synergy.length; synI++) { if (synergy[synI].status === 'danger') hasDanger = true; }
+            
+            // 통계적 합계 범위 내에 있고, 위험 시너지가 없거나, 시도 횟수가 많은 경우 확정
+            if ((Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger) || attempts > 800) {
+                results.push({ nums: pick, strategy: strategy });
+                found = true;
             }
         }
     }
@@ -183,14 +189,14 @@ function renderPools(hot, neutral, cold) {
 function runBacktest(draws) {
     var reportBody = document.getElementById('backtest-report-body');
     if (!draws || !reportBody) return;
-    reportBody.innerHTML = ''; // 초기화
+    reportBody.innerHTML = ''; 
     var totalHits = 0; var jackpotCount = 0; var perfectExclusions = 0;
     var testCount = Math.min(draws.length - 10, 20);
-    var testData = draws.slice(0, testCount);
-
-    for (var i = 0; i < testData.length; i++) {
-        var draw = testData[i];
+    
+    for (var i = 0; i < testCount; i++) {
+        var draw = draws[i];
         var pools = getPredictionPoolsForRound(draws, i);
+        
         var hits = [];
         for (var n = 0; n < draw.nums.length; n++) { if (pools.hot.indexOf(draw.nums[n]) !== -1) hits.push(draw.nums[n]); }
         
@@ -202,14 +208,60 @@ function runBacktest(draws) {
         if (fails.length === 0) perfectExclusions++;
 
         var tr = document.createElement('tr');
-        var winBalls = '';
-        for (var wb = 0; wb < draw.nums.length; wb++) winBalls += LottoUI.createBall(draw.nums[wb], true).outerHTML;
         
+        // 당첨 번호 렌더링
+        var winBallsHtml = '<div style="display:flex; gap:2px; justify-content:center;">';
+        for (var wb = 0; wb < draw.nums.length; wb++) winBallsHtml += LottoUI.createBall(draw.nums[wb], true).outerHTML;
+        winBallsHtml += '</div>';
+
+        // 추천 풀 (30개) 요약 렌더링
+        var hotPoolHtml = '<div style="display:grid; grid-template-columns: repeat(10, 1fr); gap:1px; max-width:140px; margin:0 auto;">';
+        for (var hp = 0; hp < pools.hot.length; hp++) {
+            var isHit = draw.nums.indexOf(pools.hot[hp]) !== -1;
+            var b = LottoUI.createBall(pools.hot[hp], true);
+            if (isHit) b.style.boxShadow = '0 0 0 2px var(--success-green)';
+            else b.style.opacity = '0.3';
+            hotPoolHtml += b.outerHTML;
+        }
+        hotPoolHtml += '</div>';
+
+        // 전략 보류 (5개)
+        var neutralPoolHtml = '<div style="display:flex; gap:2px; justify-content:center;">';
+        for (var np = 0; np < pools.neutral.length; np++) {
+            var isNHit = draw.nums.indexOf(pools.neutral[np]) !== -1;
+            var nb = LottoUI.createBall(pools.neutral[np], true);
+            if (isNHit) nb.style.boxShadow = '0 0 0 2px var(--success-green)';
+            else nb.style.opacity = '0.3';
+            neutralPoolHtml += nb.outerHTML;
+        }
+        neutralPoolHtml += '</div>';
+
+        // 필터 제외 (10개)
+        var coldPoolHtml = '<div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:1px; max-width:70px; margin:0 auto;">';
+        for (var cp = 0; cp < pools.cold.length; cp++) {
+            var isCHit = draw.nums.indexOf(pools.cold[cp]) !== -1;
+            var cb = LottoUI.createBall(pools.cold[cp], true);
+            if (isCHit) cb.style.background = 'var(--danger-red)'; // 제외 실패 강조
+            else cb.style.opacity = '0.3';
+            coldPoolHtml += cb.outerHTML;
+        }
+        coldPoolHtml += '</div>';
+
+        // 성과 등급 (S/A/B)
+        var grade = 'B';
+        var gradeClass = 'normal';
+        if (hits.length >= 5) { grade = 'S'; gradeClass = 'excellent'; }
+        else if (hits.length >= 4) { grade = 'A'; gradeClass = 'excellent'; }
+        else if (hits.length >= 3) { grade = 'B'; gradeClass = 'normal'; }
+
         tr.innerHTML = '<td><strong>' + draw.no + '회</strong></td>' +
-            '<td><div class="pool-grid-win">' + winBalls + '</div></td>' +
-            '<td>🎯 추천풀 적중 ' + hits.length + '개</td>' +
-            '<td>' + (fails.length === 0 ? '<span class="filter-perf success">🛡️ 제외성공</span>' : '<span class="filter-perf fail">🚨 실패</span>') + '</td>' +
-            '<td>' + (hits.length >= 4 ? '<span class="status-tag excellent">우수</span>' : '<span class="status-tag fail">일반</span>') + '</td>';
+            '<td>' + winBallsHtml + '</td>' +
+            '<td>' + hotPoolHtml + '</td>' +
+            '<td>' + neutralPoolHtml + '</td>' +
+            '<td>' + coldPoolHtml + '</td>' +
+            '<td><div class="status-tag ' + gradeClass + '" style="font-weight:900; font-size:1.1rem; padding:4px 12px;">' + grade + '</div>' + 
+            '<div style="font-size:0.65rem; color:#94a3b8; margin-top:4px;">적중 ' + hits.length + '</div></td>';
+        
         reportBody.appendChild(tr);
     }
     
