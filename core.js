@@ -40,6 +40,26 @@ var LottoUtils = {
     padLeft: function(str, length, char) {
         str = String(str); while (str.length < length) { str = char + str; } return str;
     },
+    // [STRATEGY] 최근 15회차 기반 골든타임 그룹핑 엔진
+    getStrategyGroups: function(recentDraws) {
+        var limit = Math.min(recentDraws.length, 15);
+        var counts = {};
+        for (var n = 1; n <= 45; n++) counts[n] = 0;
+        
+        for (var i = 0; i < limit; i++) {
+            var nums = recentDraws[i].nums;
+            for (var j = 0; j < nums.length; j++) { counts[nums[j]]++; }
+        }
+        
+        var groups = { hot: [], warm: [], cold: [] };
+        for (var num = 1; num <= 45; num++) {
+            var f = counts[num];
+            if (f >= 3) groups.hot.push(num);
+            else if (f >= 1) groups.warm.push(num);
+            else groups.cold.push(num);
+        }
+        return groups;
+    },
     logError: function(msg, context) {
         console.error('[LottoCore Error] ' + msg, context || '');
         var notifier = document.getElementById('global-error-notifier');
@@ -320,7 +340,7 @@ var LottoUI = {
 
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
-    SYSTEM_VERSION: '9.2', 
+    SYSTEM_VERSION: '9.3', 
     getCacheKey: function() { return 'lotto_data_v' + this.SYSTEM_VERSION; },
     getStats: function(callback) {
         if (typeof Promise !== 'undefined' && !callback) { return new Promise(function(resolve) { LottoDataManager.getStats(function(data) { resolve(data); }); }); }

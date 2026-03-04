@@ -43,6 +43,44 @@
     </header>
 
     <div class="container wide">
+        <!-- [STRATEGY] 15회차 골든타임 전략 그룹 보드 -->
+        <div class="group-header">⚡ 15회차 집중 분석: 골든타임 전략 그룹</div>
+        <section class="analysis-card strategy-board" style="background: #f0f7ff; border: 1px solid #3182f633; margin-bottom: 24px;">
+            <div class="card-header" style="background: transparent; border-bottom: 1px solid #3182f611; padding: 15px 20px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2rem;">🚀</span>
+                    <h3 style="color: #1e293b;">최근 15회차 당첨 흐름 기반 그룹핑</h3>
+                </div>
+                <span style="font-size: 0.7rem; color: #3182f6; font-weight: 800;">데이터 모멘텀 분석 기준</span>
+            </div>
+            <div class="strategy-groups-wrapper" style="display: flex; gap: 15px; padding: 20px; flex-wrap: wrap;">
+                <div class="s-group-box hot" style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 12px; border-top: 4px solid #f04452; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <h4 style="margin: 0 0 10px 0; color: #f04452; font-size: 0.85rem; display: flex; justify-content: space-between;">
+                        <span>🔥 모멘텀 그룹 (3회↑)</span>
+                        <span id="hot-count" style="font-size: 0.7rem; opacity: 0.7;">0개</span>
+                    </h4>
+                    <div id="group-hot-container" class="pool-grid-10" style="gap: 4px;"></div>
+                </div>
+                <div class="s-group-box warm" style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 12px; border-top: 4px solid #2ecc71; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <h4 style="margin: 0 0 10px 0; color: #2ecc71; font-size: 0.85rem; display: flex; justify-content: space-between;">
+                        <span>⚖️ 밸런스 그룹 (1~2회)</span>
+                        <span id="warm-count" style="font-size: 0.7rem; opacity: 0.7;">0개</span>
+                    </h4>
+                    <div id="group-warm-container" class="pool-grid-10" style="gap: 4px;"></div>
+                </div>
+                <div class="s-group-box cold" style="flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 12px; border-top: 4px solid #94a3b8; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <h4 style="margin: 0 0 10px 0; color: #64748b; font-size: 0.85rem; display: flex; justify-content: space-between;">
+                        <span>🛡️ 회귀 그룹 (0회)</span>
+                        <span id="cold-count" style="font-size: 0.7rem; opacity: 0.7;">0개</span>
+                    </h4>
+                    <div id="group-cold-container" class="pool-grid-10" style="gap: 4px;"></div>
+                </div>
+            </div>
+            <div style="padding: 0 20px 15px 20px; font-size: 0.7rem; color: #94a3b8; text-align: center;">
+                ※ 최근 15회차의 출현 기세를 분석한 결과입니다. 모멘텀 그룹은 기세 유지, 회귀 그룹은 평균 회귀 가능성이 높습니다.
+            </div>
+        </section>
+
         <!-- [G1] 기본 균형 -->
         <div class="group-header">📍 [G1] 기본 균형 및 합계</div>
         <section class="analysis-card" id="sum-section">
