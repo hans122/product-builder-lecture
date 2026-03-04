@@ -1,5 +1,5 @@
 /**
- * AI Prediction Engine v3.6 - Immortal Guardian (Full ES5 Stable)
+ * AI Prediction Engine v3.7 - Immortal Guardian (Complete Fix)
  */
 
 var predStatsData = null;
@@ -41,12 +41,9 @@ function getPredictionPoolsForRound(allDraws, currentIndex) {
     }
     scores.sort(function(a, b) { return b.score - a.score; });
     
-    var hotNums = [];
-    for (var h = 0; h < 30; h++) hotNums.push(scores[h].num);
-    var neutralNums = [];
-    for (var ne = 30; ne < 35; ne++) neutralNums.push(scores[ne].num);
-    var coldNums = [];
-    for (var c = 35; c < 45; c++) coldNums.push(scores[c].num);
+    var hotNums = []; for (var h = 0; h < 30; h++) hotNums.push(scores[h].num);
+    var neutralNums = []; for (var ne = 30; ne < 35; ne++) neutralNums.push(scores[ne].num);
+    var coldNums = []; for (var c = 35; c < 45; c++) coldNums.push(scores[c].num);
 
     return {
         hot: hotNums.sort(function(a, b) { return a - b; }),
@@ -93,7 +90,7 @@ function generateSmartCombinations(pools) {
             while (pick.length < 6) {
                 var rIdx = Math.floor(Math.random() * tempPool.length);
                 var n = tempPool.splice(rIdx, 1)[0];
-                if (pick.indexOf(n) === -1) pick.push(n);
+                if (n && pick.indexOf(n) === -1) pick.push(n);
             }
             pick.sort(function(a, b) { return a - b; });
 
@@ -113,6 +110,7 @@ function generateSmartCombinations(pools) {
         }
     }
 
+    // 카드 렌더링
     for (var rIdx = 0; rIdx < results.length; rIdx++) {
         var res = results[rIdx];
         var card = document.createElement('div');
@@ -166,6 +164,7 @@ function renderPools(hot, neutral, cold) {
 function runBacktest(draws) {
     var reportBody = document.getElementById('backtest-report-body');
     if (!draws || !reportBody) return;
+    reportBody.innerHTML = ''; // 초기화
     var totalHits = 0; var jackpotCount = 0; var perfectExclusions = 0;
     var testCount = Math.min(draws.length - 10, 20);
     var testData = draws.slice(0, testCount);
@@ -212,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var pools = getPredictionPoolsForRound(data.recent_draws, -1);
         renderPools(pools.hot, pools.neutral, pools.cold);
         generateSmartCombinations(pools);
-        if (typeof runBacktest === 'function') runBacktest(data.recent_draws);
+        runBacktest(data.recent_draws);
     });
 
     var refreshBtn = document.getElementById('refresh-recommendations-btn');
