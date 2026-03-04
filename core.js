@@ -324,7 +324,7 @@ var LottoUI = {
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
     // [Smart Sync] 버전 기반 캐시 (시스템 버전이 바뀌면 즉시 갱신)
-    SYSTEM_VERSION: '8.9', 
+    SYSTEM_VERSION: '9.1', 
     getCacheKey: function() {
         return 'lotto_data_v' + this.SYSTEM_VERSION;
     },

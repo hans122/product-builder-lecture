@@ -98,7 +98,7 @@ function generateSmartCombinations(pools) {
             pick.sort(function(a, b) { return a - b; });
 
             var sum = 0; for (var si = 0; si < 6; si++) sum += pick[si];
-            var odds = 0; for (var oi = 0; si < 6; si++) if (pick[si] % 2 !== 0) odds++;
+            var odds = 0; for (var oi = 0; oi < 6; oi++) if (pick[oi] % 2 !== 0) odds++;
 
             if (Math.abs(sum - stats.sum.mean) <= 45) {
                 var synergy = LottoSynergy.check(pick, predStatsData);
