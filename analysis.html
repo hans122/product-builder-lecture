@@ -93,8 +93,33 @@
             </div>
             <div style="padding: 20px;">
                 <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 15px;">번호가 언제 연달아 나왔는지 흐름을 파악하세요. 겹치는 구간이 많을수록 현재 기세가 살아있는 번호입니다.</p>
-                <div id="flow-map-root" class="flow-map-container">
+                <div id="flow-map-root" class="flow-map-container" style="margin-bottom: 25px;">
                     <!-- JS에서 테이블 렌더링 -->
+                </div>
+
+                <!-- [v9.8] 과출현 정밀 분석 표 추가 -->
+                <div class="over-appearance-report" style="border-top: 1px dashed #e2e8f0; padding-top: 20px;">
+                    <h4 style="font-size: 0.85rem; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span>⚠️ 실시간 과출현 위험도 리포트</span>
+                        <span style="font-size: 0.65rem; color: #94a3b8; font-weight: normal;">(최근 데이터 기준 실시간 산출)</span>
+                    </h4>
+                    <div style="overflow-x: auto;">
+                        <table class="expert-table compact" style="width: 100%; min-width: 500px;">
+                            <thead>
+                                <tr>
+                                    <th>번호</th>
+                                    <th>위험 등급</th>
+                                    <th>연속 출현</th>
+                                    <th>최근 5회</th>
+                                    <th>최근 10회</th>
+                                    <th>AI 판정</th>
+                                </tr>
+                            </thead>
+                            <tbody id="over-appearance-table-body">
+                                <!-- JS에서 데이터 주입 -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>

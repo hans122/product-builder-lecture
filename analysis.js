@@ -48,13 +48,17 @@ document.addEventListener('DOMContentLoaded', function() {
             renderStrategyGroup('group-hot-container', groups.hot, 'hot-count');
             renderStrategyGroup('group-warm-container', groups.warm, 'warm-count');
             renderStrategyGroup('group-cold-container', groups.cold, 'cold-count');
-            
-            // [v9.6] 과출현 위험 번호 감지 및 경고
-            renderOverAppearanceAlert(data.recent_draws.slice(0, 5));
+
+            // [v9.7] 과출현 위험 번호 감지 및 경고
+            renderOverAppearanceAlert(data.recent_draws);
+
+            // [v9.8] 과출현 정밀 분석 표 렌더링
+            renderOverAppearanceTable(data.recent_draws);
 
             // [v9.4] 번호별 흐름 타임라인 렌더링
             renderFlowMap(data.recent_draws.slice(0, 15));
         }
+
 
         // 2. 설정 기반 차트 및 미니 표 자동 렌더링
         var dists = data.distributions || {};
@@ -209,5 +213,56 @@ function renderOverAppearanceAlert(recentDraws) {
         alertBox.innerHTML = html;
     } else {
         alertBox.style.display = 'none';
+    }
+}
+
+function renderOverAppearanceTable(recentDraws) {
+    var tbody = document.getElementById('over-appearance-table-body');
+    if (!tbody || !recentDraws) return;
+    tbody.innerHTML = '';
+
+    var data = [];
+    for (var num = 1; num <= 45; num++) {
+        var c5 = 0; var c10 = 0; var streak = 0;
+        for (var i = 0; i < 10; i++) {
+            if (recentDraws[i] && recentDraws[i].nums.indexOf(num) !== -1) {
+                if (i < 5) c5++;
+                c10++;
+            }
+        }
+        for (var s = 0; s < recentDraws.length; s++) {
+            if (recentDraws[s].nums.indexOf(num) !== -1) streak++;
+            else break;
+        }
+
+        if (c10 > 0) {
+            var grade = "정상";
+            var status = "관찰";
+            var color = "#64748b";
+            
+            if (streak >= 5 || c5 >= 4 || c10 >= 6) { grade = "🚨 위험"; status = "배제 권장"; color = "#f04452"; }
+            else if (c5 === 3) { grade = "⚠️ 주의"; status = "출현 임계"; color = "#ff9500"; }
+            else if (c5 === 2) { grade = "🔍 관찰"; status = "기세 상승"; color = "#3182f6"; }
+
+            data.push({ num: num, grade: grade, streak: streak, c5: c5, c10: c10, status: status, color: color });
+        }
+    }
+
+    // 위험도 순 정렬 (c5 많은 순, 그 다음 streak 많은 순)
+    data.sort(function(a, b) {
+        if (b.c5 !== a.c5) return b.c5 - a.c5;
+        return b.streak - a.streak;
+    });
+
+    for (var j = 0; j < data.length; j++) {
+        var row = data[j];
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td><div class="pension-ball small" style="margin:0 auto; width:24px; height:24px; font-size:0.8rem;">' + row.num + '</div></td>' +
+            '<td style="color:' + row.color + '; font-weight:800;">' + row.grade + '</td>' +
+            '<td>' + (row.streak > 0 ? row.streak + '주 연속' : '-') + '</td>' +
+            '<td>' + row.c5 + '회</td>' +
+            '<td>' + row.c10 + '회</td>' +
+            '<td><span class="status-tag" style="background:' + row.color + '11; color:' + row.color + '; border:1px solid ' + row.color + '33;">' + row.status + '</span></td>';
+        tbody.appendChild(tr);
     }
 }

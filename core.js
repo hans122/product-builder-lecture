@@ -340,7 +340,7 @@ var LottoUI = {
 
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
-    SYSTEM_VERSION: '9.7', 
+    SYSTEM_VERSION: '9.8', 
     getCacheKey: function() { return 'lotto_data_v' + this.SYSTEM_VERSION; },
     getStats: function(callback) {
         if (typeof Promise !== 'undefined' && !callback) { return new Promise(function(resolve) { LottoDataManager.getStats(function(data) { resolve(data); }); }); }
