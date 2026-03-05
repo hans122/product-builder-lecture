@@ -1,4 +1,4 @@
-# SDD (System Design Document) - v4.2
+# SDD (System Design Document) - v5.5
 
 ## 1. 시스템 아키텍처 개요
 본 시스템은 **`indicators.js` (설정)**와 **`core.js` (엔진)**를 핵심 축으로 하는 **Data-Driven Architecture**를 채택한다. 모든 UI 구성 요소와 분석 로직은 이 두 파일의 정의를 따르며, 개별 페이지(`index.html`, `analysis.html` 등)는 렌더링 결과만 출력하는 뷰(View)의 역할을 수행한다.
@@ -14,7 +14,12 @@
 - **LottoSynergy**: 조합의 정합성을 검증하는 정밀 분석 로직 실행.
 - **LottoDataManager**: 로컬 스토리지와 서버 데이터를 연동하는 캐싱 레이어.
 
-### 2.3. Expert-Grade Table System
+### 2.3. SVG 시각화 엔진 (Curve Chart)
+- **통계적 마킹**: `μ±σ` 및 `μ±2σ`를 기반으로 누적 확률 백분위(2.5%, 16%, 50%, 84%, 97.5%)를 동적으로 산출하여 X축 라벨링.
+- **충돌 방지 (Collision Detection)**: 인접한 라벨 간의 x축 거리가 45px 미만일 경우, 우선순위가 낮은 라벨을 생략하여 가독성 확보.
+- **Golden Zone 렌더링**: `μ±σ` 구간은 녹색 빗금, `μ±2σ` 구간은 파란색 빗금으로 영역 시각화.
+
+### 2.4. Expert-Grade Table System
 - **Slanted Header**: CSS `transform: rotate(-45deg)`를 활용하여 고정된 열 너비 안에서 긴 텍스트를 가시화.
 - **Sticky Column**: `position: sticky`와 `z-index` 설정을 통해 스크롤 시에도 핵심 열(회차, 번호)을 브라우저 좌측에 고정.
 
