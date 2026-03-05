@@ -105,12 +105,21 @@
             <div class="card-header" style="justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span class="icon">✨</span>
-                    <h3>AI 실전 압축 조합 (Top 5)</h3>
+                    <h3>AI 실전 압축 조합 (Top 10)</h3>
                 </div>
-                <button id="refresh-recommendations-btn" class="nav-btn small" style="background: var(--primary-blue-soft); color: var(--primary-blue); font-weight: bold; border: none; cursor: pointer;">🔄 조합 새로고침</button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: bold;">첫 수(Anchor) 선택:</span>
+                    <select id="lotto-anchor-select" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.8rem; font-weight: bold; color: #3182f6;">
+                        <option value="0">자동 추천</option>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                        <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                        <option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option>
+                    </select>
+                    <button id="refresh-recommendations-btn" class="nav-btn small" style="background: var(--primary-blue-soft); color: var(--primary-blue); font-weight: bold; border: none; cursor: pointer;">🔄 조합 새로고침</button>
+                </div>
             </div>
-            <div class="recommendation-grid" id="ai-combinations-container">
-                <div class="placeholder-text">지능형 연산 중...</div>
+            <div class="recommendation-grid" id="ai-combinations-container" style="display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(2, auto); gap: 12px; overflow-x: visible;">
+                <div class="placeholder-text" style="grid-column: 1/-1;">지능형 연산 중...</div>
             </div>
         </section>
 
