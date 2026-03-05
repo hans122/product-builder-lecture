@@ -91,20 +91,35 @@
             </section>
         </div>
 
-        <div class="group-header">📍 [P3/P4] 조별 분포 및 수치 균형</div>
-        <div class="pension-pos-grid">
-            <!-- [P3] 조별 분포 -->
-            <section class="analysis-card" style="width: 48%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>🎰 조별 당첨 분포 (1~5조)</h3></div>
-                <div id="group-dist-chart" style="height: 250px; padding: 20px;"></div>
-            </section>
-
-            <!-- [P4] 합계 및 균형 -->
-            <section class="analysis-card" style="width: 48%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>⚖️ 6자리 숫자 합계 분포</h3></div>
-                <div id="sum-dist-chart" style="height: 250px; padding: 20px;"></div>
-            </section>
-        </div>
+        <!-- [GP4] 합계 및 균형 (확대 개편) -->
+        <div class="group-header">📍 [GP4] 6자리 숫자 합계 정밀 분포 (Golden Zone)</div>
+        <section class="analysis-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2rem;">⚖️</span>
+                    <h3>합계 수치 통계 및 표준 분포</h3>
+                </div>
+            </div>
+            <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                <!-- 왼쪽: 대형 합계 선형 차트 -->
+                <div class="chart-container-main" style="background: #ffffff; border-radius: 12px; padding: 20px; border: 1px solid #edf2f7; position: relative;">
+                    <div id="sum-dist-chart" style="height: 240px; width: 100%;"></div>
+                </div>
+                
+                <!-- 오른쪽: 최근 당첨 합계 현황 표 -->
+                <div class="stat-summary-box" style="background: #f8fafc; border-radius: 12px; padding: 15px; border: 1px solid #edf2f7;">
+                    <h4 style="font-size: 0.8rem; color: #475569; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">📊 최근 당첨 합계 리포트</h4>
+                    <table class="mini-table">
+                        <tbody id="p-sum-mini-body">
+                            <!-- JS에서 렌더링 -->
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 12px; background: #f0f7ff; padding: 10px; border-radius: 8px; font-size: 0.65rem; color: #3182f6; line-height: 1.4;">
+                        <b>💡 Golden Zone (20~35):</b><br>전체 당첨의 약 70%가 집중되는 이상적 구간입니다.
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- [P5] 회차 간 상관관계 -->
         <div class="group-header">📍 [P5] 회차 간 상관관계 (이월/이웃)</div>

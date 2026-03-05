@@ -1,4 +1,4 @@
-# SDD (System Design Document) - v4.0
+# SDD (System Design Document) - v4.2
 
 ## 1. 시스템 아키텍처 개요
 본 시스템은 **`indicators.js` (설정)**와 **`core.js` (엔진)**를 핵심 축으로 하는 **Data-Driven Architecture**를 채택한다. 모든 UI 구성 요소와 분석 로직은 이 두 파일의 정의를 따르며, 개별 페이지(`index.html`, `analysis.html` 등)는 렌더링 결과만 출력하는 뷰(View)의 역할을 수행한다.

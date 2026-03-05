@@ -91,6 +91,32 @@ document.addEventListener('DOMContentLoaded', function() {
             renderReverseGapChart('digit-gap-container', reverseDigitGap);
             renderFlowTimeline(records.slice(0, 15)); // [P13] 최근 15회차 타임라인
             
+            // [GP4] 로또 G1 스타일의 합계 차트 렌더링
+            var sumValues = [];
+            for (var rIdx = 0; rIdx < records.length; rIdx++) {
+                sumValues.push(records[rIdx].nums.reduce(function(a,b){return a+b;}, 0));
+            }
+            var sumMean = sumValues.reduce(function(a,b){return a+b;}, 0) / sumValues.length;
+            var sumSqDiff = sumValues.map(function(v){return Math.pow(v - sumMean, 2);});
+            var sumStd = Math.sqrt(sumSqDiff.reduce(function(a,b){return a+b;}, 0) / sumValues.length);
+            
+            var pSumCfg = { id: 'p-sum', label: '6자리 합계', unit: '', group: 'GP4', distKey: 'p_sum', statKey: 'p_sum', drawKey: 'p_sum', maxLimit: 54 };
+            var pSumStat = { mean: sumMean, std: sumStd };
+            
+            // LottoUI.createCurveChart 호환을 위해 객체 형태 분포 데이터 생성
+            var pSumDistObj = {};
+            for (var s = 0; s <= 54; s++) { pSumDistObj[s] = stats.sumFreq[s] || 0; }
+            
+            // 최근 10회차 데이터에 p_sum 속성 주입 (renderMiniTable 호환용)
+            var recent10 = records.slice(0, 10).map(function(r) {
+                var copy = { no: r.drawNo, nums: r.nums };
+                copy.p_sum = r.nums.reduce(function(a,b){return a+b;}, 0);
+                return copy;
+            });
+
+            LottoUI.createCurveChart('sum-dist-chart', pSumDistObj, '', pSumStat, pSumCfg);
+            LottoUI.renderMiniTable('p-sum-mini-body', recent10, pSumCfg);
+
             var cm = [
                 ['sequence-dist-chart', stats.seqFreq, '개 연속'],
                 ['repeat-dist-chart', stats.repeatFreq, '회 연속'],
@@ -108,7 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             renderGroupDist(stats.groupFreq);
-            renderSumDist(stats.sumFreq);
         });
 
     } catch (err) {
@@ -169,44 +194,6 @@ function renderReverseGapChart(containerId, gapData) {
     html += '</div>';
     container.innerHTML = html;
 }
-function renderGroupDist(groupFreq) {
-    var container = document.getElementById('group-dist-chart');
-    if (!container) return;
-    var actual = groupFreq.slice(1);
-    var max = 0;
-    for (var i = 0; i < actual.length; i++) { if(actual[i] > max) max = actual[i]; }
-    if (max === 0) max = 1;
-
-    var html = '<div style="display: flex; align-items: flex-end; height: 100%; padding-bottom: 20px;">';
-    for (var j = 0; j < actual.length; j++) {
-        var f = actual[j];
-        var h = (f / max) * 100;
-        html += '<div style="flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin: 0 8px;">' +
-                '<span style="font-size: 0.7rem; color: #64748b; font-weight: bold;">' + f + '회</span>' +
-                '<div style="width: 100%; height: ' + (h < 8 ? 8 : h) + '%; background: #ff8c00; border-radius: 4px; opacity: ' + (0.5 + (f/max/2)) + ';"></div>' +
-                '<span style="font-size: 0.8rem; font-weight: 900; color: #334155; margin-top: 8px;">' + (j+1) + '조</span></div>';
-    }
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-function renderSumDist(sumFreq) {
-    var container = document.getElementById('sum-dist-chart');
-    if (!container) return;
-    var max = 0;
-    for (var k in sumFreq) { if(sumFreq.hasOwnProperty(k)) { if(sumFreq[k] > max) max = sumFreq[k]; } }
-    if (max === 0) max = 1;
-
-    var html = '<div style="display: flex; align-items: flex-end; height: 100%; padding-bottom: 20px;">';
-    for (var i = 0; i <= 54; i++) {
-        var f = sumFreq[i] || 0;
-        var h = (f / max) * 100;
-        html += '<div style="flex: 1; height: ' + (f > 0 ? (h < 2 ? 2 : h) : 0) + '%; background: ' + (f>0?'#ff8c00':'#cbd5e1') + '; border-radius: 1px; margin: 0 0.5px;"></div>';
-    }
-    html += '</div><div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #94a3b8; margin-top: 5px;"><span>합계 0</span><span>중간 27</span><span>최대 54</span></div>';
-    container.innerHTML = html;
-}
-
 // [P13] 당첨 번호 흐름 타임라인 렌더러
 function renderFlowTimeline(recent15) {
     var container = document.getElementById('pension-flow-timeline-container');
