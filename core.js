@@ -303,14 +303,15 @@ var LottoUI = {
             curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
             svg.appendChild(curve);
 
-            // [FIX] X축 라벨 백분율(%)로 통일
+            // [FIX] 정규분포 확률(σ) 기반 백분위(%) 라벨 정밀화
+            // μ±2σ = 95.4% (양끝 2.3%), μ±1σ = 68.2% (양끝 15.9%)
             var statsMarkers = [
                 { v: 0, t: '0%' },
-                { v: mu - 2 * sd, t: '5%' },
-                { v: mu - sd, t: '15%' },
+                { v: mu - 2 * sd, t: '2.5%' },
+                { v: mu - sd, t: '16%' },
                 { v: mu, t: '50%' },
-                { v: mu + sd, t: '85%' },
-                { v: mu + 2 * sd, t: '95%' },
+                { v: mu + sd, t: '84%' },
+                { v: mu + 2 * sd, t: '97.5%' },
                 { v: limit, t: '100%' }
             ];
 
