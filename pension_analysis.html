@@ -7,22 +7,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body style="background-color: #f4f7fa;">
-    <header class="main-header">
-        <div class="header-content">
-            <div class="logo-area" onclick="location.href='index.html'">
-                <span class="logo-icon">📊</span>
-                <span class="logo-text">AI Lotto Engine <small>v10.0</small></span>
+    <header class="sticky-header">
+        <div class="header-inner">
+            <div class="header-top-row">
+                <div class="logo">🍀 AI LOTTO LAB</div>
+                <div class="nav-links">
+                    <div class="site-switcher">
+                        <a href="index.html" class="switcher-btn lotto">🍀 로또 6/45</a>
+                        <a href="pension_main.html" class="switcher-btn pension active">🎟️ 연금 720+</a>
+                    </div>
+                    <a href="pension_main.html" class="nav-btn small">🔮 AI 분석</a>
+                    <a href="pension_combination.html" class="nav-btn small">🎯 조합분석</a>
+                    <a href="history.html" class="nav-btn small">📋 히스토리</a>
+                    <a href="pension_analysis.html" class="nav-btn small active">📊 빅데이터</a>
+                    <a href="pension_guide.html" class="nav-btn small">📖 가이드</a>
+                </div>
             </div>
-            <nav class="main-nav">
-                <a href="analysis.html">로또 분석</a>
-                <a href="pension_analysis.html" class="active">연금 분석</a>
-                <a href="combination.html">조합 생성</a>
-                <a href="history.html">당첨 히스토리</a>
-            </nav>
         </div>
     </header>
 
-    <main class="analysis-container" style="padding-top: 20px;">
+    <div class="container wide">
+        <main class="analysis-container" style="padding-top: 10px;">
         <div class="analysis-header-v2" style="background: white; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid #edf2f7; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
             <div style="display: flex; align-items: flex-start; gap: 20px;">
                 <div style="background: #3182f6; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; box-shadow: 0 8px 16px rgba(49,130,246,0.3);">📊</div>
@@ -188,6 +193,7 @@
             </div>
         </section>
     </main>
+    </div>
 
     <footer class="main-footer">
         <p>© 2026 AI Lotto Engine. Expert Statistical Analysis Service.</p>
