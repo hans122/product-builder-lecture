@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var nextRecNums = records[idx+1].nums; // 최신순 배열이므로 다음 인덱스가 미래 데이터임
                     var dyn = PensionUtils.analyzeDynamics(nextRecNums, nums);
                     inc(stats.carryPosFreq, dyn.carry);
+                    inc(stats.carryNumFreq, dyn.carryGlobal); // [FIX] 전역 숫자 이월 추가
                     inc(stats.neighborFreq, dyn.neighbor);
                 }
             }
@@ -123,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ['occurrence-dist-chart', stats.occurrenceFreq, '개 포함'],
                 ['unique-dist-chart', stats.uniqueFreq, '종류'],
                 ['carry-pos-chart', stats.carryPosFreq, '개 이월'],
+                ['carry-num-chart', stats.carryNumFreq, '개 이월'], // [FIX] 숫자 이월 차트 추가
                 ['neighbor-dist-chart', stats.neighborFreq, '개 이웃'],
                 ['odd-dist-chart', stats.oddFreq, '개 홀수'],
                 ['low-dist-chart', stats.lowFreq, '개 저번호'],

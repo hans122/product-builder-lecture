@@ -102,11 +102,28 @@ var PensionUtils = {
         return { odd: odd, low: low, prime: prime, sum: sum };
     },
     analyzeDynamics: function(current, previous) {
-        var res = { carry: 0, neighbor: 0 };
+        var res = { carry: 0, neighbor: 0, carryGlobal: 0 };
         if (!previous) return res;
+        
+        var prevCount = {};
         for (var i = 0; i < 6; i++) {
+            // 자리 이월 (Exact)
             if (current[i] === previous[i]) res.carry++;
+            // 이웃수
             else if (Math.abs(current[i] - previous[i]) === 1) res.neighbor++;
+            
+            // 전역 숫자 카운트 (자리 무관 이월 분석용)
+            prevCount[previous[i]] = (prevCount[previous[i]] || 0) + 1;
+        }
+
+        // 숫자 이월 (Global): 현재 번호 중 이전 번호 풀에 포함된 개수
+        var currCount = {};
+        for (var j = 0; j < 6; j++) {
+            var n = current[j];
+            if (prevCount[n] > 0) {
+                res.carryGlobal++;
+                prevCount[n]--; // 중복 이월 방지
+            }
         }
         return res;
     },
