@@ -303,29 +303,57 @@ var LottoUI = {
             curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
             svg.appendChild(curve);
 
-            // [FIX] X축 라벨 및 보조선 추가 (10 단위)
-            var labelStep = 10;
-            for (var lVal = 0; lVal <= limit; lVal += labelStep) {
+            // [FIX] X축 라벨 및 보조선 추가 (통계적 기준점 중심)
+            var statsMarkers = [
+                { v: 0, t: '최소' },
+                { v: mu - 2 * sd, t: '세이프' },
+                { v: mu - sd, t: '최적' },
+                { v: mu, t: '평균' },
+                { v: mu + sd, t: '최적' },
+                { v: mu + 2 * sd, t: '세이프' },
+                { v: limit, t: '최대' }
+            ];
+
+            for (var mIdx = 0; mIdx < statsMarkers.length; mIdx++) {
+                var marker = statsMarkers[mIdx];
+                var lVal = Math.max(0, Math.min(limit, Math.round(marker.v)));
                 var lIdx = -1;
+                var minDist = 999;
+
                 for (var k = 0; k < points.length; k++) {
                     var pV = parseFloat(points[k].label.split(/[ :\-]/)[0]);
-                    if (!isNaN(pV) && pV >= lVal) { lIdx = k; break; }
+                    if (!isNaN(pV)) {
+                        var dist = Math.abs(pV - lVal);
+                        if (dist < minDist) { minDist = dist; lIdx = k; }
+                    }
                 }
+
                 if (lIdx !== -1) {
                     var lp = points[lIdx];
                     // 보조선 (Tick)
                     var gridLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
                     gridLine.setAttribute("x1", lp.x); gridLine.setAttribute("y1", baselineY);
                     gridLine.setAttribute("x2", lp.x); gridLine.setAttribute("y2", baselineY + 5);
-                    gridLine.setAttribute("stroke", "#cbd5e1"); gridLine.setAttribute("stroke-width", "1");
+                    gridLine.setAttribute("stroke", marker.t === '평균' ? "#3182f6" : "#cbd5e1");
+                    gridLine.setAttribute("stroke-width", marker.t === '평균' ? "2" : "1");
                     svg.appendChild(gridLine);
 
-                    // 텍스트 라벨 (수치)
+                    // 텍스트 라벨 (통계 명칭)
                     var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
                     txt.setAttribute("x", lp.x); txt.setAttribute("y", baselineY + 20);
                     txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", "10px");
-                    txt.setAttribute("fill", "#64748b"); txt.textContent = lVal;
+                    txt.setAttribute("font-weight", marker.t === '평균' ? "bold" : "normal");
+                    txt.setAttribute("fill", marker.t === '평균' ? "#3182f6" : "#64748b");
+                    txt.textContent = marker.t;
                     svg.appendChild(txt);
+
+                    // 수치 라벨 (작은 글씨로 하단에 병기)
+                    var valTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    valTxt.setAttribute("x", lp.x); valTxt.setAttribute("y", baselineY + 32);
+                    valTxt.setAttribute("text-anchor", "middle"); valTxt.setAttribute("font-size", "8px");
+                    valTxt.setAttribute("fill", "#94a3b8");
+                    valTxt.textContent = "(" + lVal + ")";
+                    svg.appendChild(valTxt);
                 }
             }
 
