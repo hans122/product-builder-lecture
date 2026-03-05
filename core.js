@@ -302,6 +302,33 @@ var LottoUI = {
             var curve = document.createElementNS("http://www.w3.org/2000/svg", "path");
             curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
             svg.appendChild(curve);
+
+            // [FIX] X축 라벨 및 보조선 추가 (10 단위)
+            var labelStep = 10;
+            for (var lVal = 0; lVal <= limit; lVal += labelStep) {
+                var lIdx = -1;
+                for (var k = 0; k < points.length; k++) {
+                    var pV = parseFloat(points[k].label.split(/[ :\-]/)[0]);
+                    if (!isNaN(pV) && pV >= lVal) { lIdx = k; break; }
+                }
+                if (lIdx !== -1) {
+                    var lp = points[lIdx];
+                    // 보조선 (Tick)
+                    var gridLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    gridLine.setAttribute("x1", lp.x); gridLine.setAttribute("y1", baselineY);
+                    gridLine.setAttribute("x2", lp.x); gridLine.setAttribute("y2", baselineY + 5);
+                    gridLine.setAttribute("stroke", "#cbd5e1"); gridLine.setAttribute("stroke-width", "1");
+                    svg.appendChild(gridLine);
+
+                    // 텍스트 라벨 (수치)
+                    var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    txt.setAttribute("x", lp.x); txt.setAttribute("y", baselineY + 20);
+                    txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", "10px");
+                    txt.setAttribute("fill", "#64748b"); txt.textContent = lVal;
+                    svg.appendChild(txt);
+                }
+            }
+
             container.appendChild(svg);
         } catch (e) { container.innerHTML = '<p style="text-align:center; padding: 20px; font-size:0.8rem; color:#999;">데이터 부족</p>'; }
     },
@@ -328,10 +355,10 @@ var LottoUI = {
         for (var j = 0; j < keys.length; j++) {
             var key = keys[j]; var f = freqData[key] || 0; var h = Math.max(4, (f / max) * 100);
             var label = (key === 0 || (key === 1 && containerId === 'repeat-dist-chart')) ? '없음' : key + unitLabel;
-            html += '<div style="flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin: 0 2px;">' +
-                    '<span style="font-size: 0.6rem; color: #94a3b8;">' + f + '</span>' +
-                    '<div style="width: 100%; height: ' + h + '%; background: ' + color + '; border-radius: 3px; opacity: ' + (0.4 + (h/150)) + ';"></div>' +
-                    '<span style="font-size: 0.65rem; font-weight: bold; color: #475569; margin-top: 4px; white-space: nowrap;">' + label + '</span>' +
+            html += '<div style="flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin: 0 1px;">' +
+                    '<span style="font-size: 0.55rem; color: #94a3b8; margin-bottom: 2px;">' + f + '</span>' +
+                    '<div style="width: 80%; height: ' + h + '%; background: ' + color + '; border-radius: 2px; opacity: ' + (0.4 + (h/150)) + ';"></div>' +
+                    '<span style="font-size: 0.6rem; font-weight: 700; color: #475569; margin-top: 5px; white-space: nowrap; transform: scale(0.9);">' + label + '</span>' +
                     '</div>';
         }
         html += '</div>'; container.innerHTML = html;

@@ -107,15 +107,15 @@ document.addEventListener('DOMContentLoaded', function() {
             var pSumDistObj = {};
             for (var s = 0; s <= 54; s++) { pSumDistObj[s] = stats.sumFreq[s] || 0; }
             
-            // 최근 10회차 데이터에 p_sum 속성 주입 (renderMiniTable 호환용)
-            var recent10 = records.slice(0, 10).map(function(r) {
+            // 최근 5회차 데이터에 p_sum 속성 주입 (renderMiniTable 호환용)
+            var recent5 = records.slice(0, 5).map(function(r) {
                 var copy = { no: r.drawNo, nums: r.nums };
                 copy.p_sum = r.nums.reduce(function(a,b){return a+b;}, 0);
                 return copy;
             });
 
             LottoUI.createCurveChart('sum-dist-chart', pSumDistObj, '', pSumStat, pSumCfg);
-            LottoUI.renderMiniTable('p-sum-mini-body', recent10, pSumCfg);
+            LottoUI.renderMiniTable('p-sum-mini-body', recent5, pSumCfg);
 
             var cm = [
                 ['sequence-dist-chart', stats.seqFreq, '개 연속'],
