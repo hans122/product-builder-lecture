@@ -332,8 +332,9 @@ var LottoUI = {
                 { v: limit, t: '100%', p: 1 }
             ];
 
-            // 렌더링할 마커들을 x좌표 순으로 정렬
+            // 렌더링할 마커들을 x좌표 순으로 정렬 및 중복 좌표 제거
             var markersToDraw = [];
+            var usedX = {};
             for (var mIdx = 0; mIdx < statsMarkers.length; mIdx++) {
                 var marker = statsMarkers[mIdx];
                 var lVal = Math.max(0, Math.min(limit, Math.round(marker.v)));
@@ -346,45 +347,72 @@ var LottoUI = {
                     }
                 }
                 if (lIdx !== -1) {
-                    markersToDraw.push({ x: points[lIdx].x, val: lVal, text: marker.t, priority: marker.p });
+                    var targetX = Math.round(points[lIdx].x);
+                    // 같은 x좌표에 이미 마커가 있다면 우선순위 비교
+                    var existing = null;
+                    for (var e = 0; e < markersToDraw.length; e++) {
+                        if (markersToDraw[e].x === targetX) { existing = markersToDraw[e]; break; }
+                    }
+
+                    if (existing) {
+                        if (marker.p > existing.priority) {
+                            existing.val = lVal; existing.text = marker.t; existing.priority = marker.p;
+                        }
+                    } else {
+                        markersToDraw.push({ x: targetX, val: lVal, text: marker.t, priority: marker.p });
+                    }
                 }
             }
 
-            // x좌표 순 정렬 후 겹침 방지 필터링 (최소 간격 45px)
+            // x좌표 순 정렬 후 물리적 겹침 방지 필터링 (최소 간격 45px)
             markersToDraw.sort(function(a, b) { return a.x - b.x; });
-            var lastX = -999;
+            
+            var finalMarkers = [];
             for (var dIdx = 0; dIdx < markersToDraw.length; dIdx++) {
                 var m = markersToDraw[dIdx];
-                // 너무 가까우면 건너뜀 (단, 우선순위가 높은 '평균' 등은 예외 처리 로직을 위해 체크 가능)
-                if (m.x - lastX < 45 && m.priority < 5) continue; 
-                
-                lastX = m.x;
-                var isAvg = m.text === '50%';
+                var tooClose = false;
+                for (var f = 0; f < finalMarkers.length; f++) {
+                    if (Math.abs(m.x - finalMarkers[f].x) < 45) {
+                        // 겹칠 경우: 현재 마커가 우선순위가 낮으면 포기, 높으면 기존 것 제거 (단, 단순화를 위해 여기서는 순차 처리)
+                        if (m.priority <= finalMarkers[f].priority) { tooClose = true; break; }
+                        else { 
+                            // 기존 것이 우선순위가 낮으면 제거하고 현재 것 추가
+                            finalMarkers.splice(f, 1);
+                            f--;
+                        }
+                    }
+                }
+                if (!tooClose) finalMarkers.push(m);
+            }
+
+            for (var fIdx = 0; fIdx < finalMarkers.length; fIdx++) {
+                var fm = finalMarkers[fIdx];
+                var isAvg = fm.text === '50%';
 
                 // 보조선 (Tick)
                 var gridLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                gridLine.setAttribute("x1", m.x); gridLine.setAttribute("y1", baselineY);
-                gridLine.setAttribute("x2", m.x); gridLine.setAttribute("y2", baselineY + 5);
+                gridLine.setAttribute("x1", fm.x); gridLine.setAttribute("y1", baselineY);
+                gridLine.setAttribute("x2", fm.x); gridLine.setAttribute("y2", baselineY + 5);
                 gridLine.setAttribute("stroke", isAvg ? "#3182f6" : "#cbd5e1");
                 gridLine.setAttribute("stroke-width", isAvg ? "2" : "1");
                 svg.appendChild(gridLine);
 
                 // 텍스트 라벨 (통계 명칭)
                 var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                txt.setAttribute("x", m.x); txt.setAttribute("y", baselineY + 20);
+                txt.setAttribute("x", fm.x); txt.setAttribute("y", baselineY + 20);
                 txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", isAvg ? "11px" : "10px");
                 txt.setAttribute("font-weight", isAvg ? "800" : "600");
                 txt.setAttribute("fill", isAvg ? "#3182f6" : "#64748b");
-                txt.textContent = m.text;
+                txt.textContent = fm.text;
                 svg.appendChild(txt);
 
                 // 수치 라벨 (하단에 병기)
                 var valTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                valTxt.setAttribute("x", m.x); valTxt.setAttribute("y", baselineY + 34);
+                valTxt.setAttribute("x", fm.x); valTxt.setAttribute("y", baselineY + 34);
                 valTxt.setAttribute("text-anchor", "middle"); valTxt.setAttribute("font-size", isAvg ? "10px" : "9px");
                 valTxt.setAttribute("font-weight", isAvg ? "700" : "500");
                 valTxt.setAttribute("fill", isAvg ? "#3182f6" : "#94a3b8");
-                valTxt.textContent = "(" + m.val + ")";
+                valTxt.textContent = "(" + fm.val + ")";
                 svg.appendChild(valTxt);
             }
 
