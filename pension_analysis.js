@@ -78,8 +78,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            renderPositionFreq(stats.posFreq);
-            LottoUI.renderGapChart('digit-gap-container', stats.digitGap);
+            // [P9/P10] 역방향 우선 렌더링을 위한 데이터 가공
+            var reversePosFreq = [];
+            var reverseDigitGap = [];
+            for (var rIdx = 5; rIdx >= 0; rIdx--) {
+                reversePosFreq.push(stats.posFreq[rIdx]);
+                reverseDigitGap.push(stats.digitGap[rIdx]);
+            }
+
+            renderPositionFreq(reversePosFreq);
+            // LottoUI.renderGapChart는 내부적으로 0~5 인덱스를 사용하므로 뒤집힌 데이터를 전달
+            renderReverseGapChart('digit-gap-container', reverseDigitGap);
+            renderFlowTimeline(records.slice(0, 15)); // [P13] 최근 15회차 타임라인
             
             var cm = [
                 ['sequence-dist-chart', stats.seqFreq, '개 연속'],
@@ -112,7 +122,7 @@ function inc(obj, key) { obj[key] = (obj[key] || 0) + 1; }
 function renderPositionFreq(posFreq) {
     var container = document.getElementById('pos-freq-container');
     if (!container) return;
-    var labels = ['십만', '만', '천', '백', '십', '일'];
+    var labels = ['일', '십', '백', '천', '만', '십만']; // [P9] 역방향 라벨
     var html = '';
     for (var i = 0; i < 6; i++) {
         var freq = posFreq[i];
@@ -125,15 +135,40 @@ function renderPositionFreq(posFreq) {
             var f = freq[val];
             var h = (f / max) * 100;
             var bH = f > 0 ? (h < 4 ? 4 : h) : 2;
+            var isMax = f === max && f > 0;
             bars += '<div style="flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">' +
-                    '<div class="pos-bar ' + (f===max?'active':'') + '" style="height: ' + bH + '%; width: 80%; max-width: 12px;"></div>' +
-                    '<span class="pos-label" style="margin-top: 5px; font-size: 0.6rem;">' + val + '</span></div>';
+                    '<div class="pos-bar ' + (isMax?'active':'') + '" style="height: ' + bH + '%; width: 80%; max-width: 12px; background:' + (i===0?'#3182f6':'#94a3b8') + ';"></div>' +
+                    '<span class="pos-label" style="margin-top: 5px; font-size: 0.6rem; font-weight:' + (isMax?'900':'normal') + ';">' + val + '</span></div>';
         }
-        html += '<div class="pos-chart-box" style="padding: 12px 8px;"><h4>' + labels[i] + '</h4><div class="pos-bar-container" style="height: 80px; display: flex; align-items: flex-end; justify-content: space-around;">' + bars + '</div></div>';
+        var specialStyle = i === 0 ? 'border: 2px solid #3182f6; background: #f0f7ff;' : ''; // 1의 자리 강조
+        html += '<div class="pos-chart-box" style="padding: 12px 8px; ' + specialStyle + '"><h4>' + labels[i] + ' 단위</h4><div class="pos-bar-container" style="height: 80px; display: flex; align-items: flex-end; justify-content: space-around;">' + bars + '</div></div>';
     }
     container.innerHTML = html;
 }
 
+// [P10] 역방향 미출현 주기 차트 렌더러
+function renderReverseGapChart(containerId, gapData) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    var html = '<div class="gap-chart-grid" style="display:grid; grid-template-columns: repeat(11, 1fr); gap: 2px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">';
+    html += '<div style="background:#f1f5f9; font-size:0.6rem; font-weight:900; color:#475569; display:flex; align-items:center; justify-content:center;">단위</div>';
+    for (var h = 0; h <= 9; h++) html += '<div style="text-align:center; font-size:0.6rem; font-weight:bold; background:#f1f5f9; padding:8px 0; color:#475569;">' + h + '</div>';
+    
+    var labels = ['일', '십', '백', '천', '만', '십만'];
+    for (var i = 0; i < 6; i++) {
+        var isPrimary = i === 0; // 1의 자리 강조
+        html += '<div style="font-size:0.65rem; font-weight:bold; color:' + (isPrimary?'#3182f6':'#64748b') + '; display:flex; align-items:center; justify-content:center; background:' + (isPrimary?'#f0f7ff':'#f8fafc') + '; border-right: 1px solid #e2e8f0;">' + labels[i] + '</div>';
+        for (var n = 0; n <= 9; n++) {
+            var gap = gapData[i][n];
+            var color = gap > 20 ? '#f04452' : (gap > 10 ? '#ff9500' : (gap === 0 ? '#3182f6' : '#94a3b8'));
+            var opacity = gap === 0 ? 1 : Math.min(0.8, 0.2 + (gap / 40));
+            var borderStyle = (isPrimary && gap === 0) ? 'box-shadow: inset 0 0 0 2px #3182f6;' : '';
+            html += '<div style="text-align:center; padding:10px 0; font-size:0.75rem; font-weight:900; color:white; background:' + color + '; opacity:' + opacity + '; ' + borderStyle + '">' + gap + '</div>';
+        }
+    }
+    html += '</div>';
+    container.innerHTML = html;
+}
 function renderGroupDist(groupFreq) {
     var container = document.getElementById('group-dist-chart');
     if (!container) return;
@@ -169,5 +204,58 @@ function renderSumDist(sumFreq) {
         html += '<div style="flex: 1; height: ' + (f > 0 ? (h < 2 ? 2 : h) : 0) + '%; background: ' + (f>0?'#ff8c00':'#cbd5e1') + '; border-radius: 1px; margin: 0 0.5px;"></div>';
     }
     html += '</div><div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #94a3b8; margin-top: 5px;"><span>합계 0</span><span>중간 27</span><span>최대 54</span></div>';
+    container.innerHTML = html;
+}
+
+// [P13] 당첨 번호 흐름 타임라인 렌더러
+function renderFlowTimeline(recent15) {
+    var container = document.getElementById('pension-flow-timeline-container');
+    if (!container || !recent15 || recent15.length === 0) return;
+
+    var html = '<table style="width:100%; border-collapse:collapse; min-width:600px; table-layout:fixed;">';
+    html += '<thead><tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0;">' +
+            '<th style="padding:10px; font-size:0.75rem; color:#475569; width:80px;">회차</th>' +
+            '<th style="padding:10px; font-size:0.75rem; color:#475569; width:60px;">조</th>' +
+            '<th style="padding:10px; font-size:0.75rem; color:#3182f6; font-weight:900;">일</th>' +
+            '<th style="padding:10px; font-size:0.75rem; color:#64748b;">십</th>' +
+            '<th style="padding:10px; font-size:0.75rem; color:#64748b;">백</th>' +
+            '<th style="padding:10px; font-size:0.75rem; color:#64748b;">천</th>' +
+            '<th style="padding:10px; font-size:0.75rem; color:#64748b;">만</th>' +
+            '<th style="padding:10px; font-size:0.75rem; color:#64748b;">십만</th>' +
+            '</tr></thead><tbody>';
+
+    for (var i = 0; i < recent15.length; i++) {
+        var draw = recent15[i];
+        var prevDraw = recent15[i+1]; // 이전 회차 (배열이 최신순이므로 i+1)
+        
+        html += '<tr style="border-bottom:1px solid #f1f5f9; ' + (i===0?'background:#f0f7ff;':'') + '">';
+        html += '<td style="padding:12px; text-align:center; font-size:0.75rem; font-weight:700;">' + draw.drawNo + '회</td>';
+        html += '<td style="padding:12px; text-align:center;"><div class="pension-ball group mini" style="width:24px; height:24px; font-size:0.75rem;">' + draw.group + '</div></td>';
+        
+        // 역방향 (5 -> 0) 렌더링
+        for (var p = 5; p >= 0; p--) {
+            var val = draw.nums[p];
+            var style = 'display:flex; justify-content:center; align-items:center;';
+            var ballStyle = 'width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:800; border:1px solid #e2e8f0; background:white;';
+            var marker = '';
+
+            if (prevDraw) {
+                var prevVal = prevDraw.nums[p];
+                if (val === prevVal) {
+                    ballStyle = 'width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:900; border:2px solid #3182f6; background:#f0f7ff; color:#3182f6;';
+                    marker = '<span style="position:absolute; top:2px; right:5px; font-size:0.5rem; color:#3182f6;">●</span>';
+                } else if (Math.abs(val - prevVal) === 1) {
+                    ballStyle = 'width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:900; border:2px solid #ff9500; background:#fffaf0; color:#ff9500;';
+                    marker = '<span style="position:absolute; top:2px; right:5px; font-size:0.5rem; color:#ff9500;">○</span>';
+                }
+            }
+            
+            html += '<td style="padding:8px; text-align:center; position:relative;">' +
+                    '<div style="' + style + '"><div style="' + ballStyle + '">' + val + '</div>' + marker + '</div></td>';
+        }
+        html += '</tr>';
+    }
+    
+    html += '</tbody></table>';
     container.innerHTML = html;
 }
