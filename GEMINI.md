@@ -2,7 +2,7 @@
 
 ## [MANDATORY RULES]
 1. **Document-First Workflow**: 모든 작업(구현, 수정, 리팩토링) 시작 전, 반드시 `PRD.md`, `SDD.md`, `DATA_SCHEMA.md`를 전수 읽기하여 현재 요청의 맥락과 기술 표준을 내재화한다.
-2. **Unified Classification (G1~G6)**: 모든 UI 및 데이터 표시는 `DATA_SCHEMA.md`에 정의된 5대 표준 분류 및 G6 고급 지표 순서와 항목명을 절대적 기준으로 삼는다.
+2. **Modern Vanilla JS (ES6+)**: 모든 스크립트는 ES6+ 표준(`const`, `let`, `=>`, Template Literals)을 준수하여 가독성과 안전성을 극대화한다. 빌드 도구 없이 브라우저에서 직접 실행 가능한 수준을 유지한다.
 3. **Core-Centric Development (LottoCore)**: 공통 로직, 유틸리티, UI 렌더링은 반드시 `core.js`를 거쳐야 하며, 각 페이지 스크립트에서의 중복 정의를 금지한다.
 4. **Data-Driven Automation (Master Mapping)**: 모든 데이터 키값 및 JS ID는 `DATA_SCHEMA.md`의 마스터 매핑 테이블을 절대적 기준으로 삼는다.
 5. **Architectural Conformity**: 문서에 정의된 설계 철학(Sticky Columns, Slanted Header, SSOT 등)과 충돌하는 독자적 구현을 금지하며, 변경 시 반드시 문서를 동시 업데이트한다.

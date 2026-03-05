@@ -1,6 +1,6 @@
 /**
- * Pension Analysis Engine v2.5 (High Performance & Premium UI)
- * No template literals, no let/const, no arrow functions
+ * Pension Analysis Engine v2.6 (Modern ES6+ Engine)
+ * - Using const, let, Template Literals for Safety
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -184,52 +184,51 @@ function inc(obj, key) { obj[key] = (obj[key] || 0) + 1; }
 
 // [P9] 역방향 자리수별 출현 빈도 카드 렌더러
 function renderPositionFreq(posFreq) {
-    var container = document.getElementById('pos-freq-container');
+    const container = document.getElementById('pos-freq-container');
     if (!container) return;
     container.innerHTML = '';
     
-    var labels = ['일의 자리', '십의 자리', '백의 자리', '천의 자리', '만의 자리', '십만의 자리'];
-    var icons = ['➊', '➋', '➌', '➍', '➎', '➏'];
+    const labels = ['일의 자리', '십의 자리', '백의 자리', '천의 자리', '만의 자리', '십만의 자리'];
+    const icons = ['➊', '➋', '➌', '➍', '➎', '➏'];
 
-    for (var i = 0; i < posFreq.length; i++) {
-        var freq = posFreq[i];
-        var maxFreq = 0;
-        for (var n = 0; n <= 9; n++) { if (freq[n] > maxFreq) maxFreq = freq[n]; }
+    posFreq.forEach((freq, i) => {
+        let maxFreq = 0;
+        for (let n = 0; n <= 9; n++) { if (freq[n] > maxFreq) maxFreq = freq[n]; }
 
-        var card = document.createElement('div');
+        const card = document.createElement('div');
         card.className = 'analysis-card';
-        card.style.margin = '0';
-        card.style.background = '#ffffff';
-        card.style.borderRadius = '12px';
-        card.style.border = '1px solid #edf2f7';
-        card.style.boxShadow = '0 2px 10px rgba(0,0,0,0.02)';
+        card.style.cssText = `margin: 0; background: #ffffff; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 2px 10px rgba(0,0,0,0.02);`;
 
-        var html = '<div class="card-header" style="padding: 12px 15px; background: #f8fafc; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between;">' +
-                   '<div style="display: flex; align-items: center; gap: 8px;">' +
-                   '<span style="font-size: 1.1rem; color: #3182f6; font-weight: 800;">' + icons[i] + '</span>' +
-                   '<h3 style="margin:0; font-size: 0.9rem; font-weight: 800; color: #334155;">' + labels[i] + '</h3>' +
-                   '</div>' +
-                   '<span style="font-size: 0.65rem; color: #94a3b8; font-weight: 600;">0-9 빈도</span>' +
-                   '</div>';
-
-        html += '<div style="padding: 15px; display: flex; flex-direction: column; gap: 6px;">';
-        for (var num = 0; num <= 9; num++) {
-            var f = freq[num];
-            var ratio = maxFreq > 0 ? (f / maxFreq) * 100 : 0;
-            var isHot = f === maxFreq && f > 0;
+        let rowsHtml = '';
+        for (let num = 0; num <= 9; num++) {
+            const f = freq[num];
+            const ratio = maxFreq > 0 ? (f / maxFreq) * 100 : 0;
+            const isHot = f === maxFreq && f > 0;
             
-            html += '<div style="display: flex; align-items: center; gap: 10px;">' +
-                    '<span style="width: 12px; font-size: 0.75rem; font-weight: 800; color: ' + (isHot ? '#3182f6' : '#64748b') + ';">' + num + '</span>' +
-                    '<div style="flex: 1; height: 10px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">' +
-                    '<div style="width: ' + ratio + '%; height: 100%; background: ' + (isHot ? '#3182f6' : '#cbd5e1') + '; border-radius: 4px;"></div>' +
-                    '</div>' +
-                    '<span style="width: 18px; text-align: right; font-size: 0.65rem; font-weight: 700; color: #94a3b8;">' + f + '</span>' +
-                    '</div>';
+            rowsHtml += `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 12px; font-size: 0.75rem; font-weight: 800; color: ${isHot ? '#3182f6' : '#64748b'};">${num}</span>
+                    <div style="flex: 1; height: 10px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${ratio}%; height: 100%; background: ${isHot ? '#3182f6' : '#cbd5e1'}; border-radius: 4px;"></div>
+                    </div>
+                    <span style="width: 18px; text-align: right; font-size: 0.65rem; font-weight: 700; color: #94a3b8;">${f}</span>
+                </div>`;
         }
-        html += '</div>';
-        card.innerHTML = html;
+
+        card.innerHTML = `
+            <div class="card-header" style="padding: 12px 15px; background: #f8fafc; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.1rem; color: #3182f6; font-weight: 800;">${icons[i]}</span>
+                    <h3 style="margin:0; font-size: 0.9rem; font-weight: 800; color: #334155;">${labels[i]}</h3>
+                </div>
+                <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 600;">0-9 빈도</span>
+            </div>
+            <div style="padding: 15px; display: flex; flex-direction: column; gap: 6px;">
+                ${rowsHtml}
+            </div>`;
+        
         container.appendChild(card);
-    }
+    });
 }
 
 function renderReverseGapChart(containerId, gapData) {
