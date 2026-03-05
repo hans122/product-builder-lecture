@@ -102,24 +102,24 @@
 
         <!-- 3. AI 엄선 추천 조합 -->
         <section class="analysis-card recommendation-card">
-            <div class="card-header" style="justify-content: space-between;">
+            <div class="card-header" style="justify-content: space-between; flex-wrap: wrap; gap: 15px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span class="icon">✨</span>
-                    <h3>AI 실전 압축 조합 (Top 10)</h3>
+                    <h3 id="recommendation-title">AI 실전 압축 조합 (Top 10)</h3>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 0.75rem; color: #64748b; font-weight: bold;">첫 수(Anchor) 선택:</span>
-                    <select id="lotto-anchor-select" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.8rem; font-weight: bold; color: #3182f6;">
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: bold;">첫 수(Anchor):</span>
+                    <select id="lotto-anchor-select" style="padding: 5px 10px; border-radius: 8px; border: 2px solid #3182f6; font-size: 0.85rem; font-weight: 800; color: #3182f6; background: white; outline: none;">
                         <option value="0">자동 추천</option>
-                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-                        <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
-                        <option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option>
+                        <option value="1">1번</option><option value="2">2번</option><option value="3">3번</option><option value="4">4번</option><option value="5">5번</option>
+                        <option value="6">6번</option><option value="7">7번</option><option value="8">8번</option><option value="9">9번</option><option value="10">10번</option>
+                        <option value="11">11번</option><option value="12">12번</option><option value="13">13번</option><option value="14">14번</option><option value="15">15번</option>
                     </select>
-                    <button id="refresh-recommendations-btn" class="nav-btn small" style="background: var(--primary-blue-soft); color: var(--primary-blue); font-weight: bold; border: none; cursor: pointer;">🔄 조합 새로고침</button>
+                    <button id="refresh-recommendations-btn" class="nav-btn small" style="background: #3182f6; color: white; font-weight: bold; border: none; cursor: pointer; padding: 6px 12px; border-radius: 8px;">🔄 조합 새로고침</button>
                 </div>
             </div>
-            <div class="recommendation-grid" id="ai-combinations-container" style="display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(2, auto); gap: 12px; overflow-x: visible;">
-                <div class="placeholder-text" style="grid-column: 1/-1;">지능형 연산 중...</div>
+            <div class="recommendation-grid" id="ai-combinations-container" style="display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 15px; padding: 25px 20px;">
+                <div class="placeholder-text" style="grid-column: 1/-1; padding: 50px;">지능형 연산 시스템 가동 중...</div>
             </div>
         </section>
 

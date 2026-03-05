@@ -149,64 +149,66 @@ function renderRecommendations(bestPicks) {
         { label: "🔥 기세 추종형", desc: "다출현 가중" },
         { label: "🔄 이월 시너지", desc: "직전 연계형" },
         { label: "⚖️ 수치 균형형", desc: "합계 중앙값" },
-        { label: "🛡️ 데이터 방어형", desc: "안정적 패턴" }
+        { label: "🛡️ 데이터 방어형", desc: "안정적 패턴" },
+        { label: "🚀 잭팟 마스터", desc: "역대 당첨 재현" },
+        { label: "🏠 이웃수 연계", desc: "인접수 가중" },
+        { label: "🔢 수적 속성형", desc: "소수/합성수비" },
+        { label: "🌊 평균 회귀형", desc: "미출현 반등" },
+        { label: "✨ 프리미엄 픽", desc: "AI 고득점형" }
     ];
 
-    // [Immortal Engine] 고득점 조합 필터링 (최소 85점)
-    while (combos.length < 5 && attempts < 2000) {
+    // [Immortal Engine] 고득점 조합 필터링 (최소 80점)
+    while (combos.length < 10 && attempts < 3000) {
         attempts++;
         var group = Math.floor(Math.random() * 5) + 1;
         var nums = [];
         for (var i = 0; i < 6; i++) {
-            // 각 자리의 Top 3에서 70%, 나머지에서 30% 확률로 추출하여 유연성 확보
-            if (Math.random() < 0.7) nums.push(bestPicks[i][Math.floor(Math.random() * 3)]);
+            if (Math.random() < 0.75) nums.push(bestPicks[i][Math.floor(Math.random() * 3)]);
             else nums.push(Math.floor(Math.random() * 10));
         }
 
-        // 통계 검증 실행
         var b = PensionUtils.analyzeBalance(nums);
         var p = PensionUtils.analyzePatterns(nums);
         var s = PensionUtils.analyzeStructure(nums);
         
-        // 점수 계산 (85점 이상만 통과)
         var score = 100;
-        if (b.sum < 20 || b.sum > 35) score -= 20;
-        if (p.maxOccur >= 3) score -= 30; // 중복 숫자 과다 시 강력 감점 (사용자 지적 사항 반영)
+        if (b.sum < 15 || b.sum > 40) score -= 25;
+        if (p.maxOccur >= 3) score -= 25;
         if (p.seq >= 3) score -= 15;
-        if (s.symmetry || s.step) score -= 10;
+        if (s.symmetry || s.step) score -= 5;
 
-        if (score >= 85) {
+        if (score >= 80) {
             var key = group + ":" + nums.join('');
             var isDup = false;
             for(var j=0; j<combos.length; j++) { if(combos[j].key === key) isDup = true; }
             if (!isDup) combos.push({ group: group, nums: nums, sum: b.sum, score: score, key: key });
         }
     }
-var html = '';
-for (var k = 0; k < combos.length; k++) {
-    var c = combos[k];
-    html += '<div class="p-combo-card" style="flex: 1; min-width: 180px; margin: 5px; padding: 15px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; flex-direction: column; align-items: center;">';
-    html += '<span class="p-combo-rank" style="font-size: 0.65rem; background: #fff4e6; color: #ff8c00; padding: 2px 8px; border-radius: 10px; font-weight: 800; margin-bottom: 10px;">' + strategies[k].label + '</span>';
+    
+    var html = '';
+    for (var k = 0; k < combos.length; k++) {
+        var c = combos[k];
+        var st = strategies[k] || { label: "AI 특별 조합" };
+        html += '<div class="p-combo-card" style="width: calc(20% - 15px); min-width: 170px; margin: 5px; padding: 15px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; flex-direction: column; align-items: center; transition: transform 0.2s;">';
+        html += '<span style="font-size: 0.65rem; background: #fff4e6; color: #ff8c00; padding: 2px 8px; border-radius: 10px; font-weight: 800; margin-bottom: 10px;">' + st.label + '</span>';
 
-    // 조 섹션
-    var ballHtml = '<div style="display: flex; flex-direction: column; align-items: center; padding-right: 8px; border-right: 1px solid #f1f5f9; margin-right: 8px;">' +
-                   '<span style="font-size: 0.5rem; color: #94a3b8; font-weight: bold; margin-bottom: 3px;">조</span>' +
-                   '<div class="pension-ball group small" style="width:28px; height:28px; font-size:0.9rem; background: #ff8c00; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900;">' + c.group + '</div>' +
-                   '</div>';
+        var ballHtml = '<div style="display: flex; flex-direction: column; align-items: center; padding-right: 8px; border-right: 1px solid #f1f5f9; margin-right: 8px;">' +
+                       '<span style="font-size: 0.5rem; color: #94a3b8; font-weight: bold; margin-bottom: 3px;">조</span>' +
+                       '<div class="pension-ball group small" style="width:28px; height:28px; font-size:0.9rem; background: #ff8c00; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900;">' + c.group + '</div>' +
+                       '</div>';
 
-    // 번호 섹션
-    ballHtml += '<div style="display: flex; gap: 3px;">';
-    for (var m = 0; m < c.nums.length; m++) {
-        ballHtml += '<div style="display: flex; flex-direction: column; align-items: center;">' +
-                    '<span style="font-size: 0.45rem; color: #cbd5e1; font-weight: bold; margin-bottom: 3px;">' + (m+1) + '</span>' +
-                    '<div class="pension-ball small" style="width:24px; height:28px; font-size:0.85rem; background: #f1f5f9; color: #1e293b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 1px solid #e2e8f0;">' + c.nums[m] + '</div>' +
-                    '</div>';
+        ballHtml += '<div style="display: flex; gap: 3px;">';
+        for (var m = 0; m < c.nums.length; m++) {
+            ballHtml += '<div style="display: flex; flex-direction: column; align-items: center;">' +
+                        '<span style="font-size: 0.45rem; color: #cbd5e1; font-weight: bold; margin-bottom: 3px;">' + (m+1) + '</span>' +
+                        '<div class="pension-ball small" style="width:22px; height:22px; font-size:0.8rem; background: #f1f5f9; color: #1e293b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 1px solid #e2e8f0;">' + c.nums[m] + '</div>' +
+                        '</div>';
+        }
+        ballHtml += '</div>';
+
+        html += '<div style="display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">' + ballHtml + '</div>';
+        html += '<div style="font-size: 0.65rem; color: #94a3b8; width: 100%; text-align: center;">신뢰도: <span style="color:#2ecc71; font-weight:bold;">' + c.score + '%</span></div></div>';
     }
-    ballHtml += '</div>';
-
-    html += '<div style="display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">' + ballHtml + '</div>';
-    html += '<div style="font-size: 0.65rem; color: #94a3b8; width: 100%; text-align: center;">신뢰도: <span style="color:#2ecc71; font-weight:bold;">' + c.score + '%</span> | 합계: ' + c.sum + '</div></div>';
-}
-container.innerHTML = html;
+    container.innerHTML = html;
 }
 

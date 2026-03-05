@@ -16,7 +16,7 @@ var LottoUtils = {
         for (var i = 0; i < primes.length; i++) { if (primes[i] === n) return true; }
         return false;
     },
-    isComposite: function(n) { return n > 1 && !this.isPrime(n); },
+    isComposite: function(n) { return n > 1 && !LottoUtils.isPrime(n); },
     calculateAC: function(nums) {
         var diffs = {}; var count = 0;
         for (var i = 0; i < nums.length; i++) {
