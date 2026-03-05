@@ -118,21 +118,41 @@ document.addEventListener('DOMContentLoaded', function() {
             LottoUI.createCurveChart('sum-dist-chart', pSumDistObj, '', pSumStat, pSumCfg);
             LottoUI.renderMiniTable('p-sum-mini-body', recent5, pSumCfg);
 
-            var cm = [
-                ['sequence-dist-chart', stats.seqFreq, '개 연속'],
-                ['repeat-dist-chart', stats.repeatFreq, '회 연속'],
-                ['occurrence-dist-chart', stats.occurrenceFreq, '개 포함'],
-                ['unique-dist-chart', stats.uniqueFreq, '종류'],
-                ['carry-pos-chart', stats.carryPosFreq, '개 이월'],
-                ['carry-num-chart', stats.carryNumFreq, '개 이월'], // [FIX] 숫자 이월 차트 추가
-                ['neighbor-dist-chart', stats.neighborFreq, '개 이웃'],
-                ['odd-dist-chart', stats.oddFreq, '개 홀수'],
-                ['low-dist-chart', stats.lowFreq, '개 저번호'],
-                ['prime-dist-chart', stats.primeFreq, '개 소수']
+            // [FIX] 모든 지표에 대한 통계 수치(Mean, Std) 계산 및 곡선 차트 렌더링
+            var indicators = [
+                { id: 'sequence-dist-chart', data: stats.seqFreq, label: '연속 번호', unit: '개', limit: 6 },
+                { id: 'repeat-dist-chart', data: stats.repeatFreq, label: '직전 중복', unit: '개', limit: 6 },
+                { id: 'occurrence-dist-chart', data: stats.occurrenceFreq, label: '최대 중복', unit: '개', limit: 6 },
+                { id: 'unique-dist-chart', data: stats.uniqueFreq, label: '번호 종류', unit: '종', limit: 6 },
+                { id: 'carry-pos-chart', data: stats.carryPosFreq, label: '자리 이월', unit: '개', limit: 6 },
+                { id: 'carry-num-chart', data: stats.carryNumFreq, label: '숫자 이월', unit: '개', limit: 6 },
+                { id: 'neighbor-dist-chart', data: stats.neighborFreq, label: '이웃수', unit: '개', limit: 6 },
+                { id: 'odd-dist-chart', stats: stats.oddFreq, label: '홀수 개수', unit: '개', limit: 6 },
+                { id: 'low-dist-chart', stats: stats.lowFreq, label: '저번호 개수', unit: '개', limit: 6 },
+                { id: 'prime-dist-chart', stats: stats.primeFreq, label: '소수 개수', unit: '개', limit: 6 }
             ];
 
-            for (var nIdx = 0; nIdx < cm.length; nIdx++) {
-                LottoUI.renderBarChart(cm[nIdx][0], cm[nIdx][1], cm[nIdx][2]);
+            // 수동으로 전달된 데이터 객체(stats.*Freq)를 기반으로 통계 계산 및 렌더링
+            var processChart = function(cfg) {
+                var freq = cfg.data || cfg.stats;
+                var values = [];
+                var sum = 0, count = 0;
+                for (var k in freq) {
+                    var v = parseInt(k);
+                    var f = freq[k];
+                    for (var i = 0; i < f; i++) { values.push(v); sum += v; count++; }
+                }
+                if (count === 0) return;
+                var mean = sum / count;
+                var sqDiffSum = 0;
+                for (var j = 0; j < values.length; j++) { sqDiffSum += Math.pow(values[j] - mean, 2); }
+                var std = Math.sqrt(sqDiffSum / count);
+
+                LottoUI.createCurveChart(cfg.id, freq, cfg.unit, { mean: mean, std: std }, { label: cfg.label, maxLimit: cfg.limit });
+            };
+
+            for (var cIdx = 0; cIdx < indicators.length; cIdx++) {
+                processChart(indicators[cIdx]);
             }
 
             renderGroupDist(stats.groupFreq);
