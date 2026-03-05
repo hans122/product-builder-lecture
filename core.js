@@ -306,63 +306,69 @@ var LottoUI = {
             // [FIX] 정규분포 확률(σ) 기반 백분위(%) 라벨 정밀화
             // μ±2σ = 95.4% (양끝 2.3%), μ±1σ = 68.2% (양끝 15.9%)
             var statsMarkers = [
-                { v: 0, t: '0%' },
-                { v: mu - 2 * sd, t: '2.5%' },
-                { v: mu - sd, t: '16%' },
-                { v: mu, t: '50%' },
-                { v: mu + sd, t: '84%' },
-                { v: mu + 2 * sd, t: '97.5%' },
-                { v: limit, t: '100%' }
+                { v: 0, t: '0%', p: 1 },
+                { v: mu - 2 * sd, t: '2.5%', p: 2 },
+                { v: mu - sd, t: '16%', p: 3 },
+                { v: mu, t: '50%', p: 10 }, // 평균 우선순위 최고
+                { v: mu + sd, t: '84%', p: 3 },
+                { v: mu + 2 * sd, t: '97.5%', p: 2 },
+                { v: limit, t: '100%', p: 1 }
             ];
 
-            // 중복된 위치의 라벨 제거 (반올림 시 같은 위치에 올 수 있음)
-            var renderedVals = {};
+            // 렌더링할 마커들을 x좌표 순으로 정렬
+            var markersToDraw = [];
             for (var mIdx = 0; mIdx < statsMarkers.length; mIdx++) {
                 var marker = statsMarkers[mIdx];
                 var lVal = Math.max(0, Math.min(limit, Math.round(marker.v)));
-                if (renderedVals[lVal]) continue; // 이미 표시된 수치는 건너뜀
-                renderedVals[lVal] = true;
-
-                var lIdx = -1;
-                var minDist = 999;
+                var lIdx = -1; var minDist = 999;
                 for (var k = 0; k < points.length; k++) {
                     var pV = parseFloat(points[k].label.split(/[ :\-]/)[0]);
                     if (!isNaN(pV)) {
-                        var dist = Math.abs(pV - lVal);
-                        if (dist < minDist) { minDist = dist; lIdx = k; }
+                        var d = Math.abs(pV - lVal);
+                        if (d < minDist) { minDist = d; lIdx = k; }
                     }
                 }
-
                 if (lIdx !== -1) {
-                    var lp = points[lIdx];
-                    var isAvg = marker.t === '평균';
-
-                    // 보조선 (Tick)
-                    var gridLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    gridLine.setAttribute("x1", lp.x); gridLine.setAttribute("y1", baselineY);
-                    gridLine.setAttribute("x2", lp.x); gridLine.setAttribute("y2", baselineY + 5);
-                    gridLine.setAttribute("stroke", isAvg ? "#3182f6" : "#cbd5e1");
-                    gridLine.setAttribute("stroke-width", isAvg ? "2" : "1");
-                    svg.appendChild(gridLine);
-
-                    // 텍스트 라벨 (통계 명칭)
-                    var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    txt.setAttribute("x", lp.x); txt.setAttribute("y", baselineY + 20);
-                    txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", isAvg ? "11px" : "10px");
-                    txt.setAttribute("font-weight", isAvg ? "800" : "600");
-                    txt.setAttribute("fill", isAvg ? "#3182f6" : "#64748b");
-                    txt.textContent = marker.t;
-                    svg.appendChild(txt);
-
-                    // 수치 라벨 (하단에 병기)
-                    var valTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    valTxt.setAttribute("x", lp.x); valTxt.setAttribute("y", baselineY + 34);
-                    valTxt.setAttribute("text-anchor", "middle"); valTxt.setAttribute("font-size", isAvg ? "10px" : "9px");
-                    valTxt.setAttribute("font-weight", isAvg ? "700" : "500");
-                    valTxt.setAttribute("fill", isAvg ? "#3182f6" : "#94a3b8");
-                    valTxt.textContent = "(" + lVal + ")";
-                    svg.appendChild(valTxt);
+                    markersToDraw.push({ x: points[lIdx].x, val: lVal, text: marker.t, priority: marker.p });
                 }
+            }
+
+            // x좌표 순 정렬 후 겹침 방지 필터링 (최소 간격 45px)
+            markersToDraw.sort(function(a, b) { return a.x - b.x; });
+            var lastX = -999;
+            for (var dIdx = 0; dIdx < markersToDraw.length; dIdx++) {
+                var m = markersToDraw[dIdx];
+                // 너무 가까우면 건너뜀 (단, 우선순위가 높은 '평균' 등은 예외 처리 로직을 위해 체크 가능)
+                if (m.x - lastX < 45 && m.priority < 5) continue; 
+                
+                lastX = m.x;
+                var isAvg = m.text === '50%';
+
+                // 보조선 (Tick)
+                var gridLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                gridLine.setAttribute("x1", m.x); gridLine.setAttribute("y1", baselineY);
+                gridLine.setAttribute("x2", m.x); gridLine.setAttribute("y2", baselineY + 5);
+                gridLine.setAttribute("stroke", isAvg ? "#3182f6" : "#cbd5e1");
+                gridLine.setAttribute("stroke-width", isAvg ? "2" : "1");
+                svg.appendChild(gridLine);
+
+                // 텍스트 라벨 (통계 명칭)
+                var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                txt.setAttribute("x", m.x); txt.setAttribute("y", baselineY + 20);
+                txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", isAvg ? "11px" : "10px");
+                txt.setAttribute("font-weight", isAvg ? "800" : "600");
+                txt.setAttribute("fill", isAvg ? "#3182f6" : "#64748b");
+                txt.textContent = m.text;
+                svg.appendChild(txt);
+
+                // 수치 라벨 (하단에 병기)
+                var valTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                valTxt.setAttribute("x", m.x); valTxt.setAttribute("y", baselineY + 34);
+                valTxt.setAttribute("text-anchor", "middle"); valTxt.setAttribute("font-size", isAvg ? "10px" : "9px");
+                valTxt.setAttribute("font-weight", isAvg ? "700" : "500");
+                valTxt.setAttribute("fill", isAvg ? "#3182f6" : "#94a3b8");
+                valTxt.textContent = "(" + m.val + ")";
+                svg.appendChild(valTxt);
             }
 
             container.appendChild(svg);
