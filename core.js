@@ -303,15 +303,15 @@ var LottoUI = {
             curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
             svg.appendChild(curve);
 
-            // [FIX] X축 라벨 및 보조선 추가 (통계적 기준점 중심)
+            // [FIX] X축 라벨 백분율(%)로 통일
             var statsMarkers = [
-                { v: 0, t: '최소' },
-                { v: mu - 2 * sd, t: '세이프' },
-                { v: mu - sd, t: '최적' },
-                { v: mu, t: '평균' },
-                { v: mu + sd, t: '최적' },
-                { v: mu + 2 * sd, t: '세이프' },
-                { v: limit, t: '최대' }
+                { v: 0, t: '0%' },
+                { v: mu - 2 * sd, t: '5%' },
+                { v: mu - sd, t: '15%' },
+                { v: mu, t: '50%' },
+                { v: mu + sd, t: '85%' },
+                { v: mu + 2 * sd, t: '95%' },
+                { v: limit, t: '100%' }
             ];
 
             // 중복된 위치의 라벨 제거 (반올림 시 같은 위치에 올 수 있음)
