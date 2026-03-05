@@ -22,21 +22,27 @@
         </div>
     </header>
 
-    <main class="analysis-container">
-        <div class="analysis-header">
-            <div class="title-section">
-                <h1>연금복권 720+ 통계 분석 리포트</h1>
-                <p>빅데이터 기반의 자리수별 출현 빈도 및 회차 간 상관관계 분석</p>
+    <main class="analysis-container" style="padding-top: 20px;">
+        <div class="analysis-header-v2" style="background: white; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid #edf2f7; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+            <div style="display: flex; align-items: flex-start; gap: 20px;">
+                <div style="background: #3182f6; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; box-shadow: 0 8px 16px rgba(49,130,246,0.3);">📊</div>
+                <div style="flex: 1;">
+                    <h1 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0 0 8px 0; letter-spacing: -1px;">연금복권 720+ 정밀 통계 리포트</h1>
+                    <p style="font-size: 1rem; color: #64748b; line-height: 1.6; margin: 0;">빅데이터 기반의 역방향 자리수 분석 및 6자리 숫자간 상관관계 엔진 <span style="color: #3182f6; font-weight: 700;">v10.0</span></p>
+                </div>
+            </div>
+            <div class="header-legend" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; display: flex; gap: 30px; flex-wrap: wrap;">
+                <span style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #2ecc71; opacity: 0.4;"></span> <strong>옵티멀 존 (Optimal):</strong> 누적 확률 16%~84% 집중 구간</span>
+                <span style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #3182f6; opacity: 0.2;"></span> <strong>세이프 존 (Safe):</strong> 누적 확률 2.5%~97.5% 유효 구간</span>
+                <span style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;"><span style="width: 1.5px; height: 12px; background: #3182f6;"></span> <strong>평균선:</strong> 전체 회차의 산술적 평균값 (50%)</span>
             </div>
         </div>
 
         <!-- [P9] 역방향 우선 렌더링 레이아웃 -->
-        <div class="group-header">📍 [P9] 자리수별 출현 빈도 (역방향 우선)</div>
-        <section class="analysis-card" style="margin-bottom: 24px;">
-            <div id="pos-freq-container" class="pos-freq-grid" style="padding: 20px;">
-                <!-- JS에서 렌더링 -->
-            </div>
-        </section>
+        <div class="group-header">📍 [P9] 자리수별 출현 빈도 (역방향 우선 분석)</div>
+        <div id="pos-freq-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+            <!-- JS에서 개별 카드로 렌더링 -->
+        </div>
 
         <!-- [P6] 자리수별 미출현 주기 -->
         <div class="group-header">📍 [P6] 자리수별 미출현 주기 (Gap)</div>
