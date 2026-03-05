@@ -108,33 +108,52 @@ document.addEventListener('DOMContentLoaded', function() {
             var pSumDistObj = {};
             for (var s = 0; s <= 54; s++) { pSumDistObj[s] = stats.sumFreq[s] || 0; }
             
-            // 최근 5회차 데이터에 p_sum 속성 주입 (renderMiniTable 호환용)
-            var recent5 = records.slice(0, 5).map(function(r) {
+            // 최근 5회차 데이터 가공 (모든 지표 리포트용)
+            var recent5 = records.slice(0, 5).map(function(r, idx) {
                 var copy = { no: r.drawNo, nums: r.nums };
-                copy.p_sum = r.nums.reduce(function(a,b){return a+b;}, 0);
+                var p = PensionUtils.analyzePatterns(r.nums);
+                var b = PensionUtils.analyzeBalance(r.nums);
+                copy.p_sum = b.sum;
+                copy.p_seq = p.seq;
+                copy.p_repeat = p.adjRep;
+                copy.p_occur = p.maxOccur;
+                copy.p_unique = p.unique;
+                copy.p_odd = b.odd;
+                copy.p_low = b.low;
+                copy.p_prime = b.prime;
+                
+                if (idx < records.length - 1) {
+                    var prev = records[idx+1].nums;
+                    var dyn = PensionUtils.analyzeDynamics(r.nums, prev);
+                    copy.p_carry_pos = dyn.carry;
+                    copy.p_carry_num = dyn.carryGlobal;
+                    copy.p_neighbor = dyn.neighbor;
+                } else {
+                    copy.p_carry_pos = 0; copy.p_carry_num = 0; copy.p_neighbor = 0;
+                }
                 return copy;
             });
 
             LottoUI.createCurveChart('sum-dist-chart', pSumDistObj, '', pSumStat, pSumCfg);
             LottoUI.renderMiniTable('p-sum-mini-body', recent5, pSumCfg);
 
-            // [FIX] 모든 지표에 대한 통계 수치(Mean, Std) 계산 및 곡선 차트 렌더링
+            // [FIX] 모든 지표에 대한 통계 수치(Mean, Std) 계산 및 곡선 차트/미니 표 렌더링
             var indicators = [
-                { id: 'sequence-dist-chart', data: stats.seqFreq, label: '연속 번호', unit: '개', limit: 6 },
-                { id: 'repeat-dist-chart', data: stats.repeatFreq, label: '직전 중복', unit: '개', limit: 6 },
-                { id: 'occurrence-dist-chart', data: stats.occurrenceFreq, label: '최대 중복', unit: '개', limit: 6 },
-                { id: 'unique-dist-chart', data: stats.uniqueFreq, label: '번호 종류', unit: '종', limit: 6 },
-                { id: 'carry-pos-chart', data: stats.carryPosFreq, label: '자리 이월', unit: '개', limit: 6 },
-                { id: 'carry-num-chart', data: stats.carryNumFreq, label: '숫자 이월', unit: '개', limit: 6 },
-                { id: 'neighbor-dist-chart', data: stats.neighborFreq, label: '이웃수', unit: '개', limit: 6 },
-                { id: 'odd-dist-chart', stats: stats.oddFreq, label: '홀수 개수', unit: '개', limit: 6 },
-                { id: 'low-dist-chart', stats: stats.lowFreq, label: '저번호 개수', unit: '개', limit: 6 },
-                { id: 'prime-dist-chart', stats: stats.primeFreq, label: '소수 개수', unit: '개', limit: 6 }
+                { id: 'sequence-dist-chart', tableId: 'sequence-mini-body', data: stats.seqFreq, label: '연속 번호', unit: '개', limit: 6, drawKey: 'p_seq' },
+                { id: 'repeat-dist-chart', tableId: 'repeat-mini-body', data: stats.repeatFreq, label: '직전 중복', unit: '개', limit: 6, drawKey: 'p_repeat' },
+                { id: 'occurrence-dist-chart', tableId: 'occurrence-mini-body', data: stats.occurrenceFreq, label: '최대 중복', unit: '개', limit: 6, drawKey: 'p_occur' },
+                { id: 'unique-dist-chart', tableId: 'unique-mini-body', data: stats.uniqueFreq, label: '번호 종류', unit: '종', limit: 6, drawKey: 'p_unique' },
+                { id: 'carry-pos-chart', tableId: 'carry-pos-mini-body', data: stats.carryPosFreq, label: '자리 이월', unit: '개', limit: 6, drawKey: 'p_carry_pos' },
+                { id: 'carry-num-chart', tableId: 'carry-num-mini-body', data: stats.carryNumFreq, label: '숫자 이월', unit: '개', limit: 6, drawKey: 'p_carry_num' },
+                { id: 'neighbor-dist-chart', tableId: 'neighbor-mini-body', data: stats.neighborFreq, label: '이웃수', unit: '개', limit: 6, drawKey: 'p_neighbor' },
+                { id: 'odd-dist-chart', tableId: 'odd-mini-body', data: stats.oddFreq, label: '홀수 개수', unit: '개', limit: 6, drawKey: 'p_odd' },
+                { id: 'low-dist-chart', tableId: 'low-mini-body', data: stats.lowFreq, label: '저번호 개수', unit: '개', limit: 6, drawKey: 'p_low' },
+                { id: 'prime-dist-chart', tableId: 'prime-mini-body', data: stats.primeFreq, label: '소수 개수', unit: '개', limit: 6, drawKey: 'p_prime' }
             ];
 
             // 수동으로 전달된 데이터 객체(stats.*Freq)를 기반으로 통계 계산 및 렌더링
             var processChart = function(cfg) {
-                var freq = cfg.data || cfg.stats;
+                var freq = cfg.data;
                 var values = [];
                 var sum = 0, count = 0;
                 for (var k in freq) {
@@ -149,6 +168,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 var std = Math.sqrt(sqDiffSum / count);
 
                 LottoUI.createCurveChart(cfg.id, freq, cfg.unit, { mean: mean, std: std }, { label: cfg.label, maxLimit: cfg.limit });
+                // 미니 표 렌더링 추가
+                LottoUI.renderMiniTable(cfg.tableId, recent5, { drawKey: cfg.drawKey });
             };
 
             for (var cIdx = 0; cIdx < indicators.length; cIdx++) {

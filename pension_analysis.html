@@ -3,95 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>연금복권 720+ 빅데이터 통계 분석</title>
+    <title>연금복권 720+ AI 정밀 통계분석</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="analysis-page">
-    <header class="sticky-header">
-        <div class="header-inner">
-            <div class="header-top-row">
-                <h1 style="color: #ff8c00;">📊 연금 통계 분석</h1>
-                <div class="nav-links">
-                    <div class="site-switcher">
-                        <a href="index.html" class="switcher-btn lotto">🍀 로또 6/45</a>
-                        <a href="pension_main.html" class="switcher-btn pension active">🎟️ 연금 720+</a>
-                    </div>
-                    <a href="pension_main.html" class="nav-btn small pension-theme">🔮 AI 분석</a>
-                    <a href="pension_analysis.html" class="nav-btn small pension-theme active">📊 통계분석</a>
-                    <a href="pension_combination.html" class="nav-btn small pension-theme">🎯 조합분석</a>
-                    <a href="pension.html" class="nav-btn small pension-theme">📋 히스토리</a>
-                    <a href="pension_guide.html" class="nav-btn small pension-theme">📖 가이드</a>
-                </div>
+<body style="background-color: #f4f7fa;">
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-area" onclick="location.href='index.html'">
+                <span class="logo-icon">📊</span>
+                <span class="logo-text">AI Lotto Engine <small>v10.0</small></span>
             </div>
+            <nav class="main-nav">
+                <a href="analysis.html">로또 분석</a>
+                <a href="pension_analysis.html" class="active">연금 분석</a>
+                <a href="combination.html">조합 생성</a>
+                <a href="history.html">당첨 히스토리</a>
+            </nav>
         </div>
     </header>
 
-    <div class="container wide">
-        <p class="subtitle">연금복권의 각 자리수별 출현 빈도 및 패턴을 정밀 분석합니다</p>
-        
-        <!-- [P6] 미출현 주기 (Gap Analysis) -->
-        <div class="group-header">🔥 [P6] 자리수별 미출현 주기 (Gap Analysis)</div>
-        <section class="analysis-card">
-            <div class="card-header"><h3>⏳ 숫자별 미출현 회차 현황 (히트맵)</h3></div>
-            <div style="padding: 20px;">
-                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 12px;">각 자리별로 특정 숫자가 마지막으로 나온 지 몇 회차가 지났는지 보여줍니다. 빨간색일수록 오랫동안 나오지 않은 숫자입니다.</p>
-                <div id="digit-gap-container">
-                    <!-- JS에서 렌더링 -->
-                </div>
+    <main class="analysis-container">
+        <div class="analysis-header">
+            <div class="title-section">
+                <h1>연금복권 720+ 통계 분석 리포트</h1>
+                <p>빅데이터 기반의 자리수별 출현 빈도 및 회차 간 상관관계 분석</p>
+            </div>
+        </div>
+
+        <!-- [P9] 역방향 우선 렌더링 레이아웃 -->
+        <div class="group-header">📍 [P9] 자리수별 출현 빈도 (역방향 우선)</div>
+        <section class="analysis-card" style="margin-bottom: 24px;">
+            <div id="pos-freq-container" class="pos-freq-grid" style="padding: 20px;">
+                <!-- JS에서 렌더링 -->
             </div>
         </section>
 
-        <!-- [P1] 자리수별 빈도 -->
-        <div class="group-header">📍 [P1] 자리수별 누적 출현 빈도</div>
-        <section class="analysis-card">
-            <div class="card-header"><h3>🔢 각 자리수별 숫자 분포 (0~9)</h3></div>
-            <div class="pension-pos-grid" id="pos-freq-container">
-                <!-- JS에서 6개 자리수 차트 생성 -->
+        <!-- [P6] 자리수별 미출현 주기 -->
+        <div class="group-header">📍 [P6] 자리수별 미출현 주기 (Gap)</div>
+        <section class="analysis-card" style="margin-bottom: 24px;">
+            <div id="digit-gap-container" style="padding: 20px;">
+                <!-- JS에서 렌더링 -->
             </div>
         </section>
 
-        <!-- [P13] 최근 15회차 당첨 번호 흐름 타임라인 -->
-        <div class="group-header">🌊 연금 번호 출현 흐름 타임라인 (최근 15회차)</div>
-        <section class="analysis-card" style="margin-bottom: 24px; overflow: hidden;">
-            <div class="card-header" style="background: #f8faff;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.2rem;">📉</span>
-                    <h3 style="color: #1e293b;">자리수별 번호 이동(Movement) 추적</h3>
+        <!-- [P1] 연속 및 중복 -->
+        <div class="group-header">📍 [P1] 연속 및 중복성 분석</div>
+        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
+            <section class="analysis-card">
+                <div class="card-header"><h3>🔢 연속 번호 (Sequence)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="sequence-dist-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="sequence-mini-body"></tbody></table>
+                    </div>
                 </div>
-                <div style="font-size: 0.7rem; color: #64748b;">
-                    <span style="color: #3182f6; font-weight: 800;">● 이월(Carry)</span> / <span style="color: #ff9500; font-weight: 800;">○ 이웃(Neighbor)</span>
+            </section>
+            <section class="analysis-card">
+                <div class="card-header"><h3>🔄 직전 중복 (Repeat)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="repeat-dist-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="repeat-mini-body"></tbody></table>
+                    </div>
                 </div>
-            </div>
-            <div id="pension-flow-timeline-container" style="padding: 20px; overflow-x: auto;">
-                <div style="text-align: center; color: #94a3b8; padding: 40px;">데이터 분석 중...</div>
-            </div>
-        </section>
-
-        <!-- [P2] 패턴 분석 -->
-        <div class="group-header">📍 [P2] 배열 패턴 및 구성 분석</div>
-        <div class="pension-pos-grid">
-            <section class="analysis-card" style="width: 48%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>🔗 연속 숫자 (123)</h3></div>
-                <div id="sequence-dist-chart" style="height: 160px; padding: 15px;"></div>
-            </section>
-            <section class="analysis-card" style="width: 48%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>🔁 연속 반복 (11)</h3></div>
-                <div id="repeat-dist-chart" style="height: 160px; padding: 15px;"></div>
-            </section>
-            <section class="analysis-card" style="width: 48%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>🔢 중복 포함 (1x1)</h3></div>
-                <div id="occurrence-dist-chart" style="height: 160px; padding: 15px;"></div>
-            </section>
-            <section class="analysis-card" style="width: 48%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>✨ 번호 다양성 (Unique)</h3></div>
-                <div id="unique-dist-chart" style="height: 160px; padding: 15px;"></div>
             </section>
         </div>
 
-        <!-- [GP4] 합계 및 균형 (확대 개편) -->
+        <!-- [GP3] 숫자 구성 -->
+        <div class="group-header">📍 [GP3] 6자리 숫자 구성 밀도</div>
+        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
+            <section class="analysis-card">
+                <div class="card-header"><h3>🔢 중복 포함 (Occurrence)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="occurrence-dist-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="occurrence-mini-body"></tbody></table>
+                    </div>
+                </div>
+            </section>
+            <section class="analysis-card">
+                <div class="card-header"><h3>✨ 번호 다양성 (Unique)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="unique-dist-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="unique-mini-body"></tbody></table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- [GP4] 합계 및 균형 -->
         <div class="group-header">📍 [GP4] 6자리 숫자 합계 정밀 분포 (Golden Zone)</div>
         <section class="analysis-card" style="margin-bottom: 24px;">
             <div class="card-header">
@@ -101,19 +102,10 @@
                 </div>
             </div>
             <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                <!-- 왼쪽: 대형 합계 선형 차트 -->
-                <div class="chart-container-main" style="background: #ffffff; border-radius: 12px; padding: 20px; border: 1px solid #edf2f7; position: relative;">
-                    <div id="sum-dist-chart" style="height: 240px; width: 100%;"></div>
-                </div>
-                
-                <!-- 오른쪽: 최근 당첨 합계 현황 표 -->
-                <div class="stat-summary-box" style="background: #f8fafc; border-radius: 12px; padding: 15px; border: 1px solid #edf2f7;">
+                <div class="chart-container-main"><div id="sum-dist-chart" style="height: 240px;"></div></div>
+                <div class="stat-summary-box">
                     <h4 style="font-size: 0.8rem; color: #475569; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">📊 최근 당첨 합계 리포트</h4>
-                    <table class="mini-table">
-                        <tbody id="p-sum-mini-body">
-                            <!-- JS에서 렌더링 -->
-                        </tbody>
-                    </table>
+                    <table class="mini-table"><tbody id="p-sum-mini-body"></tbody></table>
                     <div style="margin-top: 12px; background: #f0f7ff; padding: 10px; border-radius: 8px; font-size: 0.65rem; color: #3182f6; line-height: 1.4;">
                         <b>💡 Golden Zone (20~35):</b><br>전체 당첨의 약 70%가 집중되는 이상적 구간입니다.
                     </div>
@@ -123,93 +115,82 @@
 
         <!-- [P5] 회차 간 상관관계 -->
         <div class="group-header">📍 [P5] 회차 간 상관관계 (이월/이웃)</div>
-        <div class="pension-pos-grid">
-            <section class="analysis-card" style="width: 32%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>🔄 자리 이월 (Exact)</h3></div>
-                <div id="carry-pos-chart" style="height: 160px; padding: 15px;"></div>
+        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
+            <section class="analysis-card">
+                <div class="card-header"><h3>🔄 자리 이월 (Carry Pos)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="carry-pos-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="carry-pos-mini-body"></tbody></table>
+                    </div>
+                </div>
             </section>
-            <section class="analysis-card" style="width: 32%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>🔁 숫자 이월 (Global)</h3></div>
-                <div id="carry-num-chart" style="height: 160px; padding: 15px;"></div>
+            <section class="analysis-card">
+                <div class="card-header"><h3>🔁 숫자 이월 (Carry Num)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="carry-num-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="carry-num-mini-body"></tbody></table>
+                    </div>
+                </div>
             </section>
-            <section class="analysis-card" style="width: 32%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>🏠 이웃수 포함 (Neighbor)</h3></div>
-                <div id="neighbor-dist-chart" style="height: 160px; padding: 15px;"></div>
-            </section>
-        </div>
-
-        <!-- [P6] 세부 균형 분석 (추가됨) -->
-        <div class="group-header">📍 [P6] 세부 균형 분석 (홀짝/고저/소수)</div>
-        <div class="pension-pos-grid">
-            <section class="analysis-card" style="width: 32%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>⚖️ 홀수 비율 (Odd)</h3></div>
-                <div id="odd-dist-chart" style="height: 160px; padding: 15px;"></div>
-            </section>
-            <section class="analysis-card" style="width: 32%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>↕️ 저번호 비율 (Low)</h3></div>
-                <div id="low-dist-chart" style="height: 160px; padding: 15px;"></div>
-            </section>
-            <section class="analysis-card" style="width: 32%; box-sizing: border-box; margin-bottom: 20px;">
-                <div class="card-header"><h3>🔢 소수 포함 (Prime)</h3></div>
-                <div id="prime-dist-chart" style="height: 160px; padding: 15px;"></div>
+            <section class="analysis-card">
+                <div class="card-header"><h3>↔️ 이웃수 (Neighbor)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="neighbor-dist-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="neighbor-mini-body"></tbody></table>
+                    </div>
+                </div>
             </section>
         </div>
 
-        <footer class="standard-footer">
-            <p class="disclaimer">※ 본 데이터는 역대 당첨 결과를 바탕으로 제공됩니다.</p>
-        </footer>
-    </div>
+        <!-- [P7] 번호 속성 -->
+        <div class="group-header">📍 [P7] 번호 속성 밸런스 (Odd/Low/Prime)</div>
+        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
+            <section class="analysis-card">
+                <div class="card-header"><h3>🌓 홀짝 비율 (Odd/Even)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="odd-dist-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="odd-mini-body"></tbody></table>
+                    </div>
+                </div>
+            </section>
+            <section class="analysis-card">
+                <div class="card-header"><h3>📉 저번호 비율 (Low/High)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="low-dist-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="low-mini-body"></tbody></table>
+                    </div>
+                </div>
+            </section>
+            <section class="analysis-card">
+                <div class="card-header"><h3>✨ 소수 출현 (Prime)</h3></div>
+                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
+                    <div class="chart-container-main"><div id="prime-dist-chart" style="height: 180px;"></div></div>
+                    <div class="stat-summary-box">
+                        <table class="mini-table"><tbody id="prime-mini-body"></tbody></table>
+                    </div>
+                </div>
+            </section>
+        </div>
 
-    <style>
-        .pension-pos-grid {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 24px;
-            justify-content: space-between;
-        }
-        .pos-chart-box {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 15px;
-            border: 1px solid #e2e8f0;
-            width: 31%; /* gap 대신 너비로 조정 */
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-        .pos-chart-box h4 {
-            margin: 0 0 10px 0;
-            font-size: 0.85rem;
-            color: #64748b;
-            text-align: center;
-        }
-        .pos-bar-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            height: 100px;
-        }
-        .pos-bar {
-            background: #e2e8f0;
-            border-radius: 2px 2px 0 0;
-            position: relative;
-            transition: all 0.3s;
-            margin: 0 1px; /* gap 대신 margin */
-        }
-        .pos-bar.active { background: #ff8c00; }
-        .pos-label {
-            font-size: 0.65rem;
-            text-align: center;
-            margin-top: 5px;
-            color: #94a3b8;
-        }
-        @media (max-width: 768px) {
-            .pos-chart-box { width: 48%; }
-            .analysis-layout-split { display: block !important; }
-            .analysis-layout-split .analysis-card { width: 100%; margin-bottom: 20px; }
-        }
-    </style>
+        <!-- [P13] 최근 당첨 흐름 타임라인 -->
+        <div class="group-header">📍 [P13] 당첨 번호 흐름 타임라인 (최근 15회차)</div>
+        <section class="analysis-card" style="margin-bottom: 40px;">
+            <div id="flow-timeline-container" style="padding: 24px; overflow-x: auto;">
+                <!-- JS에서 렌더링 -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <p>© 2026 AI Lotto Engine. Expert Statistical Analysis Service.</p>
+    </footer>
 
     <script src="core.js"></script>
-    <script src="pension_analysis.js"></script>    <script src="consent.js"></script>
+    <script src="pension_analysis.js"></script>
 </body>
 </html>
