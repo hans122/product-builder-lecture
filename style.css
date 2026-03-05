@@ -85,6 +85,14 @@ body {
 .switcher-btn.active.lotto { color: var(--primary-blue); }
 .switcher-btn.active.pension { color: #ff8c00; } /* 연금 강조색: 오렌지 */
 
+/* Pension Theme Modifiers (Orange) */
+body.pension-theme { --primary-blue: #ff8c00; --primary-blue-soft: #fff4e6; }
+body.pension-theme .logo { color: #ff8c00; }
+body.pension-theme .switcher-btn.active.pension { background: #ff8c00; color: white; }
+body.pension-theme .nav-btn.small.active { background: #ff8c00; color: white; }
+body.pension-theme .analysis-card .card-header h3 { border-left-color: #ff8c00; }
+body.pension-theme .group-header { border-left: 4px solid #ff8c00; background: #fff4e6; color: #e67700; }
+
 .nav-btn.small {
     padding: 8px 14px;
     border-radius: 10px;
