@@ -1,5 +1,6 @@
 
-import requests
+import urllib.request
+import json
 import csv
 import os
 import time
@@ -11,22 +12,24 @@ def get_pension_data(draw_no, retry_count=3):
     
     for attempt in range(retry_count):
         try:
-            response = requests.get(url, timeout=15)
-            data = response.json()
-            
-            if data.get('returnValue') == 'success':
-                # 데이터 유효성 검사 (조: 1-5, 번호: 6자리)
-                group = data.get('p720PrwinNo')
-                nums = [data.get(f'drwtNo{i}') for i in range(1, 7)]
-                
-                if group and all(n is not None for n in nums):
-                    date = data['drwNoDate']
-                    return {
-                        'drawNo': draw_no,
-                        'date': date.replace('-', '.'),
-                        'group': group,
-                        'nums': "".join(map(str, nums))
-                    }
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=15) as response:
+                if response.status == 200:
+                    data = json.loads(response.read().decode('utf-8'))
+                    
+                    if data.get('returnValue') == 'success':
+                        # 데이터 유효성 검사 (조: 1-5, 번호: 6자리)
+                        group = data.get('p720PrwinNo')
+                        nums = [data.get(f'drwtNo{i}') for i in range(1, 7)]
+                        
+                        if group and all(n is not None for n in nums):
+                            date = data['drwNoDate']
+                            return {
+                                'drawNo': draw_no,
+                                'date': date.replace('-', '.'),
+                                'group': group,
+                                'nums': "".join(map(str, nums))
+                            }
             
             print(f"Draw {draw_no} not ready yet. Attempt {attempt + 1}/{retry_count}")
             if attempt < retry_count - 1:

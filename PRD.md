@@ -1,4 +1,4 @@
-# PRD (Product Requirement Document) - v5.5
+# PRD (Product Requirement Document) - v5.9
 
 ## 1. 프로젝트 비전
 로또 6/45 및 연금복권 720+ 데이터를 기반으로 과학적이고 정밀한 통계 지표를 제공하며, 전문가급 데이터 가시화와 AI 모델을 통해 사용자의 전략적 복권 구매를 돕는 통합 분석 플랫폼.

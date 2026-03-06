@@ -1,36 +1,38 @@
 ---
 name: lotto-project-manager
-description: AI 로또 분석 서비스의 문서 정합성 관리 및 아키텍처 가디언 스킬. 코드 수정 전 PRD/SDD/DATA_SCHEMA를 확인하고 작업 후 문서 버전을 자동 업데이트한다.
+description: AI 로또/연금 분석 서비스의 문서 정합성 관리 및 아키텍처 가디언 스킬. 통합 엔진(Unified Engine) 구조와 백엔드 분석 파이프라인 정합성을 강제한다.
 ---
 
-# Lotto Project Manager Skill (v10.0)
+# Lotto Project Manager Skill (v11.0)
 
-이 스킬은 프로젝트의 설계도와 코드 사이의 완벽한 일치를 보장하며, AI 예측 엔진의 정밀도와 UI 일관성을 유지하기 위해 사용됩니다.
+이 스킬은 프로젝트의 **통합 엔진 아키텍처(Unified Engine Architecture)**를 보장하며, 로또와 연금 서비스 간의 로직 일관성 및 백엔드(Python) 중심의 데이터 처리를 관리합니다.
 
 ## 주요 워크플로우
 
 1.  **사전 검토 (Pre-Check)**:
-    *   모든 코드 수정 요청 시, 루트 디렉토리의 `PRD.md`, `SDD.md`, `DATA_SCHEMA.md`를 먼저 읽는다.
-    *   현재 요청이 `DATA_SCHEMA.md`의 G1~G6 분류 체계를 준수하는지 확인한다.
-    *   AI 예측 로직 변경 시 `prediction.js`의 3단계 과출현 억제 모델(Grid Search 결과)을 준수한다.
+    *   모든 코드 수정 요청 시, 루트 디렉토리의 `PRD.md`, `SDD.md`, `DATA_SCHEMA.md`를 필독하여 맥락을 내재화한다.
+    *   **통합 엔진 준수**: 개별 페이지용 스크립트(예: `pension_*.js`) 대신 통합 엔진(`analysis_engine.js`, `combination_engine.js` 등) 수정을 우선한다.
+    *   **데이터 출처 확인**: 브라우저 연산 대신 파이썬에서 미리 빌드된 `advanced_stats.json` 및 `pension_stats.json` 사용 여부를 확인한다.
 
 2.  **구현 원칙**:
-    *   **SSOT 준수**: 지표명, ID, 키값은 반드시 `indicators.js`와 `DATA_SCHEMA.md`를 따른다.
-    *   **AI 정합성**: 백테스트 렌더링 시 6개 표준 컬럼 및 S/A/B 등급제 레이아웃을 절대적 기준으로 삼는다.
-    *   **캐시 관리**: 데이터 구조나 로직 변경 시 `core.js`의 `LottoDataManager.SYSTEM_VERSION`을 즉시 업데이트하여 클라이언트 캐시를 강제 갱신한다.
-    *   **UI Grid**: 예측 풀은 반드시 `pool-grid-10` (10열 그리드) 및 `.ball.mini` 규격을 준수한다.
+    *   **통합 모듈화**: 새로운 기능 추가 시 `view_manager.js`, `data_viewer.js`, `content_loader.js` 중 적절한 통합 모듈에 배치한다.
+    *   **몬테카를로 표준**: 모든 조합 분석 기능은 `CombinationEngine` 내의 표준화된 몬테카를로 시뮬레이션 인터페이스를 사용한다.
+    *   **백엔드 우선 분석**: 복잡한 통계 계산은 반드시 `analyze_data.py`에 구현하여 JSON으로 추출하고, JS는 이를 렌더링하는 역할만 수행한다.
+    *   **캐시 관리**: 데이터 구조 변경 시 `core.js`의 `LottoDataManager.SYSTEM_VERSION`을 즉시 업데이트(현재 v11.0)하여 클라이언트 캐시를 갱신한다.
+    *   **유틸리티 통합**: 쿠키 동의, 유효성 검사 등 공용 유틸리티는 `core.js` 내부 모듈(`PrivacyManager` 등)로 통합 관리한다.
 
 3.  **사후 정리 (Post-Sync)**:
-    *   작업 완료 후, 변경된 사항을 `PRD.md`나 `GEMINI.md`에 반영한다.
-    *   `scripts/bump_version.cjs`를 실행하여 관련 문서의 버전을 자동으로 올린다.
+    *   작업 완료 후 `PRD.md`, `SDD.md`, `GEMINI.md`에 변경 사항을 동시 반영한다.
+    *   `node .gemini/skills/lotto-project-manager/scripts/bump_version.cjs`를 실행하여 버전 번호를 동기화한다.
 
 ## 사용 예시
 
-*   "통계 지표 순서를 바꿔줘" -> `indicators.js`와 `DATA_SCHEMA.md`를 동시 수정하도록 안내한다.
-*   "새로운 분석 기능을 추가해줘" -> `PRD.md`에 요구사항을 먼저 적고 구현하도록 프로세스를 강제한다.
-*   "자료가 안 보여" -> `SYSTEM_VERSION` 체크 및 `advanced_stats.json` 데이터 구조를 먼저 검증한다.
+*   "연금 분석 로직 수정" -> `analysis_engine.js` 내부의 `runPensionAnalysis`를 수정하고, 필요한 경우 `analyze_data.py`를 업데이트하여 JSON 데이터 구조를 맞춘다.
+*   "새로운 조합 추천 전략 추가" -> `combination_engine.js`에 공통 인터페이스를 정의하고 로또/연금 모드별 전략을 구현한다.
+*   "페이지 로딩 최적화" -> 클라이언트 연산을 `analyze_data.py`로 이관하고 통합 모듈을 통해 JS 요청 수를 줄인다.
 
 ## 도구 활용
 
-*   **버전 업데이트**: `node scripts/bump_version.cjs` 실행
-*   **데이터 검증**: `python3 analyze_data.py` 실행 후 `recent_draws` 필드 유무 확인
+*   **버전 업데이트**: `node .gemini/skills/lotto-project-manager/scripts/bump_version.cjs`
+*   **통합 분석 실행**: `python3 analyze_data.py` (로또/연금 전체 통계 재빌드)
+*   **시스템 버전 체크**: `core.js` 내 `SYSTEM_VERSION` 필드 확인

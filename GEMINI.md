@@ -1,4 +1,4 @@
-# GEMINI.md - AI Coding Constitution (v2.8)
+# GEMINI.md - AI Coding Constitution (v2.12)
 
 ## [MANDATORY RULES]
 1. **Document-First Workflow**: 모든 작업(구현, 수정, 리팩토링) 시작 전, 반드시 `PRD.md`, `SDD.md`, `DATA_SCHEMA.md`를 전수 읽기하여 현재 요청의 맥락과 기술 표준을 내재화한다.

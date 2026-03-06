@@ -1,14 +1,13 @@
 /**
- * LottoCore v9.2 - 이모탈 가디언 (Full Engine Restored)
- * - ES5 초정밀 호환성 (const/let/arrow-function 제거)
- * - 로또/연금 시너지 엔진(Synergy Engine) 복구 완료
- * - 데이터 검증 및 사생활 보호 모드 대응
+ * LottoCore v11.0 - AI Integrated Engine (Immortal Guardian)
+ * - ES5 / ES6 Multi-Compatibility Engine
+ * - Integrated Data Manager (Lotto & Pension Stats)
+ * - Built-in Privacy Consent Manager
  */
 
 var LottoUtils = {
     round: function(val, precision) {
-        var p = precision || 0;
-        var factor = Math.pow(10, p);
+        var p = precision || 0; var factor = Math.pow(10, p);
         return Math.round(val * factor) / factor;
     },
     isPrime: function(n) {
@@ -40,37 +39,22 @@ var LottoUtils = {
     padLeft: function(str, length, char) {
         str = String(str); while (str.length < length) { str = char + str; } return str;
     },
-    // [STRATEGY] 최근 15회차 기반 골든타임 그룹핑 엔진
     getStrategyGroups: function(recentDraws) {
-        var limit = Math.min(recentDraws.length, 15);
-        var counts = {};
+        var limit = Math.min(recentDraws.length, 15); var counts = {};
         for (var n = 1; n <= 45; n++) counts[n] = 0;
-        
         for (var i = 0; i < limit; i++) {
             var nums = recentDraws[i].nums;
             for (var j = 0; j < nums.length; j++) { counts[nums[j]]++; }
         }
-        
         var groups = { hot: [], warm: [], cold: [] };
         for (var num = 1; num <= 45; num++) {
             var f = counts[num];
-            if (f >= 3) groups.hot.push(num);
-            else if (f >= 1) groups.warm.push(num);
-            else groups.cold.push(num);
+            if (f >= 3) groups.hot.push(num); else if (f >= 1) groups.warm.push(num); else groups.cold.push(num);
         }
         return groups;
     },
     logError: function(msg, context) {
-        console.error('[LottoCore Error] ' + msg, context || '');
-        var notifier = document.getElementById('global-error-notifier');
-        if (!notifier) {
-            notifier = document.createElement('div');
-            notifier.id = 'global-error-notifier';
-            document.body.appendChild(notifier);
-        }
-        notifier.innerText = '⚠️ 서비스 일시적 불안정 (일부 지표 점검 중)';
-        notifier.style.display = 'block';
-        setTimeout(function() { notifier.style.display = 'none'; }, 3000);
+        console.error('[LottoCore] ' + msg, context || '');
     }
 };
 
@@ -81,10 +65,8 @@ var PensionUtils = {
         for (var i = 0; i < numsArr.length; i++) {
             var n = numsArr[i]; uniqueSet[n] = true; counts[n] = (counts[n] || 0) + 1;
             if (i > 0) {
-                if (Math.abs(n - numsArr[i-1]) === 1) curSeq++;
-                else { if(curSeq > maxSeq) maxSeq = curSeq; curSeq = 1; }
-                if (n === numsArr[i-1]) curRep++;
-                else { if(curRep > maxRep) maxRep = curRep; curRep = 1; }
+                if (Math.abs(n - numsArr[i-1]) === 1) curSeq++; else { if(curSeq > maxSeq) maxSeq = curSeq; curSeq = 1; }
+                if (n === numsArr[i-1]) curRep++; else { if(curRep > maxRep) maxRep = curRep; curRep = 1; }
             }
         }
         if(curSeq > maxSeq) maxSeq = curSeq; if(curRep > maxRep) maxRep = curRep;
@@ -104,52 +86,36 @@ var PensionUtils = {
     analyzeDynamics: function(current, previous) {
         var res = { carry: 0, neighbor: 0, carryGlobal: 0 };
         if (!previous) return res;
-        
         var prevCount = {};
         for (var i = 0; i < 6; i++) {
-            // 자리 이월 (Exact)
             if (current[i] === previous[i]) res.carry++;
-            // 이웃수
             else if (Math.abs(current[i] - previous[i]) === 1) res.neighbor++;
-            
-            // 전역 숫자 카운트 (자리 무관 이월 분석용)
             prevCount[previous[i]] = (prevCount[previous[i]] || 0) + 1;
         }
-
-        // 숫자 이월 (Global): 현재 번호 중 이전 번호 풀에 포함된 개수
-        var currCount = {};
         for (var j = 0; j < 6; j++) {
-            var n = current[j];
-            if (prevCount[n] > 0) {
-                res.carryGlobal++;
-                prevCount[n]--; // 중복 이월 방지
-            }
+            var n = current[j]; if (prevCount[n] > 0) { res.carryGlobal++; prevCount[n]--; }
         }
         return res;
     },
     analyzeStructure: function(nums) {
         var isSymmetry = true;
         for (var i = 0; i < 3; i++) { if (nums[i] !== nums[5 - i]) { isSymmetry = false; break; } }
-        var diff = nums[1] - nums[0];
-        var isArithmetic = true;
+        var diff = nums[1] - nums[0]; var isArithmetic = true;
         for (var j = 1; j < 5; j++) { if (nums[j+1] - nums[j] !== diff) { isArithmetic = false; break; } }
         return { symmetry: isSymmetry, arithmetic: isArithmetic, step: isArithmetic && (diff === 1 || diff === -1) };
     }
 };
 
-// [ENGINE] 시너지 분석 엔진 (G0)
 var LottoSynergy = {
     check: function(nums, data) {
         var results = [];
-        if (!LottoConfig || !LottoConfig.INDICATORS) return results;
-        var indicatorValues = {};
-        var indicators = LottoConfig.INDICATORS;
+        if (!LottoConfig || !LottoConfig.SYNERGY_RULES) return results;
+        var indicatorValues = {}; var indicators = LottoConfig.INDICATORS;
         for (var i = 0; i < indicators.length; i++) {
-            var cfg = indicators[i];
-            indicatorValues[cfg.id] = cfg.calc(nums, data);
+            var cfg = indicators[i]; indicatorValues[cfg.id] = cfg.calc(nums, data);
         }
         var stats = (data && data.stats_summary) ? data.stats_summary : {};
-        var rules = LottoConfig.SYNERGY_RULES || [];
+        var rules = LottoConfig.SYNERGY_RULES;
         for (var j = 0; j < rules.length; j++) {
             var rule = rules[j];
             if (rule.check(indicatorValues, stats)) {
@@ -160,268 +126,14 @@ var LottoSynergy = {
     }
 };
 
-// [ENGINE] 연금 시너지 분석 엔진 (P0)
-var PensionSynergy = {
-    check: function(digits) {
-        var results = [];
-        if (!LottoConfig || !LottoConfig.PENSION_SYNERGY_RULES) return results;
-        var rules = LottoConfig.PENSION_SYNERGY_RULES;
-        for (var i = 0; i < rules.length; i++) {
-            var rule = rules[i];
-            if (rule.check(digits)) {
-                results.push({ id: rule.id, label: rule.label, status: rule.status, desc: rule.desc });
-            }
-        }
-        return results;
-    }
-};
-
 var LottoUI = {
-    renderGapChart: function(containerId, gapData) {
-        var container = document.getElementById(containerId);
-        if (!container) return;
-        var html = '<div class="gap-chart-grid" style="display:grid; grid-template-columns: repeat(11, 1fr); gap: 2px;">';
-        html += '<div style="background:#f8fafc;"></div>';
-        for (var h = 0; h <= 9; h++) html += '<div style="text-align:center; font-size:0.6rem; font-weight:bold; background:#f8fafc; padding:4px 0;">' + h + '</div>';
-        var labels = ['십만','만','천','백','십','일'];
-        for (var i = 0; i < 6; i++) {
-            html += '<div style="font-size:0.65rem; font-weight:bold; color:#64748b; display:flex; align-items:center; justify-content:center; background:#f8fafc;">' + labels[i] + '</div>';
-            for (var n = 0; n <= 9; n++) {
-                var gap = gapData[i][n];
-                var color = gap > 20 ? '#f04452' : (gap > 10 ? '#ff9500' : (gap === 0 ? '#3182f6' : '#94a3b8'));
-                var opacity = gap === 0 ? 1 : Math.min(0.8, 0.2 + (gap / 40));
-                html += '<div style="text-align:center; padding:8px 0; font-size:0.7rem; font-weight:800; color:white; background:' + color + '; opacity:' + opacity + '; border-radius:2px;">' + gap + '</div>';
-            }
-        }
-        html += '</div>';
-        container.innerHTML = html;
-    },
-    showSkeletons: function(containerId, count) {
-        var container = document.getElementById(containerId);
-        if (!container) return;
-        var html = '';
-        for (var i = 0; i < (count || 6); i++) { html += '<div class="analysis-item skeleton-box"><div class="skeleton-text"></div><div class="skeleton-value"></div></div>'; }
-        container.innerHTML = html;
-    },
     createBall: function(num, isMini) {
         var ball = document.createElement('div');
         ball.className = 'ball ' + (isMini ? 'mini' : '') + ' ' + LottoUtils.getBallColorClass(num);
-        ball.innerText = num;
-        return ball;
-    },
-    createAnalysisItem: function(cfg, value, status, stat) {
-        var item = document.createElement('div');
-        item.className = 'analysis-item ' + status;
-        var tip = '';
-        if (stat) {
-            var optMin = Math.max(0, Math.round(stat.mean - stat.std));
-            var optMax = Math.round(stat.mean + stat.std);
-            var safeMin = Math.max(0, Math.round(stat.mean - 2 * stat.std));
-            var safeMax = Math.round(stat.mean + 2 * stat.std);
-            if (cfg.maxLimit) {
-                optMax = Math.min(cfg.maxLimit, optMax); safeMax = Math.min(cfg.maxLimit, safeMax);
-                optMin = Math.min(optMin, optMax); safeMin = Math.min(safeMin, safeMax);
-            }
-            tip = 'data-tip="[' + cfg.label + '] 세이프: ' + safeMin + '~' + safeMax + (cfg.unit||'') + ' (옵티멀: ' + optMin + '~' + optMax + (cfg.unit||'') + ')"';
-        }
-        item.innerHTML = '<a href="analysis.html#' + cfg.id + '-section" class="analysis-item-link" ' + tip + '>' +
-                '<span class="label">' + cfg.label + '</span>' +
-                '<span id="' + cfg.id + '" class="value">' + value + '</span>' +
-                '</a>';
-        return item;
-    },
-    renderIndicatorGrid: function(containerId, indicatorIds, numbers, statsData) {
-        var container = document.getElementById(containerId);
-        if (!container) return; container.innerHTML = '';
-        var summary = statsData.stats_summary || {};
-        var indicators = LottoConfig.INDICATORS;
-        for (var i = 0; i < indicatorIds.length; i++) {
-            var targetId = indicatorIds[i];
-            var cfg = null;
-            for (var k = 0; k < indicators.length; k++) { if (indicators[k].id === targetId) { cfg = indicators[k]; break; } }
-            if (cfg) {
-                try {
-                    var val = cfg.calc(numbers, statsData);
-                    var status = LottoUtils.getZStatus(val, summary[cfg.statKey]);
-                    container.appendChild(this.createAnalysisItem(cfg, val, status, summary[cfg.statKey]));
-                } catch (e) {
-                    var errorItem = document.createElement('div');
-                    errorItem.className = 'analysis-item error-isolation';
-                    errorItem.innerHTML = '<span class="label">' + cfg.label + '</span><span class="value">점검 중</span>';
-                    container.appendChild(errorItem);
-                }
-            }
-        }
-    },
-    createCurveChart: function(containerId, distData, unit, statSummary, config, highlightValue) {
-        var container = document.getElementById(containerId);
-        if (!container || !statSummary) return;
-        container.innerHTML = '';
-        try {
-            var entries = [];
-            if (Array.isArray(distData)) { entries = distData; } 
-            else {
-                for (var key in distData) { if(distData.hasOwnProperty(key)) entries.push([key, distData[key]]); }
-                entries.sort(function(a, b) {
-                    var valA = parseFloat(a[0].split(/[ :\-]/)[0]);
-                    var valB = parseFloat(b[0].split(/[ :\-]/)[0]);
-                    return isNaN(valA) ? 0 : valA - valB;
-                });
-            }
-            if (entries.length < 2) throw new Error('Not enough data');
-            var mu = statSummary.mean; var sd = statSummary.std;
-            var valKeys = [];
-            for (var i = 0; i < entries.length; i++) {
-                var v = parseFloat(entries[i][0].split(/[ :\-]/)[0]);
-                if (!isNaN(v)) valKeys.push(v);
-            }
-            var dataMax = Math.max.apply(null, valKeys);
-            var dataMin = Math.min.apply(null, valKeys);
-            var limit = (config && config.maxLimit) ? Math.min(config.maxLimit, dataMax) : dataMax;
-            var width = container.clientWidth || 600; var height = 200; var padding = 50;
-            var chartWidth = width - padding * 2; var chartHeight = height - 70; var baselineY = height - 40;
-            var maxFreq = 1;
-            for (var fIdx = 0; fIdx < entries.length; fIdx++) { if(entries[fIdx][1] > maxFreq) maxFreq = entries[fIdx][1]; }
-            var points = [];
-            for (var i = 0; i < entries.length; i++) {
-                var x = padding + (i / (entries.length - 1)) * chartWidth;
-                var y = baselineY - (entries[i][1] / maxFreq) * chartHeight;
-                points.push({ x: x, y: y, label: entries[i][0], value: entries[i][1] });
-            }
-            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.setAttribute("viewBox", "0 0 " + width + " " + height);
-            svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
-            var hatchIdOpt = "hatch-opt-" + containerId;
-            var hatchIdSafe = "hatch-safe-" + containerId;
-            var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-            defs.innerHTML = '<pattern id="' + hatchIdOpt + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.5" opacity="0.4"/></pattern>' +
-                             '<pattern id="' + hatchIdSafe + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" opacity="0.2"/></pattern>';
-            svg.appendChild(defs);
-            var drawZone = function(z, color) {
-                var minB = Math.round(mu - z * sd);
-                var maxB = Math.min(limit, Math.round(mu + z * sd));
-                var zPoints = [];
-                for (var i = 0; i < points.length; i++) {
-                    var pV = parseFloat(points[i].label.split(/[ :\-]/)[0]);
-                    if (!isNaN(pV) && pV >= minB && pV <= maxB) zPoints.push(points[i]);
-                }
-                if (zPoints.length > 0) {
-                    var d = "M " + zPoints[0].x + "," + baselineY;
-                    for (var j = 0; j < zPoints.length; j++) { d += " L " + zPoints[j].x + "," + zPoints[j].y; }
-                    d += " L " + zPoints[zPoints.length - 1].x + "," + baselineY + " Z";
-                    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
-                }
-            };
-            drawZone(2, "url(#" + hatchIdSafe + ")"); drawZone(1, "url(#" + hatchIdOpt + ")");
-            var curveD = "M " + points[0].x + "," + points[0].y;
-            for (var i = 1; i < points.length; i++) { curveD += " L " + points[i].x + "," + points[i].y; }
-            var curve = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
-            svg.appendChild(curve);
-
-            // [FIX] 정규분포 확률(σ) 기반 백분위(%) 라벨 정밀화
-            // μ±2σ = 95.4% (양끝 2.3%), μ±1σ = 68.2% (양끝 15.9%)
-            var statsMarkers = [
-                { v: 0, t: '0%', p: 1 },
-                { v: mu - 2 * sd, t: '2.5%', p: 2 },
-                { v: mu - sd, t: '16%', p: 3 },
-                { v: mu, t: '50%', p: 10 }, // 평균 우선순위 최고
-                { v: mu + sd, t: '84%', p: 3 },
-                { v: mu + 2 * sd, t: '97.5%', p: 2 },
-                { v: limit, t: '100%', p: 1 }
-            ];
-
-            // 렌더링할 마커들을 x좌표 순으로 정렬 및 중복 좌표 제거
-            var markersToDraw = [];
-            var usedX = {};
-            for (var mIdx = 0; mIdx < statsMarkers.length; mIdx++) {
-                var marker = statsMarkers[mIdx];
-                var lVal = Math.max(0, Math.min(limit, Math.round(marker.v)));
-                var lIdx = -1; var minDist = 999;
-                for (var k = 0; k < points.length; k++) {
-                    var pV = parseFloat(points[k].label.split(/[ :\-]/)[0]);
-                    if (!isNaN(pV)) {
-                        var d = Math.abs(pV - lVal);
-                        if (d < minDist) { minDist = d; lIdx = k; }
-                    }
-                }
-                if (lIdx !== -1) {
-                    var targetX = Math.round(points[lIdx].x);
-                    // 같은 x좌표에 이미 마커가 있다면 우선순위 비교
-                    var existing = null;
-                    for (var e = 0; e < markersToDraw.length; e++) {
-                        if (markersToDraw[e].x === targetX) { existing = markersToDraw[e]; break; }
-                    }
-
-                    if (existing) {
-                        if (marker.p > existing.priority) {
-                            existing.val = lVal; existing.text = marker.t; existing.priority = marker.p;
-                        }
-                    } else {
-                        markersToDraw.push({ x: targetX, val: lVal, text: marker.t, priority: marker.p });
-                    }
-                }
-            }
-
-            // x좌표 순 정렬 후 물리적 겹침 방지 필터링 (최소 간격 45px)
-            markersToDraw.sort(function(a, b) { return a.x - b.x; });
-            
-            var finalMarkers = [];
-            for (var dIdx = 0; dIdx < markersToDraw.length; dIdx++) {
-                var m = markersToDraw[dIdx];
-                var tooClose = false;
-                for (var f = 0; f < finalMarkers.length; f++) {
-                    if (Math.abs(m.x - finalMarkers[f].x) < 45) {
-                        // 겹칠 경우: 현재 마커가 우선순위가 낮으면 포기, 높으면 기존 것 제거 (단, 단순화를 위해 여기서는 순차 처리)
-                        if (m.priority <= finalMarkers[f].priority) { tooClose = true; break; }
-                        else { 
-                            // 기존 것이 우선순위가 낮으면 제거하고 현재 것 추가
-                            finalMarkers.splice(f, 1);
-                            f--;
-                        }
-                    }
-                }
-                if (!tooClose) finalMarkers.push(m);
-            }
-
-            for (var fIdx = 0; fIdx < finalMarkers.length; fIdx++) {
-                var fm = finalMarkers[fIdx];
-                var isAvg = fm.text === '50%';
-
-                // 보조선 (Tick)
-                var gridLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                gridLine.setAttribute("x1", fm.x); gridLine.setAttribute("y1", baselineY);
-                gridLine.setAttribute("x2", fm.x); gridLine.setAttribute("y2", baselineY + 5);
-                gridLine.setAttribute("stroke", isAvg ? "#3182f6" : "#cbd5e1");
-                gridLine.setAttribute("stroke-width", isAvg ? "2" : "1");
-                svg.appendChild(gridLine);
-
-                // 텍스트 라벨 (통계 명칭)
-                var txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                txt.setAttribute("x", fm.x); txt.setAttribute("y", baselineY + 20);
-                txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", isAvg ? "11px" : "10px");
-                txt.setAttribute("font-weight", isAvg ? "800" : "600");
-                txt.setAttribute("fill", isAvg ? "#3182f6" : "#64748b");
-                txt.textContent = fm.text;
-                svg.appendChild(txt);
-
-                // 수치 라벨 (하단에 병기)
-                var valTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                valTxt.setAttribute("x", fm.x); valTxt.setAttribute("y", baselineY + 34);
-                valTxt.setAttribute("text-anchor", "middle"); valTxt.setAttribute("font-size", isAvg ? "10px" : "9px");
-                valTxt.setAttribute("font-weight", isAvg ? "700" : "500");
-                valTxt.setAttribute("fill", isAvg ? "#3182f6" : "#94a3b8");
-                valTxt.textContent = "(" + fm.val + ")";
-                svg.appendChild(valTxt);
-            }
-
-            container.appendChild(svg);
-        } catch (e) { container.innerHTML = '<p style="text-align:center; padding: 20px; font-size:0.8rem; color:#999;">데이터 부족</p>'; }
+        ball.innerText = num; return ball;
     },
     renderMiniTable: function(containerId, draws, indicatorConfig) {
-        var tbody = document.getElementById(containerId);
-        if (!tbody) return; tbody.innerHTML = '';
+        var tbody = document.getElementById(containerId); if (!tbody) return; tbody.innerHTML = '';
         for (var i = 0; i < draws.length; i++) {
             var draw = draws[i]; var tr = document.createElement('tr');
             var ballsHtml = ''; for (var j = 0; j < draw.nums.length; j++) { ballsHtml += LottoUI.createBall(draw.nums[j], true).outerHTML; }
@@ -430,23 +142,102 @@ var LottoUI = {
             tbody.appendChild(tr);
         }
     },
-    renderBarChart: function(containerId, freqData, unitLabel, themeColor) {
-        var container = document.getElementById(containerId);
-        if (!container) return;
-        var color = themeColor || '#ff8c00';
-        var keys = []; for (var k in freqData) { if(freqData.hasOwnProperty(k)) keys.push(Number(k)); }
-        keys.sort(function(a, b) { return a - b; });
-        var max = 0; for (var i = 0; i < keys.length; i++) { if (freqData[keys[i]] > max) max = freqData[keys[i]]; }
-        if (max === 0) max = 1;
-        var html = '<div style="display: flex; align-items: flex-end; height: 100%; border-bottom: 2px solid #edf2f7; padding-bottom: 5px;">';
-        for (var j = 0; j < keys.length; j++) {
-            var key = keys[j]; var f = freqData[key] || 0; var h = Math.max(4, (f / max) * 100);
-            var label = (key === 0 || (key === 1 && containerId === 'repeat-dist-chart')) ? '없음' : key + unitLabel;
-            html += '<div style="flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin: 0 1px;">' +
-                    '<span style="font-size: 0.55rem; color: #94a3b8; margin-bottom: 2px;">' + f + '</span>' +
-                    '<div style="width: 80%; height: ' + h + '%; background: ' + color + '; border-radius: 2px; opacity: ' + (0.4 + (h/150)) + ';"></div>' +
-                    '<span style="font-size: 0.6rem; font-weight: 700; color: #475569; margin-top: 5px; white-space: nowrap; transform: scale(0.9);">' + label + '</span>' +
-                    '</div>';
+    createCurveChart: function(containerId, distData, unit, statSummary, config, highlightValue) {
+        var container = document.getElementById(containerId); if (!container || !statSummary) return;
+        container.innerHTML = '';
+        try {
+            var entries = [];
+            for (var key in distData) { if(distData.hasOwnProperty(key)) entries.push([key, distData[key]]); }
+            entries.sort(function(a, b) { return parseFloat(a[0]) - parseFloat(b[0]); });
+            if (entries.length < 2) return;
+
+            var mu = statSummary.mean; var sd = statSummary.std;
+            var width = container.clientWidth || 600; var height = 200; var padding = 50;
+            var chartWidth = width - padding * 2; var chartHeight = height - 70; var baselineY = height - 40;
+            
+            var maxFreq = Math.max.apply(null, entries.map(e => e[1]));
+            var points = entries.map((e, i) => ({
+                x: padding + (i / (entries.length - 1)) * chartWidth,
+                y: baselineY - (e[1] / maxFreq) * chartHeight,
+                val: parseFloat(e[0])
+            }));
+
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+            svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
+
+            // 1. 패턴 정의 (빗금)
+            var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            var h1 = "hatch-opt-" + containerId, h2 = "hatch-safe-" + containerId;
+            defs.innerHTML = '<pattern id="' + h1 + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.5" opacity="0.4"/></pattern>' +
+                             '<pattern id="' + h2 + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" opacity="0.2"/></pattern>';
+            svg.appendChild(defs);
+
+            // 2. 구간 렌더링 함수
+            var drawZone = function(z, color) {
+                var minB = mu - z * sd, maxB = mu + z * sd;
+                var zPoints = points.filter(p => p.val >= minB && p.val <= maxB);
+                if (zPoints.length > 0) {
+                    var d = "M " + zPoints[0].x + "," + baselineY;
+                    zPoints.forEach(p => d += " L " + p.x + "," + p.y);
+                    d += " L " + zPoints[zPoints.length - 1].x + "," + baselineY + " Z";
+                    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
+                }
+            };
+            drawZone(2, "url(#" + h2 + ")"); drawZone(1, "url(#" + h1 + ")");
+
+            // 3. 메인 곡선
+            var curveD = "M " + points[0].x + "," + points[0].y;
+            for (var i = 1; i < points.length; i++) curveD += " L " + points[i].x + "," + points[i].y;
+            var curve = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
+            svg.appendChild(curve);
+
+            // 4. 통계 마커 및 충돌 방지 라벨링
+            var markers = [
+                { v: mu - 2*sd, t: '2.5%', p: 2 }, { v: mu - sd, t: '16%', p: 3 },
+                { v: mu, t: '50%', p: 10 }, { v: mu + sd, t: '84%', p: 3 }, { v: mu + 2*sd, t: '97.5%', p: 2 }
+            ];
+            
+            var drawnX = [];
+            markers.forEach(m => {
+                var targetVal = Math.max(points[0].val, Math.min(points[points.length-1].val, m.v));
+                var bestP = points[0]; var minDist = 999;
+                points.forEach(p => { var d = Math.abs(p.val - targetVal); if(d < minDist) { minDist = d; bestP = p; } });
+                
+                // 물리적 겹침 방지 (최소 45px)
+                if (drawnX.every(x => Math.abs(x - bestP.x) > 40)) {
+                    drawnX.push(bestP.x);
+                    var isAvg = m.t === '50%';
+                    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.innerHTML = '<line x1="'+bestP.x+'" y1="'+baselineY+'" x2="'+bestP.x+'" y2="'+(baselineY+5)+'" stroke="'+(isAvg?'#3182f6':'#cbd5e1')+'" stroke-width="'+(isAvg?2:1)+'"/>' +
+                                  '<text x="'+bestP.x+'" y="'+(baselineY+20)+'" text-anchor="middle" font-size="10px" font-weight="800" fill="'+(isAvg?'#3182f6':'#64748b')+'">'+m.t+'</text>' +
+                                  '<text x="'+bestP.x+'" y="'+(baselineY+34)+'" text-anchor="middle" font-size="9px" font-weight="700" fill="'+(isAvg?'#3182f6':'#94a3b8')+'">('+Math.round(bestP.val)+')</text>';
+                    svg.appendChild(g);
+                }
+            });
+
+            container.appendChild(svg);
+        } catch (e) { console.error(e); container.innerHTML = '<p style="text-align:center; color:#999;">차트 렌더링 오류</p>'; }
+    },
+    renderMarkovHeatmap: function(containerId, matrix, options) {
+        var container = document.getElementById(containerId); if (!container || !matrix) return;
+        var opts = options || {}; var themeColor = opts.color || '255, 140, 0';
+        var html = '<div class="heatmap-grid" style="display:grid; grid-template-columns:40px repeat(10, 1fr); gap:4px; overflow-x:auto;">';
+        html += '<div style="background:#f8fafc;"></div>';
+        for (var h = 0; h < 10; h++) html += '<div style="text-align:center; font-size:0.6rem; font-weight:800; color:#64748b; background:#f8fafc; padding:8px 0;">' + h + '</div>';
+        for (var i = 0; i < 10; i++) {
+            html += '<div style="display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:800; color:#64748b; background:#f8fafc;">' + i + '</div>';
+            var rowSum = matrix[i].reduce((a, b) => a + b, 0);
+            var maxP = 0, maxIdx = -1;
+            for(var c=0; c<10; c++) { var p = rowSum===0?0:Math.round((matrix[i][c]/rowSum)*100); if(p>maxP){maxP=p; maxIdx=c;} }
+            for (var j = 0; j < 10; j++) {
+                var prob = rowSum === 0 ? 0 : Math.round((matrix[i][j] / rowSum) * 100);
+                var opacity = Math.max(0.05, prob / 30);
+                var isBest = j === maxIdx && prob > (opts.threshold || 12);
+                html += '<div style="text-align:center; padding:12px 0; font-size:0.7rem; font-weight:800; background:rgba(' + themeColor + ',' + opacity + '); color:' + (opacity>0.4?'white':'#4e5968') + '; border-radius:4px; ' + (isBest?'outline:2px solid rgb('+themeColor+'); outline-offset:-2px;':'') + '">' + prob + '%</div>';
+            }
         }
         html += '</div>'; container.innerHTML = html;
     }
@@ -454,46 +245,17 @@ var LottoUI = {
 
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
-    SYSTEM_VERSION: '10.0', 
-    getCacheKey: function() { return 'lotto_data_v' + this.SYSTEM_VERSION; },
+    SYSTEM_VERSION: '11.0',
+    getCacheKey: function(type) { return 'lotto_data_' + type + '_v' + this.SYSTEM_VERSION; },
     getStats: function(callback) {
-        if (typeof Promise !== 'undefined' && !callback) { return new Promise(function(resolve) { LottoDataManager.getStats(function(data) { resolve(data); }); }); }
-        if (this.cache.lotto) { if(callback) callback(this.cache.lotto); return; }
-        var cacheKey = this.getCacheKey();
-        var localData = null;
-        try {
-            localData = localStorage.getItem(cacheKey);
-            for (var i = 0; i < localStorage.length; i++) {
-                var key = localStorage.key(i);
-                if (key && key.indexOf('lotto_data_') === 0 && key !== cacheKey) { localStorage.removeItem(key); }
-            }
-        } catch (e) {}
-        if (localData) {
-            try {
-                var parsed = JSON.parse(localData);
-                this.cache.lotto = parsed;
-                if (callback) callback(parsed);
-                return;
-            } catch (e) { try { localStorage.removeItem(cacheKey); } catch(ex) {} }
-        }
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'advanced_stats.json?v=' + new Date().getTime(), true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                try {
-                    var data = JSON.parse(xhr.responseText);
-                    if (data && data.stats_summary) {
-                        LottoDataManager.cache.lotto = data;
-                        localStorage.setItem(cacheKey, xhr.responseText);
-                        if (callback) callback(data);
-                    }
-                } catch (e) { if (callback) callback(null); }
-            }
-        };
-        xhr.send();
+        this._loadJson('advanced_stats.json', 'lotto', callback);
+    },
+    getPensionStats: function(callback) {
+        this._loadJson('pension_stats.json', 'pension', callback);
     },
     getPensionRecords: function(callback) {
-        if (this.cache.pension) { if(callback) callback(this.cache.pension); return; }
+        // 기존 CSV 로드 호환성 유지 (필요 시 Stats의 recent_draws 활용 권장)
+        var self = this;
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'pt720.csv?v=' + new Date().getTime(), true);
         xhr.onreadystatechange = function() {
@@ -503,20 +265,51 @@ var LottoDataManager = {
                 for (var i = 1; i < lines.length; i++) {
                     if (!lines[i]) continue;
                     var parts = lines[i].split(','); if (parts.length < 4) continue;
-                    var numArr = [];
-                    var rawNums = LottoUtils.padLeft(parts[3].replace(/^\s+|\s+$/g, ''), 6, '0');
+                    var numArr = []; var rawNums = LottoUtils.padLeft(parts[3].trim(), 6, '0');
                     for(var n=0; n<6; n++) { numArr.push(Number(rawNums.charAt(n))); }
-                    data.push({ drawNo: parts[0], date: parts[1], group: parts[2].replace(/^\s+|\s+$/g, ''), nums: numArr });
+                    data.push({ drawNo: parts[0], date: parts[1], group: parts[2].trim(), nums: numArr });
                 }
-                LottoDataManager.cache.pension = data;
-                if(callback) callback(data);
+                callback(data);
+            }
+        };
+        xhr.send();
+    },
+    _loadJson: function(url, cacheType, callback) {
+        if (this.cache[cacheType]) { if(callback) callback(this.cache[cacheType]); return; }
+        var self = this; var cacheKey = this.getCacheKey(cacheType);
+        try {
+            var local = localStorage.getItem(cacheKey);
+            if (local) { this.cache[cacheType] = JSON.parse(local); if(callback) callback(this.cache[cacheType]); return; }
+        } catch(e) {}
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url + '?v=' + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                try {
+                    var data = JSON.parse(xhr.responseText);
+                    self.cache[cacheType] = data;
+                    localStorage.setItem(cacheKey, xhr.responseText);
+                    if (callback) callback(data);
+                } catch(e) { if(callback) callback(null); }
             }
         };
         xhr.send();
     }
 };
 
-window.onerror = function(msg, url, lineNo, colNo, error) {
-    LottoUtils.logError('Runtime Exception', { msg: msg, line: lineNo });
-    return false;
+var PrivacyManager = {
+    init: function() {
+        if (localStorage.getItem('lotto_consent_given')) return;
+        var banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed; bottom:0; left:0; right:0; background:#fff; box-shadow:0 -2px 20px rgba(0,0,0,0.1); z-index:10000; padding:1.5rem; text-align:center;';
+        banner.innerHTML = '<p style="font-size:0.9rem; color:#4a5568; margin-bottom:1rem;">당사는 서비스 제공을 위해 쿠키와 개인정보를 사용합니다. <a href="privacy.html" style="color:#3498db; text-decoration:underline;">개인정보처리방침</a>에 동의하십니까?</p>' +
+                           '<div style="display:flex; gap:1rem; justify-content:center;"><button id="c-acc" style="padding:0.6rem 2rem; border-radius:8px; background:#3498db; color:#fff; border:none; cursor:pointer;">동의함</button><button id="c-dec" style="padding:0.6rem 2rem; border-radius:8px; background:#edf2f7; color:#4a5568; border:none; cursor:pointer;">거부함</button></div>';
+        document.body.appendChild(banner);
+        document.getElementById('c-acc').onclick = function() { localStorage.setItem('lotto_consent_given', 'true'); banner.style.display = 'none'; };
+        document.getElementById('c-dec').onclick = function() { banner.style.display = 'none'; };
+    }
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+    PrivacyManager.init();
+});

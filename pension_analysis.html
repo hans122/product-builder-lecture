@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>연금복권 720+ AI 정밀 통계분석</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=11.0">
 </head>
 <body class="analysis-page pension-theme" style="background-color: #f4f7fa;">
     <header class="sticky-header">
@@ -192,6 +192,27 @@
                 <!-- JS에서 렌더링 -->
             </div>
         </section>
+        <!-- [GP14] AI 마르코프 전이 확률 분석 (Markov Chain) -->
+        <div class="group-header">🔮 AI 마르코프 다음 숫자 전이 확률 (Markov Chain)</div>
+        <section class="analysis-card" style="margin-bottom: 40px;">
+            <div class="card-header">
+                <h3>📊 숫자 간 전이 확률 매트릭스 (Heatmap)</h3>
+                <span style="font-size: 0.7rem; color: #64748b;">가로(이전 숫자) -> 세로(다음 숫자)로 이어질 확률</span>
+            </div>
+            <div style="padding: 24px;">
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 20px;">
+                    과거 모든 회차를 분석하여 특정 숫자가 나온 직후, 다음 회차에 어떤 숫자가 가장 많이 등장했는지 추적한 결과입니다. 
+                    <strong style="color: #ff8c00;">주황색이 짙을수록 확률이 높으며</strong>, 이를 통해 '흐름' 상 유력한 번호를 예측할 수 있습니다.
+                </p>
+                <div id="markov-heatmap-container" class="markov-heatmap-wrapper">
+                    <!-- JS에서 10x10 Heatmap 렌더링 -->
+                </div>
+                
+                <div id="markov-top-insights" class="markov-insights" style="margin-top: 24px;">
+                    <!-- 주요 통찰 정보 출력 -->
+                </div>
+            </div>
+        </section>
     </main>
     </div>
 
@@ -199,7 +220,7 @@
         <p>© 2026 AI Lotto Engine. Expert Statistical Analysis Service.</p>
     </footer>
 
-    <script src="core.js"></script>
-    <script src="pension_analysis.js"></script>
+    <script src="core.js?v=11.0"></script>
+    <script src="analysis_engine.js?v=11.0"></script>
 </body>
 </html>

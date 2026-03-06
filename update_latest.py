@@ -1,4 +1,5 @@
-import requests
+import urllib.request
+import json
 import csv
 import os
 import sys
@@ -26,32 +27,33 @@ def update_latest_lotto():
     print(f"🔍 {target_draw_no}회차 데이터 자동 수집 시작...")
     
     try:
-        response = requests.get(url, timeout=20)
-        if response.status_code != 200:
-            print(f"⚠️ API 응답 오류: {response.status_code}")
-            return False
-            
-        data = response.json()
-        
-        if data.get("returnValue") == "success" and int(data.get("drwNo", 0)) == target_draw_no:
-            draw_date = data["drwNoDate"]
-            nums = [data[f"drwtNo{i}"] for i in range(1, 7)]
-            bonus = data["bnusNo"]
-            
-            with open(CSV_PATH, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-            
-            new_row = f"{target_draw_no},'{draw_date.replace('-', '.')}',{','.join(map(str, nums))},{bonus}\n"
-            lines.insert(1, new_row) # 헤더 바로 아래 삽입
-            
-            with open(CSV_PATH, 'w', encoding='utf-8') as f:
-                f.writelines(lines)
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=20) as response:
+            if response.status != 200:
+                print(f"⚠️ API 응답 오류: {response.status}")
+                return False
                 
-            print(f"✅ {target_draw_no}회 업데이트 성공! ({draw_date})")
-            return True
-        else:
-            print(f"⏳ {target_draw_no}회 데이터 미등록 상태.")
-            return False
+            data = json.loads(response.read().decode('utf-8'))
+            
+            if data.get("returnValue") == "success" and int(data.get("drwNo", 0)) == target_draw_no:
+                draw_date = data["drwNoDate"]
+                nums = [data[f"drwtNo{i}"] for i in range(1, 7)]
+                bonus = data["bnusNo"]
+                
+                with open(CSV_PATH, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                
+                new_row = f"{target_draw_no},'{draw_date.replace('-', '.')}',{','.join(map(str, nums))},{bonus}\n"
+                lines.insert(1, new_row) # 헤더 바로 아래 삽입
+                
+                with open(CSV_PATH, 'w', encoding='utf-8') as f:
+                    f.writelines(lines)
+                    
+                print(f"✅ {target_draw_no}회 업데이트 성공! ({draw_date})")
+                return True
+            else:
+                print(f"⏳ {target_draw_no}회 데이터 미등록 상태.")
+                return False
             
     except Exception as e:
         print(f"⚠️ 시스템 오류 발생: {e}")

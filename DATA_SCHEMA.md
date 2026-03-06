@@ -1,4 +1,4 @@
-# DATA_SCHEMA.md - Master Data & System Architecture (v7.3)
+# DATA_SCHEMA.md - Master Data & System Architecture (v7.7)
 
 ## 1. 시스템 아키텍처 (Core Engine)
 본 프로젝트는 `core.js`를 중심으로 하는 중앙 집중형 로직 및 데이터 관리 체계를 따른다. 로또와 연금의 지표 혼선을 방지하기 위해 **GL(Lotto)** 및 **GP(Pension)** 접두사를 필수 사용한다.
@@ -65,4 +65,15 @@
 
 ## 5. 자동 업데이트 파이프라인
 - **update_latest.py**: 매주 최신 당첨 번호 자동 수집 및 통계 재분석 실행.
+- **analyze_data.py**: 로또(advanced_stats.json) 및 연금(pension_stats.json) 통합 분석 엔진.
 - **백테스트 무결성**: 과거 시뮬레이션 시 미래 데이터 차단(Time-Slice) 로직 준수.
+
+## 6. Pension Stats Schema (pension_stats.json)
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `total_draws` | Number | 전체 분석 회차 수 |
+| `pos_freq` | Array[6][10] | 각 자리수별 0~9 출현 빈도 |
+| `digit_gap` | Array[6][10] | 각 자리수별 0~9 미출현 주기 |
+| `markov_matrix` | Array[10][10] | 전 회차 숫자 대비 다음 회차 숫자 전이 행렬 |
+| `group_dist` | Object | 조별 당첨 빈도 분포 |
+| `recent_draws` | Array[30] | 최근 30회차 상세 데이터 (no, date, group, nums) |

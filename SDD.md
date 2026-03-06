@@ -1,10 +1,15 @@
-# SDD (System Design Document) - v5.5
+# SDD (System Design Document) - v5.9
 
 ## 1. 시스템 아키텍처 개요
-본 시스템은 **`indicators.js` (설정)**와 **`core.js` (엔진)**를 핵심 축으로 하는 **Data-Driven Architecture**를 채택한다. 모든 UI 구성 요소와 분석 로직은 이 두 파일의 정의를 따르며, 개별 페이지(`index.html`, `analysis.html` 등)는 렌더링 결과만 출력하는 뷰(View)의 역할을 수행한다.
+본 시스템은 **`indicators.js` (설정)**와 **`core.js` (엔진)**를 핵심 축으로 하는 **Data-Driven Architecture**를 채택한다. 또한, 로또와 연금의 분석 로직을 단일화한 **`analysis_engine.js` (통합 분석 엔진)**를 통해 서비스 간 코드 중복을 최소화하고 AI 모델의 일관성을 유지한다.
 
 ## 2. 모듈별 상세 설계
 ### 2.1. LottoConfig (indicators.js) - SSOT
+...
+### 2.5. AI Analysis Engine (analysis_engine.js)
+- **Theme Auto-Detection**: Body 클래스(`pension-theme` 여부)를 감지하여 도메인별 최적화된 분석 로직 자동 실행.
+- **Unified Markov Logic**: 로또 끝수 및 연금 자리수 전이 확률을 동일한 마르코프 인터페이스로 처리.
+- **Integrated Frequency Analytics**: 공통 빈도 차트 및 타임라인 생성 엔진 탑재.
 - 서비스의 모든 지표(G1~G6), 시너지 규칙(G0), 데이터 키 매핑을 관리하는 **단일 진실 공급원(Single Source of Truth)**.
 - 루프 기반 렌더링 엔진의 입력 소스로 활용됨.
 
@@ -21,7 +26,8 @@
 
 ### 2.4. Expert-Grade Table System
 - **Slanted Header**: CSS `transform: rotate(-45deg)`를 활용하여 고정된 열 너비 안에서 긴 텍스트를 가시화.
-- **Sticky Column**: `position: sticky`와 `z-index` 설정을 통해 스크롤 시에도 핵심 열(회차, 번호)을 브라우저 좌측에 고정.
+- **Sticky Column**: `position: sticky`와 `z-index` 설정을 통해 스크롤 시에도 핵심 열(회차, 추첨일, 번호/조)을 브라우저 좌측에 고정.
+- **Pension History Expansion (v10.1)**: 연금복권 히스토리 표에 '추첨일' 컬럼을 추가하고, `.date-col` 클래스를 통해 시각적 위계를 조정함.
 
 ## 3. 데이터 흐름 (Data Flow)
 1. **수집**: `update_latest.py`가 외부 API에서 최신 데이터를 가져와 `lt645.csv`에 저장.

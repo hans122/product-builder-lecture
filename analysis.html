@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로또 역대 당첨 빅데이터 통계 분석</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=11.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap&v=11.0" rel="stylesheet">
     <meta name="google-adsense-account" content="ca-pub-9576362527820452">
 </head>
 <body class="analysis-page">
@@ -338,13 +338,34 @@
             <div id="full-frequency-chart" class="frequency-chart"></div>
         </section>
 
+        <!-- [GL7] AI 마르코프 끝수 전이 확률 분석 (Markov Chain) -->
+        <div class="group-header">🔮 [GL7] AI 마르코프 끝수 전이 확률 (Markov Chain)</div>
+        <section class="analysis-card" style="margin-bottom: 40px;">
+            <div class="card-header">
+                <h3>📊 끝수 간 전이 확률 매트릭스</h3>
+                <span style="font-size: 0.7rem; color: #64748b;">이전 끝수(행)가 다음 회차 끝수(열)로 나타날 확률</span>
+            </div>
+            <div style="padding: 24px;">
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 20px;">
+                    로또 번호의 끝수(0~9) 흐름을 분석한 AI 모델입니다. 특정 끝수가 출현한 직후, 다음 회차에 어떤 끝수가 함께 등장할 가능성이 높은지 보여줍니다. 
+                    주황색이 짙을수록 확률이 높으며, 테두리가 있는 칸은 가장 유력한 예측 지점입니다.
+                </p>
+                <div id="lotto-markov-heatmap" class="markov-heatmap-wrapper">
+                    <!-- JS에서 10x10 Heatmap 렌더링 -->
+                </div>
+                <div id="lotto-markov-insights" style="margin-top: 24px;">
+                    <!-- 주요 통찰 정보 출력 -->
+                </div>
+            </div>
+        </section>
+
         <footer class="standard-footer">
             <p class="disclaimer">※ 본 데이터는 역대 당첨 결과를 바탕으로 제공됩니다.</p>
         </footer>
     </div>
-    <script src="indicators.js"></script>
-    <script src="core.js"></script>
-    <script src="analysis.js"></script>
-    <script src="consent.js"></script>
+    <script src="indicators.js?v=11.0"></script>
+    <script src="core.js?v=11.0"></script>
+    <script src="analysis_engine.js?v=11.0"></script>
+    <script src="consent.js?v=11.0"></script>
 </body>
 </html>

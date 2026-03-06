@@ -607,6 +607,73 @@ body.pension-theme .group-header { border-left: 4px solid #ff8c00; background: #
 }
 .banner-label { font-weight: 700; font-size: 0.85rem; color: var(--primary-blue); }
 
+/* 📊 전문가용 연금 히스토리 표 표준 스타일 (v10.1) */
+.expert-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    table-layout: fixed;
+}
+
+.expert-table th, .expert-table td {
+    padding: 12px 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.expert-table th {
+    background: #f8fafc;
+    color: var(--text-sub);
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+/* 틀 고정 (Sticky Columns) */
+.expert-table .sticky-col {
+    position: sticky !important;
+    z-index: 10;
+    background: white !important;
+}
+
+.expert-table .sticky-col.first { left: 0; min-width: 65px; border-right: 1px solid var(--border-light); }
+.expert-table .sticky-col.date-col { left: 65px; min-width: 100px; border-right: 1px solid var(--border-light); font-size: 0.75rem; color: var(--text-light); }
+.expert-table .sticky-col.second { left: 165px; min-width: 50px; border-right: 2px solid var(--primary-blue-soft); }
+
+.expert-table th.sticky-col { background: #f8fafc !important; z-index: 20; }
+
+/* 45도 대각선 헤더 */
+.expert-table .slanted {
+    transform: rotate(-45deg);
+    white-space: nowrap;
+    display: inline-block;
+    width: 20px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--text-sub);
+}
+
+/* 연금 전용 구슬 스타일 */
+.pension-ball {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: 800;
+    font-size: 1rem;
+    margin: 0 auto;
+}
+
+.pension-ball.small { width: 26px; height: 26px; font-size: 0.85rem; }
+.pension-ball.group { background: #4e5968; } /* 조 단위 색상 */
+.pension-ball.yellow { background: #ffcc00; color: #191f28; }
+.pension-ball.blue { background: #3182f6; }
+
+.c-blue { color: var(--primary-blue); }
+.c-red { color: var(--danger-red); }
+
 /* Footer */
 .standard-footer {
     padding: 60px 20px;
