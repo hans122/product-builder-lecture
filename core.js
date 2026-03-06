@@ -113,17 +113,33 @@ var LottoSynergy = {
     check: function(nums, data) {
         var results = [];
         if (!LottoConfig || !LottoConfig.SYNERGY_RULES) return results;
-        var indicatorValues = {}; var indicators = LottoConfig.INDICATORS;
-        for (var i = 0; i < indicators.length; i++) {
-            var cfg = indicators[i]; indicatorValues[cfg.id] = cfg.calc(nums, data);
-        }
+        
         var stats = (data && data.stats_summary) ? data.stats_summary : {};
+        var indicatorValues = {}; 
+        var indicators = LottoConfig.INDICATORS;
+        
+        // 1. 사전 지표 계산 (지표 간 비교를 위해)
+        for (var i = 0; i < indicators.length; i++) {
+            var cfg = indicators[i];
+            if (cfg.group && cfg.group.indexOf('GL') === 0 && cfg.calc) {
+                indicatorValues[cfg.id] = cfg.calc(nums, data);
+            }
+        }
+        
+        // 2. 시너지 규칙(GL0) 검증
         var rules = LottoConfig.SYNERGY_RULES;
         for (var j = 0; j < rules.length; j++) {
             var rule = rules[j];
-            if (rule.check(indicatorValues, stats)) {
-                results.push({ id: rule.id, label: rule.label, status: rule.status, desc: rule.desc });
-            }
+            try {
+                if (rule.check(indicatorValues, stats)) {
+                    results.push({ 
+                        id: rule.id, 
+                        label: rule.label, 
+                        status: rule.status, 
+                        desc: rule.desc 
+                    });
+                }
+            } catch(e) { console.warn('Synergy Rule Error:', rule.id, e); }
         }
         return results;
     }
@@ -208,14 +224,21 @@ var LottoUI = {
             svg.appendChild(defs);
 
             var drawZone = function(z, color) {
+                if (!sd || sd <= 0.1) return; // 표준편차가 너무 작으면 빗금 영역 생략
                 var minB = mu - z * sd, maxB = mu + z * sd;
                 var zPoints = points.filter(function(p) { return p.val >= minB && p.val <= maxB; });
-                if (zPoints.length > 0) {
+                
+                if (zPoints.length > 1) { // 점이 최소 2개 이상이어야 면적 생성 가능
                     var d = "M " + zPoints[0].x + "," + baselineY;
-                    for (var j = 0; j < zPoints.length; j++) d += " L " + zPoints[j].x + "," + zPoints[j].y;
+                    for (var j = 0; j < zPoints.length; j++) {
+                        if (isNaN(zPoints[j].x) || isNaN(zPoints[j].y)) continue;
+                        d += " L " + zPoints[j].x + "," + zPoints[j].y;
+                    }
                     d += " L " + zPoints[zPoints.length - 1].x + "," + baselineY + " Z";
                     var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
+                    path.setAttribute("d", d); path.setAttribute("fill", color); 
+                    path.setAttribute("style", "pointer-events:none;"); // 클릭 방해 방지
+                    svg.appendChild(path);
                 }
             };
             drawZone(2, "url(#" + h2 + ")"); drawZone(1, "url(#" + h1 + ")");

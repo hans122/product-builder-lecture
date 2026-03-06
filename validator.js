@@ -98,6 +98,17 @@ var SystemGuardian = {
         
         this.badge.style.backgroundColor = color;
         this.badge.title = 'System Status: ' + (this.results.fail > 0 ? 'Error Detected' : 'Operational');
+
+        // 로그 영속화 (localStorage에 저장하여 AI가 다음 세션에서 읽을 수 있게 함)
+        try {
+            var summary = {
+                timestamp: new Date().toISOString(),
+                url: window.location.pathname,
+                results: { total: this.results.total, pass: this.results.pass, warn: this.results.warn, fail: this.results.fail },
+                fails: this.results.logs.filter(l => l.status === 'FAIL').map(l => l.msg)
+            };
+            localStorage.setItem('guardian_last_report', JSON.stringify(summary));
+        } catch(e) {}
     },
 
     showReport: function() {

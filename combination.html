@@ -54,8 +54,15 @@
 
         <!-- 번호 선택 영역 -->
         <section class="analysis-card">
-            <h3>🔢 번호 선택하기</h3>
-            <p class="description">분석할 번호 6개를 선택하세요. (직접 클릭하거나 자동 생성 가능)</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div>
+                    <h3 style="margin:0;">🔢 번호 선택하기</h3>
+                    <p class="description" style="margin:5px 0 0 0;">분석할 번호 6개를 선택하세요.</p>
+                </div>
+                <div id="live-status-bar" style="display:flex; gap:10px;">
+                    <!-- 실시간 통계가 여기에 표시됨 -->
+                </div>
+            </div>
             
             <div class="selection-layout-container">
                 <div class="lotto-paper-wrapper">
