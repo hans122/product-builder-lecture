@@ -161,12 +161,12 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 /* Global Analysis Split Layout (Expert Standard) */
 .analysis-layout-split {
     display: grid;
-    grid-template-columns: 6fr 4fr; /* 비율 전환: 차트 60%, 표 40% */
+    grid-template-columns: 1fr auto; /* 표는 내용에 맞게 축소(auto), 차트가 나머지 전부(1fr) */
     justify-content: center;
-    gap: 40px;
+    gap: 30px;
     margin: 0 auto 32px;
     width: 100%;
-    max-width: 1200px; /* 전체 최대 너비 제한으로 밸런스 유지 */
+    max-width: 1200px;
     align-items: start;
 }
 
@@ -176,45 +176,46 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 }
 
 .mini-table-wrapper {
-    width: 100%; /* 고정 해제: 비율에 따라 유동적으로 변화 */
+    width: auto; /* 내용물에 따라 자동 축소 */
+    min-width: 310px; /* 최소 안전 너비 */
     border-left: 1px dashed var(--border-light);
-    padding-left: 30px;
+    padding-left: 20px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
 }
 
 .mini-table-wrapper h4 {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-main);
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
     font-weight: 900;
     text-align: center;
     background: #f1f5f9;
-    padding: 8px;
-    border-radius: 8px;
+    padding: 5px;
+    border-radius: 6px;
 }
 
 .mini-table { 
     width: 100%; 
     border-collapse: collapse; 
-    font-size: 0.8rem; 
-    table-layout: fixed; 
+    font-size: 0.75rem; 
+    table-layout: auto; /* 콘텐츠 기반 자동 너비 */
 }
 
 .mini-table td { 
-    padding: 12px 2px; 
+    padding: 8px 2px; 
     border-bottom: 1px solid #f1f3f5; 
-    text-align: center; 
-    vertical-align: middle; 
+    vertical-align: middle;
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
 }
 
-/* Precise Column widths for 400px layout (Result Focused) */
-.mini-table td:nth-child(1) { width: 70px; text-align: left; color: #64748b; font-weight: 600; } /* 회차 */
-.mini-table td:nth-child(2) { width: 220px; text-align: center; } /* 번호 */
-.mini-table td:nth-child(3) { width: 110px; text-align: right; font-weight: 900; color: var(--primary-blue); font-size: 0.95rem; } /* 결과값 (확장: 70px -> 110px) */
+/* Precise Column Tuning for content-fit */
+.mini-table td:nth-child(1) { width: 55px; text-align: left; color: #64748b; font-weight: 600; } /* 회차 */
+.mini-table td:nth-child(2) { width: 185px; text-align: center; } /* 번호 (구슬 6개 딱 맞게) */
+.mini-table td:nth-child(3) { width: 70px; text-align: right; font-weight: 900; color: var(--primary-blue); } /* 결과값 */
 
-.table-nums { display: flex; justify-content: center; gap: 4px; }
+.table-nums { display: flex; justify-content: center; gap: 3px; }
 
 /* Charts */
 .frequency-chart {
