@@ -177,7 +177,7 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 
 .mini-table-wrapper {
     width: auto; /* 내용물에 따라 자동 축소 */
-    min-width: 360px; /* 확장: 310px -> 360px */
+    min-width: 360px; /* 너비 복구에 따른 최소 너비 상향 */
     border-left: 1px dashed var(--border-light);
     padding-left: 20px;
     display: flex;
@@ -212,8 +212,9 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 
 /* Precise Column Tuning for content-fit */
 .mini-table td:nth-child(1) { width: 55px; text-align: left; color: #64748b; font-weight: 600; } /* 회차 */
-.mini-table td:nth-child(2) { width: 210px; text-align: center; } /* 번호 정밀 축소 (230px -> 210px) */
-.mini-table td:nth-child(3) { width: 80px; text-align: center; font-weight: 900; color: var(--primary-blue); } /* 결과값 고정 너비 복구 */
+.mini-table td:nth-child(2) { width: 230px; text-align: center; } /* 번호 230px 복구 및 중앙 정렬 */
+.mini-table td:nth-child(2) .ball-container { justify-content: center !important; } /* 구슬 컨테이너 중앙 정렬 */
+.mini-table td:nth-child(3) { width: 80px; text-align: center; font-weight: 900; color: var(--primary-blue); } /* 결과값 고정 너비 */
 
 .table-nums { display: flex; justify-content: center; gap: 3px; }
 
