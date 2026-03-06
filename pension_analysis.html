@@ -73,18 +73,18 @@
         <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
             <section class="analysis-card">
                 <div class="card-header"><h3>🔢 연속 번호 (Sequence)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="sequence-dist-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="sequence-dist-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="sequence-mini-body"></tbody></table>
                     </div>
                 </div>
             </section>
             <section class="analysis-card">
                 <div class="card-header"><h3>🔄 직전 중복 (Repeat)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="repeat-dist-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="repeat-dist-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="repeat-mini-body"></tbody></table>
                     </div>
                 </div>
@@ -96,18 +96,18 @@
         <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
             <section class="analysis-card">
                 <div class="card-header"><h3>🔢 중복 포함 (Occurrence)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="occurrence-dist-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="occurrence-dist-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="occurrence-mini-body"></tbody></table>
                     </div>
                 </div>
             </section>
             <section class="analysis-card">
                 <div class="card-header"><h3>✨ 번호 다양성 (Unique)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="unique-dist-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="unique-dist-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="unique-mini-body"></tbody></table>
                     </div>
                 </div>
@@ -123,9 +123,9 @@
                     <h3>합계 수치 통계 및 표준 분포</h3>
                 </div>
             </div>
-            <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                <div class="chart-container-main"><div id="sum-dist-chart" style="height: 240px;"></div></div>
-                <div class="stat-summary-box">
+            <div class="analysis-layout-split" style="padding: 20px;">
+                <div class="chart-wrapper"><div id="sum-dist-chart" style="height: 240px;"></div></div>
+                <div class="mini-table-wrapper">
                     <h4 style="font-size: 0.8rem; color: #475569; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">📊 최근 당첨 합계 리포트</h4>
                     <table class="mini-table"><tbody id="p-sum-mini-body"></tbody></table>
                 </div>
@@ -137,27 +137,27 @@
         <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
             <section class="analysis-card">
                 <div class="card-header"><h3>🔄 자리 이월 (Carry Pos)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="carry-pos-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="carry-pos-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="carry-pos-mini-body"></tbody></table>
                     </div>
                 </div>
             </section>
             <section class="analysis-card">
                 <div class="card-header"><h3>🔁 숫자 이월 (Carry Num)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="carry-num-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="carry-num-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="carry-num-mini-body"></tbody></table>
                     </div>
                 </div>
             </section>
             <section class="analysis-card">
                 <div class="card-header"><h3>↔️ 이웃수 (Neighbor)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="neighbor-dist-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="neighbor-dist-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="neighbor-mini-body"></tbody></table>
                     </div>
                 </div>
@@ -169,27 +169,27 @@
         <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
             <section class="analysis-card">
                 <div class="card-header"><h3>🌓 홀짝 비율 (Odd/Even)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="odd-dist-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="odd-dist-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="odd-mini-body"></tbody></table>
                     </div>
                 </div>
             </section>
             <section class="analysis-card">
                 <div class="card-header"><h3>📉 저번호 비율 (Low/High)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="low-dist-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="low-dist-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="low-mini-body"></tbody></table>
                     </div>
                 </div>
             </section>
             <section class="analysis-card">
                 <div class="card-header"><h3>✨ 소수 출현 (Prime)</h3></div>
-                <div class="analysis-layout-split" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; padding: 20px;">
-                    <div class="chart-container-main"><div id="prime-dist-chart" style="height: 180px;"></div></div>
-                    <div class="stat-summary-box">
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="prime-dist-chart" style="height: 180px;"></div></div>
+                    <div class="mini-table-wrapper">
                         <table class="mini-table"><tbody id="prime-mini-body"></tbody></table>
                     </div>
                 </div>

@@ -56,6 +56,8 @@ var CombinationEngine = {
     toggleLottoNumber: function(num) {
         var btn = document.getElementById('select-ball-' + num);
         var lotto = this.state.lotto;
+        num = Number(num);
+        
         if (lotto.manual.has(num)) {
             lotto.manual.delete(num);
             btn.className = 'select-ball';
@@ -76,7 +78,7 @@ var CombinationEngine = {
 
     updateLiveStats: function() {
         var lotto = this.state.lotto;
-        var nums = Array.from(lotto.manual).concat(Array.from(lotto.auto)).sort((a,b)=>a-b);
+        var nums = Array.from(lotto.manual).concat(Array.from(lotto.auto)).map(n => Number(n)).sort((a,b)=>a-b);
         var count = nums.length;
         var liveBar = document.getElementById('live-status-bar');
         if (!liveBar) return;
@@ -122,7 +124,7 @@ var CombinationEngine = {
         }
 
         container.innerHTML = '';
-        var all = Array.from(this.state.lotto.manual).concat(Array.from(this.state.lotto.auto)).sort((a,b) => a-b);
+        var all = Array.from(this.state.lotto.manual).concat(Array.from(this.state.lotto.auto)).map(n => Number(n)).sort((a,b) => a-b);
         all.forEach(n => {
             var ball = LottoUI.createBall(n, true);
             if (this.state.lotto.manual.has(n)) ball.classList.add('manual');
@@ -210,7 +212,7 @@ var CombinationEngine = {
             var rate = (hits / iterations) * 100;
             return { hits: hits, score: Math.round(50 + rate * 5), rate: rate.toFixed(2) };
         } else {
-            var mySet = new Set(nums);
+            var mySet = new Set(nums.map(n => Number(n)));
             for (var j = 0; j < iterations; j++) {
                 var sim = this.generateRandomLotto();
                 var matchL = sim.filter(n => mySet.has(n)).length;
@@ -231,16 +233,16 @@ var CombinationEngine = {
 
     // --- Actions ---
     analyze: function() {
-        if (!this.statsData) { alert('데이터 로딩 중입니다.'); return; }
+        if (!this.statsData) { return; }
         var report = document.getElementById(this.isPension ? 'p-report-section' : 'report-section');
         var results = document.getElementById(this.isPension ? 'p-analysis-results' : 'analysis-report-body');
         if (!report || !results) return;
 
+        var nums = this.isPension ? this.state.pension.digits : Array.from(this.state.lotto.manual).concat(Array.from(this.state.lotto.auto)).map(n => Number(n));
+        if (nums.length < 6 && !this.isPension) return;
+
         report.style.display = 'block';
         report.style.opacity = '1';
-
-        var nums = this.isPension ? this.state.pension.digits : Array.from(this.state.lotto.manual).concat(Array.from(this.state.lotto.auto));
-        if (nums.length < 6 && !this.isPension) return;
 
         var sim = this.runMonteCarlo(nums, this.isPension, this.state.pension.group);
         
@@ -250,7 +252,7 @@ var CombinationEngine = {
 
     renderLottoReport: function(container, nums, sim) {
         container.innerHTML = '';
-        var sortedNums = nums.slice().sort((a,b)=>a-b);
+        var sortedNums = nums.slice().map(n => Number(n)).sort((a,b)=>a-b);
         
         var synergyResults = LottoSynergy.check(sortedNums, this.statsData);
         if (synergyResults.length > 0) {
@@ -330,13 +332,15 @@ var CombinationEngine = {
         try {
             var data = JSON.parse(saved);
             if (data && Array.isArray(data.manual)) data.manual.forEach(n => {
-                this.state.lotto.manual.add(n);
-                var btn = document.getElementById('select-ball-' + n);
+                var num = Number(n);
+                this.state.lotto.manual.add(num);
+                var btn = document.getElementById('select-ball-' + num);
                 if (btn) btn.className = 'select-ball selected-manual';
             });
             if (data && Array.isArray(data.auto)) data.auto.forEach(n => {
-                this.state.lotto.auto.add(n);
-                var btn = document.getElementById('select-ball-' + n);
+                var num = Number(n);
+                this.state.lotto.auto.add(num);
+                var btn = document.getElementById('select-ball-' + num);
                 if (btn) btn.className = 'select-ball selected-auto';
             });
             this.updateLottoDisplay();
@@ -367,15 +371,23 @@ var CombinationEngine = {
 
     pickLottoNumbers: function(isFullAuto) {
         var lotto = this.state.lotto;
-        if (isFullAuto) { lotto.manual.clear(); lotto.auto.clear(); }
+        // 기존 자동 번호는 항상 비우고 새로 추출
+        lotto.auto.clear();
+        if (isFullAuto) { lotto.manual.clear(); }
+        
         var pool = [];
-        for (var i = 1; i <= 45; i++) if (!lotto.manual.has(i) && !lotto.auto.has(i)) pool.push(i);
-        while (lotto.manual.size + lotto.auto.size < 6 && pool.length > 0) {
-            var num = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-            lotto.auto.add(num);
+        for (var i = 1; i <= 45; i++) {
+            var num = Number(i);
+            if (!lotto.manual.has(num)) pool.push(num);
         }
+        
+        while (lotto.manual.size + lotto.auto.size < 6 && pool.length > 0) {
+            var picked = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+            lotto.auto.add(Number(picked));
+        }
+        
         document.querySelectorAll('.select-ball').forEach(btn => {
-            var n = parseInt(btn.innerText);
+            var n = Number(btn.innerText);
             if (lotto.manual.has(n)) btn.className = 'select-ball selected-manual';
             else if (lotto.auto.has(n)) btn.className = 'select-ball selected-auto';
             else btn.className = 'select-ball';

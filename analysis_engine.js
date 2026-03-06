@@ -61,11 +61,24 @@ var AnalysisEngine = {
 
         var dists = data.distributions || {};
         var stats = data.stats_summary || {};
-        var indicators = LottoConfig.INDICATORS;
+        var indicators = LottoConfig.INDICATORS.filter(cfg => cfg.group && cfg.group.indexOf('GL') === 0);
+        
         for (var i = 0; i < indicators.length; i++) {
             var cfg = indicators[i];
-            if (dists[cfg.distKey]) LottoUI.createCurveChart(cfg.id + '-chart', dists[cfg.distKey], cfg.unit, stats[cfg.statKey], cfg);
-            if (data.recent_draws) LottoUI.renderMiniTable(cfg.id + '-mini-body', data.recent_draws.slice(0, 6), cfg);
+            // ID 규칙: {id}-chart, {id}-mini-body
+            var chartId = cfg.id + '-chart';
+            var tableBodyId = cfg.id + '-mini-body';
+            
+            if (dists[cfg.distKey]) {
+                try {
+                    LottoUI.createCurveChart(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey], cfg);
+                } catch(e) { console.warn('Chart Error:', chartId, e); }
+            }
+            
+            if (data.recent_draws) {
+                var tbody = document.getElementById(tableBodyId);
+                if (tbody) LottoUI.renderMiniTable(tableBodyId, data.recent_draws.slice(0, 6), cfg);
+            }
         }
 
         if (data.frequency && window.renderFrequencyChart) renderFrequencyChart(data.frequency);

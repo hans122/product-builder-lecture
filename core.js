@@ -213,6 +213,8 @@ var LottoUI = {
                 };
             });
 
+            if (points.length === 0 || !points[0]) return; // 데이터 포인트 부재 시 중단
+
             var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             svg.setAttribute("viewBox", "0 0 " + width + " " + height);
             svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
@@ -224,11 +226,34 @@ var LottoUI = {
             svg.appendChild(defs);
 
             var drawZone = function(z, color) {
-                if (!sd || sd <= 0.1) return; // 표준편차가 너무 작으면 빗금 영역 생략
+                if (!sd || sd <= 0.1) return;
                 var minB = mu - z * sd, maxB = mu + z * sd;
-                var zPoints = points.filter(function(p) { return p.val >= minB && p.val <= maxB; });
                 
-                if (zPoints.length > 1) { // 점이 최소 2개 이상이어야 면적 생성 가능
+                // 빗금 영역 생성을 위한 정밀 포인트 산출 (보간법 적용)
+                var zPoints = [];
+                for (var i = 0; i < points.length; i++) {
+                    var curr = points[i];
+                    var prev = i > 0 ? points[i - 1] : null;
+
+                    // 1. 시작 경계선 보간 (구간의 시작점이 데이터 포인트 사이에 있는 경우)
+                    if (prev && prev.val < minB && curr.val >= minB) {
+                        var r1 = (minB - prev.val) / (curr.val - prev.val);
+                        zPoints.push({ x: prev.x + (curr.x - prev.x) * r1, y: prev.y + (curr.y - prev.y) * r1, val: minB });
+                    }
+
+                    // 2. 구간 내부 포인트 추가
+                    if (curr.val >= minB && curr.val <= maxB) {
+                        zPoints.push(curr);
+                    }
+
+                    // 3. 종료 경계선 보간 (구간의 종료점이 데이터 포인트 사이에 있는 경우)
+                    if (prev && prev.val <= maxB && curr.val > maxB) {
+                        var r2 = (maxB - prev.val) / (curr.val - prev.val);
+                        zPoints.push({ x: prev.x + (curr.x - prev.x) * r2, y: prev.y + (curr.y - prev.y) * r2, val: maxB });
+                    }
+                }
+                
+                if (zPoints.length > 1) {
                     var d = "M " + zPoints[0].x + "," + baselineY;
                     for (var j = 0; j < zPoints.length; j++) {
                         if (isNaN(zPoints[j].x) || isNaN(zPoints[j].y)) continue;
@@ -237,11 +262,12 @@ var LottoUI = {
                     d += " L " + zPoints[zPoints.length - 1].x + "," + baselineY + " Z";
                     var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                     path.setAttribute("d", d); path.setAttribute("fill", color); 
-                    path.setAttribute("style", "pointer-events:none;"); // 클릭 방해 방지
+                    path.setAttribute("style", "pointer-events:none;");
                     svg.appendChild(path);
                 }
             };
-            drawZone(2, "url(#" + h2 + ")"); drawZone(1, "url(#" + h1 + ")");
+            drawZone(2, "url(#" + h2 + ")"); // μ±2σ (파란색 빗금)
+            drawZone(1, "url(#" + h1 + ")"); // μ±1σ (초록색 빗금)
 
             var curveD = "M " + points[0].x + "," + points[0].y;
             for (var i = 1; i < points.length; i++) curveD += " L " + points[i].x + "," + points[i].y;
@@ -296,14 +322,84 @@ var LottoUI = {
 
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
+    promises: { lotto: null, pension: null },
     SYSTEM_VERSION: '11.2',
+    
     getCacheKey: function(type) { return 'lotto_data_' + type + '_v' + this.SYSTEM_VERSION; },
+    
     getStats: function(callback) {
-        this._loadJson('advanced_stats.json', 'lotto', callback);
+        this._loadData('advanced_stats.json', 'lotto', callback);
     },
+    
     getPensionStats: function(callback) {
-        this._loadJson('pension_stats.json', 'pension', callback);
+        this._loadData('pension_stats.json', 'pension', callback);
     },
+
+    _loadData: function(url, type, callback) {
+        // 1. 메모리 캐시 확인
+        if (this.cache[type]) {
+            if (callback) callback(this.cache[type]);
+            return;
+        }
+
+        // 2. 진행 중인 요청 확인 (Promise)
+        if (this.promises[type]) {
+            this.promises[type].then(data => {
+                if (callback) callback(data);
+            }).catch(() => {
+                if (callback) callback(null);
+            });
+            return;
+        }
+
+        // 3. 새로운 요청 시작
+        var self = this;
+        var cacheKey = this.getCacheKey(type);
+        
+        // 로컬 스토리지 캐시 우선 확인
+        try {
+            var local = localStorage.getItem(cacheKey);
+            if (local) {
+                var parsed = JSON.parse(local);
+                this.cache[type] = parsed;
+                if (callback) callback(parsed);
+                // 백그라운드에서 최신 데이터 확인 (Stale-While-Revalidate)
+                // return; // 최신 데이터 강제 로드를 위해 리턴하지 않음
+            }
+        } catch(e) {}
+
+        this.promises[type] = new Promise((resolve, reject) => {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url + '?v=' + self.SYSTEM_VERSION + '_' + new Date().getTime(), true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            self.cache[type] = data;
+                            localStorage.setItem(cacheKey, xhr.responseText);
+                            resolve(data);
+                        } catch(e) {
+                            console.error('JSON Parse Error:', url, e);
+                            reject(e);
+                        }
+                    } else {
+                        console.warn('Data Load Failed:', url, xhr.status);
+                        reject(xhr.status);
+                    }
+                    self.promises[type] = null; // 요청 완료 후 해제
+                }
+            };
+            xhr.send();
+        });
+
+        this.promises[type].then(data => {
+            if (callback) callback(data);
+        }).catch(() => {
+            if (callback) callback(null);
+        });
+    },
+
     getPensionRecords: function(callback) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'pt720.csv?v=' + new Date().getTime(), true);
@@ -319,27 +415,6 @@ var LottoDataManager = {
                     data.push({ no: parts[0], date: parts[1], group: parts[2].trim(), nums: numArr });
                 }
                 if(callback) callback(data);
-            }
-        };
-        xhr.send();
-    },
-    _loadJson: function(url, cacheType, callback) {
-        if (this.cache[cacheType]) { if(callback) callback(this.cache[cacheType]); return; }
-        var self = this; var cacheKey = this.getCacheKey(cacheType);
-        try {
-            var local = localStorage.getItem(cacheKey);
-            if (local) { this.cache[cacheType] = JSON.parse(local); if(callback) callback(this.cache[cacheType]); return; }
-        } catch(e) {}
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url + '?v=' + new Date().getTime(), true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                try {
-                    var data = JSON.parse(xhr.responseText);
-                    self.cache[cacheType] = data;
-                    localStorage.setItem(cacheKey, xhr.responseText);
-                    if (callback) callback(data);
-                } catch(e) { if(callback) callback(null); }
             }
         };
         xhr.send();
