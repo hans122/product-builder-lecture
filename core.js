@@ -13,7 +13,7 @@ var LottoEvents = {
 var LottoUtils = {
     round: function(val, precision) { var factor = Math.pow(10, precision || 0); return Math.round(val * factor) / factor; },
     isPrime: function(n) { return [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43].includes(n); },
-    isComposite: function(n) { return n > 1 && !this.isPrime(n); },
+    isComposite: function(n) { return n > 1 && !LottoUtils.isPrime(n); },
     calculateAC: function(nums) {
         var diffs = new Set();
         for (var i = 0; i < nums.length; i++) {
