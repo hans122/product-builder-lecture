@@ -161,7 +161,7 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 /* Global Analysis Split Layout (Expert Standard) */
 .analysis-layout-split {
     display: grid;
-    grid-template-columns: 1fr 380px; /* 표 공간 확장: 300px -> 380px */
+    grid-template-columns: 1fr 400px; /* 표 공간 추가 확장: 380px -> 400px */
     justify-content: center;
     gap: 40px;
     margin: 0 auto 32px;
@@ -175,9 +175,9 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 }
 
 .mini-table-wrapper {
-    width: 380px; /* 고정 너비 확장 */
+    width: 400px; /* 고정 너비 확장 */
     border-left: 1px dashed var(--border-light);
-    padding-left: 30px; /* 좌측 여백 충분히 확보 */
+    padding-left: 30px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -208,10 +208,10 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
     vertical-align: middle; 
 }
 
-/* Precise Column widths for 380px layout (Content-Fit) */
-.mini-table td:nth-child(1) { width: 65px; text-align: left; color: #64748b; font-weight: 600; } /* 회차 */
-.mini-table td:nth-child(2) { width: 215px; text-align: center; } /* 번호 (구슬 6개 공간) */
-.mini-table td:nth-child(3) { width: 70px; text-align: right; font-weight: 900; color: var(--primary-blue); } /* 결과값 */
+/* Precise Column widths for 400px layout (Result Focused) */
+.mini-table td:nth-child(1) { width: 70px; text-align: left; color: #64748b; font-weight: 600; } /* 회차 */
+.mini-table td:nth-child(2) { width: 220px; text-align: center; } /* 번호 */
+.mini-table td:nth-child(3) { width: 110px; text-align: right; font-weight: 900; color: var(--primary-blue); font-size: 0.95rem; } /* 결과값 (확장: 70px -> 110px) */
 
 .table-nums { display: flex; justify-content: center; gap: 4px; }
 
