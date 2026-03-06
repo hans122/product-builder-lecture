@@ -213,7 +213,7 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 /* Precise Column Tuning for content-fit */
 .mini-table td:nth-child(1) { width: 55px; text-align: left; color: #64748b; font-weight: 600; } /* 회차 */
 .mini-table td:nth-child(2) { width: 230px; text-align: center; } /* 번호 */
-.mini-table td:nth-child(3) { width: auto; min-width: 50px; text-align: center; font-weight: 900; color: var(--primary-blue); } /* 결과값 내용에 맞게 자동 축소 */
+.mini-table td:nth-child(3) { width: 80px; text-align: center; font-weight: 900; color: var(--primary-blue); } /* 결과값 고정 너비 복구 */
 
 .table-nums { display: flex; justify-content: center; gap: 3px; }
 
