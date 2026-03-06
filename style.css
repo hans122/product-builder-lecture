@@ -158,13 +158,25 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 .green { background-color: #2ecc71 !important; }
 .pension-ball.group { background: #4e5968; }
 
-/* Layouts */
+/* Global Analysis Split Layout (Expert Standard) */
 .analysis-layout-split {
-    display: grid; grid-template-columns: 1fr 340px; gap: 24px; margin-bottom: 24px; align-items: start;
+    display: grid;
+    grid-template-columns: 1fr 320px; /* Table width increased from 235px to 320px */
+    gap: 30px;
+    margin-bottom: 24px;
+    align-items: start;
+}
+
+.chart-wrapper {
+    min-width: 0; /* Prevents SVG shrinking inside Grid */
 }
 
 .mini-table-wrapper {
-    width: 100%; display: flex; flex-direction: column;
+    width: 100%;
+    border-left: 1px dashed var(--border-light);
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .mini-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; table-layout: fixed; }
@@ -205,36 +217,19 @@ th.sticky-col { background: #f8fafc !important; z-index: 20; }
 .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
 .status-badge.safe { background: #e7f9ed; color: #1ea54c; }
 .status-badge.warning { background: #fff5e6; color: #ff9500; }
-/* Analysis Split Layout */
-.analysis-layout-split {
-    display: grid;
-    grid-template-columns: 1fr 235px;
-    gap: 30px;
-    align-items: start;
-}
-
-.chart-wrapper {
-    min-width: 0; /* Grid 내부 SVG 축소 방지 */
-}
-
-.mini-table-wrapper {
-    width: 235px;
-    border-left: 1px dashed #edf2f7;
-    padding-left: 15px;
-}
 
 @media (max-width: 1024px) {
     .analysis-layout-split {
         grid-template-columns: 1fr;
     }
     .mini-table-wrapper {
-        width: 100%;
         border-left: none;
-        border-top: 1px dashed #edf2f7;
+        border-top: 1px dashed var(--border-light);
         padding-left: 0;
         padding-top: 20px;
     }
 }
+
 .lotto-paper {
     background: #fffdfa; padding: 30px; border: 1px solid #e2e8f0; border-radius: 4px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 400px; margin: 0 auto;
@@ -260,12 +255,6 @@ svg {
 
 /* Footer */
 .standard-footer { padding: 60px 20px; text-align: center; color: var(--text-light); font-size: 0.8rem; border-top: 1px solid #edf2f7; margin-top: 60px; }
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .analysis-layout-split { grid-template-columns: 1fr; }
-    .mini-table-wrapper { border-left: none; border-top: 1px dashed #f1f3f5; padding-top: 20px; }
-}
 
 /* Strategy Board (v11.2) */
 .strategy-board-card {
