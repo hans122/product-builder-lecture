@@ -161,21 +161,22 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 /* Global Analysis Split Layout (Expert Standard) */
 .analysis-layout-split {
     display: grid;
-    grid-template-columns: 1fr 400px; /* 표 공간 추가 확장: 380px -> 400px */
+    grid-template-columns: 6fr 4fr; /* 비율 전환: 차트 60%, 표 40% */
     justify-content: center;
     gap: 40px;
     margin: 0 auto 32px;
     width: 100%;
+    max-width: 1200px; /* 전체 최대 너비 제한으로 밸런스 유지 */
     align-items: start;
 }
 
 .chart-wrapper {
     min-width: 0;
-    flex: 1;
+    width: 100%;
 }
 
 .mini-table-wrapper {
-    width: 400px; /* 고정 너비 확장 */
+    width: 100%; /* 고정 해제: 비율에 따라 유동적으로 변화 */
     border-left: 1px dashed var(--border-light);
     padding-left: 30px;
     display: flex;
