@@ -177,7 +177,7 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 
 .mini-table-wrapper {
     width: auto; /* 내용물에 따라 자동 축소 */
-    min-width: 310px; /* 최소 안전 너비 */
+    min-width: 360px; /* 확장: 310px -> 360px */
     border-left: 1px dashed var(--border-light);
     padding-left: 20px;
     display: flex;
@@ -212,8 +212,8 @@ body.pension-theme .group-header { border-left-color: #ff8c00; background: #fff4
 
 /* Precise Column Tuning for content-fit */
 .mini-table td:nth-child(1) { width: 55px; text-align: left; color: #64748b; font-weight: 600; } /* 회차 */
-.mini-table td:nth-child(2) { width: 185px; text-align: center; } /* 번호 (구슬 6개 딱 맞게) */
-.mini-table td:nth-child(3) { width: 70px; text-align: right; font-weight: 900; color: var(--primary-blue); } /* 결과값 */
+.mini-table td:nth-child(2) { width: 230px; text-align: center; } /* 번호 확장 (185px -> 230px) */
+.mini-table td:nth-child(3) { width: 75px; text-align: right; font-weight: 900; color: var(--primary-blue); } /* 결과값 */
 
 .table-nums { display: flex; justify-content: center; gap: 3px; }
 
