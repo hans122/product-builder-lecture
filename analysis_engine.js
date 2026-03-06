@@ -143,7 +143,24 @@ var AnalysisEngine = {
     renderPensionDynamics: function(draws) {
         var ids = ['carry-pos', 'carry-num', 'neighbor'];
         ids.forEach(id => {
+            var chartBox = document.getElementById(id + '-chart');
             var tableBox = document.getElementById(id + '-mini-body');
+            
+            // 1. 데이터 계산 및 차트 렌더링
+            if (chartBox) {
+                var vals = [];
+                draws.forEach((d, i) => {
+                    var prev = draws[i+1];
+                    var dyn = PensionUtils.analyzeDynamics(d.nums, prev ? prev.nums : null);
+                    var v = (id === 'carry-pos') ? dyn.carry : (id === 'carry-num' ? dyn.carryGlobal : dyn.neighbor);
+                    vals.push(v);
+                });
+                var mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+                var std = Math.sqrt(vals.map(x => Math.pow(x-mean,2)).reduce((a,b)=>a+b,0)/vals.length);
+                LottoUI.createCurveChart(id + '-chart', {}, '', { mean: mean, std: std });
+            }
+
+            // 2. 표 렌더링 (최근 5회)
             if (tableBox) {
                 tableBox.innerHTML = draws.slice(0, 5).map((d, i) => {
                     var prev = draws[i+1];
