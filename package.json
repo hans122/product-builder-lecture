@@ -1,0 +1,16 @@
+{
+  "name": "ai-lotto-engine",
+  "version": "11.1.0",
+  "description": "AI-powered Lotto 6/45 & Pension 720+ Analysis System",
+  "main": "index.html",
+  "scripts": {
+    "analyze": "python3 analyze_data.py",
+    "update:lotto": "python3 update_latest.py",
+    "update:pension": "python3 update_pension.py",
+    "bump": "node .gemini/skills/lotto-project-manager/scripts/bump_version.cjs"
+  },
+  "author": "AI Engineering Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,4 +1,4 @@
-# SDD (System Design Document) - v5.9
+# SDD (System Design Document) - v5.11
 
 ## 1. 시스템 아키텍처 개요
 본 시스템은 **`indicators.js` (설정)**와 **`core.js` (엔진)**를 핵심 축으로 하는 **Data-Driven Architecture**를 채택한다. 또한, 로또와 연금의 분석 로직을 단일화한 **`analysis_engine.js` (통합 분석 엔진)**를 통해 서비스 간 코드 중복을 최소화하고 AI 모델의 일관성을 유지한다.

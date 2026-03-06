@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * LottoIndicators v1.2 - GL/GP 명칭 체계 통합 적용 (v10.0+)
  */
@@ -8,15 +10,15 @@ const LottoConfig = {
         { id: 'sum', label: '총합', unit: '', group: 'GL1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
         { id: 'odd-even', label: '홀짝 비율', unit: '', group: 'GL1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'odd_even', maxLimit: 6, calc: (nums) => nums.filter(n => n % 2 !== 0).length },
         { id: 'high-low', label: '고저 비율', unit: '', group: 'GL1', distKey: 'high_low', statKey: 'low_count', drawKey: 'high_low', maxLimit: 6, calc: (nums) => nums.filter(n => n <= 22).length },
-        { id: 'period_1', label: '직전 1회차 매칭', unit: '개', group: 'GL2', distKey: 'period_1', statKey: 'period_1', drawKey: 'period_1', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : 0 },
+        { id: 'period_1', label: '직전 1회차 매칭', unit: '개', group: 'GL2', distKey: 'period_1', statKey: 'period_1', drawKey: 'period_1', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[0]) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : 0 },
         { id: 'neighbor', label: '이웃수', unit: '개', group: 'GL2', distKey: 'neighbor', statKey: 'neighbor', drawKey: 'neighbor', maxLimit: 12, calc: (nums, data) => {
-            if (!data || !data.last_3_draws) return 0;
+            if (!data || !data.last_3_draws || !data.last_3_draws[0]) return 0;
             const neighbors = new Set();
             data.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
             return nums.filter(n => neighbors.has(n)).length;
         }},
-        { id: 'period_1_2', label: '1~2회전 윈도우', unit: '개', group: 'GL2', distKey: 'period_1_2', statKey: 'period_1_2', drawKey: 'period_1_2', maxLimit: 12, calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length : 0 },
-        { id: 'period_1_3', label: '1~3회전 윈도우', unit: '개', group: 'GL2', distKey: 'period_1_3', statKey: 'period_1_3', drawKey: 'period_1_3', maxLimit: 18, calc: (nums, data) => (data && data.last_3_draws) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[]), ...(data.last_3_draws[2]||[])]).has(n)).length : 0 },
+        { id: 'period_1_2', label: '1~2회전 윈도우', unit: '개', group: 'GL2', distKey: 'period_1_2', statKey: 'period_1_2', drawKey: 'period_1_2', maxLimit: 12, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[0]) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length : 0 },
+        { id: 'period_1_3', label: '1~3회전 윈도우', unit: '개', group: 'GL2', distKey: 'period_1_3', statKey: 'period_1_3', drawKey: 'period_1_3', maxLimit: 18, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[0]) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[]), ...(data.last_3_draws[2]||[])]).has(n)).length : 0 },
         { id: 'consecutive', label: '연속번호 쌍', unit: '쌍', group: 'GL2', distKey: 'consecutive', statKey: 'consecutive', drawKey: 'consecutive', maxLimit: 5, calc: (nums) => {
             let cnt = 0; for (let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) cnt++; return cnt;
         }},
@@ -51,8 +53,15 @@ const LottoConfig = {
         { id: 'last-num', label: '끝 수 범위', unit: '', group: 'GL6', distKey: 'last_num', statKey: 'last_num', drawKey: 'last_num', maxLimit: 45, calc: (nums) => nums[nums.length-1] },
         { id: 'mean-gap', label: '평균 간격', unit: '', group: 'GL6', distKey: 'mean_gap', statKey: 'mean_gap', drawKey: 'mean_gap', maxLimit: 8.8, calc: (nums) => LottoUtils.round((nums[nums.length-1] - nums[0]) / 5, 1) },
 
-        // 1.1. [GP] 연금 720+ 개별 지표 설정 (LottoUI 호환용)
-        { id: 'p-sum', label: '6자리 합계', unit: '', group: 'GP4', distKey: 'p_sum', statKey: 'p_sum', drawKey: 'p_sum', maxLimit: 54, calc: (nums) => nums.reduce((a, b) => a + b, 0) }
+        // 1.1. [GP] 연금 720+ 개별 지표 설정
+        { id: 'p-pos-freq', label: '자리수별 빈도', group: 'GP1', calc: () => {} },
+        { id: 'p-sequence', label: '연속 번호 패턴', group: 'GP2', calc: () => {} },
+        { id: 'p-repeat', label: '연속 반복 패턴', group: 'GP2', calc: () => {} },
+        { id: 'p-group', label: '조별 당첨 분포', group: 'GP3', calc: () => {} },
+        { id: 'p-sum', label: '6자리 합계 점수', group: 'GP4', calc: () => {} },
+        { id: 'p-carry', label: '자리 이월 및 이웃수', group: 'GP5', calc: () => {} },
+        { id: 'p-balance', label: '세부 균형(홀짝/고저/소수)', group: 'GP6', calc: () => {} },
+        { id: 'p-flow', label: '당첨 번호 흐름', group: 'GP13', calc: () => {} }
     ],
 
     // 2. [GL0] 로또 시너지 검증 규칙

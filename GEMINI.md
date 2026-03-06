@@ -1,4 +1,4 @@
-# GEMINI.md - AI Coding Constitution (v2.12)
+# GEMINI.md - AI Coding Constitution (v2.14)
 
 ## [MANDATORY RULES]
 1. **Document-First Workflow**: 모든 작업(구현, 수정, 리팩토링) 시작 전, 반드시 `PRD.md`, `SDD.md`, `DATA_SCHEMA.md`를 전수 읽기하여 현재 요청의 맥락과 기술 표준을 내재화한다.
@@ -13,6 +13,9 @@
 10. **Expert Table Features**: 가로로 긴 표는 반드시 **45도 대각선 헤더**와 **틀 고정(회차/번호)** 기능을 적용한다.
 
 ## [RECENT UPDATES]
+- **전체 HTML 파일 validator.js 추가 (v11.2)**: 모든 `.html` 파일의 `</body>` 태그 직전에 `<script src="validator.js?v=11.2"></script>`를 일괄 추가하여 데이터 검증 및 보안 강화.
+- **전체 HTML 파일 리소스 버전 업데이트 (v11.2)**: `v11.0`, `v11.1`로 혼재되어 있던 `<script>` 및 `<link>` 태그의 리소스 경로를 `v11.2`로 일괄 통합 및 최신화.
+- **SEO 메타 태그 최적화 (v11.0)**: 모든 HTML 페이지에 Open Graph(`og:title`, `og:type` 등) 및 Twitter Cards 메타 태그를 `<title>` 기반으로 자동 적용.
 - **추천 조합(Top 5) 레이아웃 정밀화**: 카드 너비를 190px에서 170px로 축소하여 정보 밀도를 높이고 한 줄 배치를 더욱 강화.
 - **번호 선택 UI 개선**: 실제 용지 감성의 빨간 사선 마킹을 제거하고, 시인성이 높은 솔리드 컬러 강조 방식으로 변경.
 - **전문가용 히스토리 표 고도화**: 45도 대각선 헤더, 엑셀형 틀 고정, 우측 유령 공간 제거(v9.8).

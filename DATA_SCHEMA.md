@@ -1,4 +1,4 @@
-# DATA_SCHEMA.md - Master Data & System Architecture (v7.7)
+# DATA_SCHEMA.md - Master Data & System Architecture (v7.9)
 
 ## 1. 시스템 아키텍처 (Core Engine)
 본 프로젝트는 `core.js`를 중심으로 하는 중앙 집중형 로직 및 데이터 관리 체계를 따른다. 로또와 연금의 지표 혼선을 방지하기 위해 **GL(Lotto)** 및 **GP(Pension)** 접두사를 필수 사용한다.

@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * AI Data Viewer Engine v1.0 (History & Stats Viewer Combined)
  * - Optimized for Expert-Grade Tables

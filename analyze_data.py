@@ -137,6 +137,11 @@ def analyze_lotto():
             
             if stat_k in raw_metrics: raw_metrics[stat_k].append(val_for_stat)
 
+    # Validation
+    if not draws or len(draws) < 10:
+        print("⚠️ Lotto Data Validation Failed: Not enough data.")
+        return
+
     stats_summary = {}
     for k, v_list in raw_metrics.items():
         if not v_list: continue
@@ -151,6 +156,19 @@ def analyze_lotto():
         for c in curr_ends:
             for n in next_ends: markov_ending[c][n] += 1
 
+    # [AI] 회귀 시점 분석 (Regression Timing)
+    regression_signals = {}
+    for k, v_list in raw_metrics.items():
+        if not v_list: continue
+        stat = stats_summary[k]
+        safe_min, safe_max = stat["mean"] - 2*stat["std"], stat["mean"] + 2*stat["std"]
+        
+        streak = 0
+        for val in v_list[::-1]: # 최신 회차부터 역순으로 조사
+            if val < safe_min or val > safe_max: streak += 1
+            else: break
+        regression_signals[k] = {"streak": streak, "energy": min(100, streak * 25)} # 이탈 주기가 길수록 에너지 상승
+
     result = {
         "total_draws": len(draws),
         "last_3_draws": [d["nums"] for d in draws[-3:][::-1]],
@@ -159,6 +177,7 @@ def analyze_lotto():
         "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
         "recent_20_frequency": dict(Counter([n for d in draws[-20:] for n in d["nums"]])),
         "markov_ending_matrix": markov_ending,
+        "regression_signals": regression_signals,
         "recent_draws": processed_data[::-1][:30]
     }
 
@@ -168,7 +187,7 @@ def analyze_lotto():
     with open('frequency.json', 'w', encoding='utf-8') as f:
         json.dump({str(k): v for k, v in result["frequency"].items()}, f, ensure_ascii=False, indent=4)
     
-    print(f"Success: Lotto metrics updated up to draw {draws[-1]['no']}")
+    print(f"✅ Lotto Analysis Complete: {len(draws)} draws processed. (Last: {draws[-1]['no']}th)")
 
 def analyze_pension():
     draws = []
@@ -190,6 +209,10 @@ def analyze_pension():
 
     draws.sort(key=lambda x: x['no'])
     
+    if not draws or len(draws) < 10:
+        print("⚠️ Pension Data Validation Failed: Not enough data.")
+        return
+
     # 1. 자리수별 빈도 및 Gap
     pos_freq = [[0]*10 for _ in range(6)]
     digit_gap = [[0]*10 for _ in range(6)]
@@ -214,20 +237,34 @@ def analyze_pension():
             for pos in range(6):
                 markov[nums[pos]][next_nums[pos]] += 1
 
+    # [AI] 연금 회귀 분석 (합계 기준)
+    all_sums = [sum(d["nums"]) for d in draws]
+    avg_sum = sum(all_sums) / len(all_sums)
+    std_sum = (sum((x - avg_sum)**2 for x in all_sums) / len(all_sums))**0.5
+    s_min, s_max = avg_sum - 2*std_sum, avg_sum + 2*std_sum
+    
+    p_streak = 0
+    for s in all_sums[::-1]:
+        if s < s_min or s > s_max: p_streak += 1
+        else: break
+
     result = {
         "total_draws": len(draws),
         "pos_freq": pos_freq,
         "digit_gap": digit_gap,
         "markov_matrix": markov,
         "group_dist": dict(sorted(group_dist.items())),
+        "regression_signals": {"p_sum": {"streak": p_streak, "energy": min(100, p_streak * 25)}},
         "recent_draws": draws[::-1][:30]
     }
 
     with open('pension_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
     
-    print(f"Success: Pension metrics updated up to draw {draws[-1]['no']}")
+    print(f"✅ Pension Analysis Complete: {len(draws)} draws processed. (Last: {draws[-1]['no']}th)")
 
 if __name__ == "__main__":
+    print("🚀 Starting Integrated Data Analysis...")
     analyze_lotto()
     analyze_pension()
+    print("✨ All systems operational.")

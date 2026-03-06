@@ -858,6 +858,120 @@
             238
         ]
     ],
+    "regression_signals": {
+        "sum": {
+            "streak": 0,
+            "energy": 0
+        },
+        "odd_count": {
+            "streak": 0,
+            "energy": 0
+        },
+        "low_count": {
+            "streak": 0,
+            "energy": 0
+        },
+        "period_1": {
+            "streak": 0,
+            "energy": 0
+        },
+        "neighbor": {
+            "streak": 0,
+            "energy": 0
+        },
+        "period_1_2": {
+            "streak": 1,
+            "energy": 25
+        },
+        "period_1_3": {
+            "streak": 0,
+            "energy": 0
+        },
+        "consecutive": {
+            "streak": 0,
+            "energy": 0
+        },
+        "prime": {
+            "streak": 0,
+            "energy": 0
+        },
+        "composite": {
+            "streak": 0,
+            "energy": 0
+        },
+        "multiple_3": {
+            "streak": 0,
+            "energy": 0
+        },
+        "multiple_5": {
+            "streak": 0,
+            "energy": 0
+        },
+        "square": {
+            "streak": 0,
+            "energy": 0
+        },
+        "double_num": {
+            "streak": 0,
+            "energy": 0
+        },
+        "bucket_15": {
+            "streak": 0,
+            "energy": 0
+        },
+        "bucket_9": {
+            "streak": 0,
+            "energy": 0
+        },
+        "bucket_5": {
+            "streak": 0,
+            "energy": 0
+        },
+        "bucket_3": {
+            "streak": 0,
+            "energy": 0
+        },
+        "color": {
+            "streak": 0,
+            "energy": 0
+        },
+        "pattern_corner": {
+            "streak": 0,
+            "energy": 0
+        },
+        "pattern_triangle": {
+            "streak": 0,
+            "energy": 0
+        },
+        "end_sum": {
+            "streak": 0,
+            "energy": 0
+        },
+        "same_end": {
+            "streak": 0,
+            "energy": 0
+        },
+        "ac": {
+            "streak": 0,
+            "energy": 0
+        },
+        "span": {
+            "streak": 0,
+            "energy": 0
+        },
+        "first_num": {
+            "streak": 0,
+            "energy": 0
+        },
+        "last_num": {
+            "streak": 0,
+            "energy": 0
+        },
+        "mean_gap": {
+            "streak": 0,
+            "energy": 0
+        }
+    },
     "recent_draws": [
         {
             "no": 1213,

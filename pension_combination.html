@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>연금복권 720+ 나의 조합 정밀 분석</title>
-    <link rel="stylesheet" href="style.css?v=11.0">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AI Lotto Engine">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:title" content="연금복권 720+ 나의 조합 정밀 분석">
+    <meta name="twitter:title" content="연금복권 720+ 나의 조합 정밀 분석">
+    <link rel="stylesheet" href="style.css?v=11.2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap&v=11.0" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap&v=11.2" rel="stylesheet">
 </head>
 <body class="analysis-page pension-theme">
     <header class="sticky-header">
@@ -72,9 +77,9 @@
                     <!-- 자바스크립트에서 동적으로 생성하여 "이상한 코드" 노출 방지 -->
                 </div>
 
-                <div class="btn-group-center" style="margin-top: 30px;">
-                    <button id="p-random-btn" class="btn-gen" style="background: #ff8c00;">랜덤 추천</button>
-                    <button id="p-analyze-btn" class="btn-analyze" style="background: #334155;">패턴 분석 실행</button>
+                <div class="btn-group-center" style="margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
+                    <button id="p-random-btn" class="btn-gen" style="background: #ff8c00; color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 800; cursor: pointer;">🎲 랜덤 번호 선택</button>
+                    <button id="p-analyze-btn" class="btn-analyze" style="background: #334155; color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 800; cursor: pointer;">📊 패턴 분석 실행</button>
                 </div>
             </div>
         </section>
@@ -116,8 +121,9 @@
         }
     </style>
 
-    <script src="indicators.js?v=11.0"></script>
-    <script src="core.js?v=11.0"></script>
-    <script src="combination_engine.js?v=11.0"></script>
-    </body>
+    <script src="indicators.js?v=11.2"></script>
+    <script src="core.js?v=11.2"></script>
+    <script src="combination_engine.js?v=11.2"></script>
+<script src="validator.js?v=11.2"></script>
+</body>
     </html>

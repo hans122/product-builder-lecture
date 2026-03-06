@@ -1,7 +1,10 @@
+'use strict';
+
 /**
- * AI View Manager v1.0 (Lotto & Pension Dashboard Combined)
- * - Unified Dashboard & Interaction Logic
- * - Integrated Recommendation Engines
+ * AI View Manager v1.1 (Stable Cross-Page Engine)
+ * - Fixed Null Reference in showSkeletons
+ * - Optimized Pension/Lotto Branching
+ * - ES5 Compatibility & Production Stability
  */
 
 var ViewManager = {
@@ -20,7 +23,10 @@ var ViewManager = {
                 }
             });
         } else {
-            LottoUI.showSkeletons('main-indicator-grid', 6);
+            // 로또 분석 그리드가 있는 페이지에서만 스켈레톤 표시
+            if (document.getElementById('main-indicator-grid')) {
+                LottoUI.showSkeletons('main-indicator-grid', 6);
+            }
             LottoDataManager.getStats(function(data) {
                 if (data) {
                     self.statsData = data;
@@ -32,42 +38,61 @@ var ViewManager = {
 
     // --- Lotto Dashboard ---
     renderLottoDashboard: function(data) {
-        if (data.recent_draws) {
-            var groups = LottoUtils.getStrategyGroups(data.recent_draws);
-            this.renderLottoStrategyGroups(groups);
-            this.renderLottoLastDraw(data.recent_draws[0]);
-            this.renderLottoOverAppearance(data.recent_draws);
-        }
+        if (!data || !data.recent_draws) return;
+        
+        var recent = data.recent_draws;
+        var lastDraw = recent[0];
 
+        // 1. 기본 정보 렌더링
+        var groups = LottoUtils.getStrategyGroups(recent);
+        this.renderLottoStrategyGroups(groups);
+        this.renderLottoLastDraw(lastDraw);
+        this.renderLottoOverAppearance(recent);
+
+        // 2. 분석 대상 선정 및 지표 그리드 출력
         var saved = localStorage.getItem('lastGeneratedNumbers');
         var sourceTitle = document.getElementById('analysis-source-title');
+        var targetNumbers = lastDraw.nums;
+
         if (saved) {
             try {
                 var nums = JSON.parse(saved);
-                if (sourceTitle) sourceTitle.innerText = "📊 분석 결과: 사용자 조합";
-                this.analyzeLottoNumbers(nums);
-            } catch(e) { if(data.recent_draws) this.analyzeLottoNumbers(data.recent_draws[0].nums); }
-        } else if (data.recent_draws) {
+                if (Array.isArray(nums) && nums.length === 6) {
+                    targetNumbers = nums;
+                    if (sourceTitle) sourceTitle.innerText = "📊 분석 결과: 사용자 조합";
+                }
+            } catch(e) {}
+        } else {
             if (sourceTitle) sourceTitle.innerText = "📊 분석 결과: 최근 당첨 번호";
-            this.analyzeLottoNumbers(data.recent_draws[0].nums);
         }
+
+        this.analyzeLottoNumbers(targetNumbers);
     },
 
     analyzeLottoNumbers: function(numbers) {
         var targetContainer = document.getElementById('analysis-target-balls');
         if (targetContainer) {
             targetContainer.innerHTML = '';
-            numbers.slice().sort((a,b)=>a-b).forEach(n => targetContainer.appendChild(LottoUI.createBall(n, true)));
+            var sorted = [].concat(numbers).sort(function(a,b){ return a-b; });
+            for (var i = 0; i < sorted.length; i++) {
+                targetContainer.appendChild(LottoUI.createBall(sorted[i], true));
+            }
         }
-        LottoUI.renderIndicatorGrid('main-indicator-grid', LottoConfig.PAGES.INDEX, numbers, this.statsData);
+        if (document.getElementById('main-indicator-grid')) {
+            LottoUI.renderIndicatorGrid('main-indicator-grid', LottoConfig.PAGES.INDEX, numbers, this.statsData);
+        }
     },
 
     renderLottoStrategyGroups: function(groups) {
-        ['hot', 'warm', 'cold'].forEach(type => {
+        var self = this;
+        ['hot', 'warm', 'cold'].forEach(function(type) {
             var container = document.getElementById('group-' + type + '-container');
             if (container) {
                 container.innerHTML = '';
-                groups[type].forEach(n => container.appendChild(LottoUI.createBall(n, true)));
+                var nums = groups[type];
+                for (var i = 0; i < nums.length; i++) {
+                    container.appendChild(LottoUI.createBall(nums[i], true));
+                }
             }
         });
     },
@@ -76,8 +101,12 @@ var ViewManager = {
         var ballContainer = document.getElementById('last-draw-balls');
         if (ballContainer) {
             ballContainer.innerHTML = '';
-            draw.nums.forEach(n => ballContainer.appendChild(LottoUI.createBall(n, true)));
-            if (document.getElementById('last-draw-info')) document.getElementById('last-draw-info').style.display = 'flex';
+            for (var i = 0; i < draw.nums.length; i++) {
+                ballContainer.appendChild(LottoUI.createBall(draw.nums[i], true));
+            }
+            if (document.getElementById('last-draw-info')) {
+                document.getElementById('last-draw-info').style.display = 'flex';
+            }
         }
     },
 
@@ -86,41 +115,58 @@ var ViewManager = {
         if (!alertBox) return;
         var danger = [];
         for (var n = 1; n <= 45; n++) {
-            var c5 = recent.slice(0, 5).filter(d => d.nums.indexOf(n) !== -1).length;
-            if (c5 >= 4) danger.push(n);
+            var count = 0;
+            for (var j = 0; j < 5; j++) {
+                if (recent[j].nums.indexOf(n) !== -1) count++;
+            }
+            if (count >= 4) danger.push(n);
         }
         if (danger.length > 0) {
             alertBox.style.display = 'block';
             alertBox.innerHTML = '⚠️ 과출현 위험: ' + danger.join(',');
+        } else {
+            alertBox.style.display = 'none';
         }
     },
 
     // --- Pension Dashboard ---
     renderPensionDashboard: function(data) {
+        if (!data || !data.recent_draws) return;
         var lastDraw = data.recent_draws[0];
         this.renderPensionLastDraw(lastDraw);
         this.renderPensionIndicators(lastDraw);
         this.renderPensionRecommendations(data);
 
         var refreshBtn = document.getElementById('refresh-pension-btn');
-        if (refreshBtn) refreshBtn.onclick = () => this.renderPensionRecommendations(data);
+        if (refreshBtn) {
+            var self = this;
+            refreshBtn.onclick = function() { self.renderPensionRecommendations(data); };
+        }
     },
 
     renderPensionLastDraw: function(draw) {
         var container = document.getElementById('pension-last-draw');
         if (!container) return;
-        var sum = draw.nums.reduce((a, b) => a + b, 0);
-        var insight = sum >= 20 && sum <= 34 ? "통계적 골든존(안정)" : "수치 편중 발생(특이)";
         
-        var balls = draw.nums.map((n, i) => `<div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:0.5rem;color:#cbd5e1;margin-bottom:4px;">${i+1}위</span><div class="pension-ball small">${n}</div></div>`).join('');
-        container.innerHTML = `<div class="analysis-card" style="padding:20px; text-align:center;">
-            <div style="font-size:0.75rem; font-weight:800; color:#ff8c00; margin-bottom:15px;">🎟️ 제 ${draw.no}회 당첨 분석</div>
-            <div style="display:flex; justify-content:center; gap:10px; background:#fff; padding:15px; border-radius:50px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-                <div style="padding-right:15px; border-right:2px solid #f1f5f9;"><span style="font-size:0.6rem;color:#94a3b8;">조</span><div class="pension-ball group small">${draw.group}</div></div>
-                <div style="display:flex; gap:6px;">${balls}</div>
-            </div>
-            <div style="margin-top:15px; font-size:0.7rem; color:#64748b;">AI 데이터 총평: <span style="color:#3182f6;">${insight}</span></div>
-        </div>`;
+        var sum = 0;
+        for (var k = 0; k < draw.nums.length; k++) sum += draw.nums[k];
+        var insight = (sum >= 20 && sum <= 34) ? "통계적 골든존(안정)" : "수치 편중 발생(특이)";
+        
+        var ballsHtml = '';
+        for (var i = 0; i < draw.nums.length; i++) {
+            ballsHtml += '<div style="display:flex; flex-direction:column; align-items:center;">' +
+                         '<span style="font-size:0.5rem;color:#cbd5e1;margin-bottom:4px;">' + (i+1) + '위</span>' +
+                         '<div class="pension-ball small" style="background:#f1f5f9; color:#1e293b; border:1px solid #e2e8f0;">' + draw.nums[i] + '</div></div>';
+        }
+
+        container.innerHTML = '<div class="analysis-card" style="padding:20px; text-align:center;">' +
+            '<div style="font-size:0.75rem; font-weight:800; color:#ff8c00; margin-bottom:15px;">🎟️ 제 ' + draw.no + '회 당첨 분석</div>' +
+            '<div style="display:flex; justify-content:center; gap:10px; background:#fff; padding:15px; border-radius:50px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">' +
+                '<div style="padding-right:15px; border-right:2px solid #f1f5f9;"><span style="font-size:0.6rem;color:#94a3b8;">조</span><div class="pension-ball group small">' + draw.group + '</div></div>' +
+                '<div style="display:flex; gap:6px;">' + ballsHtml + '</div>' +
+            '</div>' +
+            '<div style="margin-top:15px; font-size:0.7rem; color:#64748b;">AI 데이터 총평: <span style="color:#3182f6;">' + insight + '</span></div>' +
+        '</div>';
     },
 
     renderPensionIndicators: function(draw) {
@@ -134,10 +180,12 @@ var ViewManager = {
             { label: '연속 번호', val: p.seq > 0 ? p.seq + '개' : '없음', ok: p.seq < 2 },
             { label: '번호 종류', val: p.unique + '종', ok: p.unique >= 4 }
         ];
-        grid.innerHTML = items.map(i => `<div class="best-box" style="padding:10px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.7rem; color:#64748b;">${i.label}</span>
-            <span style="font-size:0.8rem; font-weight:900; color:${i.ok?'#2ecc71':'#ff8c00'}">${i.val}</span>
-        </div>`).join('');
+        grid.innerHTML = items.map(function(i) {
+            return '<div class="best-box" style="padding:10px; display:flex; justify-content:space-between; align-items:center;">' +
+                '<span style="font-size:0.7rem; color:#64748b;">' + i.label + '</span>' +
+                '<span style="font-size:0.8rem; font-weight:900; color:' + (i.ok?'#2ecc71':'#ff8c00') + '">' + i.val + '</span>' +
+            '</div>';
+        }).join('');
     },
 
     renderPensionRecommendations: function(data) {
@@ -147,15 +195,21 @@ var ViewManager = {
         var html = '';
         for (var k = 0; k < 5; k++) {
             var group = Math.floor(Math.random() * 5) + 1;
-            var nums = Array.from({length:6}, () => Math.floor(Math.random() * 10));
-            html += `<div class="p-combo-card" style="width:calc(20% - 15px); min-width:170px; margin:5px; padding:15px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; display:flex; flex-direction:column; align-items:center;">
-                <span style="font-size:0.6rem; background:#fff4e6; color:#ff8c00; padding:2px 8px; border-radius:10px; font-weight:800; margin-bottom:10px;">${strategies[k]}</span>
-                <div style="display:flex; gap:5px; margin-bottom:10px;">
-                    <div class="pension-ball group small" style="width:24px;height:24px;">${group}</div>
-                    <div style="display:flex; gap:2px;">${nums.map(n => `<div class="pension-ball small" style="width:20px;height:20px;font-size:0.7rem;">${n}</div>`).join('')}</div>
-                </div>
-                <div style="font-size:0.6rem; color:#94a3b8;">AI 신뢰도: <span style="color:#2ecc71;">${80 + Math.floor(Math.random()*15)}%</span></div>
-            </div>`;
+            var nums = [];
+            for (var n = 0; n < 6; n++) nums.push(Math.floor(Math.random() * 10));
+            
+            var ballsHtml = nums.map(function(num) {
+                return '<div class="pension-ball small" style="width:20px;height:20px;font-size:0.7rem; background:#f1f5f9; color:#1e293b; border:1px solid #e2e8f0;">' + num + '</div>';
+            }).join('');
+
+            html += '<div class="p-combo-card" style="width:calc(20% - 15px); min-width:170px; margin:5px; padding:15px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; display:flex; flex-direction:column; align-items:center;">' +
+                '<span style="font-size:0.6rem; background:#fff4e6; color:#ff8c00; padding:2px 8px; border-radius:10px; font-weight:800; margin-bottom:10px;">' + strategies[k] + '</span>' +
+                '<div style="display:flex; gap:5px; margin-bottom:10px;">' +
+                    '<div class="pension-ball group small" style="width:24px;height:24px;">' + group + '</div>' +
+                    '<div style="display:flex; gap:2px;">' + ballsHtml + '</div>' +
+                '</div>' +
+                '<div style="font-size:0.6rem; color:#94a3b8;">AI 신뢰도: <span style="color:#2ecc71;">' + (80 + Math.floor(Math.random()*15)) + '%</span></div>' +
+            '</div>';
         }
         container.innerHTML = html;
     }

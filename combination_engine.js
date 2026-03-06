@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * AI Combination Engine v1.0 (Lotto & Pension Combined)
  * - Standardized Monte Carlo Simulation
@@ -209,12 +211,16 @@ var CombinationEngine = {
         trSim.innerHTML = `<td><strong style="color:#3182f6;">🧬 AI 몬테카를로</strong></td><td>${sim.hits}회</td><td><span class="status-badge safe">AI 분석</span></td><td class="text-left">1만 회 가상 추첨 결과, 통계적 우위 ${sim.score}점 산출.</td>`;
         container.appendChild(trSim);
 
-        var indicators = LottoConfig.INDICATORS;
-        var stats = this.statsData.stats_summary;
+        // 로또(GL) 지표만 필터링하여 처리
+        var indicators = LottoConfig.INDICATORS.filter(cfg => cfg.group && cfg.group.indexOf('GL') === 0);
+        var stats = this.statsData.stats_summary || {};
         var totalScore = 100 + (sim.score - 50)/5;
 
+        var sortedNums = nums.slice().sort((a,b)=>a-b);
+
         indicators.forEach(cfg => {
-            var val = cfg.calc(nums.sort((a,b)=>a-b), this.statsData);
+            if (!cfg.calc) return;
+            var val = cfg.calc(sortedNums, this.statsData);
             var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
             var tr = document.createElement('tr');
             tr.innerHTML = `<td><strong>${cfg.label}</strong></td><td>${val}</td><td><span class="status-badge ${status}">${status}</span></td><td class="text-left">${status==='danger'?'희귀 패턴':'안정적'}</td>`;
@@ -222,10 +228,24 @@ var CombinationEngine = {
             if (status === 'danger') totalScore -= 15;
         });
 
-        document.getElementById('combination-score').innerText = Math.round(totalScore);
+        var finalScore = Math.max(0, Math.min(100, Math.round(totalScore)));
+        document.getElementById('combination-score').innerText = finalScore;
+
+        // 등급 및 코멘트 업데이트
+        var grade = 'C';
+        var comment = '통계적으로 당첨 빈도가 매우 낮은 희귀한 패턴의 조합입니다.';
+        if (finalScore >= 90) { grade = 'S'; comment = '역대 1등 당첨 데이터와 완벽하게 일치하는 황금 밸런스 조합입니다.'; }
+        else if (finalScore >= 80) { grade = 'A'; comment = '역대 당첨 확률이 매우 높은 균형 잡힌 조합입니다.'; }
+        else if (finalScore >= 70) { grade = 'B'; comment = '무난한 조합이나 일부 지표가 통계적 범위를 벗어나 있습니다.'; }
+
+        var gradeEl = document.getElementById('combination-grade');
+        var commentEl = document.getElementById('grade-comment');
+        if (gradeEl) gradeEl.innerText = grade + '등급';
+        if (commentEl) commentEl.innerText = comment;
     },
 
     renderPensionReport: function(container, nums, sim) {
+        if (!typeof PensionUtils !== 'undefined') { container.innerHTML = '<p>연금 분석 모듈 로딩 중...</p>'; return; }
         var balance = PensionUtils.analyzeBalance(nums);
         var pattern = PensionUtils.analyzePatterns(nums);
         var grade = sim.score >= 85 ? 'S' : (sim.score >= 75 ? 'A' : 'B');
@@ -255,38 +275,116 @@ var CombinationEngine = {
         if (!saved) return;
         try {
             var data = JSON.parse(saved);
-            data.manual.forEach(n => {
-                this.state.lotto.manual.add(n);
-                var btn = document.getElementById('select-ball-' + n);
-                if (btn) btn.className = 'select-ball selected-manual';
-            });
+            if (data && Array.isArray(data.manual)) {
+                data.manual.forEach(n => {
+                    this.state.lotto.manual.add(n);
+                    var btn = document.getElementById('select-ball-' + n);
+                    if (btn) btn.className = 'select-ball selected-manual';
+                });
+            }
+            if (data && Array.isArray(data.auto)) {
+                data.auto.forEach(n => {
+                    this.state.lotto.auto.add(n);
+                    var btn = document.getElementById('select-ball-' + n);
+                    if (btn) btn.className = 'select-ball selected-auto';
+                });
+            }
             this.updateLottoDisplay();
-        } catch(e) {}
+        } catch(e) { console.error('Failed to load selection', e); }
     },
     bindGlobalEvents: function() {
         var self = this;
         document.getElementById('analyze-my-btn')?.addEventListener('click', () => self.analyze());
         document.getElementById('p-analyze-btn')?.addEventListener('click', () => self.analyze());
+        document.getElementById('p-random-btn')?.addEventListener('click', () => self.randomizePension());
+        
+        // 로또 자동/반자동 버튼 이벤트 (통합 버튼 및 개별 버튼 대응)
+        document.getElementById('semi-auto-btn')?.addEventListener('click', () => self.pickLottoNumbers(false));
+        document.getElementById('auto-btn')?.addEventListener('click', () => self.pickLottoNumbers(true));
+        document.getElementById('semi-btn')?.addEventListener('click', () => self.pickLottoNumbers(false));
+
         document.getElementById('reset-btn')?.addEventListener('click', () => {
             self.state.lotto.manual.clear(); self.state.lotto.auto.clear();
             document.querySelectorAll('.select-ball').forEach(b => b.className = 'select-ball');
             self.updateLottoDisplay();
         });
     },
+
+    pickLottoNumbers: function(isFullAuto) {
+        var lotto = this.state.lotto;
+        if (isFullAuto) {
+            lotto.manual.clear();
+            lotto.auto.clear();
+        }
+        
+        var currentSize = lotto.manual.size + lotto.auto.size;
+        if (currentSize >= 6 && !isFullAuto) { alert('이미 6개 번호가 선택되어 있습니다.'); return; }
+
+        var pool = [];
+        for (var i = 1; i <= 45; i++) {
+            if (!lotto.manual.has(i) && !lotto.auto.has(i)) pool.push(i);
+        }
+
+        while (lotto.manual.size + lotto.auto.size < 6 && pool.length > 0) {
+            var rIdx = Math.floor(Math.random() * pool.length);
+            var num = pool.splice(rIdx, 1)[0];
+            lotto.auto.add(num);
+        }
+
+        // UI 업데이트
+        document.querySelectorAll('.select-ball').forEach(btn => {
+            var n = parseInt(btn.innerText);
+            if (lotto.manual.has(n)) btn.className = 'select-ball selected-manual';
+            else if (lotto.auto.has(n)) btn.className = 'select-ball selected-auto';
+            else btn.className = 'select-ball';
+        });
+
+        this.saveLottoSelection();
+        this.updateLottoDisplay();
+    },
+
+    randomizePension: function() {
+        // 조 랜덤 선택
+        var group = Math.floor(Math.random() * 5) + 1;
+        var groupBtn = document.querySelector(`#group-selector .sel-btn[data-val="${group}"]`);
+        if (groupBtn) groupBtn.click();
+
+        // 6자리 번호 랜덤 선택
+        for (var i = 0; i < 6; i++) {
+            var val = Math.floor(Math.random() * 10);
+            var wheelBtn = document.querySelector(`#digit-${i} .wheel-btn[data-val="${val}"]`);
+            if (wheelBtn) wheelBtn.click();
+        }
+    },
     generatePensionAI: function(anchor) {
         var container = document.getElementById('ai-pension-recommendations');
         if (!container || !this.statsData) return;
         container.innerHTML = '';
         var strategies = [
-            { label: '🔥 마르코프 체인', desc: '전이 확률 기반' },
-            { label: '🧬 몬테카를로', desc: '시뮬레이션 최적화' }
+            { label: '🔥 마르코프 체인', desc: '전이 확률 최적화' },
+            { label: '🧬 몬테카를로', desc: '시뮬레이션 고득점' }
         ];
         strategies.forEach(st => {
             var combo = [0,0,0,0,0,anchor];
             for(var i=0; i<5; i++) combo[i] = Math.floor(Math.random()*10);
             var card = document.createElement('div');
-            card.className = 'analysis-card'; card.style.padding = '12px'; card.style.cursor = 'pointer';
-            card.innerHTML = `<div style="font-size:0.7rem; font-weight:800; color:#3182f6;">${st.label}</div><div style="display:flex; gap:3px; margin:8px 0;">${combo.map(n => `<div class="pension-ball small">${n}</div>`).join('')}</div>`;
+            card.className = 'analysis-card'; 
+            card.style.cssText = 'padding:15px; cursor:pointer; text-align:center; transition:all 0.2s; border:1px solid #e2e8f0;';
+            
+            var ballsHtml = combo.map((n, idx) => {
+                var isAnchor = idx === 5;
+                var bg = isAnchor ? '#3182f6' : '#f1f5f9';
+                var color = isAnchor ? '#ffffff' : '#1e293b';
+                var border = isAnchor ? 'none' : '1px solid #e2e8f0';
+                return `<div class="pension-ball small" style="width:26px; height:26px; border-radius:50%; background:${bg}; color:${color}; border:${border}; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:800;">${n}</div>`;
+            }).join('');
+
+            card.innerHTML = `
+                <div style="font-size:0.75rem; font-weight:900; color:#3182f6; margin-bottom:10px;">${st.label}</div>
+                <div style="display:flex; gap:4px; justify-content:center; margin-bottom:8px;">${ballsHtml}</div>
+                <div style="font-size:0.65rem; color:#94a3b8;">${st.desc}</div>
+            `;
+            
             card.onclick = () => {
                 combo.forEach((n, idx) => {
                     var btns = document.querySelectorAll('#digit-' + idx + ' .wheel-btn');

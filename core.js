@@ -1,5 +1,7 @@
+'use strict';
+
 /**
- * LottoCore v11.0 - AI Integrated Engine (Immortal Guardian)
+ * LottoCore v11.2 - AI Integrated Engine (Immortal Guardian)
  * - ES5 / ES6 Multi-Compatibility Engine
  * - Integrated Data Manager (Lotto & Pension Stats)
  * - Built-in Privacy Consent Manager
@@ -31,8 +33,9 @@ var LottoUtils = {
         if (num <= 30) return 'red'; if (num <= 40) return 'gray'; return 'green';
     },
     getZStatus: function(val, stat) {
-        if (!stat || stat.std === 0) return 'safe';
+        if (!stat || stat.std === 0 || val === undefined || val === null) return 'safe';
         var numVal = (typeof val === 'string' && val.indexOf(':') !== -1) ? parseFloat(val.split(':')[0]) : parseFloat(val);
+        if (isNaN(numVal)) return 'safe';
         var z = Math.abs(numVal - stat.mean) / stat.std;
         if (z <= 1.0) return 'safe'; if (z <= 2.0) return 'warning'; return 'danger';
     },
@@ -127,10 +130,40 @@ var LottoSynergy = {
 };
 
 var LottoUI = {
+    showSkeletons: function(containerId, count) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var html = '';
+        for (var i = 0; i < (count || 6); i++) {
+            html += '<div class="analysis-item skeleton-box"><div class="skeleton-text"></div><div class="skeleton-value"></div></div>';
+        }
+        container.innerHTML = html;
+    },
     createBall: function(num, isMini) {
         var ball = document.createElement('div');
         ball.className = 'ball ' + (isMini ? 'mini' : '') + ' ' + LottoUtils.getBallColorClass(num);
         ball.innerText = num; return ball;
+    },
+    renderIndicatorGrid: function(containerId, indicatorIds, numbers, statsData) {
+        var container = document.getElementById(containerId);
+        if (!container) return; container.innerHTML = '';
+        if (!statsData || !statsData.stats_summary) return;
+        
+        var summary = statsData.stats_summary;
+        var indicators = LottoConfig.INDICATORS;
+        for (var i = 0; i < indicatorIds.length; i++) {
+            var targetId = indicatorIds[i];
+            var cfg = null;
+            for (var k = 0; k < indicators.length; k++) { if (indicators[k].id === targetId) { cfg = indicators[k]; break; } }
+            if (cfg) {
+                var val = cfg.calc(numbers, statsData);
+                var status = LottoUtils.getZStatus(val, summary[cfg.statKey]);
+                var item = document.createElement('div');
+                item.className = 'analysis-item ' + status;
+                item.innerHTML = '<span class="label">' + cfg.label + '</span><span class="value">' + val + '</span>';
+                container.appendChild(item);
+            }
+        }
     },
     renderMiniTable: function(containerId, draws, indicatorConfig) {
         var tbody = document.getElementById(containerId); if (!tbody) return; tbody.innerHTML = '';
@@ -155,31 +188,31 @@ var LottoUI = {
             var width = container.clientWidth || 600; var height = 200; var padding = 50;
             var chartWidth = width - padding * 2; var chartHeight = height - 70; var baselineY = height - 40;
             
-            var maxFreq = Math.max.apply(null, entries.map(e => e[1]));
-            var points = entries.map((e, i) => ({
-                x: padding + (i / (entries.length - 1)) * chartWidth,
-                y: baselineY - (e[1] / maxFreq) * chartHeight,
-                val: parseFloat(e[0])
-            }));
+            var maxFreq = Math.max.apply(null, entries.map(function(e) { return e[1]; }));
+            var points = entries.map(function(e, i) {
+                return {
+                    x: padding + (i / (entries.length - 1)) * chartWidth,
+                    y: baselineY - (e[1] / maxFreq) * chartHeight,
+                    val: parseFloat(e[0])
+                };
+            });
 
             var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             svg.setAttribute("viewBox", "0 0 " + width + " " + height);
             svg.setAttribute("style", "width:100%; height:100%; overflow:visible;");
 
-            // 1. 패턴 정의 (빗금)
             var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
             var h1 = "hatch-opt-" + containerId, h2 = "hatch-safe-" + containerId;
             defs.innerHTML = '<pattern id="' + h1 + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.5" opacity="0.4"/></pattern>' +
                              '<pattern id="' + h2 + '" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" opacity="0.2"/></pattern>';
             svg.appendChild(defs);
 
-            // 2. 구간 렌더링 함수
             var drawZone = function(z, color) {
                 var minB = mu - z * sd, maxB = mu + z * sd;
-                var zPoints = points.filter(p => p.val >= minB && p.val <= maxB);
+                var zPoints = points.filter(function(p) { return p.val >= minB && p.val <= maxB; });
                 if (zPoints.length > 0) {
                     var d = "M " + zPoints[0].x + "," + baselineY;
-                    zPoints.forEach(p => d += " L " + p.x + "," + p.y);
+                    for (var j = 0; j < zPoints.length; j++) d += " L " + zPoints[j].x + "," + zPoints[j].y;
                     d += " L " + zPoints[zPoints.length - 1].x + "," + baselineY + " Z";
                     var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                     path.setAttribute("d", d); path.setAttribute("fill", color); svg.appendChild(path);
@@ -187,27 +220,23 @@ var LottoUI = {
             };
             drawZone(2, "url(#" + h2 + ")"); drawZone(1, "url(#" + h1 + ")");
 
-            // 3. 메인 곡선
             var curveD = "M " + points[0].x + "," + points[0].y;
             for (var i = 1; i < points.length; i++) curveD += " L " + points[i].x + "," + points[i].y;
             var curve = document.createElementNS("http://www.w3.org/2000/svg", "path");
             curve.setAttribute("d", curveD); curve.setAttribute("fill", "none"); curve.setAttribute("stroke", "#3182f6"); curve.setAttribute("stroke-width", "3");
             svg.appendChild(curve);
 
-            // 4. 통계 마커 및 충돌 방지 라벨링
             var markers = [
-                { v: mu - 2*sd, t: '2.5%', p: 2 }, { v: mu - sd, t: '16%', p: 3 },
-                { v: mu, t: '50%', p: 10 }, { v: mu + sd, t: '84%', p: 3 }, { v: mu + 2*sd, t: '97.5%', p: 2 }
+                { v: mu - 2*sd, t: '2.5%' }, { v: mu - sd, t: '16%' },
+                { v: mu, t: '50%' }, { v: mu + sd, t: '84%' }, { v: mu + 2*sd, t: '97.5%' }
             ];
             
             var drawnX = [];
-            markers.forEach(m => {
-                var targetVal = Math.max(points[0].val, Math.min(points[points.length-1].val, m.v));
+            markers.forEach(function(m) {
                 var bestP = points[0]; var minDist = 999;
-                points.forEach(p => { var d = Math.abs(p.val - targetVal); if(d < minDist) { minDist = d; bestP = p; } });
+                points.forEach(function(p) { var d = Math.abs(p.val - m.v); if(d < minDist) { minDist = d; bestP = p; } });
                 
-                // 물리적 겹침 방지 (최소 45px)
-                if (drawnX.every(x => Math.abs(x - bestP.x) > 40)) {
+                if (drawnX.every(function(x) { return Math.abs(x - bestP.x) > 40; })) {
                     drawnX.push(bestP.x);
                     var isAvg = m.t === '50%';
                     var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -217,9 +246,8 @@ var LottoUI = {
                     svg.appendChild(g);
                 }
             });
-
             container.appendChild(svg);
-        } catch (e) { console.error(e); container.innerHTML = '<p style="text-align:center; color:#999;">차트 렌더링 오류</p>'; }
+        } catch (e) { console.error(e); }
     },
     renderMarkovHeatmap: function(containerId, matrix, options) {
         var container = document.getElementById(containerId); if (!container || !matrix) return;
@@ -229,7 +257,7 @@ var LottoUI = {
         for (var h = 0; h < 10; h++) html += '<div style="text-align:center; font-size:0.6rem; font-weight:800; color:#64748b; background:#f8fafc; padding:8px 0;">' + h + '</div>';
         for (var i = 0; i < 10; i++) {
             html += '<div style="display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:800; color:#64748b; background:#f8fafc;">' + i + '</div>';
-            var rowSum = matrix[i].reduce((a, b) => a + b, 0);
+            var rowSum = matrix[i].reduce(function(a, b) { return a + b; }, 0);
             var maxP = 0, maxIdx = -1;
             for(var c=0; c<10; c++) { var p = rowSum===0?0:Math.round((matrix[i][c]/rowSum)*100); if(p>maxP){maxP=p; maxIdx=c;} }
             for (var j = 0; j < 10; j++) {
@@ -245,7 +273,7 @@ var LottoUI = {
 
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
-    SYSTEM_VERSION: '11.0',
+    SYSTEM_VERSION: '11.2',
     getCacheKey: function(type) { return 'lotto_data_' + type + '_v' + this.SYSTEM_VERSION; },
     getStats: function(callback) {
         this._loadJson('advanced_stats.json', 'lotto', callback);
@@ -254,8 +282,6 @@ var LottoDataManager = {
         this._loadJson('pension_stats.json', 'pension', callback);
     },
     getPensionRecords: function(callback) {
-        // 기존 CSV 로드 호환성 유지 (필요 시 Stats의 recent_draws 활용 권장)
-        var self = this;
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'pt720.csv?v=' + new Date().getTime(), true);
         xhr.onreadystatechange = function() {
@@ -267,9 +293,9 @@ var LottoDataManager = {
                     var parts = lines[i].split(','); if (parts.length < 4) continue;
                     var numArr = []; var rawNums = LottoUtils.padLeft(parts[3].trim(), 6, '0');
                     for(var n=0; n<6; n++) { numArr.push(Number(rawNums.charAt(n))); }
-                    data.push({ drawNo: parts[0], date: parts[1], group: parts[2].trim(), nums: numArr });
+                    data.push({ no: parts[0], date: parts[1], group: parts[2].trim(), nums: numArr });
                 }
-                callback(data);
+                if(callback) callback(data);
             }
         };
         xhr.send();
