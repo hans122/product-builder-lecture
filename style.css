@@ -267,6 +267,62 @@ svg {
     .mini-table-wrapper { border-left: none; border-top: 1px dashed #f1f3f5; padding-top: 20px; }
 }
 
+/* Strategy Board (v11.2) */
+.strategy-board-card {
+    background: #f0f7ff !important;
+    border: 1px solid rgba(49, 130, 246, 0.2) !important;
+}
+
+.strategy-groups-wrapper {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    flex-wrap: wrap;
+}
+
+.s-group-box {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.s-group-box.hot { border-top: 4px solid var(--danger-red); }
+.s-group-box.warm { border-top: 4px solid var(--success-green); }
+.s-group-box.cold { border-top: 4px solid var(--text-light); }
+
+.group-title {
+    margin: 0 0 15px 0;
+    font-size: 0.9rem;
+    font-weight: 800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.count-badge {
+    font-size: 0.75rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: #f1f3f5;
+    color: #4e5968;
+}
+
+.s-group-box.hot .count-badge { background: #fff2f2; color: var(--danger-red); }
+.s-group-box.warm .count-badge { background: #f0fdf4; color: var(--success-green); }
+
+.strategy-disclaimer {
+    padding: 0 20px 20px 20px;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    text-align: center;
+}
+
+.title-with-icon { display: flex; align-items: center; gap: 10px; }
+.alert-badge { display: none; background: white; padding: 6px 15px; border-radius: 30px; font-size: 0.75rem; border: 1px solid var(--border-light); }
+
 /* Grid Patterns (v11.2) */
 .pool-grid-10 {
     display: grid !important;

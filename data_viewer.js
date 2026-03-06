@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * AI Data Viewer Engine v1.0 (History & Stats Viewer Combined)
+ * AI Data Viewer Engine v1.2 (History & Stats Viewer Combined)
  * - Optimized for Expert-Grade Tables
- * - Unified Logic for Sticky Columns & Slanted Headers
+ * - Integrated with LottoDataManager (Standard v11.2)
  */
 
 var DataViewer = {
@@ -27,13 +27,12 @@ var DataViewer = {
         }
     },
 
-    // --- Lotto History Logic ---
     renderLottoHistory: function(draws, statsSummary) {
         var thead = document.getElementById('history-table-head');
         var tbody = document.getElementById('history-analysis-body');
         if (!thead || !tbody) return;
 
-        var indicators = LottoConfig.INDICATORS;
+        var indicators = LottoConfig.INDICATORS.filter(cfg => cfg.group && cfg.group.indexOf('GL') === 0);
         var headHtml = '<tr><th style="width: 65px;">회차</th><th style="width: 155px;">당첨번호</th>';
         indicators.forEach(cfg => {
             headHtml += '<th class="slant-column"><div class="slant-wrapper"><span>' + cfg.label + '</span></div></th>';
@@ -44,8 +43,8 @@ var DataViewer = {
         tbody.innerHTML = '';
         draws.forEach(draw => {
             var tr = document.createElement('tr');
-            var ballsHtml = draw.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('');
-            var rowHtml = '<td><strong>' + draw.no + '</strong><br><small style="color:#94a3b8">' + draw.date + '</small></td><td><div class="table-nums">' + ballsHtml + '</div></td>';
+            var winNums = draw.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('');
+            var rowHtml = '<td><strong>' + draw.no + '</strong><br><small style="color:#94a3b8">' + draw.date + '</small></td><td><div class="table-nums">' + winNums + '</div></td>';
             
             indicators.forEach(cfg => {
                 var val = draw[cfg.drawKey] !== undefined ? draw[cfg.drawKey] : '-';
@@ -62,7 +61,7 @@ var DataViewer = {
         if (!container || !data.distributions.period_1_3) return;
         var stats = data.distributions.period_1_3;
         container.innerHTML = '';
-        Object.keys(stats).sort((a,b)=>a-b).forEach(label => {
+        Object.keys(stats).sort((a,b)=>Number(a)-Number(b)).forEach(label => {
             var prob = ((stats[label] / data.total_draws) * 100).toFixed(1);
             var item = document.createElement('div');
             item.className = 'analysis-card'; item.style.cssText = 'padding:10px; text-align:center; min-width:80px;';
@@ -71,7 +70,6 @@ var DataViewer = {
         });
     },
 
-    // --- Pension History Logic ---
     renderPensionHistory: function(records) {
         var tbody = document.getElementById('pension-history-body');
         if (!tbody) return;
@@ -82,8 +80,8 @@ var DataViewer = {
             var balance = PensionUtils.analyzeBalance(draw.nums);
             var pattern = PensionUtils.analyzePatterns(draw.nums);
             
-            var dateStr = draw.date;
-            if (dateStr && dateStr.length === 8) {
+            var dateStr = draw.date || '';
+            if (dateStr.length === 8) {
                 dateStr = dateStr.substring(0,4) + '.' + dateStr.substring(4,6) + '.' + dateStr.substring(6,8);
             }
 
@@ -92,14 +90,13 @@ var DataViewer = {
                        '<td class="sticky-col second"><div class="pension-ball group small">' + draw.group + '</div></td>';
             
             draw.nums.forEach(n => {
-                var color = n >= 5 ? 'blue' : 'yellow';
-                html += '<td><div class="pension-ball small ' + color + '">' + n + '</div></td>';
+                html += '<td><div class="pension-ball small ' + (n >= 5 ? 'blue' : 'yellow') + '">' + n + '</div></td>';
             });
             
-            var sumClass = balance.sum >= 20 && balance.sum <= 34 ? 'c-blue' : 'c-red';
-            html += '<td class="' + sumClass + '"><strong>' + balance.sum + '</strong></td>' +
+            var sumStatus = (balance.sum >= 20 && balance.sum <= 34) ? 'safe' : 'danger';
+            html += '<td><strong class="text-' + sumStatus + '">' + balance.sum + '</strong></td>' +
                     '<td>' + (6 - balance.odd) + ':' + balance.odd + '</td>' +
-                    '<td><span class="status-tag ' + (pattern.maxOccur >= 3 ? 'fail' : 'excellent') + '">' + 
+                    '<td><span class="status-badge ' + (pattern.maxOccur >= 3 ? 'warning' : 'safe') + '">' + 
                     (pattern.maxOccur >= 3 ? '편중' : '균형') + '</span></td>';
             
             tr.innerHTML = html;

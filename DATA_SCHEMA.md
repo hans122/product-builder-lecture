@@ -1,4 +1,4 @@
-# DATA_SCHEMA.md - Master Data & System Architecture (v11.2)
+# DATA_SCHEMA.md - Master Data & System Architecture (v12.0)
 
 ## 1. 시스템 아키텍처 (Core Engine)
 본 프로젝트는 `core.js`를 중심으로 하는 중앙 집중형 로직 및 데이터 관리 체계를 따른다. 로또와 연금의 지표 혼선을 방지하기 위해 **GL(Lotto)** 및 **GP(Pension)** 접두사를 필수 사용한다.
@@ -57,7 +57,7 @@
 | **[GP10]** | 끝수 집중도 | 당첨 시작점인 1의 자리 숫자의 출현 강도 가중치 | `ending_weight` | `p-end-focus` |
 | **[GP13]** | 출현 타임라인 | 최근 15회차 번호 이동 및 이월 시각화 추적 | `flow_timeline` | `p-flow` |
 
-## 4. 시각화 및 UX 정책 (v11.2)
+## 4. 시각화 및 UX 정책 (v12.0)
 - **Performance Grading**: 성과 지표는 S/A/B/C 등급제로 정량화하여 표시한다.
 - **Reverse-First Strategy**: 연금복권 분석은 반드시 1의 자리(일 단위)부터 역순으로 시각화한다.
 - **Anchor-Based AI**: 첫 번째 번호를 고정하고 나머지 조합을 생성하는 앵커 모델을 우선 적용한다.

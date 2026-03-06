@@ -27,7 +27,7 @@
 ### 2.4. Expert-Grade Table System
 - **Slanted Header**: CSS `transform: rotate(-45deg)`를 활용하여 고정된 열 너비 안에서 긴 텍스트를 가시화.
 - **Sticky Column**: `position: sticky`와 `z-index` 설정을 통해 스크롤 시에도 핵심 열(회차, 추첨일, 번호/조)을 브라우저 좌측에 고정.
-- **Pension History Expansion (v11.2)**: 연금복권 히스토리 표에 '추첨일' 컬럼을 추가하고, `.date-col` 클래스를 통해 시각적 위계를 조정함.
+- **Pension History Expansion (v12.0)**: 연금복권 히스토리 표에 '추첨일' 컬럼을 추가하고, `.date-col` 클래스를 통해 시각적 위계를 조정함.
 
 ## 3. 데이터 흐름 (Data Flow)
 1. **수집**: `update_latest.py`가 외부 API에서 최신 데이터를 가져와 `lt645.csv`에 저장.

@@ -1,38 +1,38 @@
 ---
 name: lotto-project-manager
-description: AI 로또/연금 분석 서비스의 문서 정합성 관리 및 아키텍처 가디언 스킬. 통합 엔진(Unified Engine), 동적 렌더링(Dynamic UI), 엄격 모드(Strict Mode) 표준을 강제한다.
+description: AI 로또/연금 분석 서비스의 문서 정합성 관리 및 아키텍처 가디언 스킬. 통합 엔진(Unified Engine), 컴포넌트 기반 UI, 이벤트 드리븐 상태 관리를 강제한다.
 ---
 
-# Lotto Project Manager Skill (v11.2)
+# Lotto Project Manager Skill (v12.0)
 
-이 스킬은 프로젝트의 **통합 엔진 및 자율형 UI 아키텍처(Autonomous UI Architecture)**를 보장하며, 로직 일관성, 코드 안정성, 백엔드 중심의 데이터 유효성 검증을 관리합니다.
+이 스킬은 프로젝트의 **허브 아키텍처(Hub Architecture)** 및 **비즈니스 로직 독립성**을 보장하며, 컴포넌트 재사용성과 시스템 안정성을 극대화하는 관리 표준을 정의합니다.
 
-## 주요 워크플로우
+## 주요 워크플로우 Standard
 
 1.  **사전 검토 (Pre-Check)**:
-    *   모든 수정 요청 전, `PRD.md`, `SDD.md`, `DATA_SCHEMA.md`를 전수 읽기하여 표준을 내재화한다.
-    *   **접두사 표준 준수**: 로또 지표는 `[GL#]`, 연금 지표는 `[GP#]` 형식을 엄격히 따르는지 확인한다.
-    *   **데이터 검증**: `analyze_data.py`의 유효성 검사 로직(Validation)을 통과한 데이터만 처리됨을 인지한다.
+    *   **Document-First**: 수정 시작 전 `PRD.md`, `SDD.md`, `DATA_SCHEMA.md`를 전수 읽기하여 현재 요청의 맥락을 파악한다.
+    *   **Logic Isolation Check**: 모든 알고리즘(시뮬레이션, 추천, 스코어링)은 반드시 `unified_engine.js`에 정의되어야 하며, 개별 페이지 엔진에서의 중복 정의를 금지한다.
 
-2.  **구현 원칙**:
-    *   **자율형 동적 렌더링**: 가이드 페이지 등 반복되는 UI는 HTML 수동 수정 대신 `indicators.js` 설정을 읽어 JS가 스스로 그리도록(Dynamic Rendering) 강제한다.
-    *   **엄격 모드 적용**: 모든 JavaScript 파일 최상단에 `'use strict';` 선언을 필수 포함하여 런타임 안정성을 확보한다.
-    *   **통합 엔진 활용**: 5대 핵심 엔진(`analysis_engine.js`, `combination_engine.js`, `data_viewer.js`, `view_manager.js`, `content_loader.js`) 내부에서 도메인을 분기 처리한다.
-    *   **캐시 버스팅**: 리소스 업데이트 시 `core.js`의 `SYSTEM_VERSION`을 갱신(현재 v11.2)하고, 모든 HTML의 리소스 호출 경로(?v=11.2)를 동기화한다.
-    *   **반응형 차트**: 모든 SVG 기반 분석 차트는 `style.css`의 표준 반응형 속성(`max-width: 100%`)을 준수해야 한다.
+2.  **구현 원칙 (v12.0+)**:
+    *   **컴포넌트 기반 UI (LottoUI)**: 모든 구슬, 카드, 배지 등은 `ui_components.js`를 통해 생성하며, 인라인 스타일 사용을 지양하고 전역 CSS 클래스를 활용한다.
+    *   **이벤트 드리븐 (LottoEvents)**: 상태 변경 시 함수를 직접 호출하는 대신 `LottoEvents.emit`을 통해 선언적으로 UI 업데이트를 트리거한다.
+    *   **통합 데이터 로더 (LottoDataManager)**: 모든 비동기 데이터 로딩은 Promise 기반의 `LottoDataManager`를 통해서만 수행하며, `XMLHttpRequest` 직접 호출을 금지한다.
+    *   **데이터 샌니타이징**: 백엔드 데이터 업데이트 후 반드시 `python3 verify_data.py`를 실행하여 무결성을 검증한다.
+    *   **버전 동기화 (Vibe Sync)**: 시스템 버전 갱신 시 `node sync_version.cjs`를 실행하여 모든 HTML 리소스 파라미터와 문서 버전을 일괄 동기화한다.
 
 3.  **사후 정리 (Post-Sync)**:
-    *   작업 완료 후 `PRD.md`, `SDD.md`, `GEMINI.md`에 변경 사항을 동시 반영한다.
-    *   `node .gemini/skills/lotto-project-manager/scripts/bump_version.cjs`를 실행하여 문서 버전을 갱신한다.
+    *   작업 완료 후 `GEMINI.md` 및 핵심 문서들을 실시간 업데이트하여 '설계의 최신성'을 유지한다.
+    *   커밋 전 `verify_logic_match.py`를 통해 백엔드와 프론트엔드 간의 로직 일관성을 최종 확인한다.
 
 ## 사용 예시
 
-*   "지표 이름 변경" -> `indicators.js`만 수정하여 가이드/통계/분석 전 페이지에 자동 반영되게 한다.
-*   "새로운 분석 기능 추가" -> `analyze_data.py`에서 통계를 선계산하고, 통합 엔진 중 적절한 모듈에 렌더링 로직을 추가한다.
-*   "에러 발생" -> `'use strict';` 모드에 따른 전역 변수 오염이나 데이터 유효성 검사 실패 여부를 먼저 확인한다.
+*   "조합 분석 점수 로직 수정" -> `unified_engine.js`의 `LottoAI.calculateTotalScore`를 수정하여 전 페이지에 일관된 결과가 나오게 한다.
+*   "새로운 UI 요소 추가" -> `ui_components.js`에 컴포넌트 함수를 등록하고, 필요한 페이지에서 이를 호출한다.
+*   "데이터 정합성 오류" -> `verify_data.py`와 `verify_logic_match.py`를 순차 실행하여 오염 지점을 특정한다.
 
-## 도구 활용
+## 핵심 도구
 
-*   **버전 업데이트**: `node .gemini/skills/lotto-project-manager/scripts/bump_version.cjs`
-*   **통합 분석**: `python3 analyze_data.py` (Lotto & Pension 전체 빌드)
-*   **버전 일괄 적용**: HTML 파일의 `?v=X.X` 파라미터 일괄 치환 실행
+*   **Vibe Sync (v12.0+)**: `node sync_version.cjs` (리소스/문서 버전 일괄 동기화)
+*   **Data Guardian**: `python3 verify_data.py` (데이터 무결성 심층 검증)
+*   **Logic Matcher**: `python3 verify_logic_match.py` (Python-JS 로직 교차 검증)
+*   **Version Bump**: `node .gemini/skills/lotto-project-manager/scripts/bump_version.cjs`
