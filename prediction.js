@@ -162,7 +162,7 @@ var PredictionEngine = {
             var ballHtml = res.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('');
 
             card.innerHTML = `
-                <div class="combo-rank" style="background:${this.getStrategyColor(res.strategy.id)}">${res.strategy.label}</div>
+                <div class="combo-rank" style="background:${this.getStrategyColor(res.strategy.id)}; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-weight: 900;">${res.strategy.label}</div>
                 <div class="ball-container">${ballHtml}</div>
                 <div class="combo-meta">신뢰도 <b>${92 + Math.floor(Math.random()*7)}%</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>
                 <div class="combo-desc">${res.strategy.desc}</div>
