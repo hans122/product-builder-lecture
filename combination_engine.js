@@ -11,10 +11,15 @@ var CombinationEngine = {
     isPension: false,
     statsData: null,
     _currentResults: null,
+    _selectedNums: [],
 
     init: function() {
         this.isPension = document.body.classList.contains('pension-theme');
         var self = this;
+
+        // 1. 번호 선택기 초기화
+        this.renderSelector();
+        this.bindSelectorEvents();
 
         if (this.isPension) {
             LottoDataManager.getPensionStats(function(data) {
@@ -25,6 +30,87 @@ var CombinationEngine = {
                 if (data) { self.statsData = data; self.renderSelection(); }
             });
         }
+    },
+
+    /** [v32.85] 로또 번호 선택기 렌더링 */
+    renderSelector: function() {
+        var container = document.getElementById('number-selector');
+        if (!container || this.isPension) return;
+        
+        container.innerHTML = '';
+        for (var i = 1; i <= 45; i++) {
+            var ball = document.createElement('div');
+            ball.className = 'select-ball';
+            ball.innerText = i;
+            ball.dataset.num = i;
+            container.appendChild(ball);
+        }
+    },
+
+    bindSelectorEvents: function() {
+        var self = this;
+        var container = document.getElementById('number-selector');
+        if (!container) return;
+
+        container.onclick = function(e) {
+            var ball = e.target.closest('.select-ball');
+            if (!ball) return;
+            
+            var num = parseInt(ball.dataset.num);
+            var idx = self._selectedNums.indexOf(num);
+
+            if (idx !== -1) {
+                self._selectedNums.splice(idx, 1);
+                ball.classList.remove('selected-manual');
+            } else {
+                if (self._selectedNums.length >= 6) {
+                    LottoUI.Feedback.toast('최대 6개까지만 선택 가능합니다.');
+                    return;
+                }
+                self._selectedNums.push(num);
+                ball.classList.add('selected-manual');
+            }
+            self.updateSelectedUI();
+        };
+
+        // 분석 실행 버튼
+        var analyzeBtn = document.getElementById('analyze-my-btn');
+        if (analyzeBtn) {
+            analyzeBtn.onclick = function() {
+                if (self._selectedNums.length === 6) {
+                    localStorage.setItem('lastGeneratedNumbers', JSON.stringify(self._selectedNums));
+                    self.renderSelection();
+                    // 결과 영역으로 부드럽게 이동
+                    document.getElementById('report-section')?.scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+        }
+
+        // 초기화 버튼
+        var resetBtn = document.getElementById('reset-btn');
+        if (resetBtn) {
+            resetBtn.onclick = function() {
+                self._selectedNums = [];
+                container.querySelectorAll('.selectable-ball').forEach(b => b.classList.remove('active'));
+                self.updateSelectedUI();
+            };
+        }
+    },
+
+    updateSelectedUI: function() {
+        var container = document.getElementById('selected-balls');
+        var btn = document.getElementById('analyze-my-btn');
+        if (!container) return;
+
+        if (this._selectedNums.length === 0) {
+            container.innerHTML = '<div class="placeholder">번호를 선택해주세요</div>';
+        } else {
+            container.innerHTML = '';
+            var sorted = this._selectedNums.slice().sort((a,b) => a-b);
+            sorted.forEach(n => container.appendChild(LottoUI.Ball.create(n, { mini: true })));
+        }
+
+        if (btn) btn.disabled = (this._selectedNums.length !== 6);
     },
 
     renderSelection: function() {
@@ -156,10 +242,10 @@ var CombinationEngine = {
             `;
             tbody.appendChild(tr);
             
-            // v32.45 툴팁 연결
+            // [v32.81] 새로운 툴팁 표준 적용 (LottoUI.Feedback.tooltip)
             setTimeout(() => {
                 var el = document.getElementById(tipId);
-                if (el) LottoUI.attachTooltip(el, r.tip);
+                if (el) LottoUI.Feedback.tooltip(el, r.tip);
             }, 50);
         });
     },
