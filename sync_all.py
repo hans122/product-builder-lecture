@@ -2,19 +2,28 @@ import os
 import subprocess
 import sys
 import re
-from datetime import datetime
+import csv
+from datetime import datetime, timedelta
 
 """
-AI Data Auto-Sync Hub v2.0 (v32.2)
-1. Update Lotto & Pension Data
-2. Run Deep Analysis
-3. Verify Logic Integrity
-4. Auto Version Bump (core.js)
-5. Vibe Sync (HTML Resources)
+AI Data Smart-Sync Hub v3.0 (v32.3)
+- SMART: Only updates data if > 7 days old
+- SMART: Only runs analysis if data changed or engine modified
+- ALWAYS: Version Bump & Vibe Sync (for UI reflection)
 """
+
+# 핵심 엔진 파일 리스트 (수정 감지용)
+ENGINE_FILES = [
+    'analyze_data.py', 
+    'unified_engine.js', 
+    'indicators.js', 
+    'lotto_utils.js',
+    'analysis_engine.js',
+    'unified_engine.js'
+]
 
 def run_step(name, command):
-    print(f"\n--- [STEP] {name} ---")
+    print(f"--- [STEP] {name} ---")
     try:
         cmd = [sys.executable] + command.split() if command.endswith(".py") else command.split()
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -30,13 +39,48 @@ def run_step(name, command):
         print(f"💥 Error running {name}: {str(e)}")
         return False
 
+def check_lotto_date_needs_update():
+    """CSV의 최신 날짜를 확인하여 7일 이상 지났는지 판별"""
+    try:
+        if not os.path.exists('lt645.csv'): return True
+        with open('lt645.csv', 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader) # 헤더 스킵
+            latest_row = next(reader) # 2행 (최신 데이터)
+            # '2026.02.28' 형태에서 따옴표 제거 후 파싱
+            date_str = latest_row[1].replace("'", "")
+            last_date = datetime.strptime(date_str, '%Y.%m.DD')
+            
+            # 7일 + 12시간 여유 (토요일 밤 당첨 확인용)
+            if datetime.now() - last_date > timedelta(days=7, hours=12):
+                print(f"📅 Last data is from {date_str}. Time for an update!")
+                return True
+            return False
+    except Exception as e:
+        print(f"⚠️ Date check failed ({e}), defaulting to update.")
+        return True
+
+def check_engine_modified():
+    """엔진 파일들이 분석 결과물(advanced_stats.json)보다 최신인지 확인"""
+    try:
+        stats_file = 'advanced_stats.json'
+        if not os.path.exists(stats_file): return True
+        
+        stats_mtime = os.path.getmtime(stats_file)
+        for f in ENGINE_FILES:
+            if os.path.exists(f) and os.path.getmtime(f) > stats_mtime:
+                print(f"🛠️ Engine file '{f}' was modified. Re-analysis needed.")
+                return True
+        return False
+    except:
+        return True
+
 def bump_version():
-    print("\n--- [STEP] Auto Version Bump ---")
+    print("--- [STEP] Auto Version Bump ---")
     try:
         with open('core.js', 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # SYSTEM_VERSION: 'X.X' 패턴 찾기
         match = re.search(r"SYSTEM_VERSION:\s*'([\d.]+)'", content)
         if not match:
             print("❌ Could not find SYSTEM_VERSION in core.js")
@@ -44,12 +88,10 @@ def bump_version():
         
         current_version = match.group(1)
         v_parts = current_version.split('.')
-        # 마지막자리 버전업 (e.g., 32.1 -> 32.2)
         v_parts[-1] = str(int(v_parts[-1]) + 1)
         new_version = '.'.join(v_parts)
         
         new_content = re.sub(r"SYSTEM_VERSION:\s*'[\d.]+'", f"SYSTEM_VERSION: '{new_version}'", content)
-        # 릴리즈 날짜도 오늘로 갱신 (RELEASE_DATE 필드가 있을 경우)
         today = datetime.now().strftime('%Y-%m-%d')
         new_content = re.sub(r"RELEASE_DATE:\s*'[\d-]+'", f"RELEASE_DATE: '{today}'", new_content)
         
@@ -64,27 +106,35 @@ def bump_version():
 
 def main():
     start_time = datetime.now()
-    print(f"🚀 AI Unified Sync Start: {start_time}")
+    print(f"🚀 AI Smart-Sync Start: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
-    # 1~3단계: 데이터 및 분석
-    steps = [
-        ("Lotto Update", "update_latest.py"),
-        ("Pension Update", "update_pension.py"),
-        ("Deep Analysis", "analyze_data.py"),
-        ("Logic Verification", "verify_logic_match.py")
-    ]
+    # 1. 데이터 업데이트 여부 확인
+    needs_data = check_lotto_date_needs_update()
+    
+    # 2. 분석 필요 여부 확인 (데이터가 새롭거나 엔진이 바뀌었을 때)
+    needs_analysis = needs_data or check_engine_modified()
 
-    for name, cmd in steps:
-        if not run_step(name, cmd): return
+    # 3. 데이터 업데이트 실행
+    if needs_data:
+        if not run_step("Lotto Update", "update_latest.py"): return
+        if not run_step("Pension Update", "update_pension.py"): return
+    else:
+        print("⏭️ Data is up-to-date. Skipping download.")
 
-    # 4단계: 버전 자동 업그레이드
+    # 4. 분석 및 검증 실행
+    if needs_analysis:
+        if not run_step("Deep Analysis", "analyze_data.py"): return
+        if not run_step("Logic Verification", "verify_logic_match.py"): return
+    else:
+        print("⏭️ No logic or data changes. Skipping deep analysis.")
+
+    # 5. 버전 및 리소스 동기화 (항상 실행)
     if not bump_version(): return
-
-    # 5단계: 리소스 파라미터 동기화
     if not run_step("Vibe Sync", "node sync_version.cjs"): return
 
     duration = datetime.now() - start_time
-    print(f"\n✨ [ALL DONE] System is now fully updated and synchronized! (Time: {duration.total_seconds():.1f}s)")
+    mode = "FULL" if needs_analysis else "FAST"
+    print(f"\n✨ [ALL DONE] System updated in {mode} mode! (Time: {duration.total_seconds():.1f}s)")
 
 if __name__ == "__main__":
     main()

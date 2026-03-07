@@ -51,11 +51,16 @@ var AnalysisEngine = {
 
     renderRegressionUI: function(container, signals) {
         var html = '<div class="regression-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">';
+        var signalIds = [];
+        
         for (var label in signals) {
             var s = signals[label];
+            var sigId = 'reg-' + Math.random().toString(36).substr(2, 9);
+            signalIds.push({ id: sigId, label: label, data: s });
+            
             var color = s.energy >= 90 ? '#f04452' : (s.energy >= 60 ? '#ff9500' : '#3182f6');
             html += `
-                <div class="reg-item" style="background:white; padding:15px; border-radius:16px; border:1px solid #f1f5f9; text-align:center;">
+                <div id="${sigId}" class="reg-item" style="background:white; padding:15px; border-radius:16px; border:1px solid #f1f5f9; text-align:center; cursor:help;">
                     <div style="font-size:0.7rem; color:#8b95a1; font-weight:700; margin-bottom:8px;">${label}</div>
                     <div style="position:relative; width:60px; height:60px; margin:0 auto;">
                         <svg viewBox="0 0 36 36" style="width:100%; height:100%;">
@@ -69,6 +74,18 @@ var AnalysisEngine = {
         }
         html += '</div>';
         container.innerHTML = html;
+
+        // v32.47 툴팁 연결
+        setTimeout(() => {
+            signalIds.forEach(item => {
+                var el = document.getElementById(item.id);
+                if (el) {
+                    var statusDesc = item.data.energy >= 90 ? '통계적으로 현재 매우 임계점에 도달해 있어 조만간 평균으로 회귀(출현)할 가능성이 매우 높습니다.' : (item.data.energy >= 60 ? '최근 흐름이 평균 범위를 벗어나기 시작하며 에너지가 축적되고 있습니다.' : '현재 통계적 평균 범위 내에서 안정적으로 움직이고 있습니다.');
+                    var fullTip = `<strong>${item.label} 회귀 분석</strong><br>${item.data.streak}회차 연속 임계 이탈 중<br><br>${statusDesc}`;
+                    LottoUI.attachTooltip(el, fullTip);
+                }
+            });
+        }, 100);
     },
 
     /** 2. 골든타임 전략 그룹 보드 */

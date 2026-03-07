@@ -1,4 +1,4 @@
-# DATA_SCHEMA.md - Master Data & System Architecture (v22.27)
+# DATA_SCHEMA.md - Master Data & System Architecture (v22.28)
 
 ## 1. 시스템 아키텍처 (Modular Engine)
 본 프로젝트는 도메인별 관심사 분리(SoC)를 위해 모듈화된 엔진 구조를 따른다. 모든 지표 및 로직은 **GL(Lotto)** 및 **GP(Pension)** 접두사를 통해 엄격히 구분된다.
@@ -30,7 +30,7 @@
 | **[GP5]** | 상관관계 | 자리수 이월 및 이웃수 | `dynamics` | `carry-pos` |
 | **[GP14]** | 마르코프 | 숫자 간 전이 확률 행렬 | `markov` | `markov-heatmap` |
 
-## 4. 시각화 및 UI 가이드라인 (v22.27)
+## 4. 시각화 및 UI 가이드라인 (v22.28)
 - **Grid Standard**: 예측 풀 10열 그리드, 히스토리 40px 열 너비 준수.
 - **Table Dimension**: 회차(55px) / 번호(230px) / 결과(80px) 고정 및 중앙 정렬.
 - **SVG Axis**: X축 라벨 2단 구성 (수치 / %). y좌표: 수치(182), %(195).
