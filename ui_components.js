@@ -118,6 +118,10 @@ var LottoUI = {
         var mean = stat ? stat.mean : 0, std = stat ? stat.std : 1;
         var minX = mean - 3.5 * std, maxX = mean + 3.5 * std;
 
+        // 실제 데이터의 최소값 추출 (v29.4)
+        var dataKeys = Object.keys(distData).map(Number);
+        var dataMin = dataKeys.length > 0 ? Math.min.apply(null, dataKeys) : 0;
+
         var points = [];
         for (var x = minX; x <= maxX; x += (maxX - minX) / 100) {
             var y = (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / std, 2));
@@ -158,8 +162,9 @@ var LottoUI = {
             <path d="${pathD}" fill="none" stroke="var(--primary-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             <line x1="${padding}" y1="${baselineY}" x2="${w-padding}" y2="${baselineY}" stroke="#e5e8eb" stroke-width="1"/>
             ${labels.map(l => {
-                var displayVal = LottoUtils.round(l.v, unit==='개'?0:1);
-                if (unit === '개' && displayVal < 0) displayVal = 0;
+                // 이론값(l.v)과 실제 데이터 최소값(dataMin) 중 큰 값을 선택 (v29.4)
+                var correctedVal = Math.max(l.v, dataMin);
+                var displayVal = LottoUtils.round(correctedVal, unit==='개'?0:1);
                 return `
                 <g>
                     <line x1="${getX(l.v)}" y1="${baselineY}" x2="${getX(l.v)}" y2="${baselineY+8}" stroke="#cbd5e1"/>
