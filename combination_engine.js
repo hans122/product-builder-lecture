@@ -86,6 +86,39 @@ var CombinationEngine = {
             };
         }
 
+        // 자동/반자동 버튼
+        var autoBtn = document.getElementById('semi-auto-btn');
+        if (autoBtn) {
+            autoBtn.onclick = function() {
+                var currentCount = self._selectedNums.length;
+                if (currentCount >= 6) {
+                    // 이미 6개면 초기화 후 새로 생성
+                    self._selectedNums = [];
+                    container.querySelectorAll('.select-ball').forEach(b => b.classList.remove('selected-manual'));
+                }
+
+                var needed = 6 - self._selectedNums.length;
+                var pool = [];
+                for (var i = 1; i <= 45; i++) {
+                    if (self._selectedNums.indexOf(i) === -1) pool.push(i);
+                }
+
+                // 무작위 셔플 후 필요한 만큼 추출
+                pool.sort(() => Math.random() - 0.5);
+                var picked = pool.slice(0, needed);
+
+                // 선택 처리
+                picked.forEach(num => {
+                    self._selectedNums.push(num);
+                    var ball = container.querySelector(`.select-ball[data-num="${num}"]`);
+                    if (ball) ball.classList.add('selected-manual');
+                });
+
+                self.updateSelectedUI();
+                LottoUI.Feedback.toast(currentCount > 0 ? '나머지 번호를 자동으로 채웠습니다.' : '번호 6개를 자동으로 선택했습니다.');
+            };
+        }
+
         // 초기화 버튼
         var resetBtn = document.getElementById('reset-btn');
         if (resetBtn) {
