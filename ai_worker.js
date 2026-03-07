@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * AI Computation Worker v1.4 (Unified Logic Bridge)
- * - Offloads heavy calculations to LottoAI.generateSmartCombinations
- * - Zero duplicated logic between core and worker
+ * AI Computation Worker v1.5 (Full Isomorphic Integration)
+ * - Directly leverages LottoAI.generateSmartCombinations
+ * - Ensures 100% logic symmetry between main and worker
  */
 
 importScripts('lotto_utils.js', 'indicators.js', 'unified_engine.js');
@@ -16,7 +16,7 @@ self.onmessage = function(e) {
     var task = e.data;
     try {
         if (task.type === 'GENERATE_COMBINATIONS') {
-            // [v32.1] 통합 엔진의 표준 생성 메서드 호출
+            // [v32.8] 통합 엔진의 표준 메서드 호출 (추가 로직 없음)
             var result = LottoAI.generateSmartCombinations(
                 task.pools, 
                 task.strategies, 
