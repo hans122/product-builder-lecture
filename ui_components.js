@@ -238,6 +238,11 @@ var LottoUI = {
             `;
         }
 
+        var ensembleHtml = '';
+        if (res.ensembleCount > 1) {
+            ensembleHtml = `<span style="font-size:0.6rem; padding:1px 4px; border-radius:4px; background:#ffd70033; color:#b8860b; font-weight:800; border:1px solid #ffd70066;">앙상블 +${res.ensembleCount - 1}</span>`;
+        }
+
         var strategyLabel = (res.strategy && res.strategy.label) ? res.strategy.label : (opts.strategy || 'AI 추천');
         var strategyDesc = (res.strategy && res.strategy.desc) ? res.strategy.desc : (opts.desc || '분석된 조합입니다.');
 
@@ -245,6 +250,7 @@ var LottoUI = {
             `<div class="ball-container">${ballsHtml}</div>` +
             `<div class="combo-meta">AI 시너지 <b>${res.synergyScore || 0}pt</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>` +
             `<div class="combo-desc">${strategyDesc}</div>` +
+            `<div style="display:flex; gap:4px; margin-top:8px; justify-content:center;">${ensembleHtml}</div>` +
             probHtml +
             `<div class="analyze-badge">정밀 분석 ➔</div>`;
         return card;
