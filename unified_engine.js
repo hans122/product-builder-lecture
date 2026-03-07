@@ -285,18 +285,17 @@ var LottoAI = {
             if (zScores[k1] === undefined || zScores[k2] === undefined) return;
             
             var r = matrix[k1][k2];
-            if (Math.abs(r) < 0.15) return; // 미미한 관계 무시
+            if (Math.abs(r) < 0.20) return; // v23.1: 관계성 하한선 상향
 
             var currentRelation = zScores[k1] * zScores[k2];
             var isHarmony = (r > 0 && currentRelation > 0) || (r < 0 && currentRelation < 0);
             
-            // v23.0 아웃라이어 판정 기준: 1.5 (극단적 이탈)
-            // 95% 이상의 당첨번호는 이 기준을 통과함.
-            if (!isHarmony && Math.abs(currentRelation) > 1.5) { 
-                score -= 30; // 치명적 감점 (제외급)
+            // v23.1 임계치: 1.8 (초극단적 이탈만 감지)
+            if (!isHarmony && Math.abs(currentRelation) > 1.8) { 
+                score -= 40; // 감점 위력 강화
                 violations.push(`${k1}↔${k2} 모순`);
-            } else if (isHarmony && Math.abs(currentRelation) > 0.5) {
-                score += 3; // 일반적인 조화는 소폭 가점
+            } else if (isHarmony && Math.abs(currentRelation) > 0.6) {
+                score += 5; // 조화 시 가점도 상향
             }
         });
         

@@ -43,16 +43,16 @@ def run_correlation_backtest():
             z1, z2 = z_scores.get(k1), z_scores.get(k2)
             if z1 is None or z2 is None: continue
             
-            if abs(r) > 0.15:
+            if abs(r) > 0.20:
                 curr_rel = z1 * z2
                 is_harmony = (r > 0 and curr_rel > 0) or (r < 0 and curr_rel < 0)
                 
-                # v23.0 임계치: 1.5
-                if not is_harmony and abs(curr_rel) > 1.5:
+                # v23.1 임계치: 1.8
+                if not is_harmony and abs(curr_rel) > 1.8:
                     violations.append(f"{k1}-{k2}")
-                    score -= 30
-                elif is_harmony and abs(curr_rel) > 0.5:
-                    score += 3
+                    score -= 40
+                elif is_harmony and abs(curr_rel) > 0.6:
+                    score += 5
         
         score_sum += score
         if len(violations) == 0: perfect_count += 1
