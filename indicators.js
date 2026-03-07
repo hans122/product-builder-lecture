@@ -50,7 +50,12 @@ _global.LottoConfig = {
             const zones = [0,0,0,0,0]; nums.forEach(n => zones[Math.floor((n-1)/10)]++);
             return zones.filter(z => z === 0).length;
         }, visible: { history: true, analysis: true, combination: true } },
-        { id: 'color', label: '색상수', unit: '색상', group: 'GL4', distKey: 'color', statKey: 'color', drawKey: 'clr', maxLimit: 5, calc: (nums) => new Set(nums.map(LottoUtils.getBallColorClass)).size, visible: { history: true, analysis: true, combination: true } },
+        { id: 'color', label: '색상수', unit: '색상', group: 'GL4', distKey: 'color', statKey: 'color', drawKey: 'clr', maxLimit: 5, calc: (nums) => new Set(nums.map(LottoUtils.getBallColorClass)).size, visible: { history: true, analysis: true, combination: true }, filter: { min: 3, max: 5 } },
+        { id: 'max-same-color', label: '동일색상최대', unit: '개', group: 'GL4', calc: (nums) => {
+            const colors = nums.map(n => Math.floor((n - 1) / 10));
+            const counts = colors.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
+            return Math.max(...Object.values(counts));
+        }, visible: { history: true, analysis: true, combination: true }, filter: { max: 3 } },
 
         // [GL4-P] 시각적 패턴
         { id: 'pattern-corner', label: '모서리', unit: '개', group: 'GL4', distKey: 'pattern_corner', statKey: 'pattern_corner', drawKey: 'pc', maxLimit: 6, calc: (nums) => {
