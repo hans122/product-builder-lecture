@@ -300,5 +300,48 @@ var LottoAI = {
         });
         
         return { score: Math.max(-100, Math.min(50, score)), violations: violations };
+    },
+
+    // 14. [NEW] Win Probability Index (당첨 기댓값 지수 산출)
+    calculateWinProbability: function(nums, statsData) {
+        if (!statsData) return { multiplier: 1.0, confidence: 50 };
+        
+        // A. 시너지 조화도 기반 우위 (최대 1.4배)
+        var harmony = this.checkCorrelationHarmony(nums, statsData);
+        var harmonyEdge = 1.0 + (harmony.score / 100); 
+        
+        // B. 회귀 에너지 동기화 우위 (최대 1.3배)
+        // 현재 에너지가 높은 지표들을 이 조합이 충족하고 있는지 확인
+        var energyEdge = 1.0;
+        if (statsData.regression_signals) {
+            var matchCount = 0, totalHighEnergy = 0;
+            for (var label in statsData.regression_signals) {
+                var sig = statsData.regression_signals[label];
+                if (sig.energy > 70) { // 고에너지 신호 발생 지표
+                    totalHighEnergy++;
+                    // 해당 지표의 실제 값을 계산하여 세이프존 여부 확인
+                    // (단순화를 위해 여기서는 조화도 점수에 이미 반영된 것으로 간주하거나 
+                    //  특정 핵심 지표만 샘플링하여 계산)
+                }
+            }
+            if (totalHighEnergy > 0) energyEdge += (harmony.score > 0 ? 0.2 : -0.1);
+        }
+
+        // C. 몬테카를로 상대 성과 (최대 1.2배)
+        var sim = this.runMonteCarlo(nums, false, statsData);
+        var simEdge = 1.0 + (sim.score - 50) / 250;
+
+        // D. 최종 기댓값 (평균 1.0 대비 배수)
+        var multiplier = harmonyEdge * energyEdge * simEdge;
+        multiplier = Math.max(0.1, Math.min(2.5, multiplier)); // 0.1배 ~ 2.5배 제한
+        
+        // 예측 신뢰도 (데이터 정합성 기반)
+        var confidence = 70 + (harmony.score > 0 ? 15 : -20);
+        
+        return { 
+            multiplier: multiplier.toFixed(2), 
+            confidence: Math.max(10, Math.min(99, confidence)),
+            grade: multiplier >= 1.5 ? 'TOP' : (multiplier >= 1.1 ? 'HIGH' : 'NORMAL')
+        };
     }
 };

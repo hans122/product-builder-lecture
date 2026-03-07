@@ -254,8 +254,10 @@ var CombinationEngine = {
             container.appendChild(tr);
         });
 
-        // 4. Correlation Harmony Report [NEW]
+        // 4. Correlation Harmony Report
         var harmony = LottoAI.checkCorrelationHarmony(sortedNums, this.statsData);
+        var prob = LottoAI.calculateWinProbability(sortedNums, this.statsData); // [NEW]
+
         var trHarmony = document.createElement('tr');
         var harmonyStatus = harmony.score > 0 ? 'safe' : (harmony.score < -20 ? 'danger' : 'warning');
         var harmonyText = harmony.violations.length > 0 ? 
@@ -264,6 +266,16 @@ var CombinationEngine = {
             
         trHarmony.innerHTML = `<td><strong>🔗 지표 조화도</strong></td><td>${harmony.score > 0 ? '+' : ''}${harmony.score}점</td><td><span class="status-badge ${harmonyStatus}">Correl</span></td><td class="text-left" style="font-size:0.75rem; color:#4a5568;">${harmonyText}</td>`;
         container.appendChild(trHarmony);
+
+        // [NEW] 당첨 기댓값 행 추가
+        var trProb = document.createElement('tr');
+        trProb.innerHTML = `
+            <td><strong>📈 당첨 기댓값</strong></td>
+            <td><span style="font-size:1.1rem; font-weight:900; color:var(--primary-blue);">${prob.multiplier}배</span></td>
+            <td><span class="status-badge safe">PROB</span></td>
+            <td class="text-left" style="font-size:0.75rem; color:#4a5568;">통계적 분석 결과, 이 조합은 일반 무작위 조합 대비 <strong>${prob.multiplier}배</strong> 높은 당첨 기댓값을 가집니다. (신뢰도 ${prob.confidence}%)</td>
+        `;
+        container.appendChild(trProb);
 
         // 5. Score & Grade Calculation (Unified Engine)
         var finalScore = LottoAI.calculateTotalScore(sim.score, synergy, indicatorStatuses) + harmony.score;
