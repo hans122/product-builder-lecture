@@ -244,7 +244,11 @@ var LottoUI = {
 
         var ensembleHtml = '';
         if (res.ensembleCount > 1) {
-            ensembleHtml = `<span style="font-size:0.6rem; padding:1px 4px; border-radius:4px; background:#ffd70033; color:#b8860b; font-weight:800; border:1px solid #ffd70066;">앙상블 +${res.ensembleCount - 1}</span>`;
+            var isSuper = res.ensembleCount >= 4; // v32.12 슈퍼 앙상블 기준
+            var style = isSuper 
+                ? 'background:linear-gradient(135deg, #ffd700, #ffae00); color:#1a202c; border:1px solid #ffd700; box-shadow:0 2px 6px rgba(255,215,0,0.4);' 
+                : 'background:#f1f5f9; color:#475569; border:1px solid #e2e8f0;';
+            ensembleHtml = `<span style="font-size:0.65rem; padding:2px 8px; border-radius:20px; ${style} font-weight:900;">${isSuper ? '👑 ' : ''}앙상블 +${res.ensembleCount}</span>`;
         }
 
         var strategyLabel = (res.strategy && res.strategy.label) ? res.strategy.label : (opts.strategy || 'AI 추천');

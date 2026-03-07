@@ -335,10 +335,25 @@ _global.LottoAI = {
 
                 if (isPass && !results.some(function(r){return JSON.stringify(r.nums)===JSON.stringify(pick);})) {
                     var prob = this.calculateWinProbability(pick, false, statsData);
+                    
+                    // v32.12 지능형 앙상블 가중치 산출
+                    var ensembleScore = 0;
+                    var strategyWeights = { 'standard': 1.5, 'trend': 1.2, 'regression': 1.5, 'balanced': 1.0, 'hot': 1.0, 'neighbor': 1.0 };
+                    
+                    strategies.forEach(function(st) {
+                        var testP = true;
+                        if (st.id === 'hot' && pick.filter(function(n){return pools.hot.indexOf(n)!==-1;}).length < 4) testP = false;
+                        if (st.id === 'balanced' && (sumVal < 120 || sumVal > 160)) testP = false;
+                        if (st.id === 'trend' && prob.multiplier < 1.1) testP = false;
+                        if (st.id === 'regression' && prob.energyBoost < 1.1) testP = false;
+                        
+                        if (testP) ensembleScore += (strategyWeights[st.id] || 1.0);
+                    });
+
                     results.push({ 
                         nums: pick, strategy: strategy, 
                         synergyScore: Math.round((this.getCompatibilityScore(pick, synergyMatrix) + this.calculateMarkovScore(pick, lastDraw.nums, statsData)) / 2), 
-                        prob: prob, ensembleCount: 1 
+                        prob: prob, ensembleCount: Math.floor(ensembleScore) 
                     });
                     found = true;
                 }
