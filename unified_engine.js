@@ -58,11 +58,24 @@ _global.LottoAI = {
         return combo;
     },
 
-    // 3. Combined Score Calculator
-    calculateTotalScore: function(baseScore, synergyResults, indicatorStatuses) {
+    // 3. Combined Score Calculator (v32.10 Weight-Aware)
+    calculateTotalScore: function(baseScore, synergyResults, indicatorResults) {
         var total = 100 + (baseScore - 50) / 5;
-        if (synergyResults) synergyResults.forEach(s => { if(s.status === 'danger') total -= 15; });
-        if (indicatorStatuses) indicatorStatuses.forEach(st => { if(st === 'danger') total -= 12; });
+        
+        // 시너지 페널티
+        if (synergyResults) {
+            synergyResults.forEach(function(s) { if(s.status === 'danger') total -= 15; });
+        }
+        
+        // 개별 지표 가중치 기반 페널티
+        if (indicatorResults) {
+            indicatorResults.forEach(function(res) {
+                var weight = res.cfg.weight || 1.0;
+                if (res.status === 'danger') total -= (12 * weight);
+                else if (res.status === 'warning') total -= (4 * weight);
+            });
+        }
+        
         return Math.max(0, Math.min(100, Math.round(total)));
     },
 
@@ -190,9 +203,20 @@ _global.LottoAI = {
                 var r = matrix[k1][k2];
                 if (Math.abs(r) >= 0.12) {
                     var currentRel = zScores[k1] * zScores[k2], isHarmony = (r > 0 && currentRel > 0) || (r < 0 && currentRel < 0);
-                    var weight = this.getTrendWeight(k1, k2, statsData);
-                    if (!isHarmony && Math.abs(currentRel) > 1.8) { score -= 20 * weight; violations.push(`${k1}↔${k2} 모순`); }
-                    else if (isHarmony && Math.abs(currentRel) > 0.8) { score += 3 * weight; }
+                    
+                    // v32.10 지표 가중치 합산 페널티
+                    var cfg1 = indicators.find(function(c){return c.distKey===k1||c.statKey===k1;});
+                    var cfg2 = indicators.find(function(c){return c.distKey===k2||c.statKey===k2;});
+                    var importance = ((cfg1?cfg1.weight:1) + (cfg2?cfg2.weight:1)) / 2;
+                    var trendWeight = this.getTrendWeight(k1, k2, statsData);
+                    
+                    if (!isHarmony && Math.abs(currentRel) > 1.8) { 
+                        score -= (20 * trendWeight * importance); 
+                        violations.push(`${k1}↔${k2} 모순`); 
+                    }
+                    else if (isHarmony && Math.abs(currentRel) > 0.8) { 
+                        score += (3 * trendWeight * importance); 
+                    }
                 }
             }
         });

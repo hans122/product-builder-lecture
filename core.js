@@ -13,7 +13,7 @@ var LottoEvents = {
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
     promises: { lotto: null, pension: null },
-    SYSTEM_VERSION: '22.6',
+    SYSTEM_VERSION: '22.7',
     getStats: function(cb) { this._load('advanced_stats.json', 'lotto', cb); },
     getPensionStats: function(cb) { this._load('pension_stats.json', 'pension', cb); },
     _load: function(url, type, cb) {

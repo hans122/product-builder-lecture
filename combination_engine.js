@@ -111,8 +111,8 @@ var CombinationEngine = {
         trP.innerHTML = `<td><strong>📈 당첨 기댓값</strong></td><td><span style="color:var(--primary-blue); font-weight:900;">${prob.multiplier}배</span></td><td><span class="status-badge safe">PROB</span></td><td class="text-left" style="font-size:0.75rem;">무작위 조합 대비 <b>${prob.multiplier}배</b> 높은 확률 (신뢰도 ${prob.confidence}%)</td>`;
         tbody.appendChild(trP);
 
-        // 스코어 갱신
-        var finalScore = LottoAI.calculateTotalScore(sim.score, synergy, results.map(r=>r.status)) + harmony.score;
+        // 스코어 갱신 (v32.10 가중치 반영 연동)
+        var finalScore = LottoAI.calculateTotalScore(sim.score, synergy, results) + harmony.score;
         var gradeInfo = LottoAI.getGrade(finalScore);
         document.getElementById('combination-score').innerText = finalScore;
         var gEl = document.getElementById('combination-grade'), cEl = document.getElementById('grade-comment');
