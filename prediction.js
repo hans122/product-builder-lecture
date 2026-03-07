@@ -1,10 +1,10 @@
 'use strict';
 
 /**
- * AI Prediction Engine v5.1 - Simplified Top 10 Edition
- * - 10 Unique Analysis Algorithms (One per strategy)
- * - Optimized UI without strategy selector
- * - Enhanced Performance Backtesting
+ * AI Prediction Engine v5.2 - Strategy Focused Top 10 Edition
+ * - 10 Unique Analysis Algorithms
+ * - Deep Recommendation Mode (10 combos per selected strategy)
+ * - Enhanced UI with implicit strategy selection
  */
 
 var PredictionEngine = {
@@ -23,17 +23,27 @@ var PredictionEngine = {
     renderAll: function() {
         var pools = this.getPools(this.statsData.recent_draws || [], -1);
         this.renderPoolGrid(pools);
-        this.generateSmartCombinations(pools);
+        var strategy = document.getElementById('lotto-strategy-select').value || 'all';
+        this.generateSmartCombinations(pools, strategy);
         if (typeof runBacktest === 'function') runBacktest(this.statsData.recent_draws || []);
     },
 
     bindEvents: function() {
         var self = this;
+        var strategySelect = document.getElementById('lotto-strategy-select');
+        if (strategySelect) {
+            strategySelect.onchange = function() {
+                var pools = self.getPools(self.statsData.recent_draws || [], -1);
+                self.generateSmartCombinations(pools, this.value);
+            };
+        }
+        
         var refreshBtn = document.getElementById('refresh-recommendations-btn');
         if (refreshBtn) {
             refreshBtn.onclick = function() {
                 var pools = self.getPools(self.statsData.recent_draws || [], -1);
-                self.generateSmartCombinations(pools);
+                var curS = document.getElementById('lotto-strategy-select').value || 'all';
+                self.generateSmartCombinations(pools, curS);
             };
         }
     },
@@ -82,7 +92,7 @@ var PredictionEngine = {
         };
     },
 
-    generateSmartCombinations: function(pools) {
+    generateSmartCombinations: function(pools, selectedStrategy) {
         var container = document.getElementById('ai-combinations-container');
         if (!container) return;
         container.innerHTML = '';
@@ -100,11 +110,15 @@ var PredictionEngine = {
             { id: 'extreme', label: "📉 저빈도 역습형", desc: "희귀 패턴 기반 잭팟 목표" }
         ];
 
+        var strategies = selectedStrategy === 'all' 
+            ? allStrategies 
+            : Array(10).fill(allStrategies.find(s => s.id === selectedStrategy));
+
         var stats = this.statsData.stats_summary;
         var results = [];
         var lastDraw = this.statsData.recent_draws[0];
 
-        allStrategies.forEach(strategy => {
+        strategies.forEach(strategy => {
             var found = false, attempts = 0;
             while (!found && attempts < 800) {
                 attempts++;
