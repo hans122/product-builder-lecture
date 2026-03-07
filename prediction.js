@@ -108,28 +108,33 @@ var PredictionEngine = {
         var results = [];
 
         strategies.forEach(strategy => {
-            var found = false, attempts = 0;
-            while (!found && attempts < 500) {
-                attempts++;
-                var pick = anchorNum > 0 ? [anchorNum] : [];
-                var pool = (strategy.id === 'hot') ? pools.hot.slice(0, 20) : pools.hot.concat(pools.neutral);
-                var localPool = [...pool];
-                
-                while (pick.length < 6 && localPool.length > 0) {
-                    var n = localPool.splice(Math.floor(Math.random() * localPool.length), 1)[0];
-                    if (!pick.includes(n)) pick.push(n);
-                }
-                
-                pick.sort((a,b)=>a-b);
-                if (pick.length < 6) continue;
+            for (var count = 0; count < 2; count++) { // 각 전략별 2개씩 생성 (총 10개)
+                var found = false, attempts = 0;
+                while (!found && attempts < 500) {
+                    attempts++;
+                    var pick = anchorNum > 0 ? [anchorNum] : [];
+                    var pool = (strategy.id === 'hot') ? pools.hot.slice(0, 20) : pools.hot.concat(pools.neutral);
+                    var localPool = [...pool];
+                    
+                    while (pick.length < 6 && localPool.length > 0) {
+                        var n = localPool.splice(Math.floor(Math.random() * localPool.length), 1)[0];
+                        if (!pick.includes(n)) pick.push(n);
+                    }
+                    
+                    pick.sort((a,b)=>a-b);
+                    if (pick.length < 6) continue;
 
-                var sum = pick.reduce((a,b)=>a+b, 0);
-                var synergy = LottoSynergy.check(pick, this.statsData);
-                var hasDanger = synergy.some(s => s.status === 'danger');
-                
-                if ((Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger) || attempts > 450) {
-                    results.push({ nums: pick, strategy: strategy });
-                    found = true;
+                    var sum = pick.reduce((a,b)=>a+b, 0);
+                    var synergy = LottoSynergy.check(pick, this.statsData);
+                    var hasDanger = synergy.some(s => s.status === 'danger');
+                    
+                    // 중복 조합 방지
+                    var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
+                    
+                    if (((Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger) || attempts > 450) && !isDuplicate) {
+                        results.push({ nums: pick, strategy: strategy });
+                        found = true;
+                    }
                 }
             }
         });
