@@ -52,9 +52,15 @@ var AnalysisEngine = {
             root.appendChild(section);
 
             // 3. 데이터 주입
-            var dist = data.distributions[cfg.distKey];
-            var stat = data.stats_summary[cfg.statKey];
-            if (dist) LottoUI.createCurveChart(cfg.id + '-chart', dist, cfg.unit, stat, cfg);
+            var dist = data.distributions ? data.distributions[cfg.distKey] : null;
+            var stat = data.stats_summary ? data.stats_summary[cfg.statKey] : null;
+            
+            if (dist && stat) {
+                LottoUI.createCurveChart(cfg.id + '-chart', dist, cfg.unit, stat, cfg);
+            } else {
+                var chartBox = document.getElementById(cfg.id + '-chart');
+                if (chartBox) chartBox.innerHTML = '<div style="padding:50px; text-align:center; color:#94a3b8; font-size:0.8rem;">데이터 집계 중입니다...</div>';
+            }
             LottoUI.renderMiniTable(cfg.id + '-mini-body', data.recent_draws.slice(0, 6), cfg);
         });
 

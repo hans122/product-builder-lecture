@@ -10,8 +10,8 @@ window.LottoConfig = {
     INDICATORS: [
         // [GL1] 기본 밸런스
         { id: 'sum', label: '총합', unit: '', group: 'GL1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0), visible: { history: true, analysis: true, combination: true }, filter: { zLimit: 2.0 } },
-        { id: 'odd-even', label: '홀짝', unit: '', group: 'GL1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'oe', maxLimit: 6, calc: (nums) => nums.filter(n => n % 2 !== 0).length, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 4 } },
-        { id: 'high-low', label: '고저', unit: '', group: 'GL1', distKey: 'high_low', statKey: 'low_count', drawKey: 'hl', maxLimit: 6, calc: (nums) => nums.filter(n => n <= 22).length, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 4 } },
+        { id: 'odd-even', label: '홀짝', unit: '', group: 'GL1', distKey: 'odd_count', statKey: 'odd_count', drawKey: 'oe', maxLimit: 6, calc: (nums) => nums.filter(n => n % 2 !== 0).length, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 4 } },
+        { id: 'high-low', label: '고저', unit: '', group: 'GL1', distKey: 'low_count', statKey: 'low_count', drawKey: 'hl', maxLimit: 6, calc: (nums) => nums.filter(n => n <= 22).length, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 4 } },
 
         // [GL2] 관계 및 주기
         { id: 'period_1', label: '1회기(이월)', unit: '개', group: 'GL2', distKey: 'period_1', statKey: 'period_1', drawKey: 'p1', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[0]) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : 0, visible: { history: true, analysis: true, combination: true } },

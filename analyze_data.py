@@ -47,7 +47,7 @@ def analyze_lotto():
     processed_data = []
     
     corners = [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42]
-    triangle_center = [17,18,19,24,25,26,31,32,33] # 중앙패턴 번호
+    triangle_center = [17,18,19,24,25,26,31,32,33]
     mirrors = [12,21,13,31,14,41,23,32,24,42,34,43]
 
     for i, draw in enumerate(draws):
@@ -83,11 +83,12 @@ def analyze_lotto():
         b5 = len(set((n-1)//5 for n in nums_list))
         p9 = len(set((n-1)%9 for n in nums_list))
         
-        zones = [0,0,0,0,0]; [zones.__setitem__(min(4, (n-1)//10), zones[min(4, (n-1)//10)]+1) for n in nums_list]
+        zones = [0,0,0,0,0]
+        for n in nums_list: zones[min(4, (n-1)//10)] += 1
         ez = zones.count(0)
         
-        # 색상수 (노랑, 파랑, 빨강, 회색, 초록)
-        colors = set(); [colors.add((n-1)//10) for n in nums_list]
+        colors = set()
+        for n in nums_list: colors.add((n-1)//10)
         
         pc = len([n for n in nums_list if n in corners])
         pcn = len([n for n in nums_list if n in triangle_center])
@@ -114,6 +115,7 @@ def analyze_lotto():
             if k in raw_metrics: raw_metrics[k].append(v)
             if k in distributions: distributions[k][v] += 1
 
+    # stats_summary 계산 루프 종료 후 실행
     stats_summary = {}
     for k, v_list in raw_metrics.items():
         if not v_list: continue
@@ -162,16 +164,11 @@ def analyze_pension():
     for i, draw in enumerate(draws):
         nums = draw["nums"]
         prev = draws[i-1]["nums"] if i > 0 else None
-        
-        # 자리수 빈도
         for p in range(6): pos_freq[p][nums[p]] += 1
-        
-        # 전이 확률
         if i < len(draws)-1:
             nxt = draws[i+1]["nums"]
             for p in range(6): markov[nums[p]][nxt[p]] += 1
 
-        # 지표 계산 (Indicators 매칭)
         s = sum(nums)
         od = len([n for n in nums if n % 2 != 0])
         lo = len([n for n in nums if n <= 4])
