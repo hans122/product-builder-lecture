@@ -234,13 +234,15 @@ var AnalysisEngine = {
         for (var k in freq) freqValues.push(freq[k]);
         var max = Math.max.apply(null, freqValues);
         
-        var html = '<div class="freq-bar-container" style="display:flex; align-items:flex-end; gap:3px; height:180px; padding:30px 10px 10px 10px; background:#f8fafc; border-radius:12px; border:1px solid #edf2f7;">';
+        // [v33.06] 하단 라벨 공간 확보를 위해 패딩 조정 (bottom: 35px)
+        var html = '<div class="freq-bar-container" style="display:flex; align-items:flex-end; gap:3px; height:200px; padding:30px 10px 35px 10px; background:#f8fafc; border-radius:12px; border:1px solid #edf2f7; margin-bottom:20px;">';
         for (var i = 1; i <= 45; i++) {
             var val = freq[i] || 0;
             var h = (val / (max || 1)) * 100;
-            // [v33.05] validator 호환성을 위해 .bar 클래스 추가 및 시각적 고도화
+            // [v33.06] 상단에는 빈도값(val), 하단에는 번호(i) 배치
             html += `<div class="freq-bar bar ${LottoUtils.getBallColorClass(i)}" style="flex:1; height:${h}%; border-radius:3px 3px 0 0; position:relative; min-width:4px;" title="${i}번: ${val}회">` +
-                `<span style="position:absolute; top:-18px; left:50%; transform:translateX(-50%) rotate(-45deg); font-size:0.55rem; font-weight:900; color:#64748b;">${i}</span></div>`;
+                `<span style="position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:0.55rem; font-weight:900; color:#3182f6;">${val}</span>` +
+                `<span style="position:absolute; bottom:-25px; left:50%; transform:translateX(-50%) rotate(-45deg); font-size:0.55rem; font-weight:900; color:#64748b; white-space:nowrap;">${i}</span></div>`;
         }
         html += '</div>';
         container.innerHTML = html;
