@@ -138,7 +138,21 @@ var PensionPrediction = {
         var finalResults = (existing || []).concat(newBatch || []);
         
         finalResults.forEach(res => {
+            // [v32.43] 연금용 태깅 ID 생성
+            var tagId = 'ptag-' + Math.random().toString(36).substr(2, 9);
+            var isArchived = res.timestamp ? true : false;
+            
             var card = LottoUI.createComboCard(res);
+            
+            // 태그 주입 및 툴팁 연결을 위한 구조 변경
+            var header = card.querySelector('.card-header');
+            if (header) {
+                var tagHtml = isArchived 
+                    ? `<span id="${tagId}" style="font-size:0.55rem; font-weight:900; color:#c05621; background:#fffaf0; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #feebc8;">STORED</span>`
+                    : `<span id="${tagId}" style="font-size:0.55rem; font-weight:900; color:#ff8c00; background:#fff4e6; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #ff8c0033;">NEW</span>`;
+                header.querySelector('div > div').insertAdjacentHTML('beforeend', tagHtml);
+            }
+
             // 연금용 구슬 스타일 재조정
             var ballHtml = `<div class="pension-ball group small" style="background:#4e5968;">${res.group || '1'}</div>` + 
                            res.nums.map(n => `<div class="pension-ball small ${n >= 5 ? 'blue' : 'yellow'}" style="width:24px; height:24px; font-size:0.75rem;">${n}</div>`).join('');
@@ -150,6 +164,12 @@ var PensionPrediction = {
                 location.href = 'pension_combination.html';
             };
             container.appendChild(card);
+
+            // 툴팁 연결
+            setTimeout(() => {
+                var el = document.getElementById(tagId);
+                if (el) LottoUI.attachTooltip(el, isArchived ? '저장소에 보관된 연금 조합입니다.' : '실시간 AI 엔진으로 생성된 신규 연금 조합입니다.');
+            }, 100);
         });
 
         if (newBatch && newBatch.length > 0) this.saveToArchive(newBatch);
@@ -182,10 +202,18 @@ var PensionPrediction = {
         archive.sort((a, b) => (parseFloat(b.prob?.multiplier) || 0) - (parseFloat(a.prob?.multiplier) || 0));
         container.innerHTML = '';
         archive.forEach(res => {
+            var tagId = 'ptag-arch-' + Math.random().toString(36).substr(2, 9);
             var wrapper = document.createElement('div');
             wrapper.className = 'archive-card-wrapper';
             var card = LottoUI.createComboCard(res);
             
+            // 태그 주입
+            var header = card.querySelector('.card-header');
+            if (header) {
+                var tagHtml = `<span id="${tagId}" style="font-size:0.55rem; font-weight:900; color:#c05621; background:#fffaf0; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #feebc8;">STORED</span>`;
+                header.querySelector('div > div').insertAdjacentHTML('beforeend', tagHtml);
+            }
+
             var ballHtml = `<div class="pension-ball group small" style="background:#4e5968;">${res.group || '1'}</div>` + 
                            res.nums.map(n => `<div class="pension-ball small ${n >= 5 ? 'blue' : 'yellow'}" style="width:24px; height:24px; font-size:0.75rem;">${n}</div>`).join('');
             var bc = card.querySelector('.ball-container');
@@ -207,6 +235,12 @@ var PensionPrediction = {
             wrapper.appendChild(delBtn);
             wrapper.appendChild(card);
             container.appendChild(wrapper);
+
+            // 툴팁 연결
+            setTimeout(() => {
+                var el = document.getElementById(tagId);
+                if (el) LottoUI.attachTooltip(el, '저장소에 보관된 우수 연금 조합입니다.');
+            }, 100);
         });
 
         var clearBtn = document.getElementById('clear-p-archive-btn');
