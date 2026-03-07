@@ -1,7 +1,7 @@
 /**
- * LottoCore Hub v21.2 (Stabilized Edition)
- * - Orchestrates Data, Logic, and Core Utilities
- * - Robust Error Handling for JSON Fetching
+ * LottoCore Hub v21.4 (High-Stability Edition)
+ * - Uses Fetch API for robust data streaming
+ * - Advanced Cache Busting & Error Management
  */
 
 var LottoEvents = {
@@ -13,40 +13,38 @@ var LottoEvents = {
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
     promises: { lotto: null, pension: null },
-    SYSTEM_VERSION: '21.2',
-    getCacheKey: function(type) { return 'lotto_data_' + type + '_v' + this.SYSTEM_VERSION; },
+    SYSTEM_VERSION: '21.4',
     getStats: function(cb) { this._load('advanced_stats.json', 'lotto', cb); },
     getPensionStats: function(cb) { this._load('pension_stats.json', 'pension', cb); },
     _load: function(url, type, cb) {
         if (this.cache[type]) { cb(this.cache[type]); return; }
         if (this.promises[type]) { this.promises[type].then(cb); return; }
+        
         var self = this;
-        this.promises[type] = new Promise(resolve => {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url + '?v=' + self.SYSTEM_VERSION + '_' + Date.now());
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    try {
-                        var text = xhr.responseText;
-                        if (!text) throw new Error('Empty response from server');
-                        var data = JSON.parse(text);
-                        self.cache[type] = data; 
-                        resolve(data);
-                    } catch (e) {
-                        console.error('[LottoCore] JSON Parse Error:', e, 'URL:', url);
-                        resolve(null);
-                    }
-                } else {
-                    console.error('[LottoCore] HTTP Error:', xhr.status, 'URL:', url);
-                    resolve(null);
-                }
-            };
-            xhr.onerror = () => {
-                console.error('[LottoCore] Network Error. URL:', url);
-                resolve(null);
-            };
-            xhr.send();
+        var cacheBuster = self.SYSTEM_VERSION + '_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+        var finalUrl = url + '?v=' + cacheBuster;
+
+        this.promises[type] = fetch(finalUrl, {
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.json(); // Robust streaming parse
+        })
+        .then(data => {
+            self.cache[type] = data;
+            return data;
+        })
+        .catch(err => {
+            console.error('[LottoCore] Data Fetch Failed:', err, 'URL:', url);
+            return null;
         });
+
         this.promises[type].then(cb);
     }
 };
