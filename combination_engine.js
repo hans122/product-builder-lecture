@@ -141,21 +141,27 @@ var CombinationEngine = {
         if (!tbody || !this._currentResults) return;
         
         var filtered = this._currentResults.filter(r => groupId === 'ALL' || r.cfg.group === groupId);
-        tbody.innerHTML = filtered.map(r => {
+        tbody.innerHTML = '';
+        
+        filtered.forEach(r => {
             var sLab = r.status === 'safe' ? '세이프' : (r.status === 'warning' ? '주의' : '위험');
-            return `<tr>
-                <td><strong>${r.cfg.label}</strong></td>
+            var tr = document.createElement('tr');
+            var tipId = 'rtip-' + Math.random().toString(36).substr(2, 9);
+            
+            tr.innerHTML = `
+                <td><strong id="${tipId}" style="cursor:help; border-bottom:1px dashed #cbd5e1;">${r.cfg.label}</strong></td>
                 <td><span style="font-weight:900; color:${r.status==='danger'?'#f04452':'#191f28'};">${r.val}</span></td>
                 <td><span class="status-badge ${r.status}">${sLab}</span></td>
                 <td class="text-left" style="font-size:0.75rem; color:#4a5568;">${r.tip}</td>
-            </tr>`;
-        }).join('');
-        
-        // 추가: 기댓값 및 조화도 행은 'ALL' 탭이나 'GL6'(고급) 또는 'GL5'(정밀) 탭에서 항상 표시
-        if (groupId === 'ALL' || groupId === 'GL5' || groupId === 'GL6') {
-            var harmony = LottoAI.checkCorrelationHarmony(this._currentResults[0].nums || [], this.statsData); // 예시용
-            // 실제 구현 시 정밀 산술 행들을 하단에 추가...
-        }
+            `;
+            tbody.appendChild(tr);
+            
+            // v32.45 툴팁 연결
+            setTimeout(() => {
+                var el = document.getElementById(tipId);
+                if (el) LottoUI.attachTooltip(el, r.tip);
+            }, 50);
+        });
     },
 
     renderPensionReport: function(container, nums, sim) {
