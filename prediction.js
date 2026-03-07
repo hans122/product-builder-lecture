@@ -68,44 +68,74 @@ var PredictionEngine = {
         var container = document.getElementById('ai-combinations-container');
         if (!container) return;
         
-        // 로딩 UI 표시
-        container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1; padding: 50px;"><div class="spinner"></div><p style="margin-top:15px; color:#3182f6; font-weight:bold;">AI 딥 시너지 엔진이 최적의 조합을 연산 중입니다...</p></div>';
+        container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1; padding: 50px;"><div class="spinner"></div><p style="margin-top:15px; color:#3182f6; font-weight:bold;">AI 아카이브 및 딥 엔진에서 최적의 조합을 선별 중입니다...</p></div>';
 
+        // [v32.26] 아카이브 우선 선별 로직
+        var rawArchive = localStorage.getItem('lotto_ai_archive');
+        var archive = rawArchive ? JSON.parse(rawArchive) : [];
+        var filteredArchive = [];
+        
+        if (selectedStrategy !== 'all') {
+            filteredArchive = archive.filter(item => item.strategy && item.strategy.id === selectedStrategy);
+        } else {
+            // 전체 전략일 경우 중복 없이 섞어서 추출
+            filteredArchive = archive.slice(0, 10);
+        }
+
+        // 최대 10개 추출
+        var existingResults = filteredArchive.slice(0, 10);
+        var neededCount = 10 - existingResults.length;
+
+        if (neededCount <= 0) {
+            // 아카이브에 충분한 조합이 있으면 즉시 렌더링
+            setTimeout(() => this.renderCombinations(existingResults), 300);
+            return;
+        }
+
+        // 부족한 수량만큼만 AI 엔진 가동
         var allStrategies = LottoConfig.STRATEGIES;
-        var strategies = selectedStrategy === 'all' 
-            ? allStrategies 
-            : Array(10).fill(allStrategies.find(s => s.id === selectedStrategy));
-
-        container.style.gridTemplateColumns = 'repeat(5, 1fr)';
+        var strategiesToGenerate = [];
+        for (var i = 0; i < neededCount; i++) {
+            if (selectedStrategy === 'all') {
+                strategiesToGenerate.push(allStrategies[i % allStrategies.length]);
+            } else {
+                strategiesToGenerate.push(allStrategies.find(s => s.id === selectedStrategy));
+            }
+        }
 
         if (this.worker) {
-            // Worker에 작업 위임
             this.worker.postMessage({
                 type: 'GENERATE_COMBINATIONS',
                 pools: pools,
-                strategies: strategies,
+                strategies: strategiesToGenerate,
                 statsData: this.statsData,
                 synergyMatrix: this.synergyMatrix,
-                endingChainMatrix: this.endingChainMatrix
+                endingChainMatrix: this.endingChainMatrix,
+                // 기존 결과 전달하여 중복 생성 방지
+                existingNums: existingResults.map(r => r.nums)
             });
-        } else {
-            // Fallback (Worker 미지원 브라우저)
-            console.warn('Web Worker not supported. Running on main thread.');
-            // ... (기존 동기 로직 유지 가능하지만 생략, 최신 브라우저 타겟)
+            
+            // 기존 결과 임시 저장 (Worker 결과와 합치기 위함)
+            this._tempArchiveResults = existingResults;
         }
     },
 
-    renderCombinations: function(results) {
+    renderCombinations: function(newResults) {
         var container = document.getElementById('ai-combinations-container');
         if (!container) return;
         container.innerHTML = '';
 
-        if (!results || results.length === 0) {
+        // [v32.26] 아카이브 추출물과 신규 생성물 병합
+        var finalResults = (this._tempArchiveResults || []).concat(newResults || []);
+        this._tempArchiveResults = []; // 초기화
+
+        if (!finalResults || finalResults.length === 0) {
             container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1;">조건에 맞는 조합을 찾지 못했습니다. 다시 시도해주세요.</div>';
             return;
         }
 
-        results.forEach(res => {
+        // 결과 렌더링
+        finalResults.forEach(res => {
             var card = LottoUI.createComboCard(res);
             card.onclick = () => {
                 localStorage.setItem('lastGeneratedNumbers', JSON.stringify(res.nums));
@@ -114,8 +144,10 @@ var PredictionEngine = {
             container.appendChild(card);
         });
 
-        // [v32.25] 아카이브 자동 저장
-        this.saveToArchive(results);
+        // 신규로 생성된 것들만 아카이브에 추가 저장
+        if (newResults && newResults.length > 0) {
+            this.saveToArchive(newResults);
+        }
     },
 
     /** [v32.25] 아카이브 저장 및 렌더링 로직 */
