@@ -126,17 +126,26 @@ var PredictionEngine = {
                 var hasDanger = synergy.some(s => s.status === 'danger');
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
                 
-                // [Relational Filtering] 궁합 점수 및 끝수 시너지 검증
-                var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
-                var endScore = LottoAI.getEndingChainScore(pick, lastDraw.nums, this.endingChainMatrix);
-                var advScore = LottoAI.getAdvancedScore(pick, this.statsData, this.synergyMatrix);
-                
-                var totalSynergy = Math.round((compScore + endScore) / 2);
-                
-                var isPass = (Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger && totalSynergy >= 12);
+                // [Full Automation] 모든 지표 자동 필터링 검증
+                var isPass = !hasDanger;
+                LottoConfig.INDICATORS.forEach(cfg => {
+                    if (cfg.filter) {
+                        var val = cfg.calc(pick, this.statsData);
+                        if (cfg.filter.min !== undefined && val < cfg.filter.min) isPass = false;
+                        if (cfg.filter.max !== undefined && val > cfg.filter.max) isPass = false;
+                        if (cfg.filter.zLimit !== undefined) {
+                            var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
+                            if (status === 'danger') isPass = false;
+                        }
+                    }
+                });
+
                 if (strategy.id === 'extreme') isPass = (sum < stats.sum.mean - 20 || sum > stats.sum.mean + 20);
                 
                 if ((isPass || attempts > 900) && !isDuplicate) {
+                    var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
+                    var endScore = LottoAI.getEndingChainScore(pick, lastDraw.nums, this.endingChainMatrix);
+                    var totalSynergy = Math.round((compScore + endScore) / 2);
                     results.push({ nums: pick, strategy: strategy, synergyScore: totalSynergy });
                     found = true;
                 }
