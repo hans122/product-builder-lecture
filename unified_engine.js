@@ -164,6 +164,41 @@ var LottoAI = {
                 if (matrix[n1] && matrix[n1][n2]) score += matrix[n1][n2];
             }
         }
-        return score; // 점수가 높을수록 역사적으로 자주 함께 나온 조합
+        return score; 
+    },
+
+    // 8. Advanced Metrics Calculation
+    calculateMeanGap: function(nums) {
+        var sorted = [...nums].sort((a,b)=>a-b);
+        var gaps = [];
+        for (var i = 0; i < sorted.length - 1; i++) {
+            gaps.push(sorted[i+1] - sorted[i]);
+        }
+        var sum = gaps.reduce((a, b) => a + b, 0);
+        return sum / gaps.length;
+    },
+
+    // 9. Multi-Layer Scoring (Frequency + Synergy + Advanced Metrics)
+    getAdvancedScore: function(nums, statsData, synergyMatrix) {
+        var baseScore = 0;
+        
+        // A. Frequency Score (Hot/Cold)
+        // (단순화를 위해 여기선 생략하고 외부에서 처리하거나 추후 통합)
+
+        // B. Synergy Score
+        if (synergyMatrix) baseScore += this.getCompatibilityScore(nums, synergyMatrix) * 0.5;
+
+        // C. Mean Gap Score (Ideal range: 6 ~ 9)
+        var gap = this.calculateMeanGap(nums);
+        if (gap >= 6 && gap <= 9) baseScore += 20;
+        else if (gap >= 4 && gap <= 11) baseScore += 10;
+        
+        // D. AC Value Score (Ideal: >= 7)
+        if (typeof LottoUtils !== 'undefined') {
+            var ac = LottoUtils.calculateAC(nums);
+            if (ac >= 7) baseScore += 15;
+        }
+
+        return Math.round(baseScore);
     }
 };

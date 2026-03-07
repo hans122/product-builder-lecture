@@ -124,14 +124,15 @@ var PredictionEngine = {
                 var hasDanger = synergy.some(s => s.status === 'danger');
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
                 
-                // [Relational Filtering] 궁합 점수 검증 추가
+                // [Relational Filtering] 궁합 점수 및 고급 지표 검증
                 var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
+                var advScore = LottoAI.getAdvancedScore(pick, this.statsData, this.synergyMatrix);
                 
-                var isPass = (Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger && compScore >= 15);
+                var isPass = (Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger && advScore >= 30);
                 if (strategy.id === 'extreme') isPass = (sum < stats.sum.mean - 20 || sum > stats.sum.mean + 20);
                 
                 if ((isPass || attempts > 900) && !isDuplicate) {
-                    results.push({ nums: pick, strategy: strategy, synergyScore: compScore });
+                    results.push({ nums: pick, strategy: strategy, synergyScore: advScore });
                     found = true;
                 }
             }
