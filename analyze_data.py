@@ -150,11 +150,12 @@ def analyze_lotto():
         regression_signals[label] = {"streak": streak, "energy": min(100, streak * 33)}
 
     # [AI] 지표 간 상관관계 분석 (Pearson Correlation Coefficient)
-    # v23.0: 아웃라이어 가드 시스템을 위한 지표 전수 확장
+    # v25.0: 초정밀 시너지 엔진을 위한 지표 전수 확장 (22개 지표)
     corr_keys = [
         "sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", 
         "empty_zone", "prime", "consecutive", "multiple_3", "multiple_4", 
-        "bucket_15", "color", "pattern_corner"
+        "bucket_15", "color", "pattern_corner", "pattern_center", "same_end",
+        "square", "double_num", "mirror", "bucket_9", "bucket_5"
     ]
     correlation_matrix = {}
     

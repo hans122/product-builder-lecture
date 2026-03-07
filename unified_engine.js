@@ -262,7 +262,7 @@ var LottoAI = {
         return Math.round(score / 3.6); 
     },
 
-    // 13. [NEW] Correlation Outlier Guard (v23.0 - 95% Compliance Strategy)
+    // 13. [NEW] Super-Precision Synergy Engine (v25.0 - 22 Indicators, 25+ Pairs)
     checkCorrelationHarmony: function(nums, statsData) {
         if (!statsData || !statsData.correlation_matrix || !statsData.stats_summary) return { score: 0, violations: [] };
         
@@ -271,7 +271,7 @@ var LottoAI = {
         var indicators = LottoConfig.INDICATORS;
         
         var zScores = {};
-        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "empty_zone", "prime", "consecutive", "multiple_3", "multiple_4", "bucket_15", "color", "pattern_corner"];
+        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "empty_zone", "prime", "consecutive", "multiple_3", "multiple_4", "bucket_15", "color", "pattern_corner", "pattern_center", "same_end", "square", "double_num", "mirror", "bucket_9", "bucket_5"];
         
         keys.forEach(key => {
             var cfg = indicators.find(c => c.distKey === key || c.statKey === key);
@@ -284,13 +284,17 @@ var LottoAI = {
         var score = 0;
         var violations = [];
         
-        // v23.0: 아웃라이어 가드 - 촘촘한 그물망 (15쌍)
+        // v25.0: 초정밀 시너지 - 촘촘한 분석망 (25쌍 이상)
         var pairs = [
             ['sum', 'low_count'], ['span', 'mean_gap'], ['empty_zone', 'span'], 
             ['odd_count', 'prime'], ['consecutive', 'mean_gap'], ['ac', 'span'],
             ['end_sum', 'sum'], ['prime', 'sum'], ['consecutive', 'ac'],
             ['multiple_3', 'sum'], ['multiple_4', 'low_count'], ['bucket_15', 'span'],
-            ['color', 'empty_zone'], ['pattern_corner', 'ac'], ['end_sum', 'odd_count']
+            ['color', 'empty_zone'], ['pattern_corner', 'ac'], ['end_sum', 'odd_count'],
+            ['bucket_9', 'bucket_5'], ['pattern_center', 'pattern_corner'], ['same_end', 'end_sum'],
+            ['square', 'prime'], ['double_num', 'mirror'], ['ac', 'mean_gap'],
+            ['multiple_3', 'multiple_4'], ['color', 'bucket_15'], ['span', 'consecutive'],
+            ['bucket_9', 'low_count'], ['end_sum', 'multiple_3']
         ];
 
         pairs.forEach(pair => {
@@ -298,21 +302,21 @@ var LottoAI = {
             if (zScores[k1] === undefined || zScores[k2] === undefined) return;
             
             var r = matrix[k1][k2];
-            if (Math.abs(r) < 0.20) return; // v23.1: 관계성 하한선 상향
+            if (Math.abs(r) < 0.15) return; 
 
             var currentRelation = zScores[k1] * zScores[k2];
             var isHarmony = (r > 0 && currentRelation > 0) || (r < 0 && currentRelation < 0);
             
-            // v23.1 임계치: 1.8 (초극단적 이탈만 감지)
+            // v25.0 정밀 판정: 임계치 1.8 유지
             if (!isHarmony && Math.abs(currentRelation) > 1.8) { 
-                score -= 40; // 감점 위력 강화
+                score -= 25; 
                 violations.push(`${k1}↔${k2} 모순`);
-            } else if (isHarmony && Math.abs(currentRelation) > 0.6) {
-                score += 5; // 조화 시 가점도 상향
+            } else if (isHarmony && Math.abs(currentRelation) > 0.7) {
+                score += 4; 
             }
         });
         
-        return { score: Math.max(-100, Math.min(50, score)), violations: violations };
+        return { score: Math.max(-100, Math.min(60, score)), violations: violations };
     },
 
     // 14. [NEW] Win Probability Index (당첨 기댓값 지수 산출)
