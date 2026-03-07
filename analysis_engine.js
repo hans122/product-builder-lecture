@@ -198,7 +198,14 @@ var AnalysisEngine = {
         var recent = this.statsData.recent_draws || [];
 
         if (dists[cfg.distKey] && stats[cfg.statKey]) {
-            LottoUI.Chart.curve(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey], cfg);
+            // [v32.98] 최신 회차의 현재값 계산하여 차트에 전달
+            var currentVal = null;
+            if (recent.length > 0) {
+                // context 객체 생성 (recent_draws 등 포함)
+                var ctx = { recent_draws: recent, last_3_draws: recent.slice(0, 3).map(d => d.nums) };
+                currentVal = cfg.calc(recent[0].nums, ctx);
+            }
+            LottoUI.Chart.curve(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey], cfg, currentVal);
         }
         
         if (recent.length > 0) {

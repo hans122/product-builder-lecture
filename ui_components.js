@@ -1,10 +1,10 @@
 'use strict';
 
 /**
- * AI UI Component Library v2.2 (Final Stable Edition)
- * - Complete rebuild to resolve syntax errors and duplication
- * - Standardized Chart height (160px, 80% of table height)
- * - Full Legacy Compatibility Aliases
+ * AI UI Component Library v2.3 (Emergency Fixed Edition)
+ * - Resolved nested function syntax errors
+ * - Corrected 5-label Normal Distribution visualization
+ * - Compact Chart Height (160px)
  */
 
 var LottoUI = {
@@ -112,7 +112,6 @@ var LottoUI = {
             var getY = function(v) { return (h - bottomSpace) - v * scaleY; };
             var pathD = "M " + points.map(function(p) { return getX(p.x).toFixed(1) + "," + getY(p.y).toFixed(1); }).join(" L ");
             
-            // [v32.99] 정규분포 5대 핵심 지표 (2.5%, 16%, 평균, 84%, 97.5%)
             var labels = [
                 { v: mean - 2 * std, l: '2.5%', sub: '-2σ', c: '#94a3b8' },
                 { v: mean - std,     l: '16%',  sub: '-1σ', c: '#64748b' },
@@ -127,7 +126,7 @@ var LottoUI = {
                     <pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.4"/></pattern>
                 </defs>
                 <rect x="${getX(mean-std)}" y="${padding}" width="${getX(mean+std)-getX(mean-std)}" height="${h-bottomSpace-padding}" fill="url(#h-green)" fill-opacity="0.6"/>
-                <path d="${pathD}" fill="none" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="${pathD}" fill="none" stroke="#3182f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="${sidePadding}" y1="${h-bottomSpace}" x2="${w-sidePadding}" y2="${h-bottomSpace}" stroke="#e5e8eb" stroke-width="1"/>
                 
                 ${labels.map(function(l) {
@@ -149,8 +148,6 @@ var LottoUI = {
                     </g>
                 ` : ''}
             </svg>`;
-            container.innerHTML = svg;
-        },
             container.innerHTML = svg;
         },
         markov: function(containerId, matrix, options) {
@@ -270,7 +267,7 @@ var LottoUI = {
     }
 };
 
-// [v2.2 Full Compatibility Aliases]
+// [v2.3 Full Compatibility Aliases]
 LottoUI.createBall = LottoUI.Ball.create;
 LottoUI.createComboCard = LottoUI.Card.combo;
 LottoUI.showToast = LottoUI.Feedback.toast;
