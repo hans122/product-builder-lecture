@@ -228,6 +228,109 @@ _global.LottoAI = {
             var mult = hEdge * eBoost * sEdge * sPenalty;
             return { multiplier: Math.max(0.1, Math.min(3.5, mult)).toFixed(2), confidence: Math.min(99, 75 + (harmony.score > 0 ? 10 : -15) + (eBoost > 1.2 ? 10 : 0) - (sPenalty < 1.0 ? 30 : 0)), grade: mult >= 2.0 ? 'TOP' : (mult >= 1.3 ? 'HIGH' : 'NORMAL') };
         }
+    },
+
+    /** [v32.1] 통합 지능형 조합 생성 엔진 (SSOT Logic) */
+    generateSmartCombinations: function(pools, strategies, statsData, synergyMatrix) {
+        var results = [], targetCount = 10, totalAttempts = 0;
+        var lastDraw = statsData.recent_draws[0];
+        
+        // 가중치 사전 연산
+        var baseWeights = new Array(46).fill(1.0);
+        if (statsData.regression_signals) {
+            for (var label in statsData.regression_signals) {
+                if (statsData.regression_signals[label].energy >= 80) {
+                    var cfg = LottoConfig.INDICATORS.find(c => c.label === label);
+                    if (cfg) { for (var n = 1; n <= 45; n++) { if (cfg.calc([n], null) > 0) baseWeights[n] += 0.3; } }
+                }
+            }
+        }
+        pools.hot.forEach(n => { baseWeights[n] += 0.5; });
+
+        while (results.length < targetCount && totalAttempts < 3000) {
+            totalAttempts++;
+            var strategy = strategies[results.length % strategies.length];
+            var found = false, attempts = 0;
+            
+            while (!found && attempts < 300) {
+                attempts++;
+                var pick = [], pool = pools.hot.concat(pools.neutral);
+                if (strategy.id === 'hot') pool = pools.hot;
+                else if (strategy.id === 'defensive') pool = pools.neutral.concat(pools.cold);
+                else if (strategy.id === 'extreme') pool = pools.cold;
+                else if (strategy.id === 'neighbor') {
+                    var neighbors = [];
+                    lastDraw.nums.forEach(n => { if (n > 1) neighbors.push(n-1); if (n < 45) neighbors.push(n+1); });
+                    pool = neighbors.concat(pools.hot.slice(0, 5));
+                }
+
+                var localPool = Array.from(new Set(pool));
+                while (pick.length < 6 && localPool.length > 0) {
+                    var totalW = 0;
+                    var currentWeights = localPool.map(n => {
+                        var w = baseWeights[n];
+                        if (pick.length > 0) {
+                            var s = synergyMatrix[pick[pick.length-1]];
+                            if (s && s[n]) w += (s[n] / 100);
+                        }
+                        totalW += w; return w;
+                    });
+                    var r = Math.random() * totalW, sumW = 0, selected = localPool[0];
+                    for (var i = 0; i < localPool.length; i++) { sumW += currentWeights[i]; if (r <= sumW) { selected = localPool[i]; break; } }
+                    pick.push(selected);
+                    localPool.splice(localPool.indexOf(selected), 1);
+                }
+                if (pick.length < 6) continue;
+                pick.sort((a,b) => a - b);
+
+                // 필터링
+                var sumVal = pick.reduce((a,b)=>a+b, 0);
+                if (strategy.id !== 'extreme' && (sumVal < 100 || sumVal > 175)) continue;
+
+                var harmony = this.checkCorrelationHarmony(pick, statsData);
+                if (strategy.id !== 'extreme' && (harmony.violations.length > 0 || harmony.score < -10)) continue;
+
+                var isPass = true;
+                var context = { last_3_draws: statsData.last_3_draws, recent_draws: statsData.recent_draws };
+                
+                // 글로벌 강제 필터 (색상 5개 등)
+                var colorMap = {}; pick.forEach(n => { var c = Math.floor((n-1)/10); colorMap[c] = (colorMap[c]||0)+1; });
+                for(var c in colorMap) { if(colorMap[c] >= 5) { isPass = false; break; } }
+
+                if (isPass && strategy.id !== 'extreme') {
+                    for (var i = 0; i < LottoConfig.INDICATORS.length; i++) {
+                        var cfg = LottoConfig.INDICATORS[i];
+                        if (cfg.filter) {
+                            var val = cfg.calc(pick, context);
+                            if ((cfg.filter.min !== undefined && val < cfg.filter.min) || (cfg.filter.max !== undefined && val > cfg.filter.max)) { isPass = false; break; }
+                        }
+                    }
+                }
+
+                if (isPass && !results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick))) {
+                    var prob = this.calculateWinProbability(pick, false, statsData);
+                    
+                    // 앙상블 판정 (v35.1)
+                    var ensembleCount = 1;
+                    strategies.forEach(st => {
+                        if (st.id === strategy.id) return;
+                        var testP = true;
+                        if (st.id === 'hot' && pick.filter(n => pools.hot.indexOf(n)!==-1).length < 4) testP = false;
+                        if (st.id === 'balanced' && (sumVal < 120 || sumVal > 160)) testP = false;
+                        if (st.id === 'trend' && prob.multiplier < 1.1) testP = false;
+                        if (testP) ensembleCount++;
+                    });
+
+                    results.push({ 
+                        nums: pick, strategy: strategy, 
+                        synergyScore: Math.round((this.getCompatibilityScore(pick, synergyMatrix) + this.calculateMarkovScore(pick, lastDraw.nums, statsData)) / 2), 
+                        prob: prob, ensembleCount: ensembleCount 
+                    });
+                    found = true;
+                }
+            }
+        }
+        return results;
     }
 };
 
