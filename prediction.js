@@ -176,11 +176,21 @@ function runBacktest(draws) {
     if (!body || !draws) return;
     body.innerHTML = '';
     
-    draws.slice(0, 15).forEach((draw, i) => {
+    var totalHits = 0, jackpotCount = 0, excludeSuccess = 0;
+    var count = Math.min(20, draws.length);
+    var targetDraws = draws.slice(0, count);
+
+    targetDraws.forEach((draw, i) => {
         var pools = PredictionEngine.getPools(draws, i);
         var hits = draw.nums.filter(n => pools.hot.includes(n));
-        var tr = document.createElement('tr');
+        totalHits += hits.length;
+        if (hits.length >= 5) jackpotCount++; // 3등 이상 가정
         
+        // 제외 적중 여부 (Cold 10개 중 실제 당첨번호가 없는 경우)
+        var excludeHit = draw.nums.every(n => !pools.cold.includes(n));
+        if (excludeHit) excludeSuccess++;
+
+        var tr = document.createElement('tr');
         var winHtml = `<div class="ball-container">${draw.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('')}</div>`;
         var hotHtml = `<div class="pool-grid-10">${pools.hot.map(n => {
             var b = LottoUI.createBall(n, true);
@@ -191,11 +201,23 @@ function runBacktest(draws) {
         tr.innerHTML = `
             <td><strong>${draw.no}회</strong></td>
             <td>${winHtml}</td>
-            <td colspan="3">${hotHtml}</td>
+            <td>${hotHtml}</td>
+            <td><div class="pool-grid-mini">${pools.neutral.map(n => `<span class="pool-num">${n}</span>`).join('')}</div></td>
+            <td><div class="pool-grid-mini">${pools.cold.map(n => `<span class="pool-num">${n}</span>`).join('')}</div></td>
             <td><div class="status-badge ${hits.length>=4?'safe':'warning'}">적중 ${hits.length}</div></td>
         `;
         body.appendChild(tr);
     });
+
+    // 상단 스코어보드 업데이트
+    var board = document.getElementById('summary-stat-board');
+    if (board) {
+        board.style.display = 'block';
+        document.getElementById('avg-hit-count').innerText = (totalHits / count).toFixed(1);
+        document.getElementById('jackpot-count').innerText = jackpotCount;
+        document.getElementById('total-exclude-success').innerText = excludeSuccess;
+        document.getElementById('exclude-rate').innerText = Math.round((excludeSuccess / count) * 100);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => PredictionEngine.init());
