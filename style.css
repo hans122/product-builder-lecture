@@ -192,31 +192,50 @@ svg text {
 }
 
 .mini-table { 
-    width: 100%; 
+    width: 340px; /* 표 전체 너비 고정 */
     border-collapse: collapse; 
     font-size: 0.75rem; 
-    table-layout: auto; 
+    table-layout: fixed; /* 열 너비 강제 고정 */
+    margin: 0 auto;
 }
 
-.mini-table td { 
-    padding: 8px 4px; 
-    border-bottom: 1 solid #f1f3f5; 
+.mini-table th, .mini-table td { 
+    padding: 8px 2px; 
+    border-bottom: 1px solid #f1f3f5; 
     vertical-align: middle;
-    white-space: nowrap; /* 모든 텍스트/데이터 줄바꿈 방지 */
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* 2번째 열(번호) 정밀 조정 */
-.mini-table td:nth-child(2) {
-    width: auto;
-    min-width: 200px; /* 구슬 6개 + 여백 확보 */
-    text-align: center;
-}
+/* 각 열의 최대 길이에 맞춘 고정 너비 설정 */
+.mini-table th:nth-child(1), .mini-table td:nth-child(1) { 
+    width: 65px; 
+    text-align: left; 
+    color: #64748b; 
+    font-weight: 600; 
+} 
 
+.mini-table th:nth-child(2), .mini-table td:nth-child(2) { 
+    width: 190px; 
+    text-align: center; 
+} 
+
+.mini-table th:nth-child(3), .mini-table td:nth-child(3) { 
+    width: 85px; 
+    text-align: right; 
+    font-weight: 900; 
+    color: var(--primary-blue); 
+    padding-right: 8px;
+} 
+
+/* 2열 구슬 컨테이너 강제 정렬 */
 .mini-table td:nth-child(2) .ball-container {
     display: flex !important;
-    flex-wrap: nowrap !important; /* 절대로 줄바꿈 하지 않음 */
+    flex-wrap: nowrap !important;
     justify-content: center !important;
     gap: 4px !important;
+    width: 100%;
 }
 
 /* Pension Theme specific adjustments for table results */
