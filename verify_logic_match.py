@@ -84,18 +84,21 @@ def run_logic_guard():
                     for n in nums: zones[min(4, (n-1)//10)] += 1
                     calculated_val = zones.count(0)
                 elif key == "recent_5_recurrence":
-                    r5 = [n for d in draws[idx+1:idx+6] for n in d['nums']] # draws는 역순 정렬되어 있음을 가정
-                    counts = Counter(r5)
+                    # 분석 엔진과 동일하게 현재 회차(idx)를 제외한 직전 5회차 데이터 사용
+                    r5_draws = draws[idx+1 : idx+6]
+                    r5_nums = [n for d in r5_draws for n in d['nums']]
+                    counts = Counter(r5_nums)
                     calculated_val = sum(counts[n] for n in nums)
                 elif key == "hot_10_count":
-                    r10 = [n for d in draws[idx+1:idx+11] for n in d['nums']]
-                    counts = Counter(r10)
+                    r10_draws = draws[idx+1 : idx+11]
+                    r10_nums = [n for d in r10_draws for n in d['nums']]
+                    counts = Counter(r10_nums)
                     hot_nums = [n for n, c in counts.items() if c >= 2]
                     calculated_val = len([n for n in nums if n in hot_nums])
                 elif key == "cold_20_count":
-                    r20 = [n for d in draws[idx+1:idx+21] for n in d['nums']]
-                    r20_set = set(r20)
-                    calculated_val = len([n for n in nums if n not in r20_set])
+                    r20_draws = draws[idx+1 : idx+21]
+                    r20_nums_set = set([n for d in r20_draws for n in d['nums']])
+                    calculated_val = len([n for n in nums if n not in r20_nums_set])
                 elif key == "avg_recurrence_interval":
                     # draws 리스트는 analyze_data.py에서 [::-1][:100]으로 최신순 100개만 저장됨.
                     # 따라서 전체 이력을 모르면 정확한 계산 불가.
