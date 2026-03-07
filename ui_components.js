@@ -147,7 +147,8 @@ var LottoUI = {
             visibleLabels.map(function(l) {
                 var displayVal = LottoUtils.round(l.v, 1);
                 return '<g><line x1="' + getX(l.v) + '" y1="' + (h-padding) + '" x2="' + getX(l.v) + '" y2="' + (h-padding+5) + '" stroke="#cbd5e1"/>' +
-                       '<text x="' + getX(l.v) + '" y="' + (h-10) + '" text-anchor="middle" font-size="9" font-weight="800" fill="#64748b">' + displayVal + ' (' + l.l + ')</text></g>';
+                       '<text x="' + getX(l.v) + '" y="' + (h-22) + '" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">' + displayVal + '</text>' +
+                       '<text x="' + getX(l.v) + '" y="' + (h-10) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#8b95a1">' + l.l + '</text></g>';
             }).join('') +
             '</svg>';
         container.innerHTML = svg;
