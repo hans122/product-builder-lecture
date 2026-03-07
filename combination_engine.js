@@ -85,10 +85,18 @@ var CombinationEngine = {
         if (analyzeBtn) {
             analyzeBtn.onclick = function() {
                 if (self._selectedNums.length === 6) {
+                    if (!self.statsData) {
+                        LottoUI.Feedback.toast('통계 데이터를 로딩 중입니다. 잠시만 기다려주세요.');
+                        return;
+                    }
                     localStorage.setItem('lastGeneratedNumbers', JSON.stringify(self._selectedNums));
                     self.renderSelection();
                     // 결과 영역으로 부드럽게 이동
-                    document.getElementById('report-section')?.scrollIntoView({ behavior: 'smooth' });
+                    var reportSec = document.getElementById('report-section');
+                    if (reportSec) {
+                        reportSec.style.display = 'block';
+                        reportSec.scrollIntoView({ behavior: 'smooth' });
+                    }
                 }
             };
         }

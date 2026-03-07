@@ -117,6 +117,31 @@ var LottoDataManager = {
     }
 };
 
+/** [개인정보 및 쿠키 관리자] */
+var PrivacyManager = {
+    init: function() {
+        var consent = localStorage.getItem(LottoStorage.KEYS.CONSENT);
+        if (!consent) {
+            this.showConsentBanner();
+        }
+    },
+    showConsentBanner: function() {
+        if (document.getElementById('ai-consent-banner')) return;
+        var banner = document.createElement('div');
+        banner.id = 'ai-consent-banner';
+        banner.style.cssText = 'position:fixed; bottom:0; left:0; right:0; background:rgba(25,31,40,0.98); color:white; padding:15px 20px; z-index:10000; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid #34495e;';
+        banner.innerHTML = '<div>🍀 본 사이트는 통계 분석을 위해 쿠키와 로컬 스토리지를 사용합니다. <a href="privacy.html" style="color:#3182f6; text-decoration:underline;">개인정보처리방침</a></div>' +
+            '<button onclick="PrivacyManager.accept()" style="background:#3182f6; color:white; border:none; padding:6px 15px; border-radius:6px; font-weight:900; cursor:pointer;">동의 및 시작하기</button>';
+        document.body.appendChild(banner);
+    },
+    accept: function() {
+        localStorage.setItem(LottoStorage.KEYS.CONSENT, 'true');
+        var banner = document.getElementById('ai-consent-banner');
+        if (banner) banner.remove();
+        LottoUI.Feedback.toast('동의가 완료되었습니다.');
+    }
+};
+
 var LottoEvents = {
     _listeners: {},
     on: function(evt, fn) { if(!this._listeners[evt]) this._listeners[evt] = []; this._listeners[evt].push(fn); },
@@ -127,4 +152,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // 가디언 작동 시작
     LottoGuardian.initLegacyProxy();
     LottoGuardian.checkDependencies();
+    
+    // [v32.95] 전역 에러 핸들러 (Script Error 대응)
+    window.onerror = function(msg, url, line, col, error) {
+        var isScriptError = msg.toLowerCase().indexOf('script error') > -1;
+        if (isScriptError) {
+            console.warn('[Guardian] Cross-origin script error suppressed by browser security.');
+            return false;
+        }
+        
+        var logMsg = '🛑 [System Error] ' + msg + ' (at ' + (url ? url.split('/').pop() : 'unknown') + ':' + line + ')';
+        console.error(logMsg, error);
+        
+        // 치명적 오류인 경우에만 상단 바 표시 (예: LottoAI 또는 LottoDataManager 실패)
+        if (msg.indexOf('LottoAI') > -1 || msg.indexOf('LottoDataManager') > -1) {
+            LottoGuardian.showSystemError('⚠️ 시스템 엔진 가동 중 오류가 발생했습니다. 새로고침을 권장합니다.');
+        }
+        return false;
+    };
 });

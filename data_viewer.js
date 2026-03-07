@@ -89,20 +89,23 @@ var DataViewer = {
         var counts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
         var p1Config = LottoConfig.INDICATORS.find(c => c.id === 'period_1');
         
-        draws.forEach((d, idx) => {
-            var prevNums = draws[idx + 1]?.nums;
-            if (prevNums) {
-                var p1 = d.nums.filter(n => new Set(prevNums).has(n)).length;
+        draws.forEach(function(d, idx) {
+            var nextDraw = draws[idx + 1];
+            if (nextDraw && nextDraw.nums) {
+                var prevNums = nextDraw.nums;
+                var p1 = d.nums.filter(function(n) { return new Set(prevNums).has(n); }).length;
                 if (counts[p1] !== undefined) counts[p1]++;
             }
         });
 
-        var total = Object.values(counts).reduce((a, b) => a + b, 0);
+        var countVals = Object.keys(counts).map(function(k) { return counts[k]; });
+        var total = countVals.reduce(function(a, b) { return a + b; }, 0);
         var html = '';
         
-        Object.entries(counts).forEach(([val, cnt]) => {
+        Object.keys(counts).forEach(function(val) {
+            var cnt = counts[val];
             if (cnt === 0) return;
-            var per = Math.round((cnt / total) * 100);
+            var per = Math.round((cnt / (total || 1)) * 100);
             html += `<div style="background:white; border:1px solid #e2e8f0; padding:8px 12px; border-radius:8px; display:flex; align-items:center; gap:8px; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
                 <span style="font-size:0.7rem; color:#64748b; font-weight:800;">${val}개</span>
                 <span style="font-size:0.9rem; font-weight:900; color:#1e293b;">${cnt}회</span>

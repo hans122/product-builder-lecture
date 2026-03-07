@@ -54,7 +54,8 @@ _global.LottoConfig = {
         { id: 'max-same-color', label: '동일색상최대', weight: 1.2, group: 'GL4', distKey: 'max_same_color', statKey: 'max_same_color', drawKey: 'msc', calc: (nums) => {
             const colors = nums.map(n => Math.floor((n - 1) / 10));
             const counts = colors.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
-            return Math.max(...Object.values(counts));
+            const vals = Object.keys(counts).map(function(k) { return counts[k]; });
+            return Math.max.apply(null, vals);
         }, visible: { history: true, analysis: true, combination: true }, filter: { max: 3 } },
 
         // [GL4-P] 시각적 패턴 (Tier 3)
@@ -72,7 +73,8 @@ _global.LottoConfig = {
         { id: 'same-end', label: '동끝수', weight: 1.0, group: 'GL5', distKey: 'same_end', statKey: 'same_end', drawKey: 'se', maxLimit: 6, calc: (nums) => {
             const ends = nums.map(n => n % 10);
             const counts = ends.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
-            return Math.max(...Object.values(counts));
+            const vals = Object.keys(counts).map(function(k) { return counts[k]; });
+            return Math.max.apply(null, vals);
         }, visible: { history: true, analysis: true, combination: true }, filter: { max: 3 } },
         { id: 'ac', label: 'AC', weight: 1.5, group: 'GL5', distKey: 'ac', statKey: 'ac', drawKey: 'ac', maxLimit: 10, calc: (nums) => LottoUtils.calculateAC(nums), visible: { history: true, analysis: true, combination: true }, filter: { min: 7 } },
         { id: 'span', label: 'Span', weight: 1.2, group: 'GL5', distKey: 'span', statKey: 'span', drawKey: 'spn', calc: (nums) => Math.max(...nums) - Math.min(...nums), visible: { history: true, analysis: true, combination: true }, filter: { min: 20, max: 42 } },
@@ -96,26 +98,26 @@ _global.LottoConfig = {
         }, visible: { history: true, analysis: true, combination: true }, filter: { max: 0 } },
         { id: 'over-appearance', label: '단기 과출현', weight: 1.2, group: 'GL7', distKey: 'over_appearance', statKey: 'over_appearance', drawKey: 'ovr', maxLimit: 6, calc: (nums, data) => {
             if (!data || !data.recent_draws) return 0;
-            const recent5 = data.recent_draws.slice(0, 5).flatMap(d => d.nums);
+            const recent5 = data.recent_draws.slice(0, 5).reduce(function(acc, d) { return acc.concat(d.nums); }, []);
             const counts = recent5.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
             const overHot = Object.keys(counts).filter(n => counts[n] >= 3).map(Number);
             return nums.filter(n => overHot.includes(n)).length;
         }, visible: { history: true, analysis: true, combination: true }, filter: { max: 1 } },
         { id: 'recent-5-recur', label: '5회기 누적출현', weight: 1.0, group: 'GL7', distKey: 'recent_5_recurrence', statKey: 'recent_5_recurrence', drawKey: 'r5r', maxLimit: 30, calc: (nums, data) => {
             if (!data || !data.recent_draws) return 0;
-            const recent5 = data.recent_draws.slice(0, 5).flatMap(d => d.nums);
+            const recent5 = data.recent_draws.slice(0, 5).reduce(function(acc, d) { return acc.concat(d.nums); }, []);
             const counts = recent5.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
             return nums.reduce((sum, n) => sum + (counts[n] || 0), 0);
         }, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 7 } },
         { id: 'hot-10-count', label: '10회기 다출현', weight: 1.0, group: 'GL7', distKey: 'hot_10_count', statKey: 'hot_10_count', drawKey: 'h10c', maxLimit: 6, calc: (nums, data) => {
             if (!data || !data.recent_draws) return 0;
-            const recent10 = data.recent_draws.slice(0, 10).flatMap(d => d.nums);
+            const recent10 = data.recent_draws.slice(0, 10).reduce(function(acc, d) { return acc.concat(d.nums); }, []);
             const counts = recent10.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
             return nums.filter(n => (counts[n] || 0) >= 2).length;
         }, visible: { history: true, analysis: true, combination: true }, filter: { min: 1, max: 4 } },
         { id: 'cold-20-count', label: '20회기 미출현', weight: 1.0, group: 'GL7', distKey: 'cold_20_count', statKey: 'cold_20_count', drawKey: 'c20c', maxLimit: 6, calc: (nums, data) => {
             if (!data || !data.recent_draws) return 0;
-            const recent20 = data.recent_draws.slice(0, 20).flatMap(d => d.nums);
+            const recent20 = data.recent_draws.slice(0, 20).reduce(function(acc, d) { return acc.concat(d.nums); }, []);
             const r20Set = new Set(recent20);
             return nums.filter(n => !r20Set.has(n)).length;
         }, visible: { history: true, analysis: true, combination: true }, filter: { max: 1 } },

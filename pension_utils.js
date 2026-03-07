@@ -14,8 +14,9 @@ var PensionUtils = {
             var n = Number(nums[i]); counts[n] = (counts[n] || 0) + 1;
             if(i > 0 && Math.abs(n - Number(nums[i-1])) === 1) seq++;
         }
-        var maxOccur = Math.max.apply(null, Object.values(counts));
-        var adjRep = 0; Object.values(counts).forEach(function(v) { if(v > 1) adjRep += (v - 1); });
+        var vals = Object.keys(counts).map(function(k) { return counts[k]; });
+        var maxOccur = Math.max.apply(null, vals);
+        var adjRep = 0; vals.forEach(function(v) { if(v > 1) adjRep += (v - 1); });
         var unique = Object.keys(counts).length;
         return { seq: seq, adjRep: adjRep, maxOccur: maxOccur, unique: unique };
     },
