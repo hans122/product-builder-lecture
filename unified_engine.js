@@ -12,7 +12,7 @@ _global.LottoAI = {
     engineStatus: {
         isMarkovReady: true,
         isSynergyReady: true,
-        version: '32.22'
+        version: '32.23'
     },
 
     // 1. Monte Carlo Simulation
@@ -68,13 +68,7 @@ _global.LottoAI = {
     // 3. Combined Score Calculator (v32.10 Weight-Aware)
     calculateTotalScore: function(baseScore, synergyResults, indicatorResults) {
         var total = 100 + (baseScore - 50) / 5;
-        
-        // 시너지 페널티
-        if (synergyResults) {
-            synergyResults.forEach(function(s) { if(s.status === 'danger') total -= 15; });
-        }
-        
-        // 개별 지표 가중치 기반 페널티
+        if (synergyResults) synergyResults.forEach(function(s) { if(s.status === 'danger') total -= 15; });
         if (indicatorResults) {
             indicatorResults.forEach(function(res) {
                 var weight = res.cfg.weight || 1.0;
@@ -82,7 +76,6 @@ _global.LottoAI = {
                 else if (res.status === 'warning') total -= (4 * weight);
             });
         }
-        
         return Math.max(0, Math.min(100, Math.round(total)));
     },
 
@@ -223,7 +216,6 @@ _global.LottoAI = {
                 if (Math.abs(r) >= 0.12) {
                     var currentRel = zScores[k1] * zScores[k2], isHarmony = (r > 0 && currentRel > 0) || (r < 0 && currentRel < 0);
                     
-                    // v32.10 지표 가중치 합산 페널티
                     var cfg1 = indicators.find(function(c){return c.distKey===k1||c.statKey===k1;});
                     var cfg2 = indicators.find(function(c){return c.distKey===k2||c.statKey===k2;});
                     var importance = ((cfg1?cfg1.weight:1) + (cfg2?cfg2.weight:1)) / 2;
@@ -273,12 +265,11 @@ _global.LottoAI = {
         }
     },
 
-    /** [v32.8] 통합 지능형 조합 생성 엔진 (Isomorphic AI Engine) */
+    /** [v32.23] 통합 지능형 조합 생성 엔진 (Performance & Quantity Optimized) */
     generateSmartCombinations: function(pools, strategies, statsData, synergyMatrix) {
         var results = [], targetCount = 10, totalAttempts = 0;
         var lastDraw = statsData.recent_draws ? statsData.recent_draws[0] : {nums:[]};
         
-        // 가중치 사전 연산 (성능 최적화)
         var baseWeights = new Array(46).fill(1.0);
         if (statsData.regression_signals) {
             for (var label in statsData.regression_signals) {
@@ -290,23 +281,23 @@ _global.LottoAI = {
         }
         if (pools && pools.hot) pools.hot.forEach(function(n) { baseWeights[n] += 0.5; });
 
-        while (results.length < targetCount && totalAttempts < 3000) {
+        while (results.length < targetCount && totalAttempts < 5000) { 
             totalAttempts++;
             var strategy = strategies[results.length % strategies.length];
             if (!strategy) continue;
             
             var found = false, attempts = 0;
-            while (!found && attempts < 300) {
+            var loosenFactor = totalAttempts > 2000 ? 1.5 : (totalAttempts > 1000 ? 1.2 : 1.0);
+
+            while (!found && attempts < 200) {
                 attempts++;
                 var pick = [], pool = (pools.hot || []).concat(pools.neutral || []);
-                
                 if (strategy.id === 'hot') pool = pools.hot;
                 else if (strategy.id === 'defensive') pool = (pools.neutral || []).concat(pools.cold || []);
                 else if (strategy.id === 'extreme') pool = pools.cold;
                 else if (strategy.id === 'neighbor' && lastDraw.nums.length > 0) {
-                    var neighbors = [];
-                    lastDraw.nums.forEach(function(n) { if (n > 1) neighbors.push(n-1); if (n < 45) neighbors.push(n+1); });
-                    pool = neighbors.concat((pools.hot || []).slice(0, 5));
+                    var ns = []; lastDraw.nums.forEach(function(n) { if (n > 1) ns.push(n-1); if (n < 45) ns.push(n+1); });
+                    pool = ns.concat((pools.hot || []).slice(0, 5));
                 }
 
                 var localPool = Array.from(new Set(pool));
@@ -318,7 +309,7 @@ _global.LottoAI = {
                         var w = baseWeights[n] || 1.0;
                         if (pick.length > 0 && synergyMatrix) {
                             var s = synergyMatrix[pick[pick.length-1]];
-                            if (s && s[n]) w += (s[n] / 100);
+                            if (s && s[n]) w += (s[n] / 50);
                         }
                         totalW += w; return w;
                     });
@@ -330,12 +321,11 @@ _global.LottoAI = {
                 if (pick.length < 6) continue;
                 pick.sort(function(a,b) { return a - b; });
 
-                // v32.8 글로벌 필터링 통합
                 var sumVal = pick.reduce(function(a,b){return a+b;}, 0);
-                if (strategy.id !== 'extreme' && (sumVal < 90 || sumVal > 185)) continue;
+                if (strategy.id !== 'extreme' && (sumVal < (90/loosenFactor) || sumVal > (185*loosenFactor))) continue;
 
                 var harmony = this.checkCorrelationHarmony(pick, statsData);
-                if (strategy.id !== 'extreme' && (harmony.violations.length > 0 || harmony.score < -15)) continue;
+                if (strategy.id !== 'extreme' && (harmony.violations.length > 0 || harmony.score < (-15 * loosenFactor))) continue;
 
                 var isPass = true;
                 var colorMap = {}; pick.forEach(function(n) { var c = Math.floor((n-1)/10); colorMap[c] = (colorMap[c]||0)+1; });
@@ -347,7 +337,8 @@ _global.LottoAI = {
                         var cfg = LottoConfig.INDICATORS[i];
                         if (cfg.filter) {
                             var val = cfg.calc(pick, context);
-                            if ((cfg.filter.min !== undefined && val < cfg.filter.min) || (cfg.filter.max !== undefined && val > cfg.filter.max)) { isPass = false; break; }
+                            var tol = (cfg.weight || 1.0) < 1.0 ? loosenFactor : 1.0;
+                            if ((cfg.filter.min !== undefined && val < (cfg.filter.min / tol)) || (cfg.filter.max !== undefined && val > (cfg.filter.max * tol))) { isPass = false; break; }
                         }
                     }
                 }
@@ -355,17 +346,13 @@ _global.LottoAI = {
                 if (isPass && !results.some(function(r){return JSON.stringify(r.nums)===JSON.stringify(pick);})) {
                     var prob = this.calculateWinProbability(pick, false, statsData);
                     
-                    // v32.12 지능형 앙상블 가중치 산출
                     var ensembleScore = 0;
                     var strategyWeights = { 'standard': 1.5, 'trend': 1.2, 'regression': 1.5, 'balanced': 1.0, 'hot': 1.0, 'neighbor': 1.0 };
-                    
                     strategies.forEach(function(st) {
                         var testP = true;
                         if (st.id === 'hot' && pick.filter(function(n){return pools.hot.indexOf(n)!==-1;}).length < 4) testP = false;
                         if (st.id === 'balanced' && (sumVal < 120 || sumVal > 160)) testP = false;
                         if (st.id === 'trend' && prob.multiplier < 1.1) testP = false;
-                        if (st.id === 'regression' && prob.energyBoost < 1.1) testP = false;
-                        
                         if (testP) ensembleScore += (strategyWeights[st.id] || 1.0);
                     });
 
