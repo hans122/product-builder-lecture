@@ -135,6 +135,7 @@ def analyze_lotto():
         "last_3_draws": [d["nums"] for d in draws[-3:][::-1]],
         "stats_summary": stats_summary,
         "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
+        "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
         "markov_ending_matrix": markov_ending,
         "recent_draws": processed_data[::-1][:100]
     }
