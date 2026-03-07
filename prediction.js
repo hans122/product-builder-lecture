@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * AI Prediction Engine v5.0 - Expert 10 Strategies Edition
- * - 10 Unique Analysis Algorithms
- * - Strategy-based Filtering & Real-time Optimization
+ * AI Prediction Engine v5.1 - Simplified Top 10 Edition
+ * - 10 Unique Analysis Algorithms (One per strategy)
+ * - Optimized UI without strategy selector
  * - Enhanced Performance Backtesting
  */
 
@@ -23,27 +23,17 @@ var PredictionEngine = {
     renderAll: function() {
         var pools = this.getPools(this.statsData.recent_draws || [], -1);
         this.renderPoolGrid(pools);
-        var strategy = document.getElementById('lotto-strategy-select').value || 'all';
-        this.generateSmartCombinations(pools, strategy);
+        this.generateSmartCombinations(pools);
         if (typeof runBacktest === 'function') runBacktest(this.statsData.recent_draws || []);
     },
 
     bindEvents: function() {
         var self = this;
-        var strategySelect = document.getElementById('lotto-strategy-select');
-        if (strategySelect) {
-            strategySelect.onchange = function() {
-                var pools = self.getPools(self.statsData.recent_draws || [], -1);
-                self.generateSmartCombinations(pools, this.value);
-            };
-        }
-        
         var refreshBtn = document.getElementById('refresh-recommendations-btn');
         if (refreshBtn) {
             refreshBtn.onclick = function() {
                 var pools = self.getPools(self.statsData.recent_draws || [], -1);
-                var curS = document.getElementById('lotto-strategy-select').value || 'all';
-                self.generateSmartCombinations(pools, curS);
+                self.generateSmartCombinations(pools);
             };
         }
     },
@@ -92,7 +82,7 @@ var PredictionEngine = {
         };
     },
 
-    generateSmartCombinations: function(pools, selectedStrategy) {
+    generateSmartCombinations: function(pools) {
         var container = document.getElementById('ai-combinations-container');
         if (!container) return;
         container.innerHTML = '';
@@ -110,25 +100,17 @@ var PredictionEngine = {
             { id: 'extreme', label: "📉 저빈도 역습형", desc: "희귀 패턴 기반 잭팟 목표" }
         ];
 
-        var strategies = selectedStrategy === 'all' 
-            ? allStrategies 
-            : Array(10).fill(allStrategies.find(s => s.id === selectedStrategy));
-
-        // 레이아웃 조정
-        container.style.gridTemplateColumns = 'repeat(5, 1fr)';
-
         var stats = this.statsData.stats_summary;
         var results = [];
         var lastDraw = this.statsData.recent_draws[0];
 
-        strategies.forEach(strategy => {
+        allStrategies.forEach(strategy => {
             var found = false, attempts = 0;
             while (!found && attempts < 800) {
                 attempts++;
                 var pick = [];
                 var pool = pools.hot.concat(pools.neutral);
                 
-                // 전략별 특수 풀링
                 if (strategy.id === 'hot') pool = pools.hot.slice(0, 15);
                 if (strategy.id === 'defensive') pool = pools.neutral.concat(pools.cold);
                 if (strategy.id === 'extreme') pool = pools.cold.concat(pools.neutral.slice(0, 2));
@@ -141,14 +123,14 @@ var PredictionEngine = {
                     pool = neighbors.concat(pools.hot.slice(0, 10));
                 }
 
-                var localPool = [...new Set(pool)]; // 중복 제거
+                var localPool = [...new Set(pool)];
                 
                 while (pick.length < 6 && localPool.length > 0) {
                     var n = localPool.splice(Math.floor(Math.random() * localPool.length), 1)[0];
                     if (n >= 1 && n <= 45 && !pick.includes(n)) pick.push(n);
                 }
                 
-                if (pick.length < 6) { // 풀 부족 시 보충
+                if (pick.length < 6) {
                     for(var i=1; i<=45; i++) {
                         if(pick.length < 6 && !pick.includes(i)) pick.push(i);
                     }
@@ -160,9 +142,8 @@ var PredictionEngine = {
                 var hasDanger = synergy.some(s => s.status === 'danger');
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
                 
-                // 전략별 통과 기준
                 var isPass = (Math.abs(sum - stats.sum.mean) <= 50 && !hasDanger);
-                if (strategy.id === 'extreme') isPass = (sum < stats.sum.mean - 20 || sum > stats.sum.mean + 20); // 극단값 허용
+                if (strategy.id === 'extreme') isPass = (sum < stats.sum.mean - 20 || sum > stats.sum.mean + 20);
                 if (strategy.id === 'prime') {
                     var pCount = pick.filter(n => LottoUtils.isPrime(n)).length;
                     isPass = isPass && (pCount >= 2 && pCount <= 3);
@@ -178,8 +159,6 @@ var PredictionEngine = {
         results.forEach(res => {
             var card = document.createElement('div');
             card.className = 'combo-card';
-            if (selectedStrategy !== 'all') card.style.padding = '30px';
-
             var ballHtml = res.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('');
 
             card.innerHTML = `
