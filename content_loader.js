@@ -74,19 +74,24 @@ var ContentLoader = {
                     <h3 style="color:#ff8c00; border-bottom-color:#ff8c00;">🔮 [GP14] AI 마르코프 다음 숫자 전이 확률</h3>
                     <div class="guide-desc">역방향 자리수별 흐름을 10x10 매트릭스로 분석하여 다음 유력 숫자를 예측합니다.</div>
                     <div id="p-markov-best-flow" class="stat-highlight"></div>
+                    <p id="p-markov-tip" class="strategy-tip"></p>
                 </section>
                 <section class="logic-card ai-highlight" style="border-color:#3182f633; background:#f0f7ff;">
                     <h3 style="color:#3182f6; border-bottom-color:#3182f6;">🧬 [GP15] AI 몬테카를로 당첨 기댓값</h3>
                     <div class="guide-desc">사용자 조합으로 1만 번 가상 추첨을 실행하여 실제 당첨 확률에 근접한 데이터를 산출합니다.</div>
+                    <p id="p-monte-tip" class="strategy-tip"></p>
                 </section>`;
         } else {
             root.innerHTML = `<div class="guide-group-title">AI 신기술 가이드</div>
                 <section class="logic-card ai-highlight" style="border: 2px solid #3182f633; background: #f0f7ff;">
                     <h3 style="color: #3182f6; border-bottom-color: #3182f6;">🔮 [GL7] AI 마르코프 전이 확률 분석</h3>
                     <div id="markov-stat-container"></div>
+                    <p id="ai-markov-tip" class="strategy-tip"></p>
                 </section>
                 <section class="logic-card ai-highlight" style="border: 2px solid #2ecc7133; background: #f0fdf4;">
                     <h3 style="color: #2ecc71; border-bottom-color: #2ecc71;">🧬 [GL8] AI 몬테카를로 시뮬레이션</h3>
+                    <div class="guide-desc">1만 회 가상 추첨을 통한 조합의 유의미성 지수 산출 기술입니다.</div>
+                    <p id="ai-monte-tip" class="strategy-tip"></p>
                 </section>`;
         }
     },
@@ -106,6 +111,11 @@ var ContentLoader = {
                 if (tip && tipText) tip.innerHTML = '<strong>공략 팁:</strong> ' + tipText.replace(/{safe}/g, info.safe);
             }
         });
+
+        // AI 전용 팁 주입
+        var aiTips = LottoConfig.LOTTO_TIPS || {};
+        this.setVal('ai-markov-tip', '<strong>기술 가이드:</strong> ' + (aiTips['ai-markov'] || ''));
+        this.setVal('ai-monte-tip', '<strong>기술 가이드:</strong> ' + (aiTips['ai-monte'] || ''));
 
         if (data.markov_ending_matrix) {
             var m = data.markov_ending_matrix, topF = 0, topT = 0, maxP = 0;
@@ -131,6 +141,11 @@ var ContentLoader = {
         var bestG = Object.entries(data.group_dist).sort((a,b)=>b[1]-a[1])[0][0];
         this.setVal('p-pos-freq-stat-container', `<div class="stat-highlight">현재 각 자리별 최다 출현 번호: <strong>${hotNums.join(', ')}</strong></div>`);
         this.setVal('p-group-stat-container', `<div class="stat-highlight">역대 가장 많이 당첨된 조: <strong>${bestG}조</strong></div>`);
+
+        // 연금 AI 전용 팁 주입
+        var pAiTips = LottoConfig.PENSION_TIPS || {};
+        this.setVal('p-markov-tip', '<strong>기술 가이드:</strong> ' + (pAiTips['p-markov'] || ''));
+        this.setVal('p-monte-tip', '<strong>기술 가이드:</strong> ' + (pAiTips['p-monte'] || ''));
 
         if (data.markov_matrix) {
             var topF=0, topT=0, maxP=0;
