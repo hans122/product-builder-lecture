@@ -70,15 +70,17 @@ var PredictionEngine = {
         
         container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1; padding: 50px;"><div class="spinner"></div><p style="margin-top:15px; color:#3182f6; font-weight:bold;">AI 아카이브 및 딥 엔진에서 최적의 조합을 선별 중입니다...</p></div>';
 
-        // [v32.26] 아카이브 우선 선별 로직
+        // [v32.26/v32.28] 아카이브 우선 선별 로직 (기댓값 정렬 추가)
         var rawArchive = localStorage.getItem('lotto_ai_archive');
         var archive = rawArchive ? JSON.parse(rawArchive) : [];
         var filteredArchive = [];
         
         if (selectedStrategy !== 'all') {
             filteredArchive = archive.filter(item => item.strategy && item.strategy.id === selectedStrategy);
+            // v32.28: 기댓값 높은 순으로 정렬
+            filteredArchive.sort((a, b) => (parseFloat(b.prob?.multiplier) || 0) - (parseFloat(a.prob?.multiplier) || 0));
         } else {
-            // 전체 전략일 경우 중복 없이 섞어서 추출
+            // 전체 전략일 경우 최신순 유지
             filteredArchive = archive.slice(0, 10);
         }
 
