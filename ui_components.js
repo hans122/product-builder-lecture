@@ -119,11 +119,11 @@ var LottoUI = {
 
     _renderCurveChart: function(container, distData, unit, stat, config) {
         container.innerHTML = '';
-        var w = 300, h = 210, padding = 30, bottomSpace = 55;
+        var w = 300, h = 210, padding = 30, sidePadding = 15, bottomSpace = 55; // sidePadding 축소 (30->15)
         var mean = stat ? stat.mean : 0, std = stat ? stat.std : 1;
         var minX = mean - 3.5 * std, maxX = mean + 3.5 * std;
 
-        // 실제 데이터의 최소값 추출 (v29.4)
+        // 실제 데이터의 최소값 추출
         var dataKeys = Object.keys(distData).map(Number);
         var dataMin = dataKeys.length > 0 ? Math.min.apply(null, dataKeys) : 0;
 
@@ -134,10 +134,10 @@ var LottoUI = {
         }
 
         var maxY = Math.max.apply(null, points.map(function(p) { return p.y; }));
-        var scaleX = (w - padding * 2) / (maxX - minX);
+        var scaleX = (w - sidePadding * 2) / (maxX - minX);
         var scaleY = (h - padding - bottomSpace) / (maxY || 1);
 
-        var getX = function(val) { return padding + (val - minX) * scaleX; };
+        var getX = function(val) { return sidePadding + (val - minX) * scaleX; };
         var getY = function(val) { return (h - bottomSpace) - val * scaleY; };
         var baselineY = h - bottomSpace;
 
@@ -165,9 +165,8 @@ var LottoUI = {
             <rect x="${getX(mean-std)}" y="${padding}" width="${getX(mean+std)-getX(mean-std)}" height="${baselineY-padding}" fill="url(#h-green)" fill-opacity="0.6"/>
             <rect x="${getX(mean-2*std)}" y="${padding}" width="${getX(mean+2*std)-getX(mean-2*std)}" height="${baselineY-padding}" fill="url(#h-blue)" fill-opacity="0.3"/>
             <path d="${pathD}" fill="none" stroke="var(--primary-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="${padding}" y1="${baselineY}" x2="${w-padding}" y2="${baselineY}" stroke="#e5e8eb" stroke-width="1"/>
+            <line x1="${sidePadding}" y1="${baselineY}" x2="${w-sidePadding}" y2="${baselineY}" stroke="#e5e8eb" stroke-width="1"/>
             ${labels.map(l => {
-                // 이론값(l.v)과 실제 데이터 최소값(dataMin) 중 큰 값을 선택 (v29.4)
                 var correctedVal = Math.max(l.v, dataMin);
                 var displayVal = LottoUtils.round(correctedVal, unit==='개'?0:1);
                 return `

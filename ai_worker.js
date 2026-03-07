@@ -97,31 +97,41 @@ function generateCombinationsInWorker(pools, strategies, statsData, synergyMatri
             if (pick.length < 6) continue;
             pick.sort(function(a,b) { return a - b; });
 
-            // [Fast Path Filtering] 가벼운 필터부터 먼저 적용
-            var sum = pick.reduce(function(a,b){return a+b;}, 0);
-            if (sum < 100 || sum > 175) continue; 
-
-            var harmony = LottoAI.checkCorrelationHarmony(pick, statsData);
-            if (harmony.violations.length > 0 || harmony.score < -10) continue;
-
-            // [Strict Guard]
+            // [v31.4] 글로벌 강제 필터 (전략 무관 배제)
             var isPass = true;
-            var context = { last_3_draws: statsData.last_3_draws, recent_draws: statsData.recent_draws };
-            for (var i = 0; i < LottoConfig.INDICATORS.length; i++) {
-                var cfg = LottoConfig.INDICATORS[i];
-                if (cfg.filter) {
-                    var val = cfg.calc(pick, context);
-                    if ((cfg.filter.min !== undefined && val < cfg.filter.min) || (cfg.filter.max !== undefined && val > cfg.filter.max)) {
-                        isPass = false; break;
-                    }
-                }
+            
+            // 1. 색상 쏠림 강제 체크 (5개 이상 절대 불가)
+            var colorMap = {};
+            pick.forEach(function(n) {
+                var c = Math.floor((n - 1) / 10);
+                colorMap[c] = (colorMap[c] || 0) + 1;
+            });
+            for (var c in colorMap) {
+                if (colorMap[c] >= 5) { isPass = false; break; }
+            }
+            if (!isPass) continue; // 5개 쏠림은 즉시 폐기
+
+            // [Fast Path Filtering] 가벼운 필터 적용
+            var sum = pick.reduce(function(a,b){return a+b;}, 0);
+            if (strategy.id !== 'extreme' && (sum < 100 || sum > 175)) isPass = false; 
+
+            if (isPass) {
+                var harmony = LottoAI.checkCorrelationHarmony(pick, statsData);
+                if (strategy.id !== 'extreme' && (harmony.violations.length > 0 || harmony.score < -10)) isPass = false;
             }
 
-            // v31.3: 익스트림 전략도 '색상 쏠림' 등 최저한의 통계적 상식은 준수해야 함
-            if (strategy.id === 'extreme') {
-                var colorCheck = LottoConfig.INDICATORS.find(c => c.id === 'max-same-color');
-                if (colorCheck && colorCheck.calc(pick) > 4) isPass = false; // 5개 이상은 절대 금지
-                else isPass = true; // 그 외에는 익스트림 허용
+            // [Strict Guard] 상세 지표 필터
+            if (isPass && strategy.id !== 'extreme') {
+                var context = { last_3_draws: statsData.last_3_draws, recent_draws: statsData.recent_draws };
+                for (var i = 0; i < LottoConfig.INDICATORS.length; i++) {
+                    var cfg = LottoConfig.INDICATORS[i];
+                    if (cfg.filter) {
+                        var val = cfg.calc(pick, context);
+                        if ((cfg.filter.min !== undefined && val < cfg.filter.min) || (cfg.filter.max !== undefined && val > cfg.filter.max)) {
+                            isPass = false; break;
+                        }
+                    }
+                }
             }
 
             if (isPass && !results.some(function(r){return JSON.stringify(r.nums)===JSON.stringify(pick);})) {
