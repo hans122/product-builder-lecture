@@ -150,6 +150,14 @@
         "over_appearance": {
             "mean": 0.13,
             "std": 0.36
+        },
+        "recent_5_recurrence": {
+            "mean": 4.03,
+            "std": 1.77
+        },
+        "hot_10_count": {
+            "mean": 2.37,
+            "std": 1.19
         }
     },
     "distributions": {
@@ -622,6 +630,28 @@
             "0": 1060,
             "1": 144,
             "2": 9
+        },
+        "recent_5_recurrence": {
+            "0": 12,
+            "1": 63,
+            "2": 168,
+            "3": 238,
+            "4": 288,
+            "5": 204,
+            "6": 137,
+            "7": 62,
+            "8": 27,
+            "9": 12,
+            "10": 2
+        },
+        "hot_10_count": {
+            "0": 64,
+            "1": 224,
+            "2": 372,
+            "3": 353,
+            "4": 153,
+            "5": 43,
+            "6": 4
         }
     },
     "frequency": {
@@ -1035,6 +1065,14 @@
         "Over Appearance": {
             "streak": 1,
             "energy": 33
+        },
+        "Recent 5 Recurrence": {
+            "streak": 7,
+            "energy": 100
+        },
+        "Hot 10 Count": {
+            "streak": 0,
+            "energy": 0
         }
     },
     "correlation_matrix": {
@@ -1067,7 +1105,9 @@
             "color": 0.15,
             "pattern_corner": -0.05,
             "pattern_center": 0.07,
-            "same_end": -0.0
+            "same_end": -0.0,
+            "recent_5_recurrence": -0.01,
+            "hot_10_count": 0.01
         },
         "ac": {
             "sum": -0.03,
@@ -1098,7 +1138,9 @@
             "color": 0.21,
             "pattern_corner": 0.11,
             "pattern_center": -0.16,
-            "same_end": 0.09
+            "same_end": 0.09,
+            "recent_5_recurrence": 0.01,
+            "hot_10_count": 0.01
         },
         "end_sum": {
             "sum": 0.01,
@@ -1129,7 +1171,9 @@
             "color": -0.05,
             "pattern_corner": 0.1,
             "pattern_center": 0.09,
-            "same_end": -0.1
+            "same_end": -0.1,
+            "recent_5_recurrence": 0.01,
+            "hot_10_count": 0.01
         },
         "span": {
             "sum": -0.03,
@@ -1160,7 +1204,9 @@
             "color": 0.53,
             "pattern_corner": 0.12,
             "pattern_center": -0.31,
-            "same_end": 0.12
+            "same_end": 0.12,
+            "recent_5_recurrence": 0.02,
+            "hot_10_count": 0.06
         },
         "mean_gap": {
             "sum": -0.03,
@@ -1191,7 +1237,9 @@
             "color": 0.53,
             "pattern_corner": 0.12,
             "pattern_center": -0.31,
-            "same_end": 0.12
+            "same_end": 0.12,
+            "recent_5_recurrence": 0.02,
+            "hot_10_count": 0.06
         },
         "odd_count": {
             "sum": -0.0,
@@ -1222,7 +1270,9 @@
             "color": 0.02,
             "pattern_corner": 0.01,
             "pattern_center": 0.0,
-            "same_end": 0.04
+            "same_end": 0.04,
+            "recent_5_recurrence": -0.07,
+            "hot_10_count": -0.05
         },
         "low_count": {
             "sum": -0.88,
@@ -1253,7 +1303,9 @@
             "color": -0.1,
             "pattern_corner": -0.01,
             "pattern_center": -0.12,
-            "same_end": 0.02
+            "same_end": 0.02,
+            "recent_5_recurrence": -0.01,
+            "hot_10_count": 0.0
         },
         "period_1": {
             "sum": -0.04,
@@ -1284,7 +1336,9 @@
             "color": -0.03,
             "pattern_corner": -0.02,
             "pattern_center": 0.02,
-            "same_end": -0.05
+            "same_end": -0.05,
+            "recent_5_recurrence": 0.46,
+            "hot_10_count": 0.23
         },
         "period_2": {
             "sum": 0.03,
@@ -1315,7 +1369,9 @@
             "color": -0.0,
             "pattern_corner": 0.03,
             "pattern_center": 0.02,
-            "same_end": -0.01
+            "same_end": -0.01,
+            "recent_5_recurrence": 0.44,
+            "hot_10_count": 0.27
         },
         "period_3": {
             "sum": -0.01,
@@ -1346,7 +1402,9 @@
             "color": 0.01,
             "pattern_corner": 0.03,
             "pattern_center": -0.01,
-            "same_end": 0.0
+            "same_end": 0.0,
+            "recent_5_recurrence": 0.49,
+            "hot_10_count": 0.33
         },
         "neighbor": {
             "sum": -0.01,
@@ -1377,7 +1435,9 @@
             "color": -0.02,
             "pattern_corner": -0.05,
             "pattern_center": -0.04,
-            "same_end": -0.04
+            "same_end": -0.04,
+            "recent_5_recurrence": -0.0,
+            "hot_10_count": 0.03
         },
         "consecutive": {
             "sum": -0.04,
@@ -1408,7 +1468,9 @@
             "color": -0.36,
             "pattern_corner": -0.01,
             "pattern_center": 0.07,
-            "same_end": -0.08
+            "same_end": -0.08,
+            "recent_5_recurrence": 0.05,
+            "hot_10_count": 0.03
         },
         "prime": {
             "sum": -0.17,
@@ -1439,7 +1501,9 @@
             "color": 0.03,
             "pattern_corner": 0.07,
             "pattern_center": 0.02,
-            "same_end": 0.03
+            "same_end": 0.03,
+            "recent_5_recurrence": -0.04,
+            "hot_10_count": -0.07
         },
         "composite": {
             "sum": 0.26,
@@ -1470,7 +1534,9 @@
             "color": -0.02,
             "pattern_corner": -0.14,
             "pattern_center": 0.02,
-            "same_end": -0.03
+            "same_end": -0.03,
+            "recent_5_recurrence": 0.04,
+            "hot_10_count": 0.05
         },
         "multiple_3": {
             "sum": 0.06,
@@ -1501,7 +1567,9 @@
             "color": 0.03,
             "pattern_corner": -0.0,
             "pattern_center": 0.01,
-            "same_end": 0.01
+            "same_end": 0.01,
+            "recent_5_recurrence": -0.01,
+            "hot_10_count": 0.02
         },
         "multiple_4": {
             "sum": 0.02,
@@ -1532,7 +1600,9 @@
             "color": -0.02,
             "pattern_corner": -0.24,
             "pattern_center": 0.01,
-            "same_end": -0.02
+            "same_end": -0.02,
+            "recent_5_recurrence": 0.02,
+            "hot_10_count": -0.02
         },
         "square": {
             "sum": -0.24,
@@ -1563,7 +1633,9 @@
             "color": -0.1,
             "pattern_corner": 0.1,
             "pattern_center": -0.03,
-            "same_end": -0.02
+            "same_end": -0.02,
+            "recent_5_recurrence": -0.0,
+            "hot_10_count": 0.0
         },
         "double_num": {
             "sum": 0.08,
@@ -1594,7 +1666,9 @@
             "color": 0.02,
             "pattern_corner": -0.22,
             "pattern_center": 0.05,
-            "same_end": 0.04
+            "same_end": 0.04,
+            "recent_5_recurrence": -0.05,
+            "hot_10_count": -0.01
         },
         "mirror": {
             "sum": 0.2,
@@ -1625,7 +1699,9 @@
             "color": 0.1,
             "pattern_corner": 0.05,
             "pattern_center": 0.08,
-            "same_end": 0.13
+            "same_end": 0.13,
+            "recent_5_recurrence": -0.02,
+            "hot_10_count": -0.04
         },
         "bucket_15": {
             "sum": -0.04,
@@ -1656,7 +1732,9 @@
             "color": 0.47,
             "pattern_corner": 0.0,
             "pattern_center": -0.05,
-            "same_end": 0.09
+            "same_end": 0.09,
+            "recent_5_recurrence": -0.01,
+            "hot_10_count": 0.01
         },
         "bucket_9": {
             "sum": -0.02,
@@ -1687,7 +1765,9 @@
             "color": 0.5,
             "pattern_corner": -0.01,
             "pattern_center": -0.07,
-            "same_end": 0.11
+            "same_end": 0.11,
+            "recent_5_recurrence": -0.0,
+            "hot_10_count": -0.01
         },
         "bucket_7": {
             "sum": 0.12,
@@ -1718,7 +1798,9 @@
             "color": 0.51,
             "pattern_corner": -0.07,
             "pattern_center": -0.06,
-            "same_end": 0.13
+            "same_end": 0.13,
+            "recent_5_recurrence": -0.01,
+            "hot_10_count": -0.02
         },
         "bucket_5": {
             "sum": -0.02,
@@ -1749,7 +1831,9 @@
             "color": 0.59,
             "pattern_corner": -0.0,
             "pattern_center": -0.04,
-            "same_end": 0.1
+            "same_end": 0.1,
+            "recent_5_recurrence": -0.01,
+            "hot_10_count": -0.01
         },
         "p9": {
             "sum": -0.01,
@@ -1780,7 +1864,9 @@
             "color": -0.06,
             "pattern_corner": 0.02,
             "pattern_center": 0.03,
-            "same_end": 0.07
+            "same_end": 0.07,
+            "recent_5_recurrence": 0.02,
+            "hot_10_count": 0.01
         },
         "empty_zone": {
             "sum": -0.15,
@@ -1811,7 +1897,9 @@
             "color": -1.0,
             "pattern_corner": 0.01,
             "pattern_center": 0.1,
-            "same_end": -0.18
+            "same_end": -0.18,
+            "recent_5_recurrence": 0.01,
+            "hot_10_count": 0.01
         },
         "color": {
             "sum": 0.15,
@@ -1842,7 +1930,9 @@
             "color": 1.0,
             "pattern_corner": -0.01,
             "pattern_center": -0.1,
-            "same_end": 0.18
+            "same_end": 0.18,
+            "recent_5_recurrence": -0.01,
+            "hot_10_count": -0.01
         },
         "pattern_corner": {
             "sum": -0.05,
@@ -1873,7 +1963,9 @@
             "color": -0.01,
             "pattern_corner": 1.0,
             "pattern_center": -0.37,
-            "same_end": -0.02
+            "same_end": -0.02,
+            "recent_5_recurrence": -0.0,
+            "hot_10_count": 0.0
         },
         "pattern_center": {
             "sum": 0.07,
@@ -1904,7 +1996,9 @@
             "color": -0.1,
             "pattern_corner": -0.37,
             "pattern_center": 1.0,
-            "same_end": 0.01
+            "same_end": 0.01,
+            "recent_5_recurrence": -0.0,
+            "hot_10_count": 0.02
         },
         "same_end": {
             "sum": -0.0,
@@ -1935,7 +2029,75 @@
             "color": 0.18,
             "pattern_corner": -0.02,
             "pattern_center": 0.01,
-            "same_end": 1.0
+            "same_end": 1.0,
+            "recent_5_recurrence": -0.01,
+            "hot_10_count": -0.0
+        },
+        "recent_5_recurrence": {
+            "sum": -0.01,
+            "ac": 0.01,
+            "end_sum": 0.01,
+            "span": 0.02,
+            "mean_gap": 0.02,
+            "odd_count": -0.07,
+            "low_count": -0.01,
+            "period_1": 0.46,
+            "period_2": 0.44,
+            "period_3": 0.49,
+            "neighbor": -0.0,
+            "consecutive": 0.05,
+            "prime": -0.04,
+            "composite": 0.04,
+            "multiple_3": -0.01,
+            "multiple_4": 0.02,
+            "square": -0.0,
+            "double_num": -0.05,
+            "mirror": -0.02,
+            "bucket_15": -0.01,
+            "bucket_9": -0.0,
+            "bucket_7": -0.01,
+            "bucket_5": -0.01,
+            "p9": 0.02,
+            "empty_zone": 0.01,
+            "color": -0.01,
+            "pattern_corner": -0.0,
+            "pattern_center": -0.0,
+            "same_end": -0.01,
+            "recent_5_recurrence": 1.0,
+            "hot_10_count": 0.6
+        },
+        "hot_10_count": {
+            "sum": 0.01,
+            "ac": 0.01,
+            "end_sum": 0.01,
+            "span": 0.06,
+            "mean_gap": 0.06,
+            "odd_count": -0.05,
+            "low_count": 0.0,
+            "period_1": 0.23,
+            "period_2": 0.27,
+            "period_3": 0.33,
+            "neighbor": 0.03,
+            "consecutive": 0.03,
+            "prime": -0.07,
+            "composite": 0.05,
+            "multiple_3": 0.02,
+            "multiple_4": -0.02,
+            "square": 0.0,
+            "double_num": -0.01,
+            "mirror": -0.04,
+            "bucket_15": 0.01,
+            "bucket_9": -0.01,
+            "bucket_7": -0.02,
+            "bucket_5": -0.01,
+            "p9": 0.01,
+            "empty_zone": 0.01,
+            "color": -0.01,
+            "pattern_corner": 0.0,
+            "pattern_center": 0.02,
+            "same_end": -0.0,
+            "recent_5_recurrence": 0.6,
+            "hot_10_count": 1.0
         }
     },
     "recent_draws": [
@@ -1980,7 +2142,9 @@
             "span": 33,
             "mean_gap": 6.6,
             "individual_streak": 0,
-            "over_appearance": 2
+            "over_appearance": 2,
+            "recent_5_recurrence": 9,
+            "hot_10_count": 2
         },
         {
             "no": 1212,
@@ -2023,7 +2187,9 @@
             "span": 39,
             "mean_gap": 7.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 0,
+            "hot_10_count": 1
         },
         {
             "no": 1211,
@@ -2066,7 +2232,9 @@
             "span": 17,
             "mean_gap": 3.4,
             "individual_streak": 0,
-            "over_appearance": 2
+            "over_appearance": 2,
+            "recent_5_recurrence": 9,
+            "hot_10_count": 3
         },
         {
             "no": 1210,
@@ -2109,7 +2277,9 @@
             "span": 37,
             "mean_gap": 7.4,
             "individual_streak": 0,
-            "over_appearance": 1
+            "over_appearance": 1,
+            "recent_5_recurrence": 9,
+            "hot_10_count": 4
         },
         {
             "no": 1209,
@@ -2152,7 +2322,9 @@
             "span": 37,
             "mean_gap": 7.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 1
         },
         {
             "no": 1208,
@@ -2195,7 +2367,9 @@
             "span": 36,
             "mean_gap": 7.2,
             "individual_streak": 1,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 3
         },
         {
             "no": 1207,
@@ -2238,7 +2412,9 @@
             "span": 35,
             "mean_gap": 7.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 2
         },
         {
             "no": 1206,
@@ -2281,7 +2457,9 @@
             "span": 41,
             "mean_gap": 8.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1205,
@@ -2324,7 +2502,9 @@
             "span": 40,
             "mean_gap": 8.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 3
         },
         {
             "no": 1204,
@@ -2367,7 +2547,9 @@
             "span": 36,
             "mean_gap": 7.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 2
         },
         {
             "no": 1203,
@@ -2410,7 +2592,9 @@
             "span": 36,
             "mean_gap": 7.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 1
         },
         {
             "no": 1202,
@@ -2453,7 +2637,9 @@
             "span": 35,
             "mean_gap": 7.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 2
         },
         {
             "no": 1201,
@@ -2496,7 +2682,9 @@
             "span": 29,
             "mean_gap": 5.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 2
         },
         {
             "no": 1200,
@@ -2539,7 +2727,9 @@
             "span": 31,
             "mean_gap": 6.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1199,
@@ -2582,7 +2772,9 @@
             "span": 16,
             "mean_gap": 3.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 2
         },
         {
             "no": 1198,
@@ -2625,7 +2817,9 @@
             "span": 15,
             "mean_gap": 3.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1197,
@@ -2668,7 +2862,9 @@
             "span": 42,
             "mean_gap": 8.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 1
         },
         {
             "no": 1196,
@@ -2711,7 +2907,9 @@
             "span": 37,
             "mean_gap": 7.4,
             "individual_streak": 1,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 4
         },
         {
             "no": 1195,
@@ -2754,7 +2952,9 @@
             "span": 33,
             "mean_gap": 6.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 1
         },
         {
             "no": 1194,
@@ -2797,7 +2997,9 @@
             "span": 34,
             "mean_gap": 6.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 2
         },
         {
             "no": 1193,
@@ -2840,7 +3042,9 @@
             "span": 22,
             "mean_gap": 4.4,
             "individual_streak": 0,
-            "over_appearance": 1
+            "over_appearance": 1,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 4
         },
         {
             "no": 1192,
@@ -2883,7 +3087,9 @@
             "span": 30,
             "mean_gap": 6.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 2
         },
         {
             "no": 1191,
@@ -2926,7 +3132,9 @@
             "span": 40,
             "mean_gap": 8.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 1
         },
         {
             "no": 1190,
@@ -2969,7 +3177,9 @@
             "span": 38,
             "mean_gap": 7.6,
             "individual_streak": 1,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 2
         },
         {
             "no": 1189,
@@ -3012,7 +3222,9 @@
             "span": 29,
             "mean_gap": 5.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 2
         },
         {
             "no": 1188,
@@ -3055,7 +3267,9 @@
             "span": 24,
             "mean_gap": 4.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 1
         },
         {
             "no": 1187,
@@ -3098,7 +3312,9 @@
             "span": 35,
             "mean_gap": 7.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 3
         },
         {
             "no": 1186,
@@ -3141,7 +3357,9 @@
             "span": 26,
             "mean_gap": 5.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 7,
+            "hot_10_count": 3
         },
         {
             "no": 1185,
@@ -3184,7 +3402,9 @@
             "span": 26,
             "mean_gap": 5.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 1
         },
         {
             "no": 1184,
@@ -3227,7 +3447,9 @@
             "span": 23,
             "mean_gap": 4.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 2
         },
         {
             "no": 1183,
@@ -3270,7 +3492,9 @@
             "span": 32,
             "mean_gap": 6.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 0
         },
         {
             "no": 1182,
@@ -3313,7 +3537,9 @@
             "span": 30,
             "mean_gap": 6.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 0,
+            "hot_10_count": 0
         },
         {
             "no": 1181,
@@ -3356,7 +3582,9 @@
             "span": 33,
             "mean_gap": 6.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 1
         },
         {
             "no": 1180,
@@ -3399,7 +3627,9 @@
             "span": 35,
             "mean_gap": 7.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 3
         },
         {
             "no": 1179,
@@ -3442,7 +3672,9 @@
             "span": 41,
             "mean_gap": 8.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 3
         },
         {
             "no": 1178,
@@ -3485,7 +3717,9 @@
             "span": 39,
             "mean_gap": 7.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 3
         },
         {
             "no": 1177,
@@ -3528,7 +3762,9 @@
             "span": 40,
             "mean_gap": 8.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1176,
@@ -3571,7 +3807,9 @@
             "span": 28,
             "mean_gap": 5.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 7,
+            "hot_10_count": 5
         },
         {
             "no": 1175,
@@ -3614,7 +3852,9 @@
             "span": 39,
             "mean_gap": 7.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 4
         },
         {
             "no": 1174,
@@ -3657,7 +3897,9 @@
             "span": 31,
             "mean_gap": 6.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1173,
@@ -3700,7 +3942,9 @@
             "span": 34,
             "mean_gap": 6.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 0
         },
         {
             "no": 1172,
@@ -3743,7 +3987,9 @@
             "span": 37,
             "mean_gap": 7.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 7,
+            "hot_10_count": 3
         },
         {
             "no": 1171,
@@ -3786,7 +4032,9 @@
             "span": 14,
             "mean_gap": 2.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 1
         },
         {
             "no": 1170,
@@ -3829,7 +4077,9 @@
             "span": 39,
             "mean_gap": 7.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 3
         },
         {
             "no": 1169,
@@ -3872,7 +4122,9 @@
             "span": 37,
             "mean_gap": 7.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 3
         },
         {
             "no": 1168,
@@ -3915,7 +4167,9 @@
             "span": 28,
             "mean_gap": 5.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 1
         },
         {
             "no": 1167,
@@ -3958,7 +4212,9 @@
             "span": 32,
             "mean_gap": 6.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1166,
@@ -4001,7 +4257,9 @@
             "span": 28,
             "mean_gap": 5.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 7,
+            "hot_10_count": 3
         },
         {
             "no": 1165,
@@ -4044,7 +4302,9 @@
             "span": 39,
             "mean_gap": 7.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 4
         },
         {
             "no": 1164,
@@ -4087,7 +4347,9 @@
             "span": 22,
             "mean_gap": 4.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 3
         },
         {
             "no": 1163,
@@ -4130,7 +4392,9 @@
             "span": 41,
             "mean_gap": 8.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 1
         },
         {
             "no": 1162,
@@ -4173,7 +4437,9 @@
             "span": 9,
             "mean_gap": 1.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 2
         },
         {
             "no": 1161,
@@ -4216,7 +4482,9 @@
             "span": 40,
             "mean_gap": 8.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 0
         },
         {
             "no": 1160,
@@ -4259,7 +4527,9 @@
             "span": 38,
             "mean_gap": 7.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 2
         },
         {
             "no": 1159,
@@ -4302,7 +4572,9 @@
             "span": 36,
             "mean_gap": 7.2,
             "individual_streak": 0,
-            "over_appearance": 1
+            "over_appearance": 1,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 4
         },
         {
             "no": 1158,
@@ -4345,7 +4617,9 @@
             "span": 17,
             "mean_gap": 3.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 4
         },
         {
             "no": 1157,
@@ -4388,7 +4662,9 @@
             "span": 21,
             "mean_gap": 4.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 1
         },
         {
             "no": 1156,
@@ -4431,7 +4707,9 @@
             "span": 15,
             "mean_gap": 3.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 0
         },
         {
             "no": 1155,
@@ -4474,7 +4752,9 @@
             "span": 28,
             "mean_gap": 5.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 3
         },
         {
             "no": 1154,
@@ -4517,7 +4797,9 @@
             "span": 34,
             "mean_gap": 6.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 3
         },
         {
             "no": 1153,
@@ -4560,7 +4842,9 @@
             "span": 43,
             "mean_gap": 8.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 2
         },
         {
             "no": 1152,
@@ -4603,7 +4887,9 @@
             "span": 7,
             "mean_gap": 1.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 2
         },
         {
             "no": 1151,
@@ -4646,7 +4932,9 @@
             "span": 27,
             "mean_gap": 5.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 4
         },
         {
             "no": 1150,
@@ -4689,7 +4977,9 @@
             "span": 37,
             "mean_gap": 7.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 1
         },
         {
             "no": 1149,
@@ -4732,7 +5022,9 @@
             "span": 28,
             "mean_gap": 5.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 1
         },
         {
             "no": 1148,
@@ -4775,7 +5067,9 @@
             "span": 19,
             "mean_gap": 3.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 2
         },
         {
             "no": 1147,
@@ -4818,7 +5112,9 @@
             "span": 30,
             "mean_gap": 6.0,
             "individual_streak": 1,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 4
         },
         {
             "no": 1146,
@@ -4861,7 +5157,9 @@
             "span": 37,
             "mean_gap": 7.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 1
         },
         {
             "no": 1145,
@@ -4904,7 +5202,9 @@
             "span": 42,
             "mean_gap": 8.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 2
         },
         {
             "no": 1144,
@@ -4947,7 +5247,9 @@
             "span": 31,
             "mean_gap": 6.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 2
         },
         {
             "no": 1143,
@@ -4990,7 +5292,9 @@
             "span": 26,
             "mean_gap": 5.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 1
         },
         {
             "no": 1142,
@@ -5033,7 +5337,9 @@
             "span": 39,
             "mean_gap": 7.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 1
         },
         {
             "no": 1141,
@@ -5076,7 +5382,9 @@
             "span": 28,
             "mean_gap": 5.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 3
         },
         {
             "no": 1140,
@@ -5119,7 +5427,9 @@
             "span": 31,
             "mean_gap": 6.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 3
         },
         {
             "no": 1139,
@@ -5162,7 +5472,9 @@
             "span": 35,
             "mean_gap": 7.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 1
         },
         {
             "no": 1138,
@@ -5205,7 +5517,9 @@
             "span": 20,
             "mean_gap": 4.0,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 3
         },
         {
             "no": 1137,
@@ -5248,7 +5562,9 @@
             "span": 41,
             "mean_gap": 8.2,
             "individual_streak": 1,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1136,
@@ -5291,7 +5607,9 @@
             "span": 23,
             "mean_gap": 4.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1135,
@@ -5334,7 +5652,9 @@
             "span": 32,
             "mean_gap": 6.4,
             "individual_streak": 1,
-            "over_appearance": 1
+            "over_appearance": 1,
+            "recent_5_recurrence": 9,
+            "hot_10_count": 5
         },
         {
             "no": 1134,
@@ -5377,7 +5697,9 @@
             "span": 21,
             "mean_gap": 4.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 1
         },
         {
             "no": 1133,
@@ -5420,7 +5742,9 @@
             "span": 21,
             "mean_gap": 4.2,
             "individual_streak": 0,
-            "over_appearance": 1
+            "over_appearance": 1,
+            "recent_5_recurrence": 7,
+            "hot_10_count": 3
         },
         {
             "no": 1132,
@@ -5463,7 +5787,9 @@
             "span": 35,
             "mean_gap": 7.0,
             "individual_streak": 0,
-            "over_appearance": 1
+            "over_appearance": 1,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 4
         },
         {
             "no": 1131,
@@ -5506,7 +5832,9 @@
             "span": 37,
             "mean_gap": 7.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 2,
+            "hot_10_count": 1
         },
         {
             "no": 1130,
@@ -5549,7 +5877,9 @@
             "span": 13,
             "mean_gap": 2.6,
             "individual_streak": 1,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 3
         },
         {
             "no": 1129,
@@ -5592,7 +5922,9 @@
             "span": 29,
             "mean_gap": 5.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 7,
+            "hot_10_count": 2
         },
         {
             "no": 1128,
@@ -5635,7 +5967,9 @@
             "span": 32,
             "mean_gap": 6.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 1
         },
         {
             "no": 1127,
@@ -5678,7 +6012,9 @@
             "span": 27,
             "mean_gap": 5.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 3
         },
         {
             "no": 1126,
@@ -5721,7 +6057,9 @@
             "span": 36,
             "mean_gap": 7.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 1
         },
         {
             "no": 1125,
@@ -5764,7 +6102,9 @@
             "span": 38,
             "mean_gap": 7.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 2
         },
         {
             "no": 1124,
@@ -5807,7 +6147,9 @@
             "span": 31,
             "mean_gap": 6.2,
             "individual_streak": 1,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 4
         },
         {
             "no": 1123,
@@ -5850,7 +6192,9 @@
             "span": 22,
             "mean_gap": 4.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 7,
+            "hot_10_count": 4
         },
         {
             "no": 1122,
@@ -5893,7 +6237,9 @@
             "span": 32,
             "mean_gap": 6.4,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 1
         },
         {
             "no": 1121,
@@ -5936,7 +6282,9 @@
             "span": 38,
             "mean_gap": 7.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 4
         },
         {
             "no": 1120,
@@ -5979,7 +6327,9 @@
             "span": 39,
             "mean_gap": 7.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 1,
+            "hot_10_count": 0
         },
         {
             "no": 1119,
@@ -6022,7 +6372,9 @@
             "span": 44,
             "mean_gap": 8.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 4
         },
         {
             "no": 1118,
@@ -6065,7 +6417,9 @@
             "span": 34,
             "mean_gap": 6.8,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 5,
+            "hot_10_count": 3
         },
         {
             "no": 1117,
@@ -6108,7 +6462,9 @@
             "span": 33,
             "mean_gap": 6.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 4
         },
         {
             "no": 1116,
@@ -6151,7 +6507,9 @@
             "span": 16,
             "mean_gap": 3.2,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 3,
+            "hot_10_count": 2
         },
         {
             "no": 1115,
@@ -6194,7 +6552,9 @@
             "span": 29,
             "mean_gap": 5.8,
             "individual_streak": 1,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 4,
+            "hot_10_count": 2
         },
         {
             "no": 1114,
@@ -6237,7 +6597,9 @@
             "span": 28,
             "mean_gap": 5.6,
             "individual_streak": 0,
-            "over_appearance": 0
+            "over_appearance": 0,
+            "recent_5_recurrence": 6,
+            "hot_10_count": 3
         }
     ]
 }

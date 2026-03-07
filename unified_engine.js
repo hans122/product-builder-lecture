@@ -314,14 +314,17 @@ _global.LottoAI = {
         var indicators = LottoConfig.INDICATORS;
         
         var zScores = {};
-        // v26.0 전수 지표 세트 (29개)
-        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor", "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror", "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color", "pattern_corner", "pattern_center", "same_end"];
+        // v31.0 전수 지표 세트 (31개)
+        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor", "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror", "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color", "pattern_corner", "pattern_center", "same_end", "recent_5_recurrence", "hot_10_count"];
         
         keys.forEach(key => {
-            var cfg = indicators.find(c => (c.distKey === key || c.statKey === key || c.id === key.replace('_','-')));
+            var cfg = indicators.find(c => (c.distKey === key || c.statKey === key || c.id === key.replace(/_/g,'-')));
             if (!cfg) return;
-            // Relative indicators need context
-            var context = { last_3_draws: (statsData.recent_draws || []).slice(0,3).map(d => d.nums) };
+            // v31.0: 전체 이력 데이터를 context로 제공
+            var context = { 
+                last_3_draws: (statsData.recent_draws || []).slice(0,3).map(d => d.nums),
+                recent_draws: statsData.recent_draws
+            };
             var val = cfg.calc(nums, context);
             var s = summary[key];
             if (s && s.std !== 0) zScores[key] = (val - s.mean) / s.std;
@@ -330,7 +333,7 @@ _global.LottoAI = {
         var score = 0;
         var violations = [];
         
-        // v26.0: 딥 시너지 - 촘촘한 분석망 (40쌍 이상)
+        // v31.0: 딥 시너지 - 촘촘한 분석망 (신규 지표 쌍 추가)
         var pairs = [
             ['sum', 'low_count'], ['span', 'mean_gap'], ['empty_zone', 'span'], 
             ['odd_count', 'prime'], ['consecutive', 'mean_gap'], ['ac', 'span'],
@@ -345,7 +348,10 @@ _global.LottoAI = {
             ['bucket_7', 'empty_zone'], ['p9', 'color'], ['composite', 'low_count'],
             ['period_2', 'period_3'], ['multiple_3', 'prime'], ['square', 'pattern_center'],
             ['double_num', 'same_end'], ['bucket_15', 'bucket_7'], ['mean_gap', 'color'],
-            ['span', 'p9'], ['period_1', 'consecutive']
+            ['span', 'p9'], ['period_1', 'consecutive'],
+            ['recent_5_recurrence', 'hot_10_count'], 
+            ['recent_5_recurrence', 'period_1'],
+            ['hot_10_count', 'period_3']
         ];
 
         pairs.forEach(pair => {

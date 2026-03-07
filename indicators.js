@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * LottoIndicators v22.0 - AI Regression Timing Edition
- * - Integrated AI Regression Timing & Energy Signals
- * - Full Number Frequency Visualization Support
+ * LottoIndicators v31.0 - Recurrence-Flow Integration
+ * - Integrated Multi-Draw Recurrence Analysis
+ * - Enhanced Strategy Guard & SSOT Management
  */
 
 var _global = typeof window !== 'undefined' ? window : self;
@@ -90,10 +90,23 @@ _global.LottoConfig = {
             const counts = recent5.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
             const overHot = Object.keys(counts).filter(n => counts[n] >= 3).map(Number);
             return nums.filter(n => overHot.includes(n)).length;
-        }, visible: { history: true, analysis: true, combination: true }, filter: { max: 1 } }
+        }, visible: { history: true, analysis: true, combination: true }, filter: { max: 1 } },
+
+        // [GL7-F] 회차 간 흐름 강도 (v31.0)
+        { id: 'recent-5-recur', label: '5회기 누적출현', unit: '회', group: 'GL7', distKey: 'recent_5_recurrence', statKey: 'recent_5_recurrence', drawKey: 'r5r', maxLimit: 30, calc: (nums, data) => {
+            if (!data || !data.recent_draws) return 0;
+            const recent5 = data.recent_draws.slice(0, 5).flatMap(d => d.nums);
+            const counts = recent5.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
+            return nums.reduce((sum, n) => sum + (counts[n] || 0), 0);
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 7 } },
+        { id: 'hot-10-count', label: '10회기 다출현', unit: '개', group: 'GL7', distKey: 'hot_10_count', statKey: 'hot_10_count', drawKey: 'h10c', maxLimit: 6, calc: (nums, data) => {
+            if (!data || !data.recent_draws) return 0;
+            const recent10 = data.recent_draws.slice(0, 10).flatMap(d => d.nums);
+            const counts = recent10.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
+            return nums.filter(n => (counts[n] || 0) >= 2).length;
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 1, max: 4 } }
     ],
 
-    // 1-2. [GP] 연금복권 720+ 개별 지표 설정
     PENSION_INDICATORS: [
         { id: 'p-sum', label: '합계', unit: '', group: 'GP4', distKey: 'sum', statKey: 'sum', calc: (nums) => PensionUtils.analyzeBalance(nums).sum, visible: { history: true, analysis: true, combination: true }, filter: { min: 20, max: 35 } },
         { id: 'p-odd', label: '홀수', unit: '개', group: 'GP7', distKey: 'odd', statKey: 'odd', calc: (nums) => PensionUtils.analyzeBalance(nums).odd, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 4 } },
@@ -107,15 +120,11 @@ _global.LottoConfig = {
 
     GROUP_NAMES: {
         'GL1': '기본 균형 및 합계', 'GL2': '관계 및 주기 분석', 'GL3': '수적 성질 및 속성',
-        'GL4': '분할 및 구간 분석', 'GL5': '정밀 산술 지표', 'GL6': 'AI 고급 지표',
+        'GL4': '분할 및 구간 분석', 'GL5': '정밀 산술 지표', 'GL6': 'AI 고급 지표', 'GL7': '개별 번호 이력 분석',
         'GP1': '자리수별 독립 빈도', 'GP2': '배열 패턴 및 구성 분석', 'GP3': '조별 당첨 분포',
         'GP4': '수치 균형', 'GP5': '회차 간 상관관계', 'GP7': '번호 속성 밸런스'
     },
 
-    /**
-     * AI Prediction Strategies (SSOT)
-     * - Defined for both Lotto & Pension
-     */
     STRATEGIES: [
         { id: 'standard', label: "💎 다차원 최적화", desc: "평균값 수렴 정석 조합", color: '#3182f6' },
         { id: 'trend', label: "📊 패턴 유사도형", desc: "최근 당첨 흐름 반영", color: '#00d084' },
@@ -142,11 +151,8 @@ _global.LottoConfig = {
         { id: 'extreme', label: "📉 저빈도 역습형", desc: "희귀 패턴 기반 잭팟 노림", color: '#1e293b' }
     ],
 
-    /** 
-     * Page-specific visibility groups 
-     */
     PAGES: {
-        INDEX: ['sum', 'odd-even', 'high-low', 'period_1', 'ac', 'span'],
+        INDEX: ['sum', 'odd-even', 'high-low', 'period_1', 'ac', 'recent-5-recur', 'hot-10-count'],
         PENSION_INDEX: ['p-sum', 'p-odd', 'p-low', 'p-unique']
     },
 
@@ -155,45 +161,14 @@ _global.LottoConfig = {
         'odd-even': '홀수 개수는 밸런스가 좋은 <strong>"{safe}"</strong> 범위를 권장하며, 특히 3:3 배합이 가장 강력한 정규분포 중심점입니다.',
         'high-low': '고번호와 저번호의 배합은 <strong>"{safe}"</strong> 범위 내에서 선택하여 번호가 한쪽으로 쏠리지 않도록 조절하세요.',
         'period_1': '이월수(직전 1회차 재출현)는 매 회차 <strong>"{safe}"</strong>개 정도 포함되는 것이 통계적으로 가장 흔한 패턴입니다.',
-        'period_2': '2주 전 당첨 번호가 다시 출현하는 2회기 패턴은 매 회차 <strong>"{safe}"</strong>개 정도 나타납니다.',
-        'period_3': '3주 전 번호에서 추출하는 3회기 전략은 장기 흐름을 잡는 데 유용하며 보통 <strong>"{safe}"</strong>개가 출현합니다.',
-        'neighbor': '직전 회차 번호의 주변수(±1)인 이웃수는 <strong>"{safe}"</strong>개 포함될 때 당첨 조합의 완성도가 높아집니다.',
-        'consecutive': '연속번호는 전체 당첨의 절반 이상에서 나타나며, <strong>"{safe}"</strong>쌍 정도를 포함하는 것이 현실적인 공략입니다.',
-        'prime': '소수는 수학적으로 불규칙해 보이지만, 통계적으로는 <strong>"{safe}"</strong>개 범위 내에서 꾸준히 출현하고 있습니다.',
-        'composite': '합성수는 조합의 뼈대를 이루는 수들로, <strong>"{safe}"</strong>개 정도를 포함하여 기본 균형을 맞추세요.',
-        'multiple-3': '3의 배수는 매 회차 평균 2개 내외로 출현하며, <strong>"{safe}"</strong>개 범위를 지키는 것이 안정적입니다.',
-        'multiple-4': '4의 배수는 출현 빈도가 낮으므로 <strong>"{safe}"</strong>개 정도로 가볍게 포함시키는 전략을 권장합니다.',
-        'square': '제곱수는 특이값이지만 <strong>"{safe}"</strong>개 범위 내에서 변별력을 주는 요소로 활용할 수 있습니다.',
-        'double': '11, 22와 같은 쌍수는 <strong>"{safe}"</strong>개 범위 내에서 조합의 유니크함을 더해주는 지표입니다.',
-        'mirror': '12-21 같은 동형수는 조합의 대칭미를 더해주며 보통 <strong>"{safe}"</strong>개 정도 포함됩니다.',
-        'bucket-15': '전체 번호를 3그룹으로 나눴을 때 <strong>"{safe}"</strong>개의 구간이 점유되어야 번호가 이상적으로 분산됩니다.',
-        'bucket-9': '5개 구간 분할 시 <strong>"{safe}"</strong>개 구간에서 번호가 고르게 출현하는 조합이 확률이 높습니다.',
-        'bucket-7': '7분법 분석은 번호대를 더 세밀하게 쪼개어 <strong>"{safe}"</strong>개 구역 점유를 목표로 합니다.',
-        'bucket-5': '9개 구간 분할 시 <strong>"{safe}"</strong>개 구간을 점유하여 세밀한 분산도를 확보하는 것이 좋습니다.',
-        'p궁도': '9궁도 배치 상에서 <strong>"{safe}"</strong>개 이상의 구역이 점유되어야 공간적 밸런스가 맞습니다.',
-        'empty-zone': '10단위 번호대 중 <strong>"{safe}"</strong>개 구간이 완전히 비어있는(멸) 현상은 매우 일반적인 통계입니다.',
-        'color': '5가지 공 색상 중 <strong>"{safe}"</strong>가지 이상의 색상이 섞여야 시각적/통계적으로 안정적인 조합이 됩니다.',
-        'pattern-corner': '용지의 4개 모서리 영역에서 <strong>"{safe}"</strong>개 정도의 번호가 출현하는 패턴이 매우 빈번합니다.',
-        'pattern-center': '용지 정중앙 구역에 <strong>"{safe}"</strong>개의 번호를 배치하여 중심부의 밸런스를 잡으세요.',
-        'end-sum': '일의 자리 숫자들의 합계인 끝수합은 <strong>"{safe}"</strong> 범위 내에서 가장 많이 형성됩니다.',
-        'same-end': '동끝수(일의 자리가 같은 번호)는 <strong>"{safe}"</strong>개 포함될 때 당첨 확률이 비약적으로 상승합니다.',
-        'ac': '산술적 복잡도(AC)는 <strong>"{safe}"</strong> 이상을 유지해야 실제 당첨 번호와 유사한 무작위성을 가집니다.',
-        'span': '가장 큰 수와 작은 수의 차이(Span)는 <strong>"{safe}"</strong> 범위일 때 가장 강력한 당첨 에너지를 가집니다.',
-        'mean-gap': '번호들 사이의 평균 간격이 <strong>"{safe}"</strong> 범위에 있어야 번호가 너무 뭉치거나 퍼지지 않은 이상적 밸런스를 갖춥니다.',
-        'ai-markov': '마르코프 체인은 이전 당첨 번호가 다음 번호에 미치는 영향을 분석하여 유력한 전이 경로를 제시합니다.',
-        'ai-monte': '1만 회 이상의 가상 시뮬레이션을 통해 사용자 조합의 통계적 우위를 정밀하게 산출합니다.'
+        'individual-streak': '3회 연속 출현은 확률적으로 매우 희귀하므로, <strong>"{safe}"</strong>개 범위를 철저히 지키는 것이 중요합니다.',
+        'recent-5-recur': '조합 번호들의 최근 5회 내 누적 출현 빈도는 <strong>"{safe}"</strong>회 정도가 가장 이상적인 기세를 나타냅니다.',
+        'hot-10-count': '최근 10회 동안 2회 이상 나온 번호들은 <strong>"{safe}"</strong>개 정도 조화롭게 배치하는 것이 당첨 확률을 높입니다.'
     },
 
     PENSION_TIPS: {
         'p-sum': '조를 제외한 6자리 합계가 20~34 사이인 골든 존이 당첨 확률이 가장 높습니다.',
         'p-odd': '홀짝 비율이 3:3으로 균형 잡힌 조합이 통계적으로 가장 우세합니다.',
-        'p-low': '0~4 사이의 낮은 숫자가 적절히 섞여야 안정적인 배합이 됩니다.',
-        'p-prime': '소수는 예측하기 어렵지만 꾸준히 한두 개씩 포함되는 필수 지표입니다.',
-        'p-seq': '번호가 이어지는 흐름을 관찰하여 너무 인위적인 나열을 피하세요.',
-        'p-max-occur': '동일 숫자가 반복되는 횟수를 체크하여 구성의 다양성을 확보하세요.',
-        'p-carry': '전회차 숫자가 같은 자리에 그대로 나오는 이월 확률을 반영하여 흐름을 잡으세요.',
-        'p-neighbor': '전회차 숫자 주변의 이웃 숫자들이 이동하며 출현하는 상관관계를 분석하세요.',
-        'p-markov': '역방향 전이 확률을 분석하여 하위 등급 당첨의 핵심인 일/십의 자리 유력 숫자를 예측합니다.',
-        'p-monte': '시뮬레이션을 통해 연금복권 특유의 자리수별 매칭 확률을 기댓값으로 환산합니다.'
+        'p-low': '0~4 사이의 낮은 숫자가 적절히 섞여야 안정적인 배합이 됩니다.'
     }
 };

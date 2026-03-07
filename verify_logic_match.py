@@ -45,23 +45,38 @@ def run_logic_guard():
         "color": lambda ns: len(set((n-1)//10 for n in ns)),
         "empty_zone": lambda ns: [0,0,0,0,0].count(0), # 멸구간은 리스트 계산 필요하므로 아래서 별도 처리
         "pattern_corner": lambda ns: len([n for n in ns if n in [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42]]),
-        "pattern_center": lambda ns: len([n for n in ns if n in [17,18,19,24,25,26,31,32,33]])
+        "pattern_center": lambda ns: len([n for n in ns if n in [17,18,19,24,25,26,31,32,33]]),
+        "recent_5_recurrence": lambda ns: 0, # 아래서 별도 처리
+        "hot_10_count": lambda ns: 0 # 아래서 별도 처리
     }
 
     total_checks = 0
     total_errors = 0
     error_details = []
 
-    for draw in draws:
+    for idx, draw in enumerate(draws):
         nums = draw['nums']
+        recent_draws = data.get('recent_draws', [])[idx+1:] # 현재 회차 이후(과거) 데이터
+        
         for key, func in logic_map.items():
             if key in draw:
                 stored_val = draw[key]
-                # 멸구간 등 특수 케이스 처리
+                calculated_val = 0
+                
+                # 특수 케이스 처리
                 if key == "empty_zone":
                     zones = [0,0,0,0,0]
                     for n in nums: zones[min(4, (n-1)//10)] += 1
                     calculated_val = zones.count(0)
+                elif key == "recent_5_recurrence":
+                    r5 = [n for d in draws[idx+1:idx+6] for n in d['nums']]
+                    counts = Counter(r5)
+                    calculated_val = sum(counts[n] for n in nums)
+                elif key == "hot_10_count":
+                    r10 = [n for d in draws[idx+1:idx+11] for n in d['nums']]
+                    counts = Counter(r10)
+                    hot_nums = [n for n, c in counts.items() if c >= 2]
+                    calculated_val = len([n for n in nums if n in hot_nums])
                 else:
                     calculated_val = func(nums)
                 
