@@ -97,7 +97,7 @@ var LottoUI = {
         if (!container) return;
         container.innerHTML = '';
         
-        var w = container.clientWidth || 300, h = 200, padding = 30;
+        var w = container.clientWidth || 300, h = 210, padding = 30, bottomSpace = 50;
         var mean = stat ? stat.mean : 0, std = stat ? stat.std : 1;
         var minX = mean - 3.5 * std, maxX = mean + 3.5 * std;
         
@@ -110,10 +110,11 @@ var LottoUI = {
         
         var maxY = Math.max.apply(null, points.map(function(p) { return p.y; }));
         var scaleX = (w - padding * 2) / (maxX - minX);
-        var scaleY = (h - padding * 2) / maxY;
+        var scaleY = (h - padding - bottomSpace) / maxY;
         
         var getX = function(val) { return padding + (val - minX) * scaleX; };
-        var getY = function(val) { return h - padding - val * scaleY; };
+        var getY = function(val) { return (h - bottomSpace) - val * scaleY; };
+        var baselineY = h - bottomSpace;
         
         var pathD = "M " + points.map(function(p) { return getX(p.x) + "," + getY(p.y); }).join(" L ");
         
@@ -140,15 +141,15 @@ var LottoUI = {
             '</defs>';
         
         var svg = '<svg width="' + w + '" height="' + h + '" style="overflow:visible;">' + hatching +
-            '<rect x="' + getX(mean-std) + '" y="' + padding + '" width="' + (getX(mean+std)-getX(mean-std)) + '" height="' + (h-padding*2) + '" fill="url(#h-green)"/>' +
-            '<rect x="' + getX(mean-2*std) + '" y="' + padding + '" width="' + (getX(mean+2*std)-getX(mean-2*std)) + '" height="' + (h-padding*2) + '" fill="url(#h-blue)" fill-opacity="0.5"/>' +
+            '<rect x="' + getX(mean-std) + '" y="' + padding + '" width="' + (getX(mean+std)-getX(mean-std)) + '" height="' + (baselineY-padding) + '" fill="url(#h-green)"/>' +
+            '<rect x="' + getX(mean-2*std) + '" y="' + padding + '" width="' + (getX(mean+2*std)-getX(mean-2*std)) + '" height="' + (baselineY-padding) + '" fill="url(#h-blue)" fill-opacity="0.5"/>' +
             '<path d="' + pathD + '" fill="none" stroke="var(--primary-blue)" stroke-width="3" stroke-linecap="round"/>' +
-            '<line x1="' + padding + '" y1="' + (h-padding) + '" x2="' + (w-padding) + '" y2="' + (h-padding) + '" stroke="#e5e8eb" stroke-width="1"/>' +
+            '<line x1="' + padding + '" y1="' + baselineY + '" x2="' + (w-padding) + '" y2="' + baselineY + '" stroke="#e5e8eb" stroke-width="1"/>' +
             visibleLabels.map(function(l) {
                 var displayVal = LottoUtils.round(l.v, 1);
-                return '<g><line x1="' + getX(l.v) + '" y1="' + (h-padding) + '" x2="' + getX(l.v) + '" y2="' + (h-padding+8) + '" stroke="#cbd5e1"/>' +
-                       '<text x="' + getX(l.v) + '" y="' + (h-25) + '" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">' + displayVal + '</text>' +
-                       '<text x="' + getX(l.v) + '" y="' + (h-8) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#8b95a1">' + l.l + '</text></g>';
+                return '<g><line x1="' + getX(l.v) + '" y1="' + baselineY + '" x2="' + getX(l.v) + '" y2="' + (baselineY+8) + '" stroke="#cbd5e1"/>' +
+                       '<text x="' + getX(l.v) + '" y="' + (baselineY+22) + '" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">' + displayVal + '</text>' +
+                       '<text x="' + getX(l.v) + '" y="' + (baselineY+35) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#8b95a1">' + l.l + '</text></g>';
             }).join('') +
             '</svg>';
         container.innerHTML = svg;
