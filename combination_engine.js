@@ -254,8 +254,19 @@ var CombinationEngine = {
             container.appendChild(tr);
         });
 
-        // 4. Score & Grade Calculation (Unified Engine)
-        var finalScore = LottoAI.calculateTotalScore(sim.score, synergy, indicatorStatuses);
+        // 4. Correlation Harmony Report [NEW]
+        var harmony = LottoAI.checkCorrelationHarmony(sortedNums, this.statsData);
+        var trHarmony = document.createElement('tr');
+        var harmonyStatus = harmony.score > 0 ? 'safe' : (harmony.score < -20 ? 'danger' : 'warning');
+        var harmonyText = harmony.violations.length > 0 ? 
+            `<strong>불협화음 감지:</strong> ${harmony.violations.join(', ')}` : 
+            '주요 지표들이 역사적 상관관계와 완벽히 일치합니다.';
+            
+        trHarmony.innerHTML = `<td><strong>🔗 지표 조화도</strong></td><td>${harmony.score > 0 ? '+' : ''}${harmony.score}점</td><td><span class="status-badge ${harmonyStatus}">Correl</span></td><td class="text-left" style="font-size:0.75rem; color:#4a5568;">${harmonyText}</td>`;
+        container.appendChild(trHarmony);
+
+        // 5. Score & Grade Calculation (Unified Engine)
+        var finalScore = LottoAI.calculateTotalScore(sim.score, synergy, indicatorStatuses) + harmony.score;
         var gradeInfo = LottoAI.getGrade(finalScore);
 
         document.getElementById('combination-score').innerText = finalScore;

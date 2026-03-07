@@ -149,6 +149,41 @@ def analyze_lotto():
         # 3회 연속 이탈 시 에너지가 99%에 근접하도록 가중치 상향
         regression_signals[label] = {"streak": streak, "energy": min(100, streak * 33)}
 
+    # [AI] 지표 간 상관관계 분석 (Pearson Correlation Coefficient)
+    # 분석 대상 핵심 지표 정의
+    corr_keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count"]
+    correlation_matrix = {}
+    
+    # 평균 및 표준편차 사전 계산 (이미 stats_summary에 있음)
+    # 공분산 및 상관계수 계산
+    for k1 in corr_keys:
+        correlation_matrix[k1] = {}
+        for k2 in corr_keys:
+            if k1 == k2:
+                correlation_matrix[k1][k2] = 1.0
+                continue
+            
+            # 두 지표의 데이터 리스트 가져오기 (길이는 동일해야 함)
+            data1 = raw_metrics[k1]
+            data2 = raw_metrics[k2]
+            n = len(data1)
+            
+            mean1 = stats_summary[k1]["mean"]
+            mean2 = stats_summary[k2]["mean"]
+            std1 = stats_summary[k1]["std"]
+            std2 = stats_summary[k2]["std"]
+            
+            if std1 == 0 or std2 == 0:
+                correlation_matrix[k1][k2] = 0
+                continue
+
+            # 공분산(Covariance) 계산: E[(X-meanX)(Y-meanY)]
+            covariance = sum((data1[i] - mean1) * (data2[i] - mean2) for i in range(n)) / n
+            
+            # 상관계수(r) = Cov(X,Y) / (stdX * stdY)
+            r = covariance / (std1 * std2)
+            correlation_matrix[k1][k2] = round(r, 2)
+
     result = {
         "total_draws": len(draws),
         "last_3_draws": [d["nums"] for d in draws[-3:][::-1]],
@@ -157,6 +192,7 @@ def analyze_lotto():
         "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
         "markov_ending_matrix": markov_ending,
         "regression_signals": regression_signals,
+        "correlation_matrix": correlation_matrix, # [NEW] 상관계수 매트릭스 추가
         "recent_draws": processed_data[::-1][:100]
     }
 

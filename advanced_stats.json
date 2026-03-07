@@ -893,6 +893,71 @@
             "energy": 0
         }
     },
+    "correlation_matrix": {
+        "sum": {
+            "sum": 1.0,
+            "ac": -0.03,
+            "end_sum": 0.01,
+            "span": -0.03,
+            "mean_gap": -0.03,
+            "odd_count": -0.0,
+            "low_count": -0.88
+        },
+        "ac": {
+            "sum": -0.03,
+            "ac": 1.0,
+            "end_sum": 0.02,
+            "span": 0.35,
+            "mean_gap": 0.35,
+            "odd_count": 0.02,
+            "low_count": 0.04
+        },
+        "end_sum": {
+            "sum": 0.01,
+            "ac": 0.02,
+            "end_sum": 1.0,
+            "span": -0.12,
+            "mean_gap": -0.12,
+            "odd_count": 0.18,
+            "low_count": -0.04
+        },
+        "span": {
+            "sum": -0.03,
+            "ac": 0.35,
+            "end_sum": -0.12,
+            "span": 1.0,
+            "mean_gap": 1.0,
+            "odd_count": 0.03,
+            "low_count": 0.04
+        },
+        "mean_gap": {
+            "sum": -0.03,
+            "ac": 0.35,
+            "end_sum": -0.12,
+            "span": 1.0,
+            "mean_gap": 1.0,
+            "odd_count": 0.03,
+            "low_count": 0.04
+        },
+        "odd_count": {
+            "sum": -0.0,
+            "ac": 0.02,
+            "end_sum": 0.18,
+            "span": 0.03,
+            "mean_gap": 0.03,
+            "odd_count": 1.0,
+            "low_count": -0.01
+        },
+        "low_count": {
+            "sum": -0.88,
+            "ac": 0.04,
+            "end_sum": -0.04,
+            "span": 0.04,
+            "mean_gap": 0.04,
+            "odd_count": -0.01,
+            "low_count": 1.0
+        }
+    },
     "recent_draws": [
         {
             "no": 1213,

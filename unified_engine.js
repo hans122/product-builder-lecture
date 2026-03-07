@@ -247,5 +247,73 @@ var LottoAI = {
         });
         // 36개 조합 경로(6x6)로 나누어 평균 시너지 산출
         return Math.round(score / 3.6); 
+    },
+
+    // 13. [NEW] Correlation Harmony Check (지표 간 상관관계 정합성 검사)
+    checkCorrelationHarmony: function(nums, statsData) {
+        if (!statsData || !statsData.correlation_matrix || !statsData.stats_summary) return { score: 0, violations: [] };
+        
+        var matrix = statsData.correlation_matrix;
+        var summary = statsData.stats_summary;
+        var indicators = LottoConfig.INDICATORS; // Use SSOT configs to calc values
+        
+        // 1. 현재 조합의 지표 값 계산 (Z-Score 변환)
+        var zScores = {};
+        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count"]; // Python 키와 일치
+        
+        keys.forEach(key => {
+            var cfg = indicators.find(c => c.distKey === key || c.statKey === key);
+            if (!cfg) return;
+            var val = cfg.calc(nums, null); // Context 불필요한 기본 지표 위주
+            var mean = summary[key].mean;
+            var std = summary[key].std;
+            zScores[key] = (val - mean) / std; // 표준화 점수
+        });
+
+        // 2. 상관관계 위배 여부 검사
+        var score = 0;
+        var violations = [];
+        
+        // 주요 상관관계 쌍 검사
+        var pairs = [
+            ['sum', 'low_count'], // 강한 역상관 (r=-0.88)
+            ['ac', 'sum'],
+            ['span', 'mean_gap']
+        ];
+
+        pairs.forEach(pair => {
+            var k1 = pair[0], k2 = pair[1];
+            if (zScores[k1] === undefined || zScores[k2] === undefined) return;
+            
+            var r = matrix[k1][k2]; // 역사적 상관계수
+            var currentRelation = zScores[k1] * zScores[k2]; // 현재 조합의 방향성 (부호)
+            
+            // 역사적 상관관계가 강한 경우 (|r| > 0.5)
+            if (Math.abs(r) > 0.5) {
+                // r이 양수인데 현재 부호가 반대이거나, r이 음수인데 현재 부호가 같은 경우 (모순)
+                // 예: sum과 low_count는 r=-0.88 (반대여야 함). 
+                // 만약 sum이 높고(+Z) low_count도 높으면(+Z) -> 곱은 양수(+) -> 모순!
+                
+                // 모순 조건: r의 부호와 currentRelation의 부호가 다름 (즉, 곱이 음수)
+                // 하지만 위 예시는 r(-)*curr(+) -> 음수. 
+                // r과 curr가 '다른 방향'이어야 모순이다? 
+                // 정확히는: Z1, Z2의 관계가 r의 경향을 따르는가?
+                
+                // 단순화: 
+                // r < -0.5 (역상관) -> Z1과 Z2 부호가 달라야 함. 같으면 감점.
+                // r > 0.5 (양의상관) -> Z1과 Z2 부호가 같아야 함. 다르면 감점.
+                
+                var isHarmony = (r > 0 && currentRelation > 0) || (r < 0 && currentRelation < 0);
+                
+                if (!isHarmony && Math.abs(currentRelation) > 0.5) { // 의미있는 수준의 이탈일 때만
+                    score -= 20;
+                    violations.push(`${k1} ↔ ${k2} (r=${r}) 불일치`);
+                } else {
+                    score += 10;
+                }
+            }
+        });
+        
+        return { score: Math.max(-50, Math.min(50, score)), violations: violations };
     }
 };
