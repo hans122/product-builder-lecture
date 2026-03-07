@@ -113,19 +113,33 @@ var LottoUI = {
             var pathD = "M " + points.map(function(p) { return getX(p.x).toFixed(1) + "," + getY(p.y).toFixed(1); }).join(" L ");
             
             var labels = [
-                { v: mean - 2 * std, l: '2.5%', sub: '-2σ', c: '#94a3b8' },
-                { v: mean - std,     l: '16%',  sub: '-1σ', c: '#64748b' },
-                { v: mean,           l: '평균', sub: 'μ',   c: '#1e293b' },
-                { v: mean + std,     l: '84%',  sub: '+1σ', c: '#64748b' },
-                { v: mean + 2 * std, l: '97.5%',sub: '+2σ', c: '#94a3b8' }
+                { v: mean - 2 * std, l: '2.5%', c: '#94a3b8' },
+                { v: mean - std,     l: '16%',  c: '#64748b' },
+                { v: mean,           l: '평균', c: '#1e293b' },
+                { v: mean + std,     l: '84%',  c: '#64748b' },
+                { v: mean + 2 * std, l: '97.5%',c: '#94a3b8' }
             ];
 
             var displayUnit = unit || '';
             var svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; overflow:visible;">
                 <defs>
                     <pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.4"/></pattern>
+                    <pattern id="h-blue" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" stroke-opacity="0.1"/></pattern>
                 </defs>
-                <rect x="${getX(mean-std)}" y="${padding}" width="${getX(mean+std)-getX(mean-std)}" height="${h-bottomSpace-padding}" fill="url(#h-green)" fill-opacity="0.6"/>
+                
+                <!-- 1. 95% 구간 (±2σ) 배경 -->
+                <rect x="${getX(mean-2*std)}" y="${padding}" width="${getX(mean+2*std)-getX(mean-2*std)}" height="${h-bottomSpace-padding}" fill="#f1f5f9" rx="4" />
+                <rect x="${getX(mean-2*std)}" y="${padding}" width="${getX(mean+2*std)-getX(mean-2*std)}" height="${h-bottomSpace-padding}" fill="url(#h-blue)" />
+
+                <!-- 2. 68% 구간 (±1σ) 중첩 강조 -->
+                <rect x="${getX(mean-std)}" y="${padding}" width="${getX(mean+std)-getX(mean-std)}" height="${h-bottomSpace-padding}" fill="url(#h-green)" rx="2" />
+                
+                <!-- 3. 수직 가이드 라인 -->
+                ${labels.map(function(l) {
+                    var x = getX(l.v);
+                    return `<line x1="${x}" y1="${padding}" x2="${x}" y2="${h-bottomSpace}" stroke="${l.c}" stroke-width="0.5" stroke-dasharray="2,2" />`;
+                }).join('')}
+
                 <path d="${pathD}" fill="none" stroke="#3182f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="${sidePadding}" y1="${h-bottomSpace}" x2="${w-sidePadding}" y2="${h-bottomSpace}" stroke="#e5e8eb" stroke-width="1"/>
                 
@@ -134,17 +148,16 @@ var LottoUI = {
                     var isInt = (unit === '개' || unit === '회');
                     var val = LottoUtils.round(l.v, isInt ? 0 : 1);
                     return `<g>
-                        <line x1="${x}" y1="${h-bottomSpace}" x2="${x}" y2="${h-bottomSpace+5}" stroke="${l.c}" stroke-width="1" />
+                        <line x1="${x}" y1="${h-bottomSpace}" x2="${x}" y2="${h-bottomSpace+5}" stroke="${l.c}" stroke-width="1.5" />
                         <text x="${x}" y="${h-bottomSpace+16}" text-anchor="middle" font-size="7.5" font-weight="900" fill="${l.c}">${val}${displayUnit}</text>
                         <text x="${x}" y="${h-bottomSpace+26}" text-anchor="middle" font-size="6.5" font-weight="700" fill="${l.c}">${l.l}</text>
-                        <text x="${x}" y="${h-bottomSpace+35}" text-anchor="middle" font-size="6" font-weight="500" fill="#cbd5e1">${l.sub}</text>
                     </g>`;
                 }).join('')}
 
                 ${(typeof currentValue !== 'undefined' && currentValue !== null) ? `
                     <g>
-                        <line x1="${getX(currentValue)}" y1="${padding}" x2="${getX(currentValue)}" y2="${h-bottomSpace}" stroke="#3182f6" stroke-width="2" stroke-dasharray="4,2" />
-                        <circle cx="${getX(currentValue)}" cy="${getY((1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((currentValue - mean) / std, 2)))}" r="4" fill="#3182f6" stroke="white" stroke-width="2" />
+                        <line x1="${getX(currentValue)}" y1="${padding-5}" x2="${getX(currentValue)}" y2="${h-bottomSpace}" stroke="#f04452" stroke-width="2" />
+                        <circle cx="${getX(currentValue)}" cy="${getY((1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((currentValue - mean) / std, 2)))}" r="4" fill="#f04452" stroke="white" stroke-width="2" />
                     </g>
                 ` : ''}
             </svg>`;
