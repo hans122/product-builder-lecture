@@ -101,7 +101,8 @@ var ContentLoader = {
                 if (container) container.innerHTML = `<div class="stat-highlight">통계적 <span class="text-optimal">옵티멀 존 "${info.optimal}" (${((info.optHits/total)*100).toFixed(1)}%)</span>, <span class="text-safe">세이프 존 "${info.safe}" (${((info.safeHits/total)*100).toFixed(1)}%)</span></div>`;
                 
                 var tip = document.getElementById(cfg.id + '-tip');
-                var tipText = LottoConfig.LOTTO_TIPS[cfg.id];
+                var tips = LottoConfig.LOTTO_TIPS || {};
+                var tipText = tips[cfg.id];
                 if (tip && tipText) tip.innerHTML = '<strong>공략 팁:</strong> ' + tipText.replace(/{safe}/g, info.safe);
             }
         });
@@ -121,7 +122,8 @@ var ContentLoader = {
         LottoConfig.INDICATORS.forEach(function(cfg) {
             if (cfg.group.indexOf('GP') !== 0) return;
             var tip = document.getElementById(cfg.id + '-tip');
-            var tipText = LottoConfig.PENSION_TIPS[cfg.id];
+            var tips = LottoConfig.PENSION_TIPS || {};
+            var tipText = tips[cfg.id];
             if (tip && tipText) tip.innerHTML = '<strong>설명:</strong> ' + tipText;
         });
 

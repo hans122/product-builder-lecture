@@ -4,7 +4,7 @@
  * LottoIndicators v1.2 - GL/GP 명칭 체계 통합 적용 (v10.0+)
  */
 
-var LottoConfig = {
+window.LottoConfig = {
     // 1. [GL] 로또 6/45 개별 지표 설정
     INDICATORS: [
         { id: 'sum', label: '총합', unit: '', group: 'GL1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0) },
