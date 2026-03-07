@@ -34,12 +34,13 @@ def analyze_lotto():
 
     draws.sort(key=lambda x: x['no'])
     
-    # 22대 지표 집계용
+    # 29대 지표 + v30.0 신규 지표 집계용
     metric_keys = [
         "sum", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor",
         "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror",
         "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color",
-        "pattern_corner", "pattern_center", "end_sum", "same_end", "ac", "span", "mean_gap"
+        "pattern_corner", "pattern_center", "end_sum", "same_end", "ac", "span", "mean_gap",
+        "individual_streak", "over_appearance"
     ]
     
     raw_metrics = {k: [] for k in metric_keys}
@@ -56,12 +57,24 @@ def analyze_lotto():
         prev_2 = set(draws[i-2]["nums"]) if i > 1 else set()
         prev_3 = set(draws[i-3]["nums"]) if i > 2 else set()
         
+        # [v30.0] 개별 번호 연속성 및 과부하 분석
+        streak_2_nums = prev_1.intersection(prev_2)
+        ind_streak = len([n for n in nums_list if n in streak_2_nums])
+        
+        recent_5_draws = draws[max(0, i-5):i]
+        over_app = 0
+        if recent_5_draws:
+            all_recent = [n for d in recent_5_draws for n in d["nums"]]
+            counts = Counter(all_recent)
+            over_hot = [n for n, c in counts.items() if c >= 3]
+            over_app = len([n for n in nums_list if n in over_hot])
+
         neighbors = set()
         for n in prev_1:
             if n > 1: neighbors.add(n-1)
             if n < 45: neighbors.add(n+1)
 
-        # 지표 연산
+        # 수치 연산
         oc = len([n for n in nums_list if n % 2 != 0])
         lc = len([n for n in nums_list if n <= 22])
         p1 = len([n for n in nums_list if n in prev_1])
@@ -87,9 +100,7 @@ def analyze_lotto():
         for n in nums_list: zones[min(4, (n-1)//10)] += 1
         ez = zones.count(0)
         
-        colors = set()
-        for n in nums_list: colors.add((n-1)//10)
-        
+        colors = len(set((n-1)//10 for n in nums_list))
         pc = len([n for n in nums_list if n in corners])
         pcn = len([n for n in nums_list if n in triangle_center])
         es = sum(n % 10 for n in nums_list)
@@ -105,9 +116,10 @@ def analyze_lotto():
             "consecutive": cons, "prime": prime, "composite": comp,
             "multiple_3": m3, "multiple_4": m4, "square": sq, "double_num": db, "mirror": mr,
             "bucket_15": b15, "bucket_9": b9, "bucket_7": b7, "bucket_5": b5, "p9": p9,
-            "empty_zone": ez, "color": len(colors),
+            "empty_zone": ez, "color": colors,
             "pattern_corner": pc, "pattern_center": pcn, "end_sum": es, "same_end": se,
-            "ac": ac, "span": span, "mean_gap": m_gap
+            "ac": ac, "span": span, "mean_gap": m_gap,
+            "individual_streak": ind_streak, "over_appearance": over_app
         }
         
         processed_data.append({"no": draw["no"], "date": draw["date"], "nums": nums_list, **m})
@@ -115,7 +127,6 @@ def analyze_lotto():
             if k in raw_metrics: raw_metrics[k].append(v)
             if k in distributions: distributions[k][v] += 1
 
-    # stats_summary 계산 루프 종료 후 실행
     stats_summary = {}
     for k, v_list in raw_metrics.items():
         if not v_list: continue
@@ -124,60 +135,39 @@ def analyze_lotto():
         stats_summary[k] = {"mean": round(mean, 2), "std": round(var ** 0.5, 2)}
 
     # [AI] v27.0 Hyper-Markov Chain Analysis
-    # 기존 끝수 전이 외에 9궁도, 3분할 전이 매트릭스 추가
     markov_ending = [[0]*10 for _ in range(10)]
     markov_p9 = [[0]*9 for _ in range(9)]
     markov_section = [[0]*3 for _ in range(3)]
 
     for i in range(len(draws) - 1):
-        curr_nums = draws[i]["nums"]
-        next_nums = draws[i+1]["nums"]
+        c_nums, n_nums = draws[i]["nums"], draws[i+1]["nums"]
+        # 끝수
+        for c in set([n%10 for n in c_nums]):
+            for n in set([n%10 for n in n_nums]): markov_ending[c][n] += 1
+        # 9궁도
+        for c in set([(n-1)%9 for n in c_nums]):
+            for n in set([(n-1)%9 for n in n_nums]): markov_p9[c][n] += 1
+        # 3분할 흐름
+        def get_sec(ns): 
+            cnt=[0,0,0]
+            for n in ns: cnt[(n-1)//15]+=1
+            return cnt.index(max(cnt))
+        markov_section[get_sec(c_nums)][get_sec(n_nums)] += 1
 
-        # 1. 끝수 전이
-        curr_ends = set([n % 10 for n in curr_nums])
-        next_ends = set([n % 10 for n in next_nums])
-        for c in curr_ends:
-            for n in next_ends: markov_ending[c][n] += 1
-
-        # 2. 9궁도 전이 (공간 흐름)
-        curr_p9 = set([(n-1)%9 for n in curr_nums])
-        next_p9 = set([(n-1)%9 for n in next_nums])
-        for c in curr_p9:
-            for n in next_p9: markov_p9[c][n] += 1
-
-        # 3. 3분할 전이 (구간 흐름: 1~15, 16~30, 31~45)
-        # 각 구간별 개수 분포의 변화를 추적하는 것은 복잡하므로,
-        # 가장 많이 나온 구간(Dominant Section)의 전이를 추적함
-        def get_dominant_section(nums):
-            counts = [0, 0, 0]
-            for n in nums: counts[(n-1)//15] += 1
-            return counts.index(max(counts))
-
-        c_sec = get_dominant_section(curr_nums)
-        n_sec = get_dominant_section(next_nums)
-        markov_section[c_sec][n_sec] += 1
-
-    # [AI] 지표 간 상관관계 분석 (Pearson Correlation Coefficient)
+    # [AI] 회귀 시점 분석
     regression_signals = {}
     for k, v_list in raw_metrics.items():
         if not v_list: continue
         stat = stats_summary[k]
-        # v22.0: ±1*std (68% 구간)로 Safe Zone 좁혀 민감도 강화
-        safe_min, safe_max = stat["mean"] - 1*stat["std"], stat["mean"] + 1*stat["std"]
-        
+        safe_min, safe_max = stat["mean"] - stat["std"], stat["mean"] + stat["std"]
         streak = 0
-        for val in v_list[::-1]: # 최신 회차부터 역순으로 조사
-            # Safe Zone을 벗어난 회차가 지속될수록 회귀 에너지가 상승함
+        for val in v_list[::-1]:
             if val < safe_min or val > safe_max: streak += 1
             else: break
-            
-        # 지표명을 화면 표시용으로 변환
         label = k.replace('_', ' ').title()
-        # 3회 연속 이탈 시 에너지가 99%에 근접하도록 가중치 상향
         regression_signals[label] = {"streak": streak, "energy": min(100, streak * 33)}
 
-    # [AI] 지표 간 상관관계 분석 (Pearson Correlation Coefficient)
-    # v26.0: 딥 시너지 엔진을 위한 전수 지표 확장 (29개 전체 지표)
+    # [AI] 지표 간 상관관계 분석
     corr_keys = [
         "sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", 
         "period_1", "period_2", "period_3", "neighbor", "consecutive",
@@ -186,36 +176,17 @@ def analyze_lotto():
         "pattern_corner", "pattern_center", "same_end"
     ]
     correlation_matrix = {}
-    
-    # 평균 및 표준편차 사전 계산 (이미 stats_summary에 있음)
-    # 공분산 및 상관계수 계산
     for k1 in corr_keys:
         correlation_matrix[k1] = {}
         for k2 in corr_keys:
-            if k1 == k2:
-                correlation_matrix[k1][k2] = 1.0
-                continue
-            
-            # 두 지표의 데이터 리스트 가져오기 (길이는 동일해야 함)
-            data1 = raw_metrics[k1]
-            data2 = raw_metrics[k2]
-            n = len(data1)
-            
-            mean1 = stats_summary[k1]["mean"]
-            mean2 = stats_summary[k2]["mean"]
-            std1 = stats_summary[k1]["std"]
-            std2 = stats_summary[k2]["std"]
-            
-            if std1 == 0 or std2 == 0:
-                correlation_matrix[k1][k2] = 0
-                continue
-
-            # 공분산(Covariance) 계산: E[(X-meanX)(Y-meanY)]
-            covariance = sum((data1[i] - mean1) * (data2[i] - mean2) for i in range(n)) / n
-            
-            # 상관계수(r) = Cov(X,Y) / (stdX * stdY)
-            r = covariance / (std1 * std2)
-            correlation_matrix[k1][k2] = round(r, 2)
+            if k1 == k2: correlation_matrix[k1][k2] = 1.0; continue
+            d1, d2 = raw_metrics[k1], raw_metrics[k2]
+            n = len(d1)
+            m1, m2 = stats_summary[k1]["mean"], stats_summary[k2]["mean"]
+            s1, s2 = stats_summary[k1]["std"], stats_summary[k2]["std"]
+            if s1 == 0 or s2 == 0: correlation_matrix[k1][k2] = 0; continue
+            cov = sum((d1[i]-m1)*(d2[i]-m2) for i in range(n)) / n
+            correlation_matrix[k1][k2] = round(cov/(s1*s2), 2)
 
     result = {
         "total_draws": len(draws),
@@ -224,8 +195,8 @@ def analyze_lotto():
         "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
         "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
         "markov_ending_matrix": markov_ending,
-        "markov_p9_matrix": markov_p9,         # [NEW] 9궁도 전이
-        "markov_section_matrix": markov_section, # [NEW] 3분할 전이
+        "markov_p9_matrix": markov_p9,
+        "markov_section_matrix": markov_section,
         "regression_signals": regression_signals,
         "correlation_matrix": correlation_matrix,
         "recent_draws": processed_data[::-1][:100]
@@ -233,7 +204,7 @@ def analyze_lotto():
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    print(f"✅ Lotto Analysis Complete: {len(draws)} draws.")
+    print(f"✅ Lotto Analysis Complete (v30.0): {len(draws)} draws.")
 
 def analyze_pension():
     draws = []
@@ -249,7 +220,6 @@ def analyze_pension():
     
     pos_freq = [[0]*10 for _ in range(6)]
     markov = [[0]*10 for _ in range(10)]
-    
     metrics = {"sum": [], "odd": [], "low": [], "prime": [], "sequence": [], "maxOccur": [], "carry": [], "neighbor": []}
     distributions = {k: Counter() for k in metrics.keys()}
 
@@ -260,7 +230,6 @@ def analyze_pension():
         if i < len(draws)-1:
             nxt = draws[i+1]["nums"]
             for p in range(6): markov[nums[p]][nxt[p]] += 1
-
         s = sum(nums)
         od = len([n for n in nums if n % 2 != 0])
         lo = len([n for n in nums if n <= 4])
@@ -269,11 +238,9 @@ def analyze_pension():
         mo = max(Counter(nums).values())
         ca = sum(1 for j in range(6) if prev and nums[j]==prev[j])
         nb = sum(1 for j in range(6) if prev and any(abs(nums[j]-p)==1 for p in prev))
-
         m = {"sum": s, "odd": od, "low": lo, "prime": pr, "sequence": sq, "maxOccur": mo, "carry": ca, "neighbor": nb}
         for k, v in m.items():
-            metrics[k].append(v)
-            distributions[k][v] += 1
+            metrics[k].append(v); distributions[k][v] += 1
 
     stats_summary = {}
     for k, v_list in metrics.items():
@@ -282,11 +249,8 @@ def analyze_pension():
         stats_summary[k] = {"mean": round(mean, 2), "std": round(var**0.5, 2)}
 
     result = {
-        "total_draws": len(draws),
-        "pos_freq": pos_freq,
-        "markov_matrix": markov,
-        "stats_summary": stats_summary,
-        "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
+        "total_draws": len(draws), "pos_freq": pos_freq, "markov_matrix": markov,
+        "stats_summary": stats_summary, "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
         "recent_draws": draws[::-1][:100]
     }
     with open('pension_stats.json', 'w', encoding='utf-8') as f:

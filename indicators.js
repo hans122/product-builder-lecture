@@ -76,7 +76,21 @@ _global.LottoConfig = {
         { id: 'mean-gap', label: '간격', unit: '', group: 'GL6', distKey: 'mean_gap', statKey: 'mean_gap', drawKey: 'gap', calc: (nums) => {
             var s = [...nums].sort((a,b)=>a-b); var g = []; for(var i=0; i<5; i++) g.push(s[i+1]-s[i]);
             return LottoUtils.round(g.reduce((a,b)=>a+b,0)/5, 1);
-        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 4, max: 11 } }
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 4, max: 11 } },
+
+        // [GL7] 개별 번호 과부하 방지 (v30.0)
+        { id: 'individual-streak', label: '3연속 출현', unit: '개', group: 'GL7', distKey: 'individual_streak', statKey: 'individual_streak', drawKey: 'ist', maxLimit: 6, calc: (nums, data) => {
+            if (!data || !data.last_3_draws || !data.last_3_draws[0] || !data.last_3_draws[1]) return 0;
+            const streak2 = data.last_3_draws[0].filter(n => data.last_3_draws[1].includes(n));
+            return nums.filter(n => streak2.includes(n)).length;
+        }, visible: { history: true, analysis: true, combination: true }, filter: { max: 0 } },
+        { id: 'over-appearance', label: '단기 과출현', unit: '개', group: 'GL7', distKey: 'over_appearance', statKey: 'over_appearance', drawKey: 'ovr', maxLimit: 6, calc: (nums, data) => {
+            if (!data || !data.recent_draws) return 0;
+            const recent5 = data.recent_draws.slice(0, 5).flatMap(d => d.nums);
+            const counts = recent5.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
+            const overHot = Object.keys(counts).filter(n => counts[n] >= 3).map(Number);
+            return nums.filter(n => overHot.includes(n)).length;
+        }, visible: { history: true, analysis: true, combination: true }, filter: { max: 1 } }
     ],
 
     // 1-2. [GP] 연금복권 720+ 개별 지표 설정
