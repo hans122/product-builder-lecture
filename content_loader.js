@@ -32,14 +32,18 @@ var ContentLoader = {
 
     buildGuideUI: function(rootId, prefix) {
         var root = document.getElementById(rootId);
-        if (!root || typeof LottoConfig === 'undefined' || !LottoConfig.INDICATORS) return;
+        if (!root || typeof LottoConfig === 'undefined') return;
+
+        // prefix에 따라 로또(GL) 또는 연금(GP) 지표 배열 선택
+        var targetIndicators = (prefix === 'GP') ? LottoConfig.PENSION_INDICATORS : LottoConfig.INDICATORS;
+        if (!targetIndicators) return;
 
         root.innerHTML = '';
         var currentGroup = '';
         var currentSection = null;
         var globalIdx = 0; // 접두사별 순번 카운터
 
-        LottoConfig.INDICATORS.forEach(function(cfg) {
+        targetIndicators.forEach(function(cfg) {
             if (!cfg || !cfg.group || cfg.group.indexOf(prefix) !== 0) return;
             globalIdx++;
 
