@@ -75,12 +75,14 @@ var PredictionEngine = {
         var archive = rawArchive ? JSON.parse(rawArchive) : [];
         var filteredArchive = [];
         
-        if (selectedStrategy !== 'all') {
+        if (selectedStrategy !== 'all' && selectedStrategy !== 'ensemble') {
             filteredArchive = archive.filter(item => item.strategy && item.strategy.id === selectedStrategy);
-            // v32.28: 기댓값 높은 순으로 정렬
             filteredArchive.sort((a, b) => (parseFloat(b.prob?.multiplier) || 0) - (parseFloat(a.prob?.multiplier) || 0));
+        } else if (selectedStrategy === 'ensemble') {
+            // [v32.35] 슈퍼 앙상블 필터: 점수 3점 이상인 조합만 선별
+            filteredArchive = archive.filter(item => (item.ensembleCount || 0) >= 3);
+            filteredArchive.sort((a, b) => (b.ensembleCount || 0) - (a.ensembleCount || 0));
         } else {
-            // 전체 전략일 경우 최신순 유지
             filteredArchive = archive.slice(0, 10);
         }
 
@@ -88,17 +90,17 @@ var PredictionEngine = {
         var existingResults = filteredArchive.slice(0, 10);
         var neededCount = 10 - existingResults.length;
 
-        if (neededCount <= 0) {
-            // 아카이브에 충분한 조합이 있으면 즉시 렌더링
+        if (neededCount <= 0 || (selectedStrategy === 'ensemble' && existingResults.length >= 5)) {
+            // 아카이브에 충분히 있거나, 앙상블 필터인데 5개 이상 확보된 경우 즉시 렌더링
             setTimeout(() => this.renderCombinations(existingResults), 300);
             return;
         }
 
-        // 부족한 수량만큼만 AI 엔진 가동
+        // 부족한 수량만큼 생성 시 전략 배열 구성
         var allStrategies = LottoConfig.STRATEGIES;
         var strategiesToGenerate = [];
         for (var i = 0; i < neededCount; i++) {
-            if (selectedStrategy === 'all') {
+            if (selectedStrategy === 'all' || selectedStrategy === 'ensemble') {
                 strategiesToGenerate.push(allStrategies[i % allStrategies.length]);
             } else {
                 strategiesToGenerate.push(allStrategies.find(s => s.id === selectedStrategy));

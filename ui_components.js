@@ -241,6 +241,7 @@ var LottoUI = {
 
         // 앙상블 배지 설정
         var ensembleHtml = '';
+        var cardGlow = '';
         if (res.ensembleCount > 1) {
             var isSuper = res.ensembleCount >= 4;
             var style = isSuper 
@@ -249,6 +250,8 @@ var LottoUI = {
             ensembleHtml = `<div style="position:absolute; top:-10px; right:10px; font-size:0.65rem; padding:2px 10px; border-radius:20px; ${style} font-weight:900; z-index:10; white-space:nowrap;">
                 ${isSuper ? '👑 ' : ''}앙상블 +${res.ensembleCount}
             </div>`;
+            // v32.35: 슈퍼 앙상블 글로우 효과
+            if (isSuper) cardGlow = 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); border-color: #ffd700;';
         }
 
         // [v32.29] 아카이브 출처 표시 (timestamp 존재 여부로 판단)
@@ -271,6 +274,7 @@ var LottoUI = {
                 </div>
                 ${probHtml}
             </div>
+            ${ensembleSummary}
             <div class="ball-container" style="display:flex; gap:6px; justify-content:center; margin-bottom:12px;">${ballsHtml}</div>
             <div style="font-size:0.75rem; color:#4e5968; text-align:center; padding:0 10px; min-height:34px; line-height:1.4;">${res.strategy.desc || ''}</div>
             <div class="analyze-badge" style="margin-top:15px; text-align:center; font-size:0.7rem; font-weight:800; color:var(--primary-blue); opacity:0.8;">정밀 분석 리포트 ➔</div>
