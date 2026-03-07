@@ -49,7 +49,7 @@ _global.LottoConfig = {
         { id: 'empty-zone', label: '멸구간', unit: '개', group: 'GL4', distKey: 'empty_zone', statKey: 'empty_zone', drawKey: 'ez', maxLimit: 5, calc: (nums) => {
             const zones = [0,0,0,0,0]; nums.forEach(n => zones[Math.floor((n-1)/10)]++);
             return zones.filter(z => z === 0).length;
-        }, visible: { history: true, analysis: true, combination: true } },
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 1, max: 3 } },
         { id: 'color', label: '색상수', unit: '색상', group: 'GL4', distKey: 'color', statKey: 'color', drawKey: 'clr', maxLimit: 5, calc: (nums) => new Set(nums.map(LottoUtils.getBallColorClass)).size, visible: { history: true, analysis: true, combination: true }, filter: { min: 3, max: 5 } },
         { id: 'max-same-color', label: '동일색상최대', unit: '개', group: 'GL4', calc: (nums) => {
             const colors = nums.map(n => Math.floor((n - 1) / 10));

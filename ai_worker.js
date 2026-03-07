@@ -117,7 +117,12 @@ function generateCombinationsInWorker(pools, strategies, statsData, synergyMatri
                 }
             }
 
-            if (strategy.id === 'extreme') isPass = true;
+            // v31.3: 익스트림 전략도 '색상 쏠림' 등 최저한의 통계적 상식은 준수해야 함
+            if (strategy.id === 'extreme') {
+                var colorCheck = LottoConfig.INDICATORS.find(c => c.id === 'max-same-color');
+                if (colorCheck && colorCheck.calc(pick) > 4) isPass = false; // 5개 이상은 절대 금지
+                else isPass = true; // 그 외에는 익스트림 허용
+            }
 
             if (isPass && !results.some(function(r){return JSON.stringify(r.nums)===JSON.stringify(pick);})) {
                 var prob = LottoAI.calculateWinProbability(pick, false, statsData);
