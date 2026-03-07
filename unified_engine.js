@@ -200,5 +200,17 @@ var LottoAI = {
         }
 
         return Math.round(baseScore);
+    },
+
+    // 10. Pension Advanced Metrics
+    calculateFlowScore: function(nums) {
+        var score = 0;
+        for (var i = 0; i < 5; i++) {
+            var diff = Math.abs(nums[i] - nums[i+1]);
+            if (diff === 1) score += 10; // 연속
+            if (diff === 0) score -= 5;  // 중복 (과도하면 감점)
+            if (diff >= 2 && diff <= 4) score += 5; // 적절한 간격
+        }
+        return score;
     }
 };

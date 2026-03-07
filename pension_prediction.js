@@ -125,20 +125,23 @@ var PensionPrediction = {
                 }
 
                 var analysis = PensionUtils.analyzeBalance(combo);
-                // 연금 시너지 점수 계산: 각 자리 숫자가 마르코프 매트릭스 상에서 얼마나 높은 확률로 연결되는지 합산
+                
+                // [Advanced Synergy] 마르코프 전이 + 흐름 점수 통합
                 var synergyScore = 0;
                 for(var j=5; j>0; j--) {
                     var next = combo[j], prev = combo[j-1];
                     if(matrix && matrix[next]) synergyScore += (matrix[next][prev] || 0);
                 }
+                var flowScore = LottoAI.calculateFlowScore(combo);
+                var totalScore = synergyScore + flowScore;
 
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(combo));
                 
-                var isPass = (analysis.sum >= 20 && analysis.sum <= 35 && synergyScore >= 10);
+                var isPass = (analysis.sum >= 20 && analysis.sum <= 35 && totalScore >= 15);
                 if (strategy.id === 'extreme') isPass = (analysis.sum < 20 || analysis.sum > 35);
 
                 if ((isPass || attempts > 700) && !isDuplicate) {
-                    results.push({ group: group, nums: combo, strategy: strategy, synergyScore: synergyScore });
+                    results.push({ group: group, nums: combo, strategy: strategy, synergyScore: Math.round(totalScore) });
                     found = true;
                 }
             }
