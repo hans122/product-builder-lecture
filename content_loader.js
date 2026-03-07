@@ -37,9 +37,11 @@ var ContentLoader = {
         root.innerHTML = '';
         var currentGroup = '';
         var currentSection = null;
+        var globalIdx = 0; // 접두사별 순번 카운터
 
         LottoConfig.INDICATORS.forEach(function(cfg) {
             if (!cfg || !cfg.group || cfg.group.indexOf(prefix) !== 0) return;
+            globalIdx++;
 
             if (cfg.group !== currentGroup) {
                 currentGroup = cfg.group;
@@ -55,8 +57,9 @@ var ContentLoader = {
                 root.appendChild(currentSection);
             }
 
+            var displayLabel = (prefix === 'GP' ? 'P' : '') + LottoUtils.padLeft(globalIdx, 2, '0') + ') ' + cfg.label;
             var itemDiv = document.createElement('div');
-            itemDiv.innerHTML = `<span class="sub-item-label">${cfg.label}</span><div id="${cfg.id}-stat-container"></div><p id="${cfg.id}-tip" class="strategy-tip"></p>`;
+            itemDiv.innerHTML = `<span class="sub-item-label">${displayLabel}</span><div id="${cfg.id}-stat-container"></div><p id="${cfg.id}-tip" class="strategy-tip"></p>`;
             if (currentSection) currentSection.appendChild(itemDiv);
         });
 
