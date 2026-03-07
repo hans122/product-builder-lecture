@@ -146,9 +146,9 @@ var LottoUI = {
             '<line x1="' + padding + '" y1="' + (h-padding) + '" x2="' + (w-padding) + '" y2="' + (h-padding) + '" stroke="#e5e8eb" stroke-width="1"/>' +
             visibleLabels.map(function(l) {
                 var displayVal = LottoUtils.round(l.v, 1);
-                return '<g><line x1="' + getX(l.v) + '" y1="' + (h-padding) + '" x2="' + getX(l.v) + '" y2="' + (h-padding+5) + '" stroke="#cbd5e1"/>' +
-                       '<text x="' + getX(l.v) + '" y="' + (h-22) + '" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">' + displayVal + '</text>' +
-                       '<text x="' + getX(l.v) + '" y="' + (h-10) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#8b95a1">' + l.l + '</text></g>';
+                return '<g><line x1="' + getX(l.v) + '" y1="' + (h-padding) + '" x2="' + getX(l.v) + '" y2="' + (h-padding+8) + '" stroke="#cbd5e1"/>' +
+                       '<text x="' + getX(l.v) + '" y="' + (h-25) + '" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">' + displayVal + '</text>' +
+                       '<text x="' + getX(l.v) + '" y="' + (h-8) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#8b95a1">' + l.l + '</text></g>';
             }).join('') +
             '</svg>';
         container.innerHTML = svg;
