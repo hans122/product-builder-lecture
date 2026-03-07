@@ -901,7 +901,10 @@
             "span": -0.03,
             "mean_gap": -0.03,
             "odd_count": -0.0,
-            "low_count": -0.88
+            "low_count": -0.88,
+            "empty_zone": -0.15,
+            "prime": -0.17,
+            "consecutive": -0.04
         },
         "ac": {
             "sum": -0.03,
@@ -910,7 +913,10 @@
             "span": 0.35,
             "mean_gap": 0.35,
             "odd_count": 0.02,
-            "low_count": 0.04
+            "low_count": 0.04,
+            "empty_zone": -0.21,
+            "prime": 0.04,
+            "consecutive": -0.12
         },
         "end_sum": {
             "sum": 0.01,
@@ -919,7 +925,10 @@
             "span": -0.12,
             "mean_gap": -0.12,
             "odd_count": 0.18,
-            "low_count": -0.04
+            "low_count": -0.04,
+            "empty_zone": 0.05,
+            "prime": 0.03,
+            "consecutive": 0.01
         },
         "span": {
             "sum": -0.03,
@@ -928,7 +937,10 @@
             "span": 1.0,
             "mean_gap": 1.0,
             "odd_count": 0.03,
-            "low_count": 0.04
+            "low_count": 0.04,
+            "empty_zone": -0.53,
+            "prime": 0.08,
+            "consecutive": -0.27
         },
         "mean_gap": {
             "sum": -0.03,
@@ -937,7 +949,10 @@
             "span": 1.0,
             "mean_gap": 1.0,
             "odd_count": 0.03,
-            "low_count": 0.04
+            "low_count": 0.04,
+            "empty_zone": -0.53,
+            "prime": 0.08,
+            "consecutive": -0.27
         },
         "odd_count": {
             "sum": -0.0,
@@ -946,7 +961,10 @@
             "span": 0.03,
             "mean_gap": 0.03,
             "odd_count": 1.0,
-            "low_count": -0.01
+            "low_count": -0.01,
+            "empty_zone": -0.02,
+            "prime": 0.57,
+            "consecutive": -0.03
         },
         "low_count": {
             "sum": -0.88,
@@ -955,7 +973,46 @@
             "span": 0.04,
             "mean_gap": 0.04,
             "odd_count": -0.01,
-            "low_count": 1.0
+            "low_count": 1.0,
+            "empty_zone": 0.1,
+            "prime": 0.15,
+            "consecutive": 0.04
+        },
+        "empty_zone": {
+            "sum": -0.15,
+            "ac": -0.21,
+            "end_sum": 0.05,
+            "span": -0.53,
+            "mean_gap": -0.53,
+            "odd_count": -0.02,
+            "low_count": 0.1,
+            "empty_zone": 1.0,
+            "prime": -0.03,
+            "consecutive": 0.36
+        },
+        "prime": {
+            "sum": -0.17,
+            "ac": 0.04,
+            "end_sum": 0.03,
+            "span": 0.08,
+            "mean_gap": 0.08,
+            "odd_count": 0.57,
+            "low_count": 0.15,
+            "empty_zone": -0.03,
+            "prime": 1.0,
+            "consecutive": 0.03
+        },
+        "consecutive": {
+            "sum": -0.04,
+            "ac": -0.12,
+            "end_sum": 0.01,
+            "span": -0.27,
+            "mean_gap": -0.27,
+            "odd_count": -0.03,
+            "low_count": 0.04,
+            "empty_zone": 0.36,
+            "prime": 0.03,
+            "consecutive": 1.0
         }
     },
     "recent_draws": [

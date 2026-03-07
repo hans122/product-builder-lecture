@@ -274,11 +274,15 @@ var LottoAI = {
         var score = 0;
         var violations = [];
         
-        // 주요 상관관계 쌍 검사
+        // 주요 상관관계 쌍 검사 (v22.2 확장)
         var pairs = [
-            ['sum', 'low_count'], // 강한 역상관 (r=-0.88)
-            ['ac', 'sum'],
-            ['span', 'mean_gap']
+            ['sum', 'low_count'],    // 강한 역상관 (r=-0.88)
+            ['span', 'mean_gap'],    // 완벽한 양의 상관 (r=1.0)
+            ['empty_zone', 'span'],  // 멸구간이 많으면 Span이 좁아짐 (역상관)
+            ['odd_count', 'prime'],  // 홀수가 많으면 소수도 많아짐 (양의 상관)
+            ['consecutive', 'mean_gap'], // 연번이 많으면 간격이 좁아짐 (역상관)
+            ['ac', 'span'],          // 복잡도가 높으면 범위도 넓어짐 (양의 상관)
+            ['end_sum', 'sum']       // 끝수합과 총합의 관계
         ];
 
         pairs.forEach(pair => {
@@ -288,32 +292,20 @@ var LottoAI = {
             var r = matrix[k1][k2]; // 역사적 상관계수
             var currentRelation = zScores[k1] * zScores[k2]; // 현재 조합의 방향성 (부호)
             
-            // 역사적 상관관계가 강한 경우 (|r| > 0.5)
-            if (Math.abs(r) > 0.5) {
-                // r이 양수인데 현재 부호가 반대이거나, r이 음수인데 현재 부호가 같은 경우 (모순)
-                // 예: sum과 low_count는 r=-0.88 (반대여야 함). 
-                // 만약 sum이 높고(+Z) low_count도 높으면(+Z) -> 곱은 양수(+) -> 모순!
-                
-                // 모순 조건: r의 부호와 currentRelation의 부호가 다름 (즉, 곱이 음수)
-                // 하지만 위 예시는 r(-)*curr(+) -> 음수. 
-                // r과 curr가 '다른 방향'이어야 모순이다? 
-                // 정확히는: Z1, Z2의 관계가 r의 경향을 따르는가?
-                
-                // 단순화: 
-                // r < -0.5 (역상관) -> Z1과 Z2 부호가 달라야 함. 같으면 감점.
-                // r > 0.5 (양의상관) -> Z1과 Z2 부호가 같아야 함. 다르면 감점.
-                
+            // 상관계수 절댓값이 0.2 이상인 유의미한 관계만 체크
+            if (Math.abs(r) > 0.2) {
                 var isHarmony = (r > 0 && currentRelation > 0) || (r < 0 && currentRelation < 0);
                 
-                if (!isHarmony && Math.abs(currentRelation) > 0.5) { // 의미있는 수준의 이탈일 때만
-                    score -= 20;
-                    violations.push(`${k1} ↔ ${k2} (r=${r}) 불일치`);
-                } else {
-                    score += 10;
+                // 불협화음 판정: 관계가 r의 방향과 반대이면서, 이탈 정도가 클 때
+                if (!isHarmony && Math.abs(currentRelation) > 0.4) { 
+                    score -= 10; // 항목별 감점폭 조정
+                    violations.push(`${k1}↔${k2}`);
+                } else if (isHarmony && Math.abs(currentRelation) > 0.2) {
+                    score += 5; // 조화로울 경우 가점
                 }
             }
         });
         
-        return { score: Math.max(-50, Math.min(50, score)), violations: violations };
+        return { score: Math.max(-60, Math.min(60, score)), violations: violations };
     }
 };
