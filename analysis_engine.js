@@ -148,8 +148,12 @@ var AnalysisEngine = {
         
         var header = document.createElement('div');
         header.className = 'group-header';
-        header.style.cssText = 'font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; border-left: 4px solid var(--primary-blue); padding-left: 12px;';
-        header.innerText = cfg.label + ' 분석';
+        header.style.cssText = 'font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; border-left: 4px solid var(--primary-blue); padding-left: 12px; display:flex; align-items:center; gap:6px;';
+        header.innerHTML = `${cfg.label} 분석 <span class="tooltip-icon" style="font-size:0.7rem; color:#94a3b8; border:1px solid #e2e8f0; width:14px; height:14px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-weight:bold;">?</span>`;
+        
+        // v32.41 툴팁 연결
+        var tipText = (LottoConfig.LOTTO_TIPS[cfg.id] || LottoConfig.PENSION_TIPS[cfg.id] || '통계적 분포 데이터를 분석합니다.').replace('{safe}', '적정 범위');
+        LottoUI.attachTooltip(header, tipText);
         
         var card = document.createElement('section');
         card.className = 'analysis-card stats-grid-layout';

@@ -254,11 +254,12 @@ var LottoUI = {
             if (isSuper) cardGlow = 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); border-color: #ffd700;';
         }
 
-        // [v32.29] 아카이브 출처 표시 (timestamp 존재 여부로 판단)
+        // [v32.29/v32.41] 아카이브 출처 표시
         var isArchived = res.timestamp ? true : false;
+        var archiveTagId = 'atag-' + Math.random().toString(36).substr(2, 9);
         var archiveTag = isArchived 
-            ? `<span style="font-size:0.55rem; font-weight:900; color:#64748b; background:#f1f5f9; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #e2e8f0;">STORED</span>`
-            : `<span style="font-size:0.55rem; font-weight:900; color:#3182f6; background:#f0f7ff; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #3182f633;">NEW</span>`;
+            ? `<span id="${archiveTagId}" style="font-size:0.55rem; font-weight:900; color:#64748b; background:#f1f5f9; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #e2e8f0;">STORED</span>`
+            : `<span id="${archiveTagId}" style="font-size:0.55rem; font-weight:900; color:#3182f6; background:#f0f7ff; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #3182f633;">NEW</span>`;
 
         var strategyLabel = (res.strategy && res.strategy.label) ? res.strategy.label : (opts.strategy || 'AI 추천');
         var strategyColor = (res.strategy && res.strategy.color) ? res.strategy.color : '#3182f6';
@@ -279,24 +280,39 @@ var LottoUI = {
             <div style="font-size:0.75rem; color:#4e5968; text-align:center; padding:0 10px; min-height:34px; line-height:1.4;">${res.strategy.desc || ''}</div>
             <div class="analyze-badge" style="margin-top:15px; text-align:center; font-size:0.7rem; font-weight:800; color:var(--primary-blue); opacity:0.8;">정밀 분석 리포트 ➔</div>
         `;
+
+        // v32.41 툴팁 후처리
+        setTimeout(() => {
+            var tagEl = card.querySelector('#' + archiveTagId);
+            if (tagEl) this.attachTooltip(tagEl, isArchived ? '과거에 AI가 추천하여 저장소에 보관된 조합입니다.' : '현재 데이터 흐름을 분석하여 갓 생성된 따끈따끈한 추천입니다.');
+        }, 100);
+
         return card;
     },
 
-    /** 9. AI 심층 진단 리포트 (GL0) */
-    renderSynergyReport: function(results) {
-        if (!results || results.length === 0) return '';
-        var html = results.map(function(s) {
-            var color = s.status === 'danger' ? '#f04452' : '#3182f6';
-            var bg = s.status === 'danger' ? '#fef2f2' : '#f0f7ff';
-            return '<div class="synergy-item" style="margin-bottom:8px; padding:12px; border-radius:12px; border-left:4px solid ' + color + '; background:' + bg + ';">' +
-                '<div style="font-size:0.8rem; font-weight:900; color:' + color + '; margin-bottom:4px;">[GL0] ' + s.label + '</div>' +
-                '<div style="font-size:0.75rem; color:#4e5968; line-height:1.5;">' + s.desc + '</div>' +
-            '</div>';
-        }).join('');
+    /** 10. [v32.41] 지능형 통합 툴팁 시스템 */
+    attachTooltip: function(targetEl, text) {
+        if (!targetEl || !text) return;
         
-        return '<div class="ai-deep-report" style="padding:20px; background:white; border-radius:16px;">' +
-            '<div style="font-size:0.9rem; font-weight:800; color:#191f28; margin-bottom:15px;">🔍 AI 심층 진단 리포트</div>' +
-            html +
-        '</div>';
-    }
-};
+        targetEl.style.cursor = 'help';
+        var tooltip = document.createElement('div');
+        tooltip.className = 'ai-global-tooltip';
+        tooltip.style.cssText = 'position:fixed; background:#1e293b; color:white; padding:8px 12px; border-radius:8px; font-size:0.7rem; line-height:1.4; z-index:10000; pointer-events:none; opacity:0; transition:opacity 0.2s; max-width:200px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border:1px solid rgba(255,255,255,0.1);';
+        tooltip.innerHTML = text;
+        document.body.appendChild(tooltip);
+
+        var show = function(e) {
+            var rect = targetEl.getBoundingClientRect();
+            tooltip.style.left = (rect.left + rect.width/2 - tooltip.offsetWidth/2) + 'px';
+            tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+            tooltip.style.opacity = '1';
+        };
+        var hide = function() { tooltip.style.opacity = '0'; };
+
+        targetEl.addEventListener('mouseenter', show);
+        targetEl.addEventListener('mouseleave', hide);
+        // 모바일 터치 대응
+        targetEl.addEventListener('click', function(e) { show(e); setTimeout(hide, 3000); });
+    },
+
+    /** 11. AI 심층 진단 리포트 (GL0) */
