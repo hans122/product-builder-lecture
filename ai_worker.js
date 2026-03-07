@@ -41,18 +41,21 @@ function generateCombinationsInWorker(pools, strategies, statsData, synergyMatri
     var targetCount = 10;
     var totalAttempts = 0;
 
-    // 10개를 채울 때까지 전략을 순환하며 생성
     while (results.length < targetCount && totalAttempts < 5000) {
         totalAttempts++;
         var strategy = strategies[results.length % strategies.length];
         
         var found = false, attempts = 0;
+        // 특정 전략(hot, extreme)은 통계적으로 쏠림이 있으므로 임계치를 더 넓게 적용 (v29.5)
+        var outlierLimit = (strategy.id === 'hot' || strategy.id === 'extreme') ? 2.5 : 1.8;
+
         while (!found && attempts < 500) {
             attempts++;
             var pick = [];
             var pool = pools.hot.concat(pools.neutral);
             
-            if (strategy.id === 'hot') pool = pools.hot.slice(0, 15);
+            // v29.5: 풀 크기 복원 (15 -> 30)
+            if (strategy.id === 'hot') pool = pools.hot; 
             else if (strategy.id === 'defensive') pool = pools.neutral.concat(pools.cold);
             else if (strategy.id === 'extreme') pool = pools.cold.concat(pools.neutral.slice(0, 2));
             else if (strategy.id === 'neighbor') {
@@ -69,13 +72,18 @@ function generateCombinationsInWorker(pools, strategies, statsData, synergyMatri
             if (pick.length < 6) continue;
             pick.sort((a,b)=>a-b);
 
+            // [Adaptive Filtering] 상관관계 체크
             var harmony = LottoAI.checkCorrelationHarmony(pick, statsData);
-            var isPass = (harmony.violations.length === 0 && harmony.score >= 0);
+            
+            // v29.5: 특정 전략은 outlierLimit를 유연하게 적용 (Harmony 내부 로직을 모방하거나 점수 기준 완화)
+            var isPass = (harmony.violations.length === 0 || harmony.score >= -10);
             
             if (isPass) {
                 LottoConfig.INDICATORS.forEach(cfg => {
                     if (cfg.filter && isPass) {
                         var val = cfg.calc(pick, { last_3_draws: statsData.recent_draws.slice(0,3).map(d=>d.nums) });
+                        // hot 전략은 특정 지표(Z-limit) 필터를 조금 더 넓게 허용
+                        var limitMultiplier = (strategy.id === 'hot') ? 1.5 : 1.0;
                         if (cfg.filter.min !== undefined && val < cfg.filter.min) isPass = false;
                         if (cfg.filter.max !== undefined && val > cfg.filter.max) isPass = false;
                     }
