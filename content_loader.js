@@ -98,17 +98,30 @@ var ContentLoader = {
 
     updateLottoGuide: function(data) {
         var total = data.total_draws;
+        var stats = data.stats_summary || {};
+        var dists = data.distributions || {};
+
         LottoConfig.INDICATORS.forEach(function(cfg) {
             if (cfg.group.indexOf('GL') !== 0) return;
-            var info = LottoUtils.calculateZoneInfo(data.stats_summary[cfg.statKey], data.distributions[cfg.distKey], cfg);
-            if (info) {
-                var container = document.getElementById(cfg.id + '-stat-container');
-                if (container) container.innerHTML = `<div class="stat-highlight">통계적 <span class="text-optimal">옵티멀 존 "${info.optimal}" (${((info.optHits/total)*100).toFixed(1)}%)</span>, <span class="text-safe">세이프 존 "${info.safe}" (${((info.safeHits/total)*100).toFixed(1)}%)</span></div>`;
-                
-                var tip = document.getElementById(cfg.id + '-tip');
-                var tips = LottoConfig.LOTTO_TIPS || {};
-                var tipText = tips[cfg.id];
-                if (tip && tipText) tip.innerHTML = '<strong>공략 팁:</strong> ' + tipText.replace(/{safe}/g, info.safe);
+            
+            // 1. 통계 정보 업데이트
+            var info = LottoUtils.calculateZoneInfo(stats[cfg.statKey], dists[cfg.distKey], cfg);
+            var container = document.getElementById(cfg.id + '-stat-container');
+            if (container) {
+                if (info) {
+                    container.innerHTML = `<div class="stat-highlight">통계적 <span class="text-optimal">옵티멀 존 "${info.optimal}" (${((info.optHits/total)*100).toFixed(1)}%)</span>, <span class="text-safe">세이프 존 "${info.safe}" (${((info.safeHits/total)*100).toFixed(1)}%)</span></div>`;
+                } else {
+                    container.innerHTML = `<div class="stat-highlight" style="background:#f1f3f5; color:#94a3b8; border-left-color:#cbd5e1;">데이터를 집계 중입니다...</div>`;
+                }
+            }
+            
+            // 2. 팁 업데이트 (데이터 유무와 상관없이 노출)
+            var tip = document.getElementById(cfg.id + '-tip');
+            var tips = LottoConfig.LOTTO_TIPS || {};
+            var tipText = tips[cfg.id];
+            if (tip && tipText) {
+                var safeRange = info ? info.safe : '분석중';
+                tip.innerHTML = '<strong>공략 팁:</strong> ' + tipText.replace(/{safe}/g, safeRange);
             }
         });
 

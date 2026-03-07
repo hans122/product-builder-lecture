@@ -34,113 +34,85 @@ def analyze_lotto():
 
     draws.sort(key=lambda x: x['no'])
     
-    raw_metrics = {
-        "sum": [], "odd_count": [], "low_count": [], "period_1": [], "neighbor": [],
-        "period_1_2": [], "period_1_3": [], "consecutive": [], "prime": [], "composite": [],
-        "multiple_3": [], "multiple_5": [], "square": [], "double_num": [],
-        "bucket_15": [], "bucket_9": [], "bucket_5": [], "bucket_3": [], "color": [],
-        "pattern_corner": [], "pattern_triangle": [], "end_sum": [], "same_end": [], "ac": [], "span": [],
-        "first_num": [], "last_num": [], "mean_gap": []
-    }
-    
-    dist_keys = [
-        "sum", "odd_even", "high_low", "period_1", "neighbor", "period_1_2", "period_1_3",
-        "consecutive", "prime", "composite", "multiple_3", "multiple_5", "square", "double_num",
-        "bucket_15", "bucket_9", "bucket_5", "bucket_3", "color", "pattern_corner", "pattern_triangle",
-        "end_sum", "same_end", "ac", "span", "first_num", "last_num", "mean_gap"
+    # 22대 지표 집계용
+    metric_keys = [
+        "sum", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor",
+        "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror",
+        "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color",
+        "pattern_corner", "pattern_center", "end_sum", "same_end", "ac", "span", "mean_gap"
     ]
-    distributions = {k: Counter() for k in dist_keys}
+    
+    raw_metrics = {k: [] for k in metric_keys}
+    distributions = {k: Counter() for k in metric_keys}
     processed_data = []
     
     corners = [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42]
-    triangle = [4,10,11,12,16,17,18,19,20,24,25,26,32]
+    triangle_center = [17,18,19,24,25,26,31,32,33] # 중앙패턴 번호
+    mirrors = [12,21,13,31,14,41,23,32,24,42,34,43]
 
     for i, draw in enumerate(draws):
         nums_list = draw["nums"]
-        prev_nums = set(draws[i-1]["nums"]) if i > 0 else set()
-        prev_2 = (set(draws[i-1]["nums"]) | set(draws[i-2]["nums"])) if i > 1 else prev_nums
-        prev_3 = (set(draws[i-1]["nums"]) | set(draws[i-2]["nums"]) | set(draws[i-3]["nums"])) if i > 2 else prev_2
+        prev_1 = set(draws[i-1]["nums"]) if i > 0 else set()
+        prev_2 = set(draws[i-2]["nums"]) if i > 1 else set()
+        prev_3 = set(draws[i-3]["nums"]) if i > 2 else set()
         
         neighbors = set()
-        for n in prev_nums:
+        for n in prev_1:
             if n > 1: neighbors.add(n-1)
             if n < 45: neighbors.add(n+1)
 
-        s = sum(nums_list)
+        # 지표 연산
         oc = len([n for n in nums_list if n % 2 != 0])
         lc = len([n for n in nums_list if n <= 22])
-        p1 = len([n for n in nums_list if n in prev_nums])
+        p1 = len([n for n in nums_list if n in prev_1])
+        p2 = len([n for n in nums_list if n in prev_2])
+        p3 = len([n for n in nums_list if n in prev_3])
         nb = len([n for n in nums_list if n in neighbors])
-        p12 = len([n for n in nums_list if n in prev_2])
-        p13 = len([n for n in nums_list if n in prev_3])
         cons = sum(1 for j in range(5) if nums_list[j]+1 == nums_list[j+1])
         prime = len([n for n in nums_list if is_prime(n)])
         comp = len([n for n in nums_list if is_composite(n)])
         m3 = len([n for n in nums_list if n % 3 == 0])
-        m5 = len([n for n in nums_list if n % 5 == 0])
+        m4 = len([n for n in nums_list if n % 4 == 0])
         sq = len([n for n in nums_list if n in [1,4,9,16,25,36]])
         db = len([n for n in nums_list if n in [11,22,33,44]])
+        mr = len([n for n in nums_list if n in mirrors])
+        
         b15 = len(set((n-1)//15 for n in nums_list))
         b9 = len(set((n-1)//9 for n in nums_list))
+        b7 = len(set((n-1)//7 for n in nums_list))
         b5 = len(set((n-1)//5 for n in nums_list))
-        b3 = len(set((n-1)//3 for n in nums_list))
+        p9 = len(set((n-1)%9 for n in nums_list))
         
-        colors = set()
-        for n in nums_list:
-            if n <= 10: colors.add("Y")
-            elif n <= 20: colors.add("B")
-            elif n <= 30: colors.add("R")
-            elif n <= 40: colors.add("G")
-            else: colors.add("GR")
+        zones = [0,0,0,0,0]; [zones.__setitem__(min(4, (n-1)//10), zones[min(4, (n-1)//10)]+1) for n in nums_list]
+        ez = zones.count(0)
         
-        p_corner = len([n for n in nums_list if n in corners])
-        p_tri = len([n for n in nums_list if n in triangle])
+        # 색상수 (노랑, 파랑, 빨강, 회색, 초록)
+        colors = set(); [colors.add((n-1)//10) for n in nums_list]
+        
+        pc = len([n for n in nums_list if n in corners])
+        pcn = len([n for n in nums_list if n in triangle_center])
         es = sum(n % 10 for n in nums_list)
         ends = [n % 10 for n in nums_list]
         se = max(Counter(ends).values())
         ac = calculate_ac(nums_list)
         span = nums_list[-1] - nums_list[0]
-        f_num = nums_list[0]
-        l_num = nums_list[-1]
         m_gap = round(span / 5, 1)
 
-        metrics = {
-            "sum": s, "odd_even": f"{oc}:{6-oc}", "high_low": f"{lc}:{6-lc}",
-            "period_1": p1, "neighbor": nb, "period_1_2": p12, "period_1_3": p13,
+        m = {
+            "sum": sum(nums_list), "odd_count": oc, "low_count": lc,
+            "period_1": p1, "period_2": p2, "period_3": p3, "neighbor": nb,
             "consecutive": cons, "prime": prime, "composite": comp,
-            "multiple_3": m3, "m5": m5, "square": sq, "double": db,
-            "b15": b15, "b9": b9, "b5": b5, "b3": b3, "color": len(colors),
-            "p_corner": p_corner, "p_tri": p_tri, "end_sum": es, "same_end": se,
-            "ac": ac, "span": span,
-            "first_num": f_num, "last_num": l_num, "mean_gap": m_gap
+            "multiple_3": m3, "multiple_4": m4, "square": sq, "double_num": db, "mirror": mr,
+            "bucket_15": b15, "bucket_9": b9, "bucket_7": b7, "bucket_5": b5, "p9": p9,
+            "empty_zone": ez, "color": len(colors),
+            "pattern_corner": pc, "pattern_center": pcn, "end_sum": es, "same_end": se,
+            "ac": ac, "span": span, "mean_gap": m_gap
         }
         
-        processed_data.append({"no": draw["no"], "date": draw["date"], "nums": nums_list, **metrics})
-        
-        for k, v in metrics.items():
-            val_for_stat = oc if k == "odd_even" else (lc if k == "high_low" else v)
-            dist_k = k
-            if k in ["multiple_5", "m5"]: dist_k = "multiple_5"
-            elif k == "double": dist_k = "double_num"
-            elif k in ["b15", "b9", "b5", "b3"]: dist_k = f"bucket_{k[1:]}"
-            elif k in ["p_corner", "p_tri"]: dist_k = "pattern_corner" if k == "p_corner" else "pattern_triangle"
-            
-            distributions[dist_k][v] += 1
-            
-            stat_k = k
-            if k == "odd_even": stat_k = "odd_count"
-            elif k == "high_low": stat_k = "low_count"
-            elif k in ["multiple_5", "m5"]: stat_k = "multiple_5"
-            elif k == "double": stat_k = "double_num"
-            elif k in ["b15", "b9", "b5", "b3"]: stat_k = f"bucket_{k[1:]}"
-            elif k in ["p_corner", "p_tri"]: stat_k = "pattern_corner" if k == "p_corner" else "pattern_triangle"
-            
-            if stat_k in raw_metrics: raw_metrics[stat_k].append(val_for_stat)
-
-    # Validation
-    if not draws or len(draws) < 10:
-        print("⚠️ Lotto Data Validation Failed: Not enough data.")
-        return
+        processed_data.append({"no": draw["no"], "date": draw["date"], "nums": nums_list, **m})
+        for k, v in m.items():
+            if k in raw_metrics: raw_metrics[k].append(v)
+            if k in distributions: distributions[k][v] += 1
 
     stats_summary = {}
     for k, v_list in raw_metrics.items():
@@ -156,115 +128,82 @@ def analyze_lotto():
         for c in curr_ends:
             for n in next_ends: markov_ending[c][n] += 1
 
-    # [AI] 회귀 시점 분석 (Regression Timing)
-    regression_signals = {}
-    for k, v_list in raw_metrics.items():
-        if not v_list: continue
-        stat = stats_summary[k]
-        safe_min, safe_max = stat["mean"] - 2*stat["std"], stat["mean"] + 2*stat["std"]
-        
-        streak = 0
-        for val in v_list[::-1]: # 최신 회차부터 역순으로 조사
-            if val < safe_min or val > safe_max: streak += 1
-            else: break
-        regression_signals[k] = {"streak": streak, "energy": min(100, streak * 25)} # 이탈 주기가 길수록 에너지 상승
-
     result = {
         "total_draws": len(draws),
         "last_3_draws": [d["nums"] for d in draws[-3:][::-1]],
         "stats_summary": stats_summary,
         "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
-        "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
-        "recent_20_frequency": dict(Counter([n for d in draws[-20:] for n in d["nums"]])),
         "markov_ending_matrix": markov_ending,
-        "regression_signals": regression_signals,
-        "recent_draws": processed_data[::-1][:30]
+        "recent_draws": processed_data[::-1][:100]
     }
 
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    
-    with open('frequency.json', 'w', encoding='utf-8') as f:
-        json.dump({str(k): v for k, v in result["frequency"].items()}, f, ensure_ascii=False, indent=4)
-    
-    print(f"✅ Lotto Analysis Complete: {len(draws)} draws processed. (Last: {draws[-1]['no']}th)")
+    print(f"✅ Lotto Analysis Complete: {len(draws)} draws.")
 
 def analyze_pension():
     draws = []
     if not os.path.exists('pt720.csv'): return
-    
     with open('pt720.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
-        header = next(reader)
+        next(reader)
         for row in reader:
             if not row: continue
-            # 회차, 추첨일, 조, 당첨번호
             nums_str = str(row[3]).zfill(6)
-            draws.append({
-                "no": int(row[0]),
-                "date": row[1],
-                "group": int(row[2]),
-                "nums": [int(d) for d in nums_str]
-            })
-
+            draws.append({"no": int(row[0]), "date": row[1], "group": int(row[2]), "nums": [int(d) for d in nums_str]})
     draws.sort(key=lambda x: x['no'])
     
-    if not draws or len(draws) < 10:
-        print("⚠️ Pension Data Validation Failed: Not enough data.")
-        return
-
-    # 1. 자리수별 빈도 및 Gap
     pos_freq = [[0]*10 for _ in range(6)]
-    digit_gap = [[0]*10 for _ in range(6)]
     markov = [[0]*10 for _ in range(10)]
-    group_dist = Counter()
     
+    metrics = {"sum": [], "odd": [], "low": [], "prime": [], "sequence": [], "maxOccur": [], "carry": [], "neighbor": []}
+    distributions = {k: Counter() for k in metrics.keys()}
+
     for i, draw in enumerate(draws):
         nums = draw["nums"]
-        group_dist[draw["group"]] += 1
+        prev = draws[i-1]["nums"] if i > 0 else None
         
-        for p in range(6):
-            val = nums[p]
-            pos_freq[p][val] += 1
-            # Gap 계산
-            for n in range(10):
-                if val == n: digit_gap[p][n] = 0
-                else: digit_gap[p][n] += 1
+        # 자리수 빈도
+        for p in range(6): pos_freq[p][nums[p]] += 1
         
-        # 마르코프 전이 (자리별 흐름 통합)
-        if i < len(draws) - 1:
-            next_nums = draws[i+1]["nums"]
-            for pos in range(6):
-                markov[nums[pos]][next_nums[pos]] += 1
+        # 전이 확률
+        if i < len(draws)-1:
+            nxt = draws[i+1]["nums"]
+            for p in range(6): markov[nums[p]][nxt[p]] += 1
 
-    # [AI] 연금 회귀 분석 (합계 기준)
-    all_sums = [sum(d["nums"]) for d in draws]
-    avg_sum = sum(all_sums) / len(all_sums)
-    std_sum = (sum((x - avg_sum)**2 for x in all_sums) / len(all_sums))**0.5
-    s_min, s_max = avg_sum - 2*std_sum, avg_sum + 2*std_sum
-    
-    p_streak = 0
-    for s in all_sums[::-1]:
-        if s < s_min or s > s_max: p_streak += 1
-        else: break
+        # 지표 계산 (Indicators 매칭)
+        s = sum(nums)
+        od = len([n for n in nums if n % 2 != 0])
+        lo = len([n for n in nums if n <= 4])
+        pr = len([n for n in nums if n in [2,3,5,7]])
+        sq = sum(1 for j in range(5) if abs(nums[j]-nums[j+1])==1)
+        mo = max(Counter(nums).values())
+        ca = sum(1 for j in range(6) if prev and nums[j]==prev[j])
+        nb = sum(1 for j in range(6) if prev and any(abs(nums[j]-p)==1 for p in prev))
+
+        m = {"sum": s, "odd": od, "low": lo, "prime": pr, "sequence": sq, "maxOccur": mo, "carry": ca, "neighbor": nb}
+        for k, v in m.items():
+            metrics[k].append(v)
+            distributions[k][v] += 1
+
+    stats_summary = {}
+    for k, v_list in metrics.items():
+        mean = sum(v_list)/len(v_list)
+        var = sum((x-mean)**2 for x in v_list)/len(v_list)
+        stats_summary[k] = {"mean": round(mean, 2), "std": round(var**0.5, 2)}
 
     result = {
         "total_draws": len(draws),
         "pos_freq": pos_freq,
-        "digit_gap": digit_gap,
         "markov_matrix": markov,
-        "group_dist": dict(sorted(group_dist.items())),
-        "regression_signals": {"p_sum": {"streak": p_streak, "energy": min(100, p_streak * 25)}},
-        "recent_draws": draws[::-1][:30]
+        "stats_summary": stats_summary,
+        "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
+        "recent_draws": draws[::-1][:100]
     }
-
     with open('pension_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    
-    print(f"✅ Pension Analysis Complete: {len(draws)} draws processed. (Last: {draws[-1]['no']}th)")
+    print(f"✅ Pension Analysis Complete: {len(draws)} draws.")
 
 if __name__ == "__main__":
-    print("🚀 Starting Integrated Data Analysis...")
     analyze_lotto()
     analyze_pension()
-    print("✨ All systems operational.")
