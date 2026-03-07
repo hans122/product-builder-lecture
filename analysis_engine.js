@@ -65,9 +65,39 @@ var AnalysisEngine = {
     },
 
     runPensionAnalysis: function(data) {
-        // 연금 분석 자동화 로직 (필요 시 로또와 동일 패턴으로 구현)
-        // 현재는 기존 로직 유지 혹은 단순화
-    }
-};
+        var root = document.getElementById('dynamic-pension-root');
+        if (!root) return;
+        root.innerHTML = '';
+
+        var indicators = LottoConfig.PENSION_INDICATORS.filter(cfg => cfg.visible && cfg.visible.analysis);
+        
+        indicators.forEach(cfg => {
+            var section = document.createElement('section');
+            section.className = 'analysis-card';
+            section.innerHTML = `
+                <div class="card-header"><h3>📍 ${cfg.label} 분석</h3></div>
+                <div class="analysis-layout-split" style="padding: 20px;">
+                    <div class="chart-wrapper"><div id="${cfg.id}-chart" style="height: 200px;"></div></div>
+                    <div class="mini-table-wrapper">
+                        <h4>📊 최근 ${cfg.label} 리포트</h4>
+                        <table class="mini-table"><tbody id="${cfg.id}-mini-body"></tbody></table>
+                    </div>
+                </div>
+            `;
+            root.appendChild(section);
+
+            var dist = data.distributions[cfg.distKey];
+            var stat = data.stats_summary[cfg.statKey];
+            if (dist) LottoUI.createCurveChart(cfg.id + '-chart', dist, cfg.unit, stat, cfg);
+            LottoUI.renderMiniTable(cfg.id + '-mini-body', data.recent_draws.slice(0, 6), cfg);
+        });
+
+        // 특수 섹션 렌더링
+        if (window.renderFlowMap) renderFlowMap(data.recent_draws.slice(0, 15));
+        if (data.markov_matrix) LottoUI.renderMarkovHeatmap('markov-heatmap-container', data.markov_matrix, { color: '255, 140, 0', rowLabel: '숫자 ' });
+        if (data.regression_signals) this.renderRegressionSignals('pension-regression-container', data.regression_signals);
+    },
+
+    renderRegressionSignals: function(containerId, signals) {
 
 document.addEventListener('DOMContentLoaded', () => AnalysisEngine.init());

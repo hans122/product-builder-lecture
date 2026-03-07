@@ -9,7 +9,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta property="og:title" content="연금복권 720+ AI 정밀 통계분석">
     <meta name="twitter:title" content="연금복권 720+ AI 정밀 통계분석">
-    <link rel="stylesheet" href="style.css?v=19.1">
+    <link rel="stylesheet" href="style.css?v=20.0">
 </head>
 <body class="analysis-page pension-theme" style="background-color: #f4f7fa;">
     <header class="sticky-header">
@@ -35,193 +35,39 @@
         <main class="analysis-container" style="padding-top: 10px;">
         <div class="analysis-header-v2" style="background: white; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid #edf2f7; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
             <div style="display: flex; align-items: flex-start; gap: 20px;">
-                <div style="background: #3182f6; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; box-shadow: 0 8px 16px rgba(49,130,246,0.3);">📊</div>
+                <div style="background: #ff8c00; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; box-shadow: 0 8px 16px rgba(255,140,0,0.3);">📊</div>
                 <div style="flex: 1;">
                     <h1 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0 0 8px 0; letter-spacing: -1px;">연금복권 720+ 정밀 통계 리포트</h1>
-                    <p style="font-size: 1rem; color: #64748b; line-height: 1.6; margin: 0;">빅데이터 기반의 역방향 자리수 분석 및 6자리 숫자간 상관관계 엔진 <span style="color: #3182f6; font-weight: 700;">v10.0</span></p>
+                    <p style="font-size: 1rem; color: #64748b; line-height: 1.6; margin: 0;">빅데이터 기반의 역방향 자리수 분석 및 6자리 숫자간 상관관계 엔진 <span style="color: #ff8c00; font-weight: 700;">v20.0</span></p>
                 </div>
-            </div>
-            <div class="header-legend" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; display: flex; gap: 30px; flex-wrap: wrap;">
-                <span style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #2ecc71; opacity: 0.4;"></span> <strong>옵티멀 존 (Optimal):</strong> 누적 확률 16%~84% 집중 구간</span>
-                <span style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;"><span style="width: 12px; height: 12px; border-radius: 2px; background: #3182f6; opacity: 0.2;"></span> <strong>세이프 존 (Safe):</strong> 누적 확률 2.5%~97.5% 유효 구간</span>
-                <span style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;"><span style="width: 1.5px; height: 12px; background: #3182f6;"></span> <strong>평균선:</strong> 전체 회차의 산술적 평균값 (50%)</span>
             </div>
         </div>
 
         <!-- [NEW] AI 회귀 시점 분석 섹션 -->
-        <div class="group-header">🚨 AI 출현 임박 지표 (회귀 시점 분석)</div>
+        <div class="group-header">🚨 AI 출현 임박 지표 (Regression Signals)</div>
         <div id="pension-regression-container" style="margin-bottom: 30px;">
             <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 0.8rem;">AI 엔진이 회귀 에너지를 계산 중입니다...</div>
         </div>
 
-        <!-- [GP9] 역방향 우선 렌더링 레이아웃 -->
-        <div class="group-header">📍 [GP9] 자리수별 출현 빈도 (역방향 우선 분석)</div>
-        <div id="pos-freq-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
-            <!-- JS에서 개별 카드로 렌더링 -->
-        </div>
-
-        <!-- [GP6] 자리수별 미출현 주기 -->
-        <div class="group-header">📍 [GP6] 자리수별 미출현 주기 (Gap)</div>
-        <section class="analysis-card" style="margin-bottom: 24px;">
-            <div id="digit-gap-container" style="padding: 20px;">
-                <!-- JS에서 렌더링 -->
-            </div>
-        </section>
-
-        <!-- [GP1] 연속 및 중복 -->
-        <div class="group-header">📍 [GP1] 연속 및 중복성 분석</div>
-        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
-            <section class="analysis-card">
-                <div class="card-header"><h3>🔢 연속 번호 (Sequence)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="sequence-dist-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="sequence-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-            <section class="analysis-card">
-                <div class="card-header"><h3>🔄 직전 중복 (Repeat)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="repeat-dist-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="repeat-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- [[GP3] 숫자 구성 -->
-        <div class="group-header">📍 [[GP3] 6자리 숫자 구성 밀도</div>
-        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
-            <section class="analysis-card">
-                <div class="card-header"><h3>🔢 중복 포함 (Occurrence)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="occurrence-dist-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="occurrence-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-            <section class="analysis-card">
-                <div class="card-header"><h3>✨ 번호 다양성 (Unique)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="unique-dist-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="unique-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- [[GP4] 합계 및 균형 -->
-        <div class="group-header">📍 [[GP4] 6자리 숫자 합계 정밀 분포 (Golden Zone)</div>
-        <section class="analysis-card" style="margin-bottom: 24px;">
-            <div class="card-header">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.2rem;">⚖️</span>
-                    <h3>합계 수치 통계 및 표준 분포</h3>
-                </div>
-            </div>
-            <div class="analysis-layout-split" style="padding: 20px;">
-                <div class="chart-wrapper"><div id="sum-dist-chart" style="height: 240px;"></div></div>
-                <div class="mini-table-wrapper">
-                    <h4 style="font-size: 0.8rem; color: #475569; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">📊 최근 당첨 합계 리포트</h4>
-                    <table class="mini-table"><tbody id="sum-mini-body"></tbody></table>
-                </div>
-            </div>
-        </section>
-
-        <!-- [GP5] 회차 간 상관관계 -->
-        <div class="group-header">📍 [GP5] 회차 간 상관관계 (이월/이웃)</div>
-        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
-            <section class="analysis-card">
-                <div class="card-header"><h3>🔄 자리 이월 (Carry Pos)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="carry-pos-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="carry-pos-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-            <section class="analysis-card">
-                <div class="card-header"><h3>🔁 숫자 이월 (Carry Num)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="carry-num-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="carry-num-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-            <section class="analysis-card">
-                <div class="card-header"><h3>↔️ 이웃수 (Neighbor)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="neighbor-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="neighbor-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- [GP7] 번호 속성 -->
-        <div class="group-header">📍 [GP7] 번호 속성 밸런스 (Odd/Low/Prime)</div>
-        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
-            <section class="analysis-card">
-                <div class="card-header"><h3>🌓 홀짝 비율 (Odd/Even)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="odd-dist-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="odd-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-            <section class="analysis-card">
-                <div class="card-header"><h3>📉 저번호 비율 (Low/High)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="low-dist-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="low-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
-            <section class="analysis-card">
-                <div class="card-header"><h3>✨ 소수 출현 (Prime)</h3></div>
-                <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="prime-dist-chart" style="height: 180px;"></div></div>
-                    <div class="mini-table-wrapper">
-                        <table class="mini-table"><tbody id="prime-mini-body"></tbody></table>
-                    </div>
-                </div>
-            </section>
+        <!-- [DYNAMIC] 데이터 기반 자동 생성 영역 -->
+        <div id="dynamic-pension-root">
+            <div style="padding: 100px; text-align: center; color: #94a3b8;">연금 분석 리포트를 생성 중입니다...</div>
         </div>
 
         <!-- [GP13] 최근 당첨 흐름 타임라인 -->
-        <div class="group-header">📍 [GP13] 당첨 번호 흐름 타임라인 (최근 15회차)</div>
+        <div class="group-header">📍 당첨 번호 흐름 타임라인 (최근 15회차)</div>
         <section class="analysis-card" style="margin-bottom: 40px;">
-            <div id="flow-timeline-container" style="padding: 24px; overflow-x: auto;">
-                <!-- JS에서 렌더링 -->
-            </div>
+            <div id="flow-timeline-container" style="padding: 24px; overflow-x: auto;"></div>
         </section>
-        <!-- [[GP14] AI 마르코프 전이 확률 분석 (Markov Chain) -->
-        <div class="group-header">🔮 AI 마르코프 다음 숫자 전이 확률 (Markov Chain)</div>
+
+        <!-- [GP14] AI 마르코프 전이 확률 분석 -->
+        <div class="group-header">🔮 AI 마르코프 다음 숫자 전이 확률</div>
         <section class="analysis-card" style="margin-bottom: 40px;">
             <div class="card-header">
-                <h3>📊 숫자 간 전이 확률 매트릭스 (Heatmap)</h3>
-                <span style="font-size: 0.7rem; color: #64748b;">가로(이전 숫자) -> 세로(다음 숫자)로 이어질 확률</span>
+                <h3>📊 숫자 간 전이 확률 매트릭스</h3>
             </div>
             <div style="padding: 24px;">
-                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 20px;">
-                    과거 모든 회차를 분석하여 특정 숫자가 나온 직후, 다음 회차에 어떤 숫자가 가장 많이 등장했는지 추적한 결과입니다. 
-                    <strong style="color: #ff8c00;">주황색이 짙을수록 확률이 높으며</strong>, 이를 통해 '흐름' 상 유력한 번호를 예측할 수 있습니다.
-                </p>
-                <div id="markov-heatmap-container" class="markov-heatmap-wrapper">
-                    <!-- JS에서 10x10 Heatmap 렌더링 -->
-                </div>
-                
-                <div id="markov-top-insights" class="markov-insights" style="margin-top: 24px;">
-                    <!-- 주요 통찰 정보 출력 -->
-                </div>
+                <div id="markov-heatmap-container" class="markov-heatmap-wrapper"></div>
             </div>
         </section>
     </main>
@@ -231,13 +77,13 @@
         <p>© 2026 AI Lotto Engine. Expert Statistical Analysis Service.</p>
     </footer>
 
-    <script src="lotto_utils.js?v=19.1"></script>
-    <script src="indicators.js?v=19.1"></script>
-    <script src="core.js?v=19.1"></script>
-    <script src="unified_engine.js?v=19.1"></script>
-    <script src="pension_utils.js?v=19.1"></script>
-    <script src="ui_components.js?v=19.1"></script>
-    <script src="analysis_engine.js?v=19.1"></script>
-<script src="validator.js?v=19.1"></script>
+    <script src="lotto_utils.js?v=20.0"></script>
+    <script src="indicators.js?v=20.0"></script>
+    <script src="core.js?v=20.0"></script>
+    <script src="unified_engine.js?v=20.0"></script>
+    <script src="pension_utils.js?v=20.0"></script>
+    <script src="ui_components.js?v=20.0"></script>
+    <script src="analysis_engine.js?v=20.0"></script>
+<script src="validator.js?v=20.0"></script>
 </body>
 </html>

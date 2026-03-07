@@ -137,8 +137,17 @@ var PensionPrediction = {
 
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(combo));
                 
-                var isPass = (analysis.sum >= 20 && analysis.sum <= 35 && totalScore >= 15);
-                if (strategy.id === 'extreme') isPass = (analysis.sum < 20 || analysis.sum > 35);
+                // [Full Automation] 모든 연금 지표 자동 필터링 검증
+                var isPass = true;
+                LottoConfig.PENSION_INDICATORS.forEach(cfg => {
+                    if (cfg.filter) {
+                        var val = cfg.calc(combo);
+                        if (cfg.filter.min !== undefined && val < cfg.filter.min) isPass = false;
+                        if (cfg.filter.max !== undefined && val > cfg.filter.max) isPass = false;
+                    }
+                });
+
+                if (strategy.id === 'extreme') isPass = !isPass; // 합계 골든존 밖
 
                 if ((isPass || attempts > 700) && !isDuplicate) {
                     results.push({ group: group, nums: combo, strategy: strategy, synergyScore: Math.round(totalScore) });

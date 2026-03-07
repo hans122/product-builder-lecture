@@ -65,6 +65,20 @@ var DataViewer = {
         if (!table) return;
 
         var draws = this.statsData.recent_draws || [];
+        var activeIndicators = LottoConfig.PENSION_INDICATORS.filter(cfg => cfg.visible && cfg.visible.history);
+
+        // 1. 헤더 생성
+        var thead = table.querySelector('thead');
+        if (thead) {
+            var headerHtml = `<tr>
+                <th style="width:70px;">회차</th>
+                <th style="width:200px;">당첨번호</th>
+                ${activeIndicators.map(cfg => `<th>${cfg.label}</th>`).join('')}
+            </tr>`;
+            thead.innerHTML = headerHtml;
+        }
+
+        // 2. 데이터 렌더링
         var tbody = table.querySelector('tbody');
         if (!tbody) return;
         tbody.innerHTML = '';
@@ -74,17 +88,15 @@ var DataViewer = {
             var ballsHtml = `<div class="pension-ball group small">${draw.group}</div>` + 
                            draw.nums.map(n => `<div class="pension-ball small ${n >= 5 ? 'blue' : 'yellow'}">${n}</div>`).join('');
             
-            var balance = PensionUtils.analyzeBalance(draw.nums);
-            var pattern = PensionUtils.analyzePatterns(draw.nums);
-
-            tr.innerHTML = `
+            var rowHtml = `
                 <td><strong>${draw.no}회</strong></td>
                 <td><div class="ball-container mini">${ballsHtml}</div></td>
-                <td>${balance.sum}</td>
-                <td>${balance.odd}:${6-balance.odd}</td>
-                <td>${balance.low}:${6-balance.low}</td>
-                <td>${pattern.maxOccur}개</td>
+                ${activeIndicators.map(cfg => {
+                    var val = cfg.calc(draw.nums, { last_draw: draws[draws.indexOf(draw) + 1]?.nums });
+                    return `<td>${val}</td>`;
+                }).join('')}
             `;
+            tr.innerHTML = rowHtml;
             tbody.appendChild(tr);
         });
     }

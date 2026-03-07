@@ -36,6 +36,18 @@ window.LottoConfig = {
         }, visible: { history: true, analysis: true }, filter: { min: 4, max: 11 } }
     ],
 
+    // 1-2. [GP] 연금복권 720+ 개별 지표 설정
+    PENSION_INDICATORS: [
+        { id: 'p-sum', label: '합계', unit: '', group: 'GP4', distKey: 'sum', statKey: 'sum', calc: (nums) => PensionUtils.analyzeBalance(nums).sum, visible: { history: true, analysis: true }, filter: { min: 20, max: 35 } },
+        { id: 'p-odd', label: '홀수', unit: '개', group: 'GP7', distKey: 'odd', statKey: 'odd', calc: (nums) => PensionUtils.analyzeBalance(nums).odd, visible: { history: true, analysis: true }, filter: { min: 2, max: 4 } },
+        { id: 'p-low', label: '저번호', unit: '개', group: 'GP7', distKey: 'low', statKey: 'low', calc: (nums) => PensionUtils.analyzeBalance(nums).low, visible: { history: true, analysis: true } },
+        { id: 'p-prime', label: '소수', unit: '개', group: 'GP7', distKey: 'prime', statKey: 'prime', calc: (nums) => PensionUtils.analyzeBalance(nums).prime, visible: { history: true, analysis: true } },
+        { id: 'p-seq', label: '연속', unit: '쌍', group: 'GP1', distKey: 'sequence', statKey: 'sequence', calc: (nums) => PensionUtils.analyzePatterns(nums).seq, visible: { history: true, analysis: true } },
+        { id: 'p-max-occur', label: '중복', unit: '개', group: 'GP2', distKey: 'occurrence', statKey: 'maxOccur', calc: (nums) => PensionUtils.analyzePatterns(nums).maxOccur, visible: { history: true, analysis: true } },
+        { id: 'p-carry', label: '이월', unit: '개', group: 'GP5', distKey: 'carry', statKey: 'carry', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).carry : 0, visible: { history: true, analysis: true } },
+        { id: 'p-neighbor', label: '이웃', unit: '개', group: 'GP5', distKey: 'neighbor', statKey: 'neighbor', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).neighbor : 0, visible: { history: true, analysis: true } }
+    ],
+
     // 2. [GL] 시너지 규칙 설정 (복합 지표)
     SYNERGY_RULES: [
         {
