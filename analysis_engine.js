@@ -57,8 +57,11 @@ var AnalysisEngine = {
                 var chartBox = document.getElementById(cfg.id + '-chart');
                 if (chartBox) chartBox.innerHTML = '<div style="padding:50px; text-align:center; color:#94a3b8; font-size:0.8rem;">데이터 집계 중입니다...</div>';
             }
-            LottoUI.renderMiniTable(cfg.id + '-mini-body', data.recent_draws.slice(0, 6), cfg);
+        LottoUI.renderMiniTable(cfg.id + '-mini-body', data.recent_draws.slice(0, 6), cfg);
         });
+
+        // [NEW] 15회차 골든타임 전략 그룹 렌더링
+        this.renderStrategyGroups(data.recent_draws);
 
         if (window.renderOverAppearanceAlert) renderOverAppearanceAlert(data.recent_draws);
         var markovMatrix = LottoAI.calculateEndingChainMatrix(data.recent_draws, 300);
@@ -91,6 +94,33 @@ var AnalysisEngine = {
         }
         container.innerHTML = html;
         container.className = 'frequency-chart'; // 스타일 클래스 보장
+    },
+
+    renderStrategyGroups: function(recentDraws) {
+        if (!recentDraws) return;
+        var pools = LottoAI.getComplexPools(recentDraws, -1);
+        var self = this;
+        
+        var mapping = [
+            { id: 'hot', data: pools.hot },
+            { id: 'warm', data: pools.neutral },
+            { id: 'cold', data: pools.cold }
+        ];
+
+        mapping.forEach(function(m) {
+            var container = document.getElementById('group-' + m.id + '-container');
+            var countEl = document.getElementById(m.id + '-count');
+            
+            if (container) {
+                container.innerHTML = '';
+                m.data.forEach(function(n) {
+                    container.appendChild(LottoUI.createBall(n, true));
+                });
+            }
+            if (countEl) {
+                countEl.innerText = m.data.length + '개';
+            }
+        });
     },
 
     runPensionAnalysis: function(data) {

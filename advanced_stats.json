@@ -789,20 +789,20 @@
             "energy": 0
         },
         "Period 1": {
-            "streak": 0,
-            "energy": 0
+            "streak": 3,
+            "energy": 99
         },
         "Period 2": {
-            "streak": 0,
-            "energy": 0
+            "streak": 2,
+            "energy": 66
         },
         "Period 3": {
-            "streak": 0,
-            "energy": 0
+            "streak": 1,
+            "energy": 33
         },
         "Neighbor": {
-            "streak": 0,
-            "energy": 0
+            "streak": 1,
+            "energy": 33
         },
         "Consecutive": {
             "streak": 0,
@@ -825,24 +825,24 @@
             "energy": 0
         },
         "Square": {
-            "streak": 0,
-            "energy": 0
+            "streak": 1,
+            "energy": 33
         },
         "Double Num": {
             "streak": 0,
             "energy": 0
         },
         "Mirror": {
-            "streak": 0,
-            "energy": 0
+            "streak": 1,
+            "energy": 33
         },
         "Bucket 15": {
             "streak": 0,
             "energy": 0
         },
         "Bucket 9": {
-            "streak": 0,
-            "energy": 0
+            "streak": 1,
+            "energy": 33
         },
         "Bucket 7": {
             "streak": 0,
@@ -865,8 +865,8 @@
             "energy": 0
         },
         "Pattern Corner": {
-            "streak": 0,
-            "energy": 0
+            "streak": 1,
+            "energy": 33
         },
         "Pattern Center": {
             "streak": 0,

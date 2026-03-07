@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * LottoIndicators v21.0 - Comprehensive Analysis Edition
- * - Integrated 10+ new professional indicators from the Lotto Bible
- * - Full automation for History, Analysis, Guide, and Prediction
+ * LottoIndicators v22.0 - AI Regression Timing Edition
+ * - Integrated AI Regression Timing & Energy Signals
+ * - Full Number Frequency Visualization Support
  */
 
 window.LottoConfig = {

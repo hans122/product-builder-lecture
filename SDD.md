@@ -1,7 +1,7 @@
-# SDD (System Design Document) - v14.8
+# SDD (System Design Document) - v22.0
 
 ## 1. 시스템 아키텍처 개요 (Modular Hub)
-본 시스템은 **`indicators.js` (설정)**를 중심으로 비즈니스 로직과 UI 렌더링을 완전히 분리한 **모듈러 허브 아키텍처**를 채택한다. 각 파일은 단일 책임 원칙(SRP)에 따라 엄격히 관리되며, 종속성 해결을 위한 로드 순서를 준수한다.
+본 시스템은 **`indicators.js` (설정)**를 중심으로 비즈니스 로직과 UI 렌더링을 완전히 분리한 **모듈러 허브 아키텍처**를 채택한다. v22.0에서는 AI 회귀 엔진과 전수 빈도 시각화 모듈이 통합되었다.
 
 ## 2. 모듈별 상세 설계
 ### 2.1. LottoConfig (indicators.js) - SSOT
@@ -9,13 +9,14 @@
 
 ### 2.2. Logic Layer
 - **LottoCore (core.js)**: 공통 데이터 로더(`LottoDataManager`), 이벤트 버스(`LottoEvents`), 공통 유틸리티(`LottoUtils`)를 포함한 코어 엔진.
+- **Unified Engine (unified_engine.js)**: 몬테카를로 시뮬레이션, 마르코프 체인, 회귀 분석 등 모든 비즈니스 로직의 통합 허브.
 - **PensionUtils (pension_utils.js)**: 연금복권에 특화된 패턴, 밸런스, 동적 흐름 분석 알고리즘 독립 모듈.
-- **AI Prediction (prediction.js)**: 10대 핵심 전략 알고리즘 및 심층 조합 생성 엔진.
 
-### 2.3. UI Layer (ui_components.js)
+### 2.3. UI Layer (ui_components.js & analysis_engine.js)
 - **LottoUI**: 순수 UI 렌더링 담당. 구슬, 카드, 배지 생성 및 복잡한 시각화 로직 통합.
+- **Regression Signals**: `renderRegressionSignals` 모듈을 통해 회귀 에너지를 3단계(High/Medium/Low) 색상 신호로 렌더링.
+- **Frequency Visualization**: `renderFrequencyChart`를 통한 1~45번 전체 빈도 히스토그램 동적 생성.
 - **SVG Visualization**: `μ±σ`, `μ±2σ` 기반 정규분포 곡선 및 **더블 라인 라벨링(수치/%)** 엔진.
-- **Skeleton System**: 데이터 로딩 중 `pulse` 애니메이션을 동반한 스켈레톤 카드 렌더링.
 
 ### 2.4. View Layer (Page Engines)
 - **view_manager.js**: 메인 대시보드 및 연금 메인 화면의 뷰 조율.
@@ -33,6 +34,7 @@
 
 ## 4. 정밀 시각화 및 테이블 표준
 - **Double-Line Metric**: 차트 X축 하단에 실제 수치(폰트 10px, 900)와 누적 확률(폰트 9px, 700)을 상하로 배치.
+- **AI Regression Signals**: 에너지 수치에 따른 고정 색상 적용 (Red: >70%, Orange: >40%, Blue: Else).
 - **Content-Fit Grid**: 통계 표의 컬럼 너비를 데이터에 최적화하여 여백 최소화. (회차 55px / 번호 230px / 결과 80px)
 - **Center Alignment**: 셀 내부의 모든 데이터(공, 텍스트)를 `justify-content: center`로 정렬.
 

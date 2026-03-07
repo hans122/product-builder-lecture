@@ -1,4 +1,4 @@
-# GEMINI.md - AI Coding Constitution (v12.0)
+# GEMINI.md - AI Coding Constitution (v22.0)
 
 ## [MANDATORY RULES]
 1. **Document-First Workflow**: 모든 작업(구현, 수정, 리팩토링) 시작 전, 반드시 `PRD.md`, `SDD.md`, `DATA_SCHEMA.md`를 전수 읽기하여 현재 요청의 맥락과 기술 표준을 내재화한다.
@@ -13,25 +13,14 @@
 10. **Expert Table Features**: 가로로 긴 표는 반드시 **45도 대각선 헤더**와 **틀 고정(회차/번호)** 기능을 적용한다.
 
 ## [RECENT UPDATES]
-- **전체 HTML 파일 validator.js 추가 (v12.0)**: 모든 `.html` 파일의 `</body>` 태그 직전에 `<script src="validator.js?v=11.2"></script>`를 일괄 추가하여 데이터 검증 및 보안 강화.
-- **전체 HTML 파일 리소스 버전 업데이트 (v12.0)**: `v11.0`, `v11.1`로 혼재되어 있던 `<script>` 및 `<link>` 태그의 리소스 경로를 `v11.2`로 일괄 통합 및 최신화.
-- **SEO 메타 태그 최적화 (v12.0)**: 모든 HTML 페이지에 Open Graph(`og:title`, `og:type` 등) 및 Twitter Cards 메타 태그를 `<title>` 기반으로 자동 적용.
-- **추천 조합(Top 5) 레이아웃 정밀화**: 카드 너비를 190px에서 170px로 축소하여 정보 밀도를 높이고 한 줄 배치를 더욱 강화.
-- **번호 선택 UI 개선**: 실제 용지 감성의 빨간 사선 마킹을 제거하고, 시인성이 높은 솔리드 컬러 강조 방식으로 변경.
-- **전문가용 히스토리 표 고도화**: 45도 대각선 헤더, 엑셀형 틀 고정, 우측 유령 공간 제거(v12.0).
-- **시스템 팩토링 및 문서 최신화**: `indicators.js` 기반 자동화 완성 및 PRD/SDD/DATA_SCHEMA v4.0~6.0 동기화.
-- **통계 레이아웃 최적화**: 차트(유연)와 미니 표(235px 고정)의 완벽한 밸런스 및 여백 확보.
+- **AI 회귀 타이밍 시스템 도입 (v22.0)**: 지표별 회귀 에너지(Energy %) 산출 및 3단계 에너지 시그널 렌더링 구현.
+- **전수 빈도 분석 차트 추가 (v22.0)**: 1~45번 전체 번호의 누적 빈도 히스토그램 시각화 엔진 통합.
+- **전체 HTML 파일 리소스 버전 업데이트 (v22.0)**: `v21.4`에서 `v22.0`으로 일괄 통합 및 최신화.
+- **전문가용 히스토리 표 고도화**: 45도 대각선 헤더, 엑셀형 틀 고정, 우측 유령 공간 제거.
+- **시스템 팩토링 및 문서 최신화**: `indicators.js` 기반 자동화 완성 및 PRD/SDD/DATA_SCHEMA v22.0 동기화.
 
 ## [MAINTENANCE & AUDIT]
 - **엄격한 순위제**: 추천 풀은 단 1점 차이로도 변동될 수 있음을 인지한다.
 - **백테스트 무결성**: 과거 시뮬레이션 시 미래 데이터 차단 로직을 엄격히 관리한다.
+- **에너지 임계치**: 회귀 에너지 70% 이상은 Red, 40% 이상은 Orange, 그 외 Blue 색상 정책을 엄격히 준수한다.
 
-## [FILE RESPONSIBILITIES]
-- `indicators.js`: 서비스의 모든 설정 및 지표 관리 (SSOT).
-- `core.js`: 공통 유틸리티, 시너지 엔진, UI 컴포넌트 통합 관리.
-- `index.html`, `analysis.html`, `combination.html`, `history.html`: 데이터 기반의 뷰(View).
-
-## [VIBE CODING PROTOCOL]
-1. **Speed & Precision**: 모호한 요청은 문서의 표준을 근거로 최적의 솔루션을 즉시 구현한다.
-2. **Context Retention**: 프로젝트의 핵심 문서들을 매 턴마다 재학습하여 '의도'가 아닌 '설계'를 구현한다.
-3. **Proactive Maintenance**: 변경 사항이 아키텍처에 영향을 줄 경우, 즉시 관련 문서를 동기화하여 '문서의 최신성'을 보장한다.

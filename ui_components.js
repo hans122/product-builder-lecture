@@ -136,8 +136,14 @@ var LottoUI = {
         });
         
         var hatching = '<defs>' +
-            '<pattern id="h-green" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#2ecc71" stroke-width="1" stroke-opacity="0.3"/></pattern>' +
-            '<pattern id="h-blue" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#3182f6" stroke-width="1" stroke-opacity="0.3"/></pattern>' +
+            '<pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+                '<line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.45"/>' +
+                '<line x1="3" y1="0" x2="3" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.45"/>' +
+            '</pattern>' +
+            '<pattern id="h-blue" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+                '<line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1.2" stroke-opacity="0.45"/>' +
+                '<line x1="3" y1="0" x2="3" y2="6" stroke="#3182f6" stroke-width="1.2" stroke-opacity="0.45"/>' +
+            '</pattern>' +
             '</defs>';
         
         var svg = '<svg width="' + w + '" height="' + h + '" style="overflow:visible;">' + hatching +

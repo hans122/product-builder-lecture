@@ -135,15 +135,19 @@ def analyze_lotto():
     for k, v_list in raw_metrics.items():
         if not v_list: continue
         stat = stats_summary[k]
-        safe_min, safe_max = stat["mean"] - 2*stat["std"], stat["mean"] + 2*stat["std"]
+        # v22.0: ±1*std (68% 구간)로 Safe Zone 좁혀 민감도 강화
+        safe_min, safe_max = stat["mean"] - 1*stat["std"], stat["mean"] + 1*stat["std"]
         
         streak = 0
         for val in v_list[::-1]: # 최신 회차부터 역순으로 조사
+            # Safe Zone을 벗어난 회차가 지속될수록 회귀 에너지가 상승함
             if val < safe_min or val > safe_max: streak += 1
             else: break
+            
         # 지표명을 화면 표시용으로 변환
         label = k.replace('_', ' ').title()
-        regression_signals[label] = {"streak": streak, "energy": min(100, streak * 25)}
+        # 3회 연속 이탈 시 에너지가 99%에 근접하도록 가중치 상향
+        regression_signals[label] = {"streak": streak, "energy": min(100, streak * 33)}
 
     result = {
         "total_draws": len(draws),
