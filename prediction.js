@@ -9,14 +9,16 @@
 var PredictionEngine = {
     statsData: null,
     synergyMatrix: null,
+    endingChainMatrix: null,
 
     init: function() {
         var self = this;
         LottoDataManager.getStats(function(data) {
             if (!data) return;
             self.statsData = data;
-            // 1. 궁합 매트릭스 실시간 계산
+            // 1. 궁합 및 끝수 전이 매트릭스 실시간 계산
             self.synergyMatrix = LottoAI.calculateSynergyMatrix(data.recent_draws, 300);
+            self.endingChainMatrix = LottoAI.calculateEndingChainMatrix(data.recent_draws, 300);
             self.renderAll();
             self.bindEvents();
         });
@@ -124,15 +126,18 @@ var PredictionEngine = {
                 var hasDanger = synergy.some(s => s.status === 'danger');
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
                 
-                // [Relational Filtering] 궁합 점수 및 고급 지표 검증
+                // [Relational Filtering] 궁합 점수 및 끝수 시너지 검증
                 var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
+                var endScore = LottoAI.getEndingChainScore(pick, lastDraw.nums, this.endingChainMatrix);
                 var advScore = LottoAI.getAdvancedScore(pick, this.statsData, this.synergyMatrix);
                 
-                var isPass = (Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger && advScore >= 30);
+                var totalSynergy = Math.round((compScore + endScore) / 2);
+                
+                var isPass = (Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger && totalSynergy >= 12);
                 if (strategy.id === 'extreme') isPass = (sum < stats.sum.mean - 20 || sum > stats.sum.mean + 20);
                 
                 if ((isPass || attempts > 900) && !isDuplicate) {
-                    results.push({ nums: pick, strategy: strategy, synergyScore: advScore });
+                    results.push({ nums: pick, strategy: strategy, synergyScore: totalSynergy });
                     found = true;
                 }
             }

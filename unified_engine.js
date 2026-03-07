@@ -212,5 +212,40 @@ var LottoAI = {
             if (diff >= 2 && diff <= 4) score += 5; // 적절한 간격
         }
         return score;
+    },
+
+    // 11. Lotto Ending Digit Chain Analysis
+    calculateEndingChainMatrix: function(draws, limit) {
+        var matrix = Array.from({length: 10}, () => Array(10).fill(0));
+        var targetDraws = (draws || []).slice(0, limit || 300);
+        
+        for (var i = 0; i < targetDraws.length - 1; i++) {
+            var currentEnds = targetDraws[i].nums.map(n => n % 10);
+            var nextEnds = targetDraws[i+1].nums.map(n => n % 10);
+            
+            currentEnds.forEach(c => {
+                nextEnds.forEach(n => {
+                    matrix[c][n]++;
+                });
+            });
+        }
+        return matrix;
+    },
+
+    // 12. Calculate Ending Chain Score for a combination based on previous draw
+    getEndingChainScore: function(nums, prevNums, matrix) {
+        if (!matrix || !prevNums) return 0;
+        var score = 0;
+        var currentEnds = nums.map(n => n % 10);
+        var prevEnds = prevNums.map(n => n % 10);
+        
+        currentEnds.forEach(c => {
+            prevEnds.forEach(p => {
+                // 전회차 끝수 p에서 현재 끝수 c로 전이된 역사적 빈도 합산
+                score += (matrix[p][c] || 0);
+            });
+        });
+        // 36개 조합 경로(6x6)로 나누어 평균 시너지 산출
+        return Math.round(score / 3.6); 
     }
 };
