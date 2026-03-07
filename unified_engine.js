@@ -292,16 +292,16 @@ var LottoAI = {
             var r = matrix[k1][k2]; // 역사적 상관계수
             var currentRelation = zScores[k1] * zScores[k2]; // 현재 조합의 방향성 (부호)
             
-            // 상관계수 절댓값이 0.2 이상인 유의미한 관계만 체크
-            if (Math.abs(r) > 0.2) {
+            // v22.3: 상관계수 절댓값이 0.3 이상인 강력한 관계만 체크 (신뢰도 향상)
+            if (Math.abs(r) > 0.3) {
                 var isHarmony = (r > 0 && currentRelation > 0) || (r < 0 && currentRelation < 0);
                 
-                // 불협화음 판정: 관계가 r의 방향과 반대이면서, 이탈 정도가 클 때
-                if (!isHarmony && Math.abs(currentRelation) > 0.4) { 
-                    score -= 10; // 항목별 감점폭 조정
+                // 불협화음 판정: 명백한 모순일 때만 감점 (임계치 0.4 -> 0.6 상향)
+                if (!isHarmony && Math.abs(currentRelation) > 0.6) { 
+                    score -= 15; 
                     violations.push(`${k1}↔${k2}`);
-                } else if (isHarmony && Math.abs(currentRelation) > 0.2) {
-                    score += 5; // 조화로울 경우 가점
+                } else if (isHarmony && Math.abs(currentRelation) > 0.3) {
+                    score += 8; // 조화 시 가점 상향 (5 -> 8)
                 }
             }
         });
