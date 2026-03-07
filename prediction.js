@@ -186,30 +186,62 @@ var PredictionEngine = {
         
         var raw = localStorage.getItem('lotto_ai_archive');
         var archive = raw ? JSON.parse(raw) : [];
+        if (archive.length === 0) {
+            container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1;">저장된 조합이 없습니다.</div>';
+            return;
+        }
         
-        if (archive.length === 0) return;
+        // v32.30: 아카이브 표시 시에도 기댓값 높은 순 정렬
+        archive.sort((a, b) => (parseFloat(b.prob?.multiplier) || 0) - (parseFloat(a.prob?.multiplier) || 0));
         
         container.innerHTML = '';
         archive.forEach((res, idx) => {
+            var cardWrapper = document.createElement('div');
+            cardWrapper.style.position = 'relative';
+            
             var card = LottoUI.createComboCard(res);
             card.style.opacity = '0.9';
             card.onclick = () => {
                 localStorage.setItem('lastGeneratedNumbers', JSON.stringify(res.nums));
                 location.href = 'combination.html';
             };
-            container.appendChild(card);
+            
+            // 개별 삭제 버튼 추가
+            var delBtn = document.createElement('button');
+            delBtn.innerHTML = '×';
+            delBtn.style.cssText = 'position:absolute; top:-5px; left:-5px; width:20px; height:20px; border-radius:50%; background:#f04452; color:white; border:2px solid white; font-size:14px; font-weight:bold; cursor:pointer; z-index:20; display:flex; align-items:center; justify-content:center;';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                if(confirm('이 조합을 삭제하시겠습니까?')) {
+                    this.removeFromArchive(res.nums);
+                }
+            };
+            
+            cardWrapper.appendChild(delBtn);
+            cardWrapper.appendChild(card);
+            container.appendChild(cardWrapper);
         });
 
-        // 삭제 버튼 이벤트 바인딩 (1회성)
         var clearBtn = document.getElementById('clear-archive-btn');
         if (clearBtn) {
             clearBtn.onclick = () => {
                 if (confirm('저장된 모든 아카이브를 삭제하시겠습니까?')) {
                     localStorage.removeItem('lotto_ai_archive');
-                    container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1;">저장된 조합이 없습니다.</div>';
+                    this.renderArchive();
                 }
             };
         }
+    },
+
+    /** [v32.30] 개별 조합 삭제 로직 */
+    removeFromArchive: function(nums) {
+        var raw = localStorage.getItem('lotto_ai_archive');
+        var archive = raw ? JSON.parse(raw) : [];
+        var numsStr = JSON.stringify(nums.slice().sort());
+        
+        var filtered = archive.filter(item => JSON.stringify(item.nums.slice().sort()) !== numsStr);
+        localStorage.setItem('lotto_ai_archive', JSON.stringify(filtered));
+        this.renderArchive();
     },
 
     renderPoolGrid: function(pools) {
