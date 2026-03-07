@@ -23,11 +23,13 @@
 
 ## 3. 리소스 로드 표준 (Strict Loading Order)
 모든 HTML 파일은 종속성 오류(`ReferenceError`) 방지를 위해 다음 순서를 반드시 준수한다.
-1. `indicators.js`: 전역 설정 로드.
-2. `core.js`: 코어 엔진 및 데이터 매니저 초기화.
-3. `pension_utils.js`: (연금 페이지 한정) 특화 로직 로드.
-4. `ui_components.js`: UI 컴포넌트 라이브러리 로드.
-5. `engine.js`: 페이지 전용 비즈니스 로직 실행.
+1. `lotto_utils.js`: 최상단 유틸리티 (수학/통계).
+2. `indicators.js`: 전역 설정 및 팁 데이터.
+3. `core.js`: 코어 엔진 및 데이터 매니저.
+4. `unified_engine.js`: 비즈니스 로직 허브.
+5. `pension_utils.js`: (연금 페이지 한정) 특화 로직.
+6. `ui_components.js`: UI 컴포넌트 라이브러리.
+7. `engine.js`: 페이지 전용 구동부.
 
 ## 4. 정밀 시각화 및 테이블 표준
 - **Double-Line Metric**: 차트 X축 하단에 실제 수치(폰트 10px, 900)와 누적 확률(폰트 9px, 700)을 상하로 배치.
