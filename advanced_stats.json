@@ -52,8 +52,8 @@
             "std": 0.81
         },
         "neighbor": {
-            "mean": 1.44,
-            "std": 0.98
+            "mean": 1.52,
+            "std": 1.07
         },
         "consecutive": {
             "mean": 0.66,
@@ -158,6 +158,14 @@
         "hot_10_count": {
             "mean": 2.37,
             "std": 1.19
+        },
+        "cold_20_count": {
+            "mean": 0.37,
+            "std": 0.62
+        },
+        "avg_recurrence_interval": {
+            "mean": 7.6,
+            "std": 2.94
         }
     },
     "distributions": {
@@ -359,12 +367,12 @@
             "4": 2
         },
         "neighbor": {
-            "0": 199,
-            "1": 476,
-            "2": 366,
-            "3": 147,
-            "4": 23,
-            "5": 2
+            "0": 206,
+            "1": 447,
+            "2": 344,
+            "3": 171,
+            "4": 35,
+            "5": 10
         },
         "consecutive": {
             "0": 586,
@@ -652,7 +660,16 @@
             "4": 153,
             "5": 43,
             "6": 4
-        }
+        },
+        "cold_20_count": {
+            "0": 834,
+            "1": 325,
+            "2": 46,
+            "3": 6,
+            "5": 1,
+            "6": 1
+        },
+        "avg_recurrence_interval": {}
     },
     "frequency": {
         "10": 158,
@@ -1073,21 +1090,25 @@
         "Hot 10 Count": {
             "streak": 0,
             "energy": 0
+        },
+        "Cold 20 Count": {
+            "streak": 1,
+            "energy": 33
+        },
+        "Avg Recurrence Interval": {
+            "streak": 0,
+            "energy": 0
         }
     },
     "correlation_matrix": {
         "sum": {
             "sum": 1.0,
-            "ac": -0.03,
-            "end_sum": 0.01,
-            "span": -0.03,
-            "mean_gap": -0.03,
             "odd_count": -0.0,
             "low_count": -0.88,
             "period_1": -0.04,
             "period_2": 0.03,
             "period_3": -0.01,
-            "neighbor": -0.01,
+            "neighbor": 0.0,
             "consecutive": -0.04,
             "prime": -0.17,
             "composite": 0.26,
@@ -1105,148 +1126,20 @@
             "color": 0.15,
             "pattern_corner": -0.05,
             "pattern_center": 0.07,
+            "end_sum": 0.01,
             "same_end": -0.0,
+            "ac": -0.03,
+            "span": -0.03,
+            "mean_gap": -0.03,
+            "individual_streak": -0.02,
+            "over_appearance": -0.01,
             "recent_5_recurrence": -0.01,
-            "hot_10_count": 0.01
-        },
-        "ac": {
-            "sum": -0.03,
-            "ac": 1.0,
-            "end_sum": 0.02,
-            "span": 0.35,
-            "mean_gap": 0.35,
-            "odd_count": 0.02,
-            "low_count": 0.04,
-            "period_1": 0.02,
-            "period_2": 0.04,
-            "period_3": -0.0,
-            "neighbor": -0.02,
-            "consecutive": -0.12,
-            "prime": 0.04,
-            "composite": -0.07,
-            "multiple_3": -0.01,
-            "multiple_4": 0.01,
-            "square": -0.0,
-            "double_num": -0.04,
-            "mirror": -0.07,
-            "bucket_15": 0.24,
-            "bucket_9": 0.15,
-            "bucket_7": 0.2,
-            "bucket_5": 0.11,
-            "p9": -0.06,
-            "empty_zone": -0.21,
-            "color": 0.21,
-            "pattern_corner": 0.11,
-            "pattern_center": -0.16,
-            "same_end": 0.09,
-            "recent_5_recurrence": 0.01,
-            "hot_10_count": 0.01
-        },
-        "end_sum": {
-            "sum": 0.01,
-            "ac": 0.02,
-            "end_sum": 1.0,
-            "span": -0.12,
-            "mean_gap": -0.12,
-            "odd_count": 0.18,
-            "low_count": -0.04,
-            "period_1": 0.03,
-            "period_2": 0.02,
-            "period_3": -0.04,
-            "neighbor": -0.01,
-            "consecutive": 0.01,
-            "prime": 0.03,
-            "composite": 0.03,
-            "multiple_3": 0.09,
-            "multiple_4": -0.13,
-            "square": 0.12,
-            "double_num": -0.22,
-            "mirror": -0.42,
-            "bucket_15": 0.01,
-            "bucket_9": -0.05,
-            "bucket_7": -0.01,
-            "bucket_5": -0.0,
-            "p9": 0.05,
-            "empty_zone": 0.05,
-            "color": -0.05,
-            "pattern_corner": 0.1,
-            "pattern_center": 0.09,
-            "same_end": -0.1,
-            "recent_5_recurrence": 0.01,
-            "hot_10_count": 0.01
-        },
-        "span": {
-            "sum": -0.03,
-            "ac": 0.35,
-            "end_sum": -0.12,
-            "span": 1.0,
-            "mean_gap": 1.0,
-            "odd_count": 0.03,
-            "low_count": 0.04,
-            "period_1": -0.01,
-            "period_2": 0.0,
-            "period_3": 0.03,
-            "neighbor": -0.06,
-            "consecutive": -0.27,
-            "prime": 0.08,
-            "composite": -0.17,
-            "multiple_3": -0.03,
-            "multiple_4": 0.02,
-            "square": 0.04,
-            "double_num": 0.01,
-            "mirror": -0.07,
-            "bucket_15": 0.48,
-            "bucket_9": 0.44,
-            "bucket_7": 0.45,
-            "bucket_5": 0.33,
-            "p9": -0.06,
-            "empty_zone": -0.53,
-            "color": 0.53,
-            "pattern_corner": 0.12,
-            "pattern_center": -0.31,
-            "same_end": 0.12,
-            "recent_5_recurrence": 0.02,
-            "hot_10_count": 0.06
-        },
-        "mean_gap": {
-            "sum": -0.03,
-            "ac": 0.35,
-            "end_sum": -0.12,
-            "span": 1.0,
-            "mean_gap": 1.0,
-            "odd_count": 0.03,
-            "low_count": 0.04,
-            "period_1": -0.01,
-            "period_2": 0.0,
-            "period_3": 0.03,
-            "neighbor": -0.06,
-            "consecutive": -0.27,
-            "prime": 0.08,
-            "composite": -0.17,
-            "multiple_3": -0.03,
-            "multiple_4": 0.02,
-            "square": 0.04,
-            "double_num": 0.01,
-            "mirror": -0.07,
-            "bucket_15": 0.48,
-            "bucket_9": 0.44,
-            "bucket_7": 0.45,
-            "bucket_5": 0.33,
-            "p9": -0.06,
-            "empty_zone": -0.53,
-            "color": 0.53,
-            "pattern_corner": 0.12,
-            "pattern_center": -0.31,
-            "same_end": 0.12,
-            "recent_5_recurrence": 0.02,
-            "hot_10_count": 0.06
+            "hot_10_count": 0.01,
+            "cold_20_count": -0.01,
+            "avg_recurrence_interval": -0.03
         },
         "odd_count": {
             "sum": -0.0,
-            "ac": 0.02,
-            "end_sum": 0.18,
-            "span": 0.03,
-            "mean_gap": 0.03,
             "odd_count": 1.0,
             "low_count": -0.01,
             "period_1": -0.01,
@@ -1270,22 +1163,26 @@
             "color": 0.02,
             "pattern_corner": 0.01,
             "pattern_center": 0.0,
+            "end_sum": 0.18,
             "same_end": 0.04,
+            "ac": 0.02,
+            "span": 0.03,
+            "mean_gap": 0.03,
+            "individual_streak": 0.02,
+            "over_appearance": -0.02,
             "recent_5_recurrence": -0.07,
-            "hot_10_count": -0.05
+            "hot_10_count": -0.05,
+            "cold_20_count": 0.01,
+            "avg_recurrence_interval": 0.02
         },
         "low_count": {
             "sum": -0.88,
-            "ac": 0.04,
-            "end_sum": -0.04,
-            "span": 0.04,
-            "mean_gap": 0.04,
             "odd_count": -0.01,
             "low_count": 1.0,
             "period_1": 0.03,
             "period_2": -0.05,
             "period_3": -0.01,
-            "neighbor": 0.02,
+            "neighbor": 0.01,
             "consecutive": 0.04,
             "prime": 0.15,
             "composite": -0.2,
@@ -1303,22 +1200,26 @@
             "color": -0.1,
             "pattern_corner": -0.01,
             "pattern_center": -0.12,
+            "end_sum": -0.04,
             "same_end": 0.02,
+            "ac": 0.04,
+            "span": 0.04,
+            "mean_gap": 0.04,
+            "individual_streak": 0.0,
+            "over_appearance": -0.01,
             "recent_5_recurrence": -0.01,
-            "hot_10_count": 0.0
+            "hot_10_count": 0.0,
+            "cold_20_count": 0.02,
+            "avg_recurrence_interval": 0.04
         },
         "period_1": {
             "sum": -0.04,
-            "ac": 0.02,
-            "end_sum": 0.03,
-            "span": -0.01,
-            "mean_gap": -0.01,
             "odd_count": -0.01,
             "low_count": 0.03,
             "period_1": 1.0,
             "period_2": -0.01,
             "period_3": 0.06,
-            "neighbor": -0.05,
+            "neighbor": -0.04,
             "consecutive": 0.01,
             "prime": -0.05,
             "composite": 0.04,
@@ -1336,22 +1237,26 @@
             "color": -0.03,
             "pattern_corner": -0.02,
             "pattern_center": 0.02,
+            "end_sum": 0.03,
             "same_end": -0.05,
+            "ac": 0.02,
+            "span": -0.01,
+            "mean_gap": -0.01,
+            "individual_streak": 0.29,
+            "over_appearance": 0.2,
             "recent_5_recurrence": 0.46,
-            "hot_10_count": 0.23
+            "hot_10_count": 0.23,
+            "cold_20_count": -0.05,
+            "avg_recurrence_interval": -0.32
         },
         "period_2": {
             "sum": 0.03,
-            "ac": 0.04,
-            "end_sum": 0.02,
-            "span": 0.0,
-            "mean_gap": 0.0,
             "odd_count": -0.03,
             "low_count": -0.05,
             "period_1": -0.01,
             "period_2": 1.0,
             "period_3": 0.01,
-            "neighbor": -0.0,
+            "neighbor": 0.02,
             "consecutive": 0.02,
             "prime": 0.01,
             "composite": 0.01,
@@ -1369,22 +1274,26 @@
             "color": -0.0,
             "pattern_corner": 0.03,
             "pattern_center": 0.02,
+            "end_sum": 0.02,
             "same_end": -0.01,
+            "ac": 0.04,
+            "span": 0.0,
+            "mean_gap": 0.0,
+            "individual_streak": 0.34,
+            "over_appearance": 0.21,
             "recent_5_recurrence": 0.44,
-            "hot_10_count": 0.27
+            "hot_10_count": 0.27,
+            "cold_20_count": -0.05,
+            "avg_recurrence_interval": -0.27
         },
         "period_3": {
             "sum": -0.01,
-            "ac": -0.0,
-            "end_sum": -0.04,
-            "span": 0.03,
-            "mean_gap": 0.03,
             "odd_count": -0.03,
             "low_count": -0.01,
             "period_1": 0.06,
             "period_2": 0.01,
             "period_3": 1.0,
-            "neighbor": 0.0,
+            "neighbor": -0.0,
             "consecutive": 0.02,
             "prime": 0.01,
             "composite": -0.02,
@@ -1402,31 +1311,35 @@
             "color": 0.01,
             "pattern_corner": 0.03,
             "pattern_center": -0.01,
+            "end_sum": -0.04,
             "same_end": 0.0,
+            "ac": -0.0,
+            "span": 0.03,
+            "mean_gap": 0.03,
+            "individual_streak": -0.01,
+            "over_appearance": 0.2,
             "recent_5_recurrence": 0.49,
-            "hot_10_count": 0.33
+            "hot_10_count": 0.33,
+            "cold_20_count": -0.13,
+            "avg_recurrence_interval": -0.28
         },
         "neighbor": {
-            "sum": -0.01,
-            "ac": -0.02,
-            "end_sum": -0.01,
-            "span": -0.06,
-            "mean_gap": -0.06,
+            "sum": 0.0,
             "odd_count": -0.01,
-            "low_count": 0.02,
-            "period_1": -0.05,
-            "period_2": -0.0,
-            "period_3": 0.0,
+            "low_count": 0.01,
+            "period_1": -0.04,
+            "period_2": 0.02,
+            "period_3": -0.0,
             "neighbor": 1.0,
             "consecutive": 0.0,
-            "prime": 0.0,
-            "composite": 0.01,
-            "multiple_3": -0.0,
-            "multiple_4": 0.01,
-            "square": -0.02,
-            "double_num": 0.0,
+            "prime": -0.01,
+            "composite": 0.02,
+            "multiple_3": 0.0,
+            "multiple_4": 0.02,
+            "square": -0.01,
+            "double_num": 0.01,
             "mirror": 0.0,
-            "bucket_15": -0.04,
+            "bucket_15": -0.03,
             "bucket_9": -0.01,
             "bucket_7": -0.04,
             "bucket_5": -0.03,
@@ -1435,16 +1348,20 @@
             "color": -0.02,
             "pattern_corner": -0.05,
             "pattern_center": -0.04,
-            "same_end": -0.04,
-            "recent_5_recurrence": -0.0,
-            "hot_10_count": 0.03
+            "end_sum": -0.02,
+            "same_end": -0.03,
+            "ac": -0.04,
+            "span": -0.07,
+            "mean_gap": -0.07,
+            "individual_streak": -0.02,
+            "over_appearance": -0.02,
+            "recent_5_recurrence": 0.0,
+            "hot_10_count": 0.03,
+            "cold_20_count": 0.0,
+            "avg_recurrence_interval": -0.02
         },
         "consecutive": {
             "sum": -0.04,
-            "ac": -0.12,
-            "end_sum": 0.01,
-            "span": -0.27,
-            "mean_gap": -0.27,
             "odd_count": -0.03,
             "low_count": 0.04,
             "period_1": 0.01,
@@ -1468,22 +1385,26 @@
             "color": -0.36,
             "pattern_corner": -0.01,
             "pattern_center": 0.07,
+            "end_sum": 0.01,
             "same_end": -0.08,
+            "ac": -0.12,
+            "span": -0.27,
+            "mean_gap": -0.27,
+            "individual_streak": 0.01,
+            "over_appearance": 0.04,
             "recent_5_recurrence": 0.05,
-            "hot_10_count": 0.03
+            "hot_10_count": 0.03,
+            "cold_20_count": -0.01,
+            "avg_recurrence_interval": -0.03
         },
         "prime": {
             "sum": -0.17,
-            "ac": 0.04,
-            "end_sum": 0.03,
-            "span": 0.08,
-            "mean_gap": 0.08,
             "odd_count": 0.57,
             "low_count": 0.15,
             "period_1": -0.05,
             "period_2": 0.01,
             "period_3": 0.01,
-            "neighbor": 0.0,
+            "neighbor": -0.01,
             "consecutive": 0.03,
             "prime": 1.0,
             "composite": -0.95,
@@ -1501,22 +1422,26 @@
             "color": 0.03,
             "pattern_corner": 0.07,
             "pattern_center": 0.02,
+            "end_sum": 0.03,
             "same_end": 0.03,
+            "ac": 0.04,
+            "span": 0.08,
+            "mean_gap": 0.08,
+            "individual_streak": -0.0,
+            "over_appearance": -0.0,
             "recent_5_recurrence": -0.04,
-            "hot_10_count": -0.07
+            "hot_10_count": -0.07,
+            "cold_20_count": 0.01,
+            "avg_recurrence_interval": 0.01
         },
         "composite": {
             "sum": 0.26,
-            "ac": -0.07,
-            "end_sum": 0.03,
-            "span": -0.17,
-            "mean_gap": -0.17,
             "odd_count": -0.59,
             "low_count": -0.2,
             "period_1": 0.04,
             "period_2": 0.01,
             "period_3": -0.02,
-            "neighbor": 0.01,
+            "neighbor": 0.02,
             "consecutive": -0.01,
             "prime": -0.95,
             "composite": 1.0,
@@ -1534,22 +1459,26 @@
             "color": -0.02,
             "pattern_corner": -0.14,
             "pattern_center": 0.02,
+            "end_sum": 0.03,
             "same_end": -0.03,
+            "ac": -0.07,
+            "span": -0.17,
+            "mean_gap": -0.17,
+            "individual_streak": -0.01,
+            "over_appearance": 0.0,
             "recent_5_recurrence": 0.04,
-            "hot_10_count": 0.05
+            "hot_10_count": 0.05,
+            "cold_20_count": -0.0,
+            "avg_recurrence_interval": -0.0
         },
         "multiple_3": {
             "sum": 0.06,
-            "ac": -0.01,
-            "end_sum": 0.09,
-            "span": -0.03,
-            "mean_gap": -0.03,
             "odd_count": 0.03,
             "low_count": -0.04,
             "period_1": 0.03,
             "period_2": -0.0,
             "period_3": -0.02,
-            "neighbor": -0.0,
+            "neighbor": 0.0,
             "consecutive": -0.02,
             "prime": -0.36,
             "composite": 0.39,
@@ -1567,22 +1496,26 @@
             "color": 0.03,
             "pattern_corner": -0.0,
             "pattern_center": 0.01,
+            "end_sum": 0.09,
             "same_end": 0.01,
+            "ac": -0.01,
+            "span": -0.03,
+            "mean_gap": -0.03,
+            "individual_streak": 0.01,
+            "over_appearance": 0.0,
             "recent_5_recurrence": -0.01,
-            "hot_10_count": 0.02
+            "hot_10_count": 0.02,
+            "cold_20_count": -0.02,
+            "avg_recurrence_interval": -0.02
         },
         "multiple_4": {
             "sum": 0.02,
-            "ac": 0.01,
-            "end_sum": -0.13,
-            "span": 0.02,
-            "mean_gap": 0.02,
             "odd_count": -0.55,
             "low_count": -0.04,
             "period_1": 0.01,
             "period_2": -0.02,
             "period_3": -0.01,
-            "neighbor": 0.01,
+            "neighbor": 0.02,
             "consecutive": -0.02,
             "prime": -0.37,
             "composite": 0.37,
@@ -1600,22 +1533,26 @@
             "color": -0.02,
             "pattern_corner": -0.24,
             "pattern_center": 0.01,
+            "end_sum": -0.13,
             "same_end": -0.02,
+            "ac": 0.01,
+            "span": 0.02,
+            "mean_gap": 0.02,
+            "individual_streak": -0.02,
+            "over_appearance": -0.0,
             "recent_5_recurrence": 0.02,
-            "hot_10_count": -0.02
+            "hot_10_count": -0.02,
+            "cold_20_count": -0.02,
+            "avg_recurrence_interval": -0.01
         },
         "square": {
             "sum": -0.24,
-            "ac": -0.0,
-            "end_sum": 0.12,
-            "span": 0.04,
-            "mean_gap": 0.04,
             "odd_count": 0.01,
             "low_count": 0.12,
             "period_1": 0.03,
             "period_2": -0.03,
             "period_3": -0.01,
-            "neighbor": -0.02,
+            "neighbor": -0.01,
             "consecutive": 0.01,
             "prime": -0.24,
             "composite": 0.1,
@@ -1633,22 +1570,26 @@
             "color": -0.1,
             "pattern_corner": 0.1,
             "pattern_center": -0.03,
+            "end_sum": 0.12,
             "same_end": -0.02,
+            "ac": -0.0,
+            "span": 0.04,
+            "mean_gap": 0.04,
+            "individual_streak": 0.02,
+            "over_appearance": 0.0,
             "recent_5_recurrence": -0.0,
-            "hot_10_count": 0.0
+            "hot_10_count": 0.0,
+            "cold_20_count": 0.04,
+            "avg_recurrence_interval": 0.04
         },
         "double_num": {
             "sum": 0.08,
-            "ac": -0.04,
-            "end_sum": -0.22,
-            "span": 0.01,
-            "mean_gap": 0.01,
             "odd_count": -0.01,
             "low_count": 0.01,
             "period_1": -0.03,
             "period_2": -0.0,
             "period_3": -0.02,
-            "neighbor": 0.0,
+            "neighbor": 0.01,
             "consecutive": 0.01,
             "prime": -0.01,
             "composite": 0.05,
@@ -1666,16 +1607,20 @@
             "color": 0.02,
             "pattern_corner": -0.22,
             "pattern_center": 0.05,
+            "end_sum": -0.22,
             "same_end": 0.04,
+            "ac": -0.04,
+            "span": 0.01,
+            "mean_gap": 0.01,
+            "individual_streak": -0.02,
+            "over_appearance": -0.07,
             "recent_5_recurrence": -0.05,
-            "hot_10_count": -0.01
+            "hot_10_count": -0.01,
+            "cold_20_count": 0.05,
+            "avg_recurrence_interval": 0.04
         },
         "mirror": {
             "sum": 0.2,
-            "ac": -0.07,
-            "end_sum": -0.42,
-            "span": -0.07,
-            "mean_gap": -0.07,
             "odd_count": -0.04,
             "low_count": -0.16,
             "period_1": -0.04,
@@ -1699,22 +1644,26 @@
             "color": 0.1,
             "pattern_corner": 0.05,
             "pattern_center": 0.08,
+            "end_sum": -0.42,
             "same_end": 0.13,
+            "ac": -0.07,
+            "span": -0.07,
+            "mean_gap": -0.07,
+            "individual_streak": -0.04,
+            "over_appearance": -0.04,
             "recent_5_recurrence": -0.02,
-            "hot_10_count": -0.04
+            "hot_10_count": -0.04,
+            "cold_20_count": -0.01,
+            "avg_recurrence_interval": -0.02
         },
         "bucket_15": {
             "sum": -0.04,
-            "ac": 0.24,
-            "end_sum": 0.01,
-            "span": 0.48,
-            "mean_gap": 0.48,
             "odd_count": -0.04,
             "low_count": 0.04,
             "period_1": 0.01,
             "period_2": -0.01,
             "period_3": 0.02,
-            "neighbor": -0.04,
+            "neighbor": -0.03,
             "consecutive": -0.26,
             "prime": -0.04,
             "composite": 0.03,
@@ -1732,16 +1681,20 @@
             "color": 0.47,
             "pattern_corner": 0.0,
             "pattern_center": -0.05,
+            "end_sum": 0.01,
             "same_end": 0.09,
+            "ac": 0.24,
+            "span": 0.48,
+            "mean_gap": 0.48,
+            "individual_streak": 0.0,
+            "over_appearance": -0.04,
             "recent_5_recurrence": -0.01,
-            "hot_10_count": 0.01
+            "hot_10_count": 0.01,
+            "cold_20_count": -0.02,
+            "avg_recurrence_interval": -0.01
         },
         "bucket_9": {
             "sum": -0.02,
-            "ac": 0.15,
-            "end_sum": -0.05,
-            "span": 0.44,
-            "mean_gap": 0.44,
             "odd_count": -0.03,
             "low_count": 0.02,
             "period_1": -0.01,
@@ -1765,16 +1718,20 @@
             "color": 0.5,
             "pattern_corner": -0.01,
             "pattern_center": -0.07,
+            "end_sum": -0.05,
             "same_end": 0.11,
+            "ac": 0.15,
+            "span": 0.44,
+            "mean_gap": 0.44,
+            "individual_streak": 0.01,
+            "over_appearance": 0.02,
             "recent_5_recurrence": -0.0,
-            "hot_10_count": -0.01
+            "hot_10_count": -0.01,
+            "cold_20_count": -0.05,
+            "avg_recurrence_interval": -0.01
         },
         "bucket_7": {
             "sum": 0.12,
-            "ac": 0.2,
-            "end_sum": -0.01,
-            "span": 0.45,
-            "mean_gap": 0.45,
             "odd_count": 0.01,
             "low_count": -0.08,
             "period_1": -0.02,
@@ -1798,16 +1755,20 @@
             "color": 0.51,
             "pattern_corner": -0.07,
             "pattern_center": -0.06,
+            "end_sum": -0.01,
             "same_end": 0.13,
+            "ac": 0.2,
+            "span": 0.45,
+            "mean_gap": 0.45,
+            "individual_streak": -0.04,
+            "over_appearance": -0.02,
             "recent_5_recurrence": -0.01,
-            "hot_10_count": -0.02
+            "hot_10_count": -0.02,
+            "cold_20_count": -0.04,
+            "avg_recurrence_interval": -0.03
         },
         "bucket_5": {
             "sum": -0.02,
-            "ac": 0.11,
-            "end_sum": -0.0,
-            "span": 0.33,
-            "mean_gap": 0.33,
             "odd_count": 0.02,
             "low_count": 0.04,
             "period_1": 0.04,
@@ -1831,16 +1792,20 @@
             "color": 0.59,
             "pattern_corner": -0.0,
             "pattern_center": -0.04,
+            "end_sum": -0.0,
             "same_end": 0.1,
+            "ac": 0.11,
+            "span": 0.33,
+            "mean_gap": 0.33,
+            "individual_streak": -0.01,
+            "over_appearance": 0.01,
             "recent_5_recurrence": -0.01,
-            "hot_10_count": -0.01
+            "hot_10_count": -0.01,
+            "cold_20_count": 0.02,
+            "avg_recurrence_interval": 0.01
         },
         "p9": {
             "sum": -0.01,
-            "ac": -0.06,
-            "end_sum": 0.05,
-            "span": -0.06,
-            "mean_gap": -0.06,
             "odd_count": -0.02,
             "low_count": 0.02,
             "period_1": -0.02,
@@ -1864,16 +1829,20 @@
             "color": -0.06,
             "pattern_corner": 0.02,
             "pattern_center": 0.03,
+            "end_sum": 0.05,
             "same_end": 0.07,
+            "ac": -0.06,
+            "span": -0.06,
+            "mean_gap": -0.06,
+            "individual_streak": 0.01,
+            "over_appearance": -0.01,
             "recent_5_recurrence": 0.02,
-            "hot_10_count": 0.01
+            "hot_10_count": 0.01,
+            "cold_20_count": -0.02,
+            "avg_recurrence_interval": 0.01
         },
         "empty_zone": {
             "sum": -0.15,
-            "ac": -0.21,
-            "end_sum": 0.05,
-            "span": -0.53,
-            "mean_gap": -0.53,
             "odd_count": -0.02,
             "low_count": 0.1,
             "period_1": 0.03,
@@ -1897,16 +1866,20 @@
             "color": -1.0,
             "pattern_corner": 0.01,
             "pattern_center": 0.1,
+            "end_sum": 0.05,
             "same_end": -0.18,
+            "ac": -0.21,
+            "span": -0.53,
+            "mean_gap": -0.53,
+            "individual_streak": -0.0,
+            "over_appearance": 0.01,
             "recent_5_recurrence": 0.01,
-            "hot_10_count": 0.01
+            "hot_10_count": 0.01,
+            "cold_20_count": 0.0,
+            "avg_recurrence_interval": 0.01
         },
         "color": {
             "sum": 0.15,
-            "ac": 0.21,
-            "end_sum": -0.05,
-            "span": 0.53,
-            "mean_gap": 0.53,
             "odd_count": 0.02,
             "low_count": -0.1,
             "period_1": -0.03,
@@ -1930,16 +1903,20 @@
             "color": 1.0,
             "pattern_corner": -0.01,
             "pattern_center": -0.1,
+            "end_sum": -0.05,
             "same_end": 0.18,
+            "ac": 0.21,
+            "span": 0.53,
+            "mean_gap": 0.53,
+            "individual_streak": 0.0,
+            "over_appearance": -0.01,
             "recent_5_recurrence": -0.01,
-            "hot_10_count": -0.01
+            "hot_10_count": -0.01,
+            "cold_20_count": -0.0,
+            "avg_recurrence_interval": -0.01
         },
         "pattern_corner": {
             "sum": -0.05,
-            "ac": 0.11,
-            "end_sum": 0.1,
-            "span": 0.12,
-            "mean_gap": 0.12,
             "odd_count": 0.01,
             "low_count": -0.01,
             "period_1": -0.02,
@@ -1963,16 +1940,20 @@
             "color": -0.01,
             "pattern_corner": 1.0,
             "pattern_center": -0.37,
+            "end_sum": 0.1,
             "same_end": -0.02,
+            "ac": 0.11,
+            "span": 0.12,
+            "mean_gap": 0.12,
+            "individual_streak": -0.0,
+            "over_appearance": -0.0,
             "recent_5_recurrence": -0.0,
-            "hot_10_count": 0.0
+            "hot_10_count": 0.0,
+            "cold_20_count": -0.02,
+            "avg_recurrence_interval": -0.03
         },
         "pattern_center": {
             "sum": 0.07,
-            "ac": -0.16,
-            "end_sum": 0.09,
-            "span": -0.31,
-            "mean_gap": -0.31,
             "odd_count": 0.0,
             "low_count": -0.12,
             "period_1": 0.02,
@@ -1996,22 +1977,63 @@
             "color": -0.1,
             "pattern_corner": -0.37,
             "pattern_center": 1.0,
+            "end_sum": 0.09,
             "same_end": 0.01,
+            "ac": -0.16,
+            "span": -0.31,
+            "mean_gap": -0.31,
+            "individual_streak": 0.05,
+            "over_appearance": 0.02,
             "recent_5_recurrence": -0.0,
-            "hot_10_count": 0.02
+            "hot_10_count": 0.02,
+            "cold_20_count": 0.0,
+            "avg_recurrence_interval": -0.0
+        },
+        "end_sum": {
+            "sum": 0.01,
+            "odd_count": 0.18,
+            "low_count": -0.04,
+            "period_1": 0.03,
+            "period_2": 0.02,
+            "period_3": -0.04,
+            "neighbor": -0.02,
+            "consecutive": 0.01,
+            "prime": 0.03,
+            "composite": 0.03,
+            "multiple_3": 0.09,
+            "multiple_4": -0.13,
+            "square": 0.12,
+            "double_num": -0.22,
+            "mirror": -0.42,
+            "bucket_15": 0.01,
+            "bucket_9": -0.05,
+            "bucket_7": -0.01,
+            "bucket_5": -0.0,
+            "p9": 0.05,
+            "empty_zone": 0.05,
+            "color": -0.05,
+            "pattern_corner": 0.1,
+            "pattern_center": 0.09,
+            "end_sum": 1.0,
+            "same_end": -0.1,
+            "ac": 0.02,
+            "span": -0.12,
+            "mean_gap": -0.12,
+            "individual_streak": 0.01,
+            "over_appearance": 0.08,
+            "recent_5_recurrence": 0.01,
+            "hot_10_count": 0.01,
+            "cold_20_count": 0.01,
+            "avg_recurrence_interval": -0.0
         },
         "same_end": {
             "sum": -0.0,
-            "ac": 0.09,
-            "end_sum": -0.1,
-            "span": 0.12,
-            "mean_gap": 0.12,
             "odd_count": 0.04,
             "low_count": 0.02,
             "period_1": -0.05,
             "period_2": -0.01,
             "period_3": 0.0,
-            "neighbor": -0.04,
+            "neighbor": -0.03,
             "consecutive": -0.08,
             "prime": 0.03,
             "composite": -0.03,
@@ -2029,22 +2051,211 @@
             "color": 0.18,
             "pattern_corner": -0.02,
             "pattern_center": 0.01,
+            "end_sum": -0.1,
             "same_end": 1.0,
+            "ac": 0.09,
+            "span": 0.12,
+            "mean_gap": 0.12,
+            "individual_streak": -0.01,
+            "over_appearance": 0.0,
             "recent_5_recurrence": -0.01,
-            "hot_10_count": -0.0
+            "hot_10_count": -0.0,
+            "cold_20_count": -0.02,
+            "avg_recurrence_interval": -0.01
+        },
+        "ac": {
+            "sum": -0.03,
+            "odd_count": 0.02,
+            "low_count": 0.04,
+            "period_1": 0.02,
+            "period_2": 0.04,
+            "period_3": -0.0,
+            "neighbor": -0.04,
+            "consecutive": -0.12,
+            "prime": 0.04,
+            "composite": -0.07,
+            "multiple_3": -0.01,
+            "multiple_4": 0.01,
+            "square": -0.0,
+            "double_num": -0.04,
+            "mirror": -0.07,
+            "bucket_15": 0.24,
+            "bucket_9": 0.15,
+            "bucket_7": 0.2,
+            "bucket_5": 0.11,
+            "p9": -0.06,
+            "empty_zone": -0.21,
+            "color": 0.21,
+            "pattern_corner": 0.11,
+            "pattern_center": -0.16,
+            "end_sum": 0.02,
+            "same_end": 0.09,
+            "ac": 1.0,
+            "span": 0.35,
+            "mean_gap": 0.35,
+            "individual_streak": 0.0,
+            "over_appearance": 0.04,
+            "recent_5_recurrence": 0.01,
+            "hot_10_count": 0.01,
+            "cold_20_count": -0.01,
+            "avg_recurrence_interval": 0.0
+        },
+        "span": {
+            "sum": -0.03,
+            "odd_count": 0.03,
+            "low_count": 0.04,
+            "period_1": -0.01,
+            "period_2": 0.0,
+            "period_3": 0.03,
+            "neighbor": -0.07,
+            "consecutive": -0.27,
+            "prime": 0.08,
+            "composite": -0.17,
+            "multiple_3": -0.03,
+            "multiple_4": 0.02,
+            "square": 0.04,
+            "double_num": 0.01,
+            "mirror": -0.07,
+            "bucket_15": 0.48,
+            "bucket_9": 0.44,
+            "bucket_7": 0.45,
+            "bucket_5": 0.33,
+            "p9": -0.06,
+            "empty_zone": -0.53,
+            "color": 0.53,
+            "pattern_corner": 0.12,
+            "pattern_center": -0.31,
+            "end_sum": -0.12,
+            "same_end": 0.12,
+            "ac": 0.35,
+            "span": 1.0,
+            "mean_gap": 1.0,
+            "individual_streak": 0.01,
+            "over_appearance": -0.01,
+            "recent_5_recurrence": 0.02,
+            "hot_10_count": 0.06,
+            "cold_20_count": -0.07,
+            "avg_recurrence_interval": -0.06
+        },
+        "mean_gap": {
+            "sum": -0.03,
+            "odd_count": 0.03,
+            "low_count": 0.04,
+            "period_1": -0.01,
+            "period_2": 0.0,
+            "period_3": 0.03,
+            "neighbor": -0.07,
+            "consecutive": -0.27,
+            "prime": 0.08,
+            "composite": -0.17,
+            "multiple_3": -0.03,
+            "multiple_4": 0.02,
+            "square": 0.04,
+            "double_num": 0.01,
+            "mirror": -0.07,
+            "bucket_15": 0.48,
+            "bucket_9": 0.44,
+            "bucket_7": 0.45,
+            "bucket_5": 0.33,
+            "p9": -0.06,
+            "empty_zone": -0.53,
+            "color": 0.53,
+            "pattern_corner": 0.12,
+            "pattern_center": -0.31,
+            "end_sum": -0.12,
+            "same_end": 0.12,
+            "ac": 0.35,
+            "span": 1.0,
+            "mean_gap": 1.0,
+            "individual_streak": 0.01,
+            "over_appearance": -0.01,
+            "recent_5_recurrence": 0.02,
+            "hot_10_count": 0.06,
+            "cold_20_count": -0.07,
+            "avg_recurrence_interval": -0.06
+        },
+        "individual_streak": {
+            "sum": -0.02,
+            "odd_count": 0.02,
+            "low_count": 0.0,
+            "period_1": 0.29,
+            "period_2": 0.34,
+            "period_3": -0.01,
+            "neighbor": -0.02,
+            "consecutive": 0.01,
+            "prime": -0.0,
+            "composite": -0.01,
+            "multiple_3": 0.01,
+            "multiple_4": -0.02,
+            "square": 0.02,
+            "double_num": -0.02,
+            "mirror": -0.04,
+            "bucket_15": 0.0,
+            "bucket_9": 0.01,
+            "bucket_7": -0.04,
+            "bucket_5": -0.01,
+            "p9": 0.01,
+            "empty_zone": -0.0,
+            "color": 0.0,
+            "pattern_corner": -0.0,
+            "pattern_center": 0.05,
+            "end_sum": 0.01,
+            "same_end": -0.01,
+            "ac": 0.0,
+            "span": 0.01,
+            "mean_gap": 0.01,
+            "individual_streak": 1.0,
+            "over_appearance": 0.34,
+            "recent_5_recurrence": 0.26,
+            "hot_10_count": 0.16,
+            "cold_20_count": 0.01,
+            "avg_recurrence_interval": -0.06
+        },
+        "over_appearance": {
+            "sum": -0.01,
+            "odd_count": -0.02,
+            "low_count": -0.01,
+            "period_1": 0.2,
+            "period_2": 0.21,
+            "period_3": 0.2,
+            "neighbor": -0.02,
+            "consecutive": 0.04,
+            "prime": -0.0,
+            "composite": 0.0,
+            "multiple_3": 0.0,
+            "multiple_4": -0.0,
+            "square": 0.0,
+            "double_num": -0.07,
+            "mirror": -0.04,
+            "bucket_15": -0.04,
+            "bucket_9": 0.02,
+            "bucket_7": -0.02,
+            "bucket_5": 0.01,
+            "p9": -0.01,
+            "empty_zone": 0.01,
+            "color": -0.01,
+            "pattern_corner": -0.0,
+            "pattern_center": 0.02,
+            "end_sum": 0.08,
+            "same_end": 0.0,
+            "ac": 0.04,
+            "span": -0.01,
+            "mean_gap": -0.01,
+            "individual_streak": 0.34,
+            "over_appearance": 1.0,
+            "recent_5_recurrence": 0.43,
+            "hot_10_count": 0.18,
+            "cold_20_count": -0.01,
+            "avg_recurrence_interval": -0.09
         },
         "recent_5_recurrence": {
             "sum": -0.01,
-            "ac": 0.01,
-            "end_sum": 0.01,
-            "span": 0.02,
-            "mean_gap": 0.02,
             "odd_count": -0.07,
             "low_count": -0.01,
             "period_1": 0.46,
             "period_2": 0.44,
             "period_3": 0.49,
-            "neighbor": -0.0,
+            "neighbor": 0.0,
             "consecutive": 0.05,
             "prime": -0.04,
             "composite": 0.04,
@@ -2062,16 +2273,20 @@
             "color": -0.01,
             "pattern_corner": -0.0,
             "pattern_center": -0.0,
+            "end_sum": 0.01,
             "same_end": -0.01,
+            "ac": 0.01,
+            "span": 0.02,
+            "mean_gap": 0.02,
+            "individual_streak": 0.26,
+            "over_appearance": 0.43,
             "recent_5_recurrence": 1.0,
-            "hot_10_count": 0.6
+            "hot_10_count": 0.6,
+            "cold_20_count": -0.17,
+            "avg_recurrence_interval": -0.58
         },
         "hot_10_count": {
             "sum": 0.01,
-            "ac": 0.01,
-            "end_sum": 0.01,
-            "span": 0.06,
-            "mean_gap": 0.06,
             "odd_count": -0.05,
             "low_count": 0.0,
             "period_1": 0.23,
@@ -2095,9 +2310,91 @@
             "color": -0.01,
             "pattern_corner": 0.0,
             "pattern_center": 0.02,
+            "end_sum": 0.01,
             "same_end": -0.0,
+            "ac": 0.01,
+            "span": 0.06,
+            "mean_gap": 0.06,
+            "individual_streak": 0.16,
+            "over_appearance": 0.18,
             "recent_5_recurrence": 0.6,
-            "hot_10_count": 1.0
+            "hot_10_count": 1.0,
+            "cold_20_count": -0.17,
+            "avg_recurrence_interval": -0.44
+        },
+        "cold_20_count": {
+            "sum": -0.01,
+            "odd_count": 0.01,
+            "low_count": 0.02,
+            "period_1": -0.05,
+            "period_2": -0.05,
+            "period_3": -0.13,
+            "neighbor": 0.0,
+            "consecutive": -0.01,
+            "prime": 0.01,
+            "composite": -0.0,
+            "multiple_3": -0.02,
+            "multiple_4": -0.02,
+            "square": 0.04,
+            "double_num": 0.05,
+            "mirror": -0.01,
+            "bucket_15": -0.02,
+            "bucket_9": -0.05,
+            "bucket_7": -0.04,
+            "bucket_5": 0.02,
+            "p9": -0.02,
+            "empty_zone": 0.0,
+            "color": -0.0,
+            "pattern_corner": -0.02,
+            "pattern_center": 0.0,
+            "end_sum": 0.01,
+            "same_end": -0.02,
+            "ac": -0.01,
+            "span": -0.07,
+            "mean_gap": -0.07,
+            "individual_streak": 0.01,
+            "over_appearance": -0.01,
+            "recent_5_recurrence": -0.17,
+            "hot_10_count": -0.17,
+            "cold_20_count": 1.0,
+            "avg_recurrence_interval": 0.7
+        },
+        "avg_recurrence_interval": {
+            "sum": -0.03,
+            "odd_count": 0.02,
+            "low_count": 0.04,
+            "period_1": -0.32,
+            "period_2": -0.27,
+            "period_3": -0.28,
+            "neighbor": -0.02,
+            "consecutive": -0.03,
+            "prime": 0.01,
+            "composite": -0.0,
+            "multiple_3": -0.02,
+            "multiple_4": -0.01,
+            "square": 0.04,
+            "double_num": 0.04,
+            "mirror": -0.02,
+            "bucket_15": -0.01,
+            "bucket_9": -0.01,
+            "bucket_7": -0.03,
+            "bucket_5": 0.01,
+            "p9": 0.01,
+            "empty_zone": 0.01,
+            "color": -0.01,
+            "pattern_corner": -0.03,
+            "pattern_center": -0.0,
+            "end_sum": -0.0,
+            "same_end": -0.01,
+            "ac": 0.0,
+            "span": -0.06,
+            "mean_gap": -0.06,
+            "individual_streak": -0.06,
+            "over_appearance": -0.09,
+            "recent_5_recurrence": -0.58,
+            "hot_10_count": -0.44,
+            "cold_20_count": 0.7,
+            "avg_recurrence_interval": 1.0
         }
     },
     "recent_draws": [
@@ -2144,7 +2441,9 @@
             "individual_streak": 0,
             "over_appearance": 2,
             "recent_5_recurrence": 9,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 5.5
         },
         {
             "no": 1212,
@@ -2189,7 +2488,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 0,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.8
         },
         {
             "no": 1211,
@@ -2234,7 +2535,9 @@
             "individual_streak": 0,
             "over_appearance": 2,
             "recent_5_recurrence": 9,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.0
         },
         {
             "no": 1210,
@@ -2253,7 +2556,7 @@
             "period_1": 1,
             "period_2": 2,
             "period_3": 2,
-            "neighbor": 2,
+            "neighbor": 3,
             "consecutive": 0,
             "prime": 2,
             "composite": 3,
@@ -2279,7 +2582,9 @@
             "individual_streak": 0,
             "over_appearance": 1,
             "recent_5_recurrence": 9,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.5
         },
         {
             "no": 1209,
@@ -2298,7 +2603,7 @@
             "period_1": 0,
             "period_2": 0,
             "period_3": 1,
-            "neighbor": 3,
+            "neighbor": 4,
             "consecutive": 0,
             "prime": 3,
             "composite": 3,
@@ -2324,7 +2629,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.7
         },
         {
             "no": 1208,
@@ -2369,7 +2676,9 @@
             "individual_streak": 1,
             "over_appearance": 0,
             "recent_5_recurrence": 6,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 3.3
         },
         {
             "no": 1207,
@@ -2414,7 +2723,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 10.2
         },
         {
             "no": 1206,
@@ -2459,7 +2770,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 2,
+            "avg_recurrence_interval": 11.5
         },
         {
             "no": 1205,
@@ -2504,7 +2817,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.3
         },
         {
             "no": 1204,
@@ -2549,7 +2864,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 9.0
         },
         {
             "no": 1203,
@@ -2594,7 +2911,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 9.2
         },
         {
             "no": 1202,
@@ -2639,7 +2958,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.2
         },
         {
             "no": 1201,
@@ -2684,7 +3005,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.3
         },
         {
             "no": 1200,
@@ -2729,7 +3052,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.2
         },
         {
             "no": 1199,
@@ -2774,7 +3099,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 9.3
         },
         {
             "no": 1198,
@@ -2819,7 +3146,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 8.0
         },
         {
             "no": 1197,
@@ -2864,7 +3193,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.8
         },
         {
             "no": 1196,
@@ -2909,7 +3240,9 @@
             "individual_streak": 1,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.5
         },
         {
             "no": 1195,
@@ -2954,7 +3287,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 6.3
         },
         {
             "no": 1194,
@@ -2999,7 +3334,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 7.2
         },
         {
             "no": 1193,
@@ -3044,7 +3381,9 @@
             "individual_streak": 0,
             "over_appearance": 1,
             "recent_5_recurrence": 6,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.0
         },
         {
             "no": 1192,
@@ -3089,7 +3428,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.5
         },
         {
             "no": 1191,
@@ -3134,7 +3475,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.0
         },
         {
             "no": 1190,
@@ -3179,7 +3522,9 @@
             "individual_streak": 1,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 7.8
         },
         {
             "no": 1189,
@@ -3224,7 +3569,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.3
         },
         {
             "no": 1188,
@@ -3269,7 +3616,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.8
         },
         {
             "no": 1187,
@@ -3314,7 +3663,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.7
         },
         {
             "no": 1186,
@@ -3359,7 +3710,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 7,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 6.2
         },
         {
             "no": 1185,
@@ -3404,7 +3757,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 10.3
         },
         {
             "no": 1184,
@@ -3423,7 +3778,7 @@
             "period_1": 1,
             "period_2": 2,
             "period_3": 1,
-            "neighbor": 3,
+            "neighbor": 4,
             "consecutive": 0,
             "prime": 3,
             "composite": 3,
@@ -3449,7 +3804,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 6,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 2.8
         },
         {
             "no": 1183,
@@ -3494,7 +3851,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 0
+            "hot_10_count": 0,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.8
         },
         {
             "no": 1182,
@@ -3539,7 +3898,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 0,
-            "hot_10_count": 0
+            "hot_10_count": 0,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 11.7
         },
         {
             "no": 1181,
@@ -3584,7 +3945,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 10.2
         },
         {
             "no": 1180,
@@ -3629,7 +3992,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 8.2
         },
         {
             "no": 1179,
@@ -3674,7 +4039,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.2
         },
         {
             "no": 1178,
@@ -3719,7 +4086,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.8
         },
         {
             "no": 1177,
@@ -3764,7 +4133,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 11.2
         },
         {
             "no": 1176,
@@ -3783,7 +4154,7 @@
             "period_1": 0,
             "period_2": 1,
             "period_3": 2,
-            "neighbor": 2,
+            "neighbor": 3,
             "consecutive": 0,
             "prime": 2,
             "composite": 4,
@@ -3809,7 +4180,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 7,
-            "hot_10_count": 5
+            "hot_10_count": 5,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.0
         },
         {
             "no": 1175,
@@ -3854,7 +4227,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 6,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 8.3
         },
         {
             "no": 1174,
@@ -3899,7 +4274,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.7
         },
         {
             "no": 1173,
@@ -3944,7 +4321,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 0
+            "hot_10_count": 0,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 9.2
         },
         {
             "no": 1172,
@@ -3989,7 +4368,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 7,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.7
         },
         {
             "no": 1171,
@@ -4034,7 +4415,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 7.7
         },
         {
             "no": 1170,
@@ -4079,7 +4462,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.8
         },
         {
             "no": 1169,
@@ -4124,7 +4509,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.3
         },
         {
             "no": 1168,
@@ -4169,7 +4556,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.2
         },
         {
             "no": 1167,
@@ -4214,7 +4603,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 10.5
         },
         {
             "no": 1166,
@@ -4259,7 +4650,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 7,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 6.5
         },
         {
             "no": 1165,
@@ -4304,7 +4697,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.2
         },
         {
             "no": 1164,
@@ -4349,7 +4744,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 13.7
         },
         {
             "no": 1163,
@@ -4394,7 +4791,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 10.0
         },
         {
             "no": 1162,
@@ -4439,7 +4838,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 6,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.2
         },
         {
             "no": 1161,
@@ -4484,7 +4885,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 0
+            "hot_10_count": 0,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 10.3
         },
         {
             "no": 1160,
@@ -4529,7 +4932,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.5
         },
         {
             "no": 1159,
@@ -4574,7 +4979,9 @@
             "individual_streak": 0,
             "over_appearance": 1,
             "recent_5_recurrence": 6,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.8
         },
         {
             "no": 1158,
@@ -4619,7 +5026,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 6,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 3.8
         },
         {
             "no": 1157,
@@ -4664,7 +5073,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 15.0
         },
         {
             "no": 1156,
@@ -4709,7 +5120,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 0
+            "hot_10_count": 0,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 7.7
         },
         {
             "no": 1155,
@@ -4754,7 +5167,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 3.8
         },
         {
             "no": 1154,
@@ -4799,7 +5214,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 7.2
         },
         {
             "no": 1153,
@@ -4844,7 +5261,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 7.3
         },
         {
             "no": 1152,
@@ -4889,7 +5308,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.0
         },
         {
             "no": 1151,
@@ -4934,7 +5355,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.5
         },
         {
             "no": 1150,
@@ -4979,7 +5402,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 2,
+            "avg_recurrence_interval": 22.7
         },
         {
             "no": 1149,
@@ -5024,7 +5449,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 8.8
         },
         {
             "no": 1148,
@@ -5069,7 +5496,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.0
         },
         {
             "no": 1147,
@@ -5114,7 +5543,9 @@
             "individual_streak": 1,
             "over_appearance": 0,
             "recent_5_recurrence": 6,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.8
         },
         {
             "no": 1146,
@@ -5159,7 +5590,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 10.8
         },
         {
             "no": 1145,
@@ -5204,7 +5637,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.3
         },
         {
             "no": 1144,
@@ -5249,7 +5684,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.7
         },
         {
             "no": 1143,
@@ -5294,7 +5731,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 10.2
         },
         {
             "no": 1142,
@@ -5339,7 +5778,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.3
         },
         {
             "no": 1141,
@@ -5384,7 +5825,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 7.7
         },
         {
             "no": 1140,
@@ -5429,7 +5872,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 11.0
         },
         {
             "no": 1139,
@@ -5448,7 +5893,7 @@
             "period_1": 0,
             "period_2": 2,
             "period_3": 0,
-            "neighbor": 2,
+            "neighbor": 3,
             "consecutive": 0,
             "prime": 2,
             "composite": 4,
@@ -5474,7 +5919,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 8.5
         },
         {
             "no": 1138,
@@ -5519,7 +5966,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 6,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.5
         },
         {
             "no": 1137,
@@ -5564,7 +6013,9 @@
             "individual_streak": 1,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 9.7
         },
         {
             "no": 1136,
@@ -5609,7 +6060,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 9.2
         },
         {
             "no": 1135,
@@ -5654,7 +6107,9 @@
             "individual_streak": 1,
             "over_appearance": 1,
             "recent_5_recurrence": 9,
-            "hot_10_count": 5
+            "hot_10_count": 5,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 3.5
         },
         {
             "no": 1134,
@@ -5699,7 +6154,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.0
         },
         {
             "no": 1133,
@@ -5744,7 +6201,9 @@
             "individual_streak": 0,
             "over_appearance": 1,
             "recent_5_recurrence": 7,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 9.2
         },
         {
             "no": 1132,
@@ -5789,7 +6248,9 @@
             "individual_streak": 0,
             "over_appearance": 1,
             "recent_5_recurrence": 6,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.2
         },
         {
             "no": 1131,
@@ -5834,7 +6295,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 2,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.2
         },
         {
             "no": 1130,
@@ -5879,7 +6342,9 @@
             "individual_streak": 1,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 11.2
         },
         {
             "no": 1129,
@@ -5924,7 +6389,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 7,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 2.8
         },
         {
             "no": 1128,
@@ -5969,7 +6436,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 9.2
         },
         {
             "no": 1127,
@@ -5988,7 +6457,7 @@
             "period_1": 1,
             "period_2": 0,
             "period_3": 1,
-            "neighbor": 1,
+            "neighbor": 2,
             "consecutive": 1,
             "prime": 2,
             "composite": 4,
@@ -6014,7 +6483,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.0
         },
         {
             "no": 1126,
@@ -6059,7 +6530,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 19.5
         },
         {
             "no": 1125,
@@ -6104,7 +6577,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 6.7
         },
         {
             "no": 1124,
@@ -6149,7 +6624,9 @@
             "individual_streak": 1,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 8.2
         },
         {
             "no": 1123,
@@ -6194,7 +6671,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 7,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 2.0
         },
         {
             "no": 1122,
@@ -6239,7 +6718,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 1
+            "hot_10_count": 1,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 7.5
         },
         {
             "no": 1121,
@@ -6284,7 +6765,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 8.8
         },
         {
             "no": 1120,
@@ -6303,7 +6786,7 @@
             "period_1": 0,
             "period_2": 0,
             "period_3": 0,
-            "neighbor": 2,
+            "neighbor": 1,
             "consecutive": 0,
             "prime": 4,
             "composite": 2,
@@ -6329,7 +6812,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 1,
-            "hot_10_count": 0
+            "hot_10_count": 0,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 13.8
         },
         {
             "no": 1119,
@@ -6348,7 +6833,7 @@
             "period_1": 2,
             "period_2": 1,
             "period_3": 0,
-            "neighbor": 2,
+            "neighbor": 3,
             "consecutive": 1,
             "prime": 1,
             "composite": 4,
@@ -6374,7 +6859,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.5
         },
         {
             "no": 1118,
@@ -6419,7 +6906,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 5,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 5.3
         },
         {
             "no": 1117,
@@ -6464,7 +6953,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 4
+            "hot_10_count": 4,
+            "cold_20_count": 1,
+            "avg_recurrence_interval": 9.8
         },
         {
             "no": 1116,
@@ -6509,7 +7000,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 3,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 2,
+            "avg_recurrence_interval": 14.0
         },
         {
             "no": 1115,
@@ -6554,7 +7047,9 @@
             "individual_streak": 1,
             "over_appearance": 0,
             "recent_5_recurrence": 4,
-            "hot_10_count": 2
+            "hot_10_count": 2,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 7.3
         },
         {
             "no": 1114,
@@ -6599,7 +7094,9 @@
             "individual_streak": 0,
             "over_appearance": 0,
             "recent_5_recurrence": 6,
-            "hot_10_count": 3
+            "hot_10_count": 3,
+            "cold_20_count": 0,
+            "avg_recurrence_interval": 4.3
         }
     ]
 }

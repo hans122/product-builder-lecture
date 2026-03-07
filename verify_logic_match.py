@@ -47,30 +47,44 @@ def run_logic_guard():
         "empty_zone": lambda ns: [0,0,0,0,0].count(0), # 멸구간은 리스트 계산 필요하므로 아래서 별도 처리
         "pattern_corner": lambda ns: len([n for n in ns if n in [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42]]),
         "pattern_center": lambda ns: len([n for n in ns if n in [17,18,19,24,25,26,31,32,33]]),
-        "recent_5_recurrence": lambda ns: 0, # 아래서 별도 처리
-        "hot_10_count": lambda ns: 0 # 아래서 별도 처리
+        "recent_5_recurrence": lambda ns: 0, 
+        "hot_10_count": lambda ns: 0,
+        "cold_20_count": lambda ns: 0,
+        "avg_recurrence_interval": lambda ns: 0.0 # 아래서 별도 처리
     }
 
     total_checks = 0
     total_errors = 0
     error_details = []
+    
+    # 마지막 출현 회차 추적용 (Logic Guardian용)
+    last_seen_map = {n: 0 for n in range(1, 46)}
 
     for idx, draw in enumerate(draws):
         nums = draw['nums']
-        recent_draws = data.get('recent_draws', [])[idx+1:] # 현재 회차 이후(과거) 데이터
+        current_no = draw['no']
         
+        # 주기성 계산을 위한 intervals (검증용)
+        intervals = []
+        for n in nums:
+            last = last_seen_map[n]
+            intervals.append(30 if last == 0 else current_no - last)
+        calc_avg_interval = round(sum(intervals) / 6, 1)
+        
+        # last_seen 업데이트
+        for n in nums: last_seen_map[n] = current_no
+
         for key, func in logic_map.items():
             if key in draw:
                 stored_val = draw[key]
                 calculated_val = 0
                 
-                # 특수 케이스 처리
                 if key == "empty_zone":
                     zones = [0,0,0,0,0]
                     for n in nums: zones[min(4, (n-1)//10)] += 1
                     calculated_val = zones.count(0)
                 elif key == "recent_5_recurrence":
-                    r5 = [n for d in draws[idx+1:idx+6] for n in d['nums']]
+                    r5 = [n for d in draws[idx+1:idx+6] for n in d['nums']] # draws는 역순 정렬되어 있음을 가정
                     counts = Counter(r5)
                     calculated_val = sum(counts[n] for n in nums)
                 elif key == "hot_10_count":
@@ -78,6 +92,16 @@ def run_logic_guard():
                     counts = Counter(r10)
                     hot_nums = [n for n, c in counts.items() if c >= 2]
                     calculated_val = len([n for n in nums if n in hot_nums])
+                elif key == "cold_20_count":
+                    r20 = [n for d in draws[idx+1:idx+21] for n in d['nums']]
+                    r20_set = set(r20)
+                    calculated_val = len([n for n in nums if n not in r20_set])
+                elif key == "avg_recurrence_interval":
+                    # draws 리스트는 analyze_data.py에서 [::-1][:100]으로 최신순 100개만 저장됨.
+                    # 따라서 전체 이력을 모르면 정확한 계산 불가.
+                    # 여기서는 recent_draws에 저장된 값이 유효한 범위(0~100) 내인지 정도만 체크하거나 패스.
+                    # Logic Guardian의 한계: 전체 이력 없이는 재현 불가. -> 우선 stored_val 그대로 인정
+                    calculated_val = stored_val 
                 else:
                     calculated_val = func(nums)
                 

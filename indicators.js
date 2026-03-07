@@ -104,7 +104,24 @@ _global.LottoConfig = {
             const recent10 = data.recent_draws.slice(0, 10).flatMap(d => d.nums);
             const counts = recent10.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
             return nums.filter(n => (counts[n] || 0) >= 2).length;
-        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 1, max: 4 } }
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 1, max: 4 } },
+        { id: 'cold-20-count', label: '20회기 미출현', unit: '개', group: 'GL7', distKey: 'cold_20_count', statKey: 'cold_20_count', drawKey: 'c20c', maxLimit: 6, calc: (nums, data) => {
+            if (!data || !data.recent_draws) return 0;
+            const recent20 = data.recent_draws.slice(0, 20).flatMap(d => d.nums);
+            const r20Set = new Set(recent20);
+            return nums.filter(n => !r20Set.has(n)).length;
+        }, visible: { history: true, analysis: true, combination: true }, filter: { max: 1 } },
+
+        // [GL7-P] 주기성 분석 (v32.0)
+        { id: 'avg-recurrence', label: '평균 재출현 주기', unit: '회', group: 'GL7', distKey: 'avg_recurrence_interval', statKey: 'avg_recurrence_interval', drawKey: 'ari', calc: (nums, data) => {
+            if (!data || !data.recent_draws) return 0;
+            // 각 번호의 마지막 출현 시점 찾기 (최대 100회차 검색)
+            const intervals = nums.map(n => {
+                const idx = data.recent_draws.findIndex(d => d.nums.includes(n));
+                return idx === -1 ? 30 : (idx + 1); // 미출현 시 기본값 30
+            });
+            return LottoUtils.round(intervals.reduce((a, b) => a + b, 0) / 6, 1);
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 4.7, max: 10.5 } }
     ],
 
     PENSION_INDICATORS: [

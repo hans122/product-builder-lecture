@@ -305,7 +305,7 @@ _global.LottoAI = {
         return 1.0;
     },
 
-    // 13. [NEW] Deep Synergy Engine (v26.0 - 29 Indicators, 40+ Pairs)
+    // 13. [NEW] Deep Synergy Engine (v31.1 - 32 Indicators, 45+ Pairs)
     checkCorrelationHarmony: function(nums, statsData) {
         if (!statsData || !statsData.correlation_matrix || !statsData.stats_summary) return { score: 0, violations: [] };
         
@@ -314,13 +314,13 @@ _global.LottoAI = {
         var indicators = LottoConfig.INDICATORS;
         
         var zScores = {};
-        // v31.0 전수 지표 세트 (31개)
-        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor", "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror", "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color", "pattern_corner", "pattern_center", "same_end", "recent_5_recurrence", "hot_10_count"];
+        // v32.0 전수 지표 세트 (33개)
+        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor", "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror", "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color", "pattern_corner", "pattern_center", "same_end", "recent_5_recurrence", "hot_10_count", "cold_20_count", "avg_recurrence_interval"];
         
         keys.forEach(key => {
-            var cfg = indicators.find(c => (c.distKey === key || c.statKey === key || c.id === key.replace(/_/g,'-')));
+            var cfg = indicators.find(c => (c.distKey === key || c.statKey === key || c.id === key.replace(/_/g,'-').replace('avg-recurrence-interval', 'avg-recurrence')));
             if (!cfg) return;
-            // v31.0: 전체 이력 데이터를 context로 제공
+            // v31.1: 전체 이력 데이터를 context로 제공
             var context = { 
                 last_3_draws: (statsData.recent_draws || []).slice(0,3).map(d => d.nums),
                 recent_draws: statsData.recent_draws
@@ -333,7 +333,7 @@ _global.LottoAI = {
         var score = 0;
         var violations = [];
         
-        // v31.0: 딥 시너지 - 촘촘한 분석망 (신규 지표 쌍 추가)
+        // v32.0: 딥 시너지 - 촘촘한 분석망 (주기성 통합)
         var pairs = [
             ['sum', 'low_count'], ['span', 'mean_gap'], ['empty_zone', 'span'], 
             ['odd_count', 'prime'], ['consecutive', 'mean_gap'], ['ac', 'span'],
@@ -351,7 +351,11 @@ _global.LottoAI = {
             ['span', 'p9'], ['period_1', 'consecutive'],
             ['recent_5_recurrence', 'hot_10_count'], 
             ['recent_5_recurrence', 'period_1'],
-            ['hot_10_count', 'period_3']
+            ['hot_10_count', 'period_3'],
+            ['cold_20_count', 'recent_5_recurrence'],
+            ['cold_20_count', 'empty_zone'],
+            ['avg_recurrence_interval', 'recent_5_recurrence'], // [NEW] 주기와 기세의 조화 (핵심)
+            ['avg_recurrence_interval', 'hot_10_count']         // [NEW] 주기와 다출현의 조화
         ];
 
         pairs.forEach(pair => {

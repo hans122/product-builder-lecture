@@ -40,7 +40,8 @@ def analyze_lotto():
         "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color",
         "pattern_corner", "pattern_center", "end_sum", "same_end", "ac", "span", "mean_gap",
         "individual_streak", "over_appearance",
-        "recent_5_recurrence", "hot_10_count"
+        "recent_5_recurrence", "hot_10_count", "cold_20_count",
+        "avg_recurrence_interval"
     ]
     
     raw_metrics = {k: [] for k in metric_keys}
@@ -51,8 +52,11 @@ def analyze_lotto():
     triangle_center = [17,18,19,24,25,26,31,32,33]
     mirrors = [12,21,13,31,14,41,23,32,24,42,34,43]
 
+    last_seen = {n: 0 for n in range(1, 46)}
+
     for i, draw in enumerate(draws):
         nums_list = draw["nums"]
+        current_no = draw["no"]
         prev_1 = set(draws[i-1]["nums"]) if i > 0 else set()
         prev_2 = set(draws[i-2]["nums"]) if i > 1 else set()
         prev_3 = set(draws[i-3]["nums"]) if i > 2 else set()
@@ -61,8 +65,7 @@ def analyze_lotto():
         ind_streak = len([n for n in nums_list if n in streak_2_nums])
         
         recent_5_draws = draws[max(0, i-5):i]
-        over_app = 0
-        r5_recur = 0
+        over_app, r5_recur = 0, 0
         if recent_5_draws:
             all_r5 = [n for d in recent_5_draws for n in d["nums"]]
             counts_r5 = Counter(all_r5)
@@ -78,6 +81,25 @@ def analyze_lotto():
             hot_10_nums = [n for n, c in counts_r10.items() if c >= 2]
             h10_count = len([n for n in nums_list if n in hot_10_nums])
 
+        recent_20_draws = draws[max(0, i-20):i]
+        c20_count = 0
+        if recent_20_draws:
+            all_r20_set = set([n for d in recent_20_draws for n in d["nums"]])
+            cold_20_nums = [n for n in range(1, 46) if n not in all_r20_set]
+            c20_count = len([n for n in nums_list if n in cold_20_nums])
+
+        intervals = []
+        for n in nums_list:
+            last = last_seen[n]
+            if last == 0:
+                intervals.append(30)
+            else:
+                intervals.append(current_no - last)
+        avg_interval = round(sum(intervals) / 6, 1)
+
+        for n in nums_list:
+            last_seen[n] = current_no
+
         neighbors = set()
         for n in prev_1:
             if n > 1: neighbors.add(n-1)
@@ -88,7 +110,7 @@ def analyze_lotto():
         p1 = len([n for n in nums_list if n in prev_1])
         p2 = len([n for n in nums_list if n in prev_2])
         p3 = len([n for n in nums_list if n in prev_3])
-        nb = len([n for n in nums_list if n in neighbors])
+        nb = len([n for n in [n for n in prev_1 if n>1] for j in [n-1, n+1] if j in nums_list])
         cons = sum(1 for j in range(5) if nums_list[j]+1 == nums_list[j+1])
         prime = len([n for n in nums_list if is_prime(n)])
         comp = len([n for n in nums_list if is_composite(n)])
@@ -104,13 +126,11 @@ def analyze_lotto():
         p9 = len(set((n-1)%9 for n in nums_list))
         zones = [0,0,0,0,0]
         for n in nums_list: zones[min(4, (n-1)//10)] += 1
-        ez = zones.count(0)
-        colors = len(set((n-1)//10 for n in nums_list))
+        ez, colors = zones.count(0), len(set((n-1)//10 for n in nums_list))
         pc = len([n for n in nums_list if n in corners])
         pcn = len([n for n in nums_list if n in triangle_center])
         es = sum(n % 10 for n in nums_list)
-        ends = [n % 10 for n in nums_list]
-        se = max(Counter(ends).values())
+        se = max(Counter([n % 10 for n in nums_list]).values())
         ac = calculate_ac(nums_list)
         span = nums_list[-1] - nums_list[0]
         m_gap = round(span / 5, 1)
@@ -125,13 +145,15 @@ def analyze_lotto():
             "pattern_corner": pc, "pattern_center": pcn, "end_sum": es, "same_end": se,
             "ac": ac, "span": span, "mean_gap": m_gap,
             "individual_streak": ind_streak, "over_appearance": over_app,
-            "recent_5_recurrence": r5_recur, "hot_10_count": h10_count
+            "recent_5_recurrence": r5_recur, "hot_10_count": h10_count, "cold_20_count": c20_count,
+            "avg_recurrence_interval": avg_interval
         }
         
         processed_data.append({"no": draw["no"], "date": draw["date"], "nums": nums_list, **m})
         for k, v in m.items():
             if k in raw_metrics: raw_metrics[k].append(v)
-            if k in distributions: distributions[k][v] += 1
+            if k != 'avg_recurrence_interval':
+                if k in distributions: distributions[k][v] += 1
 
     stats_summary = {}
     for k, v_list in raw_metrics.items():
@@ -168,13 +190,7 @@ def analyze_lotto():
             else: break
         regression_signals[k.replace('_',' ').title()] = {"streak": streak, "energy": min(100, streak*33)}
 
-    corr_keys = [
-        "sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", 
-        "period_1", "period_2", "period_3", "neighbor", "consecutive",
-        "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror",
-        "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color",
-        "pattern_corner", "pattern_center", "same_end", "recent_5_recurrence", "hot_10_count"
-    ]
+    corr_keys = metric_keys
     correlation_matrix = {}
     for k1 in corr_keys:
         correlation_matrix[k1] = {}
@@ -197,7 +213,7 @@ def analyze_lotto():
     }
     with open('advanced_stats.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-    print(f"✅ Lotto Analysis Complete (v31.0): {len(draws)} draws.")
+    print(f"✅ Lotto Analysis Complete (v32.0): {len(draws)} draws.")
 
 def analyze_pension():
     draws = []
@@ -209,27 +225,13 @@ def analyze_pension():
             ns = [int(d) for d in str(row[3]).zfill(6)]
             draws.append({"no": int(row[0]), "date": row[1], "group": int(row[2]), "nums": ns})
     draws.sort(key=lambda x: x['no'])
-    pos_f = [[0]*10 for _ in range(6)]; markov = [[0]*10 for _ in range(10)]
-    mets = {"sum": [], "odd": [], "low": [], "prime": [], "sequence": [], "maxOccur": [], "carry": [], "neighbor": []}
-    dists = {k: Counter() for k in mets.keys()}
-    for i, draw in enumerate(draws):
-        nums, prev = draw["nums"], draws[i-1]["nums"] if i > 0 else None
-        for p in range(6): pos_f[p][nums[p]] += 1
-        if i < len(draws)-1:
-            nxt = draws[i+1]["nums"]
-            for p in range(6): markov[nums[p]][nxt[p]] += 1
-        s, od = sum(nums), len([n for n in nums if n % 2 != 0])
-        lo, pr = len([n for n in nums if n <= 4]), len([n for n in nums if n in [2,3,5,7]])
-        sq, mo = sum(1 for j in range(5) if abs(nums[j]-nums[j+1])==1), max(Counter(nums).values())
-        ca = sum(1 for j in range(6) if prev and nums[j]==prev[j])
-        nb = sum(1 for j in range(6) if prev and any(abs(nums[j]-p)==1 for p in prev))
-        m = {"sum": s, "odd": od, "low": lo, "prime": pr, "sequence": sq, "maxOccur": mo, "carry": ca, "neighbor": nb}
-        for k, v in m.items(): mets[k].append(v); dists[k][v] += 1
     stats_s = {}
-    for k, v_list in mets.items():
-        mean = sum(v_list)/len(v_list); var = sum((x-mean)**2 for x in v_list)/len(v_list)
-        stats_s[k] = {"mean": round(mean, 2), "std": round(var**0.5, 2)}
-    res = {"total_draws": len(draws), "pos_freq": pos_f, "markov_matrix": markov, "stats_summary": stats_s, "distributions": {k: dict(sorted(v.items())) for k, v in dists.items()}, "recent_draws": draws[::-1][:100]}
+    metrics = {"sum": []} 
+    for d in draws: metrics["sum"].append(sum(d["nums"]))
+    for k, v_list in metrics.items():
+        m = sum(v_list)/len(v_list); var = sum((x-m)**2 for x in v_list)/len(v_list)
+        stats_s[k] = {"mean": round(m, 2), "std": round(var**0.5, 2)}
+    res = {"total_draws": len(draws), "stats_summary": stats_s, "recent_draws": draws[::-1][:100]}
     with open('pension_stats.json', 'w', encoding='utf-8') as f:
         json.dump(res, f, ensure_ascii=False, indent=4)
     print(f"✅ Pension Analysis Complete: {len(draws)} draws.")
