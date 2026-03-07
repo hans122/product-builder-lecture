@@ -158,6 +158,52 @@
         },
         "avg_interval": {}
     },
+    "regression_signals": {
+        "Sum": {
+            "streak": 1,
+            "energy": 33
+        },
+        "Odd": {
+            "streak": 1,
+            "energy": 33
+        },
+        "Low": {
+            "streak": 3,
+            "energy": 99
+        },
+        "Prime": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Sequence": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Maxoccur": {
+            "streak": 1,
+            "energy": 33
+        },
+        "Carry": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Neighbor": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Recent 5 Recurrence": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Hot 10 Count": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Avg Interval": {
+            "streak": 0,
+            "energy": 0
+        }
+    },
     "recent_draws": [
         {
             "no": 305,
