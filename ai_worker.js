@@ -79,11 +79,14 @@ function generateCombinationsInWorker(pools, strategies, statsData, synergyMatri
             var isPass = (harmony.violations.length === 0 || harmony.score >= -10);
             
             if (isPass) {
+                // v30.0: 지표별 필터 전수 검증
                 LottoConfig.INDICATORS.forEach(cfg => {
                     if (cfg.filter && isPass) {
-                        var val = cfg.calc(pick, { last_3_draws: statsData.recent_draws.slice(0,3).map(d=>d.nums) });
-                        // hot 전략은 특정 지표(Z-limit) 필터를 조금 더 넓게 허용
-                        var limitMultiplier = (strategy.id === 'hot') ? 1.5 : 1.0;
+                        var context = { 
+                            last_3_draws: statsData.last_3_draws,
+                            recent_draws: statsData.recent_draws
+                        };
+                        var val = cfg.calc(pick, context);
                         if (cfg.filter.min !== undefined && val < cfg.filter.min) isPass = false;
                         if (cfg.filter.max !== undefined && val > cfg.filter.max) isPass = false;
                     }
