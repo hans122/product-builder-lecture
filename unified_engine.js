@@ -390,10 +390,27 @@ _global.LottoAI = {
             
             // v26.0 핵심: 회귀 에너지 동기화 (Energy Sync)
             var energyBoost = 1.0;
+            var streakPenalty = 1.0; // [NEW] 연속 출현 페널티
+
             if (statsData.regression_signals) {
                 var highEnergyCount = 0, matchedCount = 0;
-                var context = { last_3_draws: (statsData.recent_draws || []).slice(0,3).map(d => d.nums) };
+                var recentDraws = statsData.recent_draws || [];
+                var context = { last_3_draws: recentDraws.slice(0,3).map(d => d.nums) };
                 
+                // [v29.6] 3회 연속 출현(3-Streak) 감지 로직
+                if (recentDraws.length >= 2) {
+                    var last1 = recentDraws[0].nums;
+                    var last2 = recentDraws[1].nums;
+                    var streak2Nums = last1.filter(n => last2.includes(n)); // 2회 연속 나온 번호들
+                    
+                    nums.forEach(n => {
+                        if (streak2Nums.includes(n)) {
+                            // 이 번호가 이번에 또 나오면 3회 연속 출현임.
+                            streakPenalty *= 0.5; // 조합 기댓값 50% 삭감 (치명적)
+                        }
+                    });
+                }
+
                 for (var label in statsData.regression_signals) {
                     var sig = statsData.regression_signals[label];
                     if (sig.energy >= 80) { // 출현 임박 지표
@@ -416,10 +433,10 @@ _global.LottoAI = {
             var sim = this.runMonteCarlo(nums, false, statsData);
             var simEdge = 1.0 + (sim.score - 50) / 200;
 
-            var multiplier = harmonyEdge * energyBoost * simEdge;
+            var multiplier = harmonyEdge * energyBoost * simEdge * streakPenalty;
             multiplier = Math.max(0.1, Math.min(3.5, multiplier)); 
             
-            var confidence = 75 + (harmony.score > 0 ? 10 : -15) + (energyBoost > 1.2 ? 10 : 0);
+            var confidence = 75 + (harmony.score > 0 ? 10 : -15) + (energyBoost > 1.2 ? 10 : 0) - (streakPenalty < 1.0 ? 30 : 0);
             
             return { 
                 multiplier: multiplier.toFixed(2), 
