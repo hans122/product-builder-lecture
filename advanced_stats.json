@@ -775,6 +775,124 @@
             238
         ]
     ],
+    "regression_signals": {
+        "Sum": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Odd Count": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Low Count": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Period 1": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Period 2": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Period 3": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Neighbor": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Consecutive": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Prime": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Composite": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Multiple 3": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Multiple 4": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Square": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Double Num": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Mirror": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Bucket 15": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Bucket 9": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Bucket 7": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Bucket 5": {
+            "streak": 0,
+            "energy": 0
+        },
+        "P9": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Empty Zone": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Color": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Pattern Corner": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Pattern Center": {
+            "streak": 0,
+            "energy": 0
+        },
+        "End Sum": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Same End": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Ac": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Span": {
+            "streak": 0,
+            "energy": 0
+        },
+        "Mean Gap": {
+            "streak": 0,
+            "energy": 0
+        }
+    },
     "recent_draws": [
         {
             "no": 1213,

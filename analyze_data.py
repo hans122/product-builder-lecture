@@ -130,6 +130,21 @@ def analyze_lotto():
         for c in curr_ends:
             for n in next_ends: markov_ending[c][n] += 1
 
+    # [AI] 회귀 시점 분석 (Regression Timing)
+    regression_signals = {}
+    for k, v_list in raw_metrics.items():
+        if not v_list: continue
+        stat = stats_summary[k]
+        safe_min, safe_max = stat["mean"] - 2*stat["std"], stat["mean"] + 2*stat["std"]
+        
+        streak = 0
+        for val in v_list[::-1]: # 최신 회차부터 역순으로 조사
+            if val < safe_min or val > safe_max: streak += 1
+            else: break
+        # 지표명을 화면 표시용으로 변환
+        label = k.replace('_', ' ').title()
+        regression_signals[label] = {"streak": streak, "energy": min(100, streak * 25)}
+
     result = {
         "total_draws": len(draws),
         "last_3_draws": [d["nums"] for d in draws[-3:][::-1]],
@@ -137,6 +152,7 @@ def analyze_lotto():
         "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
         "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
         "markov_ending_matrix": markov_ending,
+        "regression_signals": regression_signals,
         "recent_draws": processed_data[::-1][:100]
     }
 
