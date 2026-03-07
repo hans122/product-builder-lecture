@@ -57,6 +57,10 @@ var AnalysisEngine = {
             if (window.renderOverAppearanceAlert) renderOverAppearanceAlert(data.recent_draws);
             if (window.renderOverAppearanceTable) renderOverAppearanceTable(data.recent_draws);
             if (window.renderFlowMap) renderFlowMap(data.recent_draws.slice(0, 15));
+            
+            // [GL7] 끝수 전이 히트맵 렌더링
+            var markovMatrix = LottoAI.calculateEndingChainMatrix(data.recent_draws, 300);
+            LottoUI.renderMarkovHeatmap('lotto-markov-heatmap', markovMatrix, { color: '49, 130, 246', rowLabel: '끝수 ' });
         }
 
         var dists = data.distributions || {};
