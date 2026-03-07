@@ -121,7 +121,7 @@ var LottoUI = {
             ];
 
             var displayUnit = unit || '';
-            var svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; overflow:visible;">
+            var svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; overflow:visible; display:block;">
                 <defs>
                     <pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.4"/></pattern>
                     <pattern id="h-blue" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1" stroke-opacity="0.1"/></pattern>
@@ -154,12 +154,19 @@ var LottoUI = {
                     </g>`;
                 }).join('')}
 
-                ${(typeof currentValue !== 'undefined' && currentValue !== null) ? `
+                ${(typeof currentValue !== 'undefined' && currentValue !== null) ? (function() {
+                    var rawX = getX(currentValue);
+                    // [v33.01] 차트 범위를 벗어나지 않도록 x좌표 제한 (표 침범 방지)
+                    var clampedX = Math.max(sidePadding, Math.min(w - sidePadding, rawX));
+                    var yVal = (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((currentValue - mean) / std, 2));
+                    var targetY = getY(yVal);
+                    
+                    return `
                     <g>
-                        <line x1="${getX(currentValue)}" y1="${padding-5}" x2="${getX(currentValue)}" y2="${h-bottomSpace}" stroke="#f04452" stroke-width="2" />
-                        <circle cx="${getX(currentValue)}" cy="${getY((1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((currentValue - mean) / std, 2)))}" r="4" fill="#f04452" stroke="white" stroke-width="2" />
-                    </g>
-                ` : ''}
+                        <line x1="${clampedX}" y1="${padding-5}" x2="${clampedX}" y2="${h-bottomSpace}" stroke="#f04452" stroke-width="2" ${rawX !== clampedX ? 'stroke-dasharray="2,2" opacity="0.5"' : ''} />
+                        <circle cx="${clampedX}" cy="${targetY}" r="4" fill="#f04452" stroke="white" stroke-width="2" />
+                    </g>`;
+                })() : ''}
             </svg>`;
             container.innerHTML = svg;
         },

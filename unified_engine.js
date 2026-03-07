@@ -198,11 +198,17 @@ _global.LottoAI = {
         var matrix = statsData.correlation_matrix, summary = statsData.stats_summary, indicators = LottoConfig.INDICATORS;
         var zScores = {}, keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor", "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror", "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color", "pattern_corner", "pattern_center", "same_end", "recent_5_recurrence", "hot_10_count", "cold_20_count", "avg_recurrence_interval", "max_gap"];
         
+        // [v33.05] 공통 컨텍스트 생성 (추천 엔진 표준)
+        var commonCtx = { 
+            recent_draws: statsData.recent_draws, 
+            last_3_draws: (statsData.recent_draws || []).slice(0, 3).map(d => d.nums) 
+        };
+
         keys.forEach(key => {
             var cfg = indicators.find(c => (c.distKey === key || c.statKey === key || c.id === key.replace(/_/g,'-').replace('avg-recurrence-interval', 'avg-recurrence')));
             if (cfg) {
-                var context = { last_3_draws: (statsData.recent_draws || []).slice(0,3).map(d => d.nums), recent_draws: statsData.recent_draws };
-                var val = cfg.calc(nums, context), s = summary[key];
+                var val = cfg.calc(nums, commonCtx);
+                var s = summary[key];
                 if (s && s.std !== 0) zScores[key] = (val - s.mean) / s.std;
             }
         });
@@ -244,17 +250,21 @@ _global.LottoAI = {
         } else {
             var harmony = this.checkCorrelationHarmony(nums, statsData), hEdge = 1.0 + (harmony.score / 100), eBoost = 1.0, sPenalty = 1.0;
             var recentDraws = statsData.recent_draws || [];
+            
+            // [v33.05] 공통 컨텍스트 사용
+            var commonCtx = { recent_draws: recentDraws, last_3_draws: recentDraws.slice(0, 3).map(d => d.nums) };
+
             if (recentDraws.length >= 2) {
                 var s2 = setIntersection(new Set(recentDraws[0].nums), new Set(recentDraws[1].nums));
                 nums.forEach(n => { if (s2.has(n)) sPenalty *= 0.5; });
             }
             if (statsData.regression_signals) {
-                var hiE = 0, mtch = 0, ctx = { last_3_draws: recentDraws.slice(0,3).map(d => d.nums), recent_draws: recentDraws };
+                var hiE = 0, mtch = 0;
                 for (var label in statsData.regression_signals) {
                     var sig = statsData.regression_signals[label];
                     if (sig.energy >= 80) {
                         hiE++; var cfg = LottoConfig.INDICATORS.find(c => c.label === label || c.id === label.toLowerCase().replace(/ /g,'_'));
-                        if (cfg) { var v = cfg.calc(nums, ctx), s = statsData.stats_summary[cfg.statKey || cfg.distKey]; if (s && Math.abs(v - s.mean) <= s.std) mtch++; }
+                        if (cfg) { var v = cfg.calc(nums, commonCtx), s = statsData.stats_summary[cfg.statKey || cfg.distKey]; if (s && Math.abs(v - s.mean) <= s.std) mtch++; }
                     }
                 }
                 if (hiE > 0) eBoost = 1.0 + (mtch / hiE) * 0.5;
@@ -270,12 +280,18 @@ _global.LottoAI = {
         var results = [], targetCount = 10, totalAttempts = 0;
         var lastDraw = statsData.recent_draws ? statsData.recent_draws[0] : {nums:[]};
         
+        // [v33.05] 공통 컨텍스트 선언
+        var commonCtx = { 
+            recent_draws: statsData.recent_draws, 
+            last_3_draws: (statsData.recent_draws || []).slice(0, 3).map(d => d.nums) 
+        };
+
         var baseWeights = new Array(46).fill(1.0);
         if (statsData.regression_signals) {
             for (var label in statsData.regression_signals) {
                 if (statsData.regression_signals[label].energy >= 80) {
                     var cfg = LottoConfig.INDICATORS.find(function(c) { return c.label === label; });
-                    if (cfg) { for (var n = 1; n <= 45; n++) { if (cfg.calc([n], null) > 0) baseWeights[n] += 0.3; } }
+                    if (cfg) { for (var n = 1; n <= 45; n++) { if (cfg.calc([n], commonCtx) > 0) baseWeights[n] += 0.3; } }
                 }
             }
         }
@@ -332,11 +348,10 @@ _global.LottoAI = {
                 for(var c in colorMap) { if(colorMap[c] >= 5) { isPass = false; break; } }
 
                 if (isPass && strategy.id !== 'extreme') {
-                    var context = { last_3_draws: (statsData.recent_draws || []).slice(0,3).map(function(d){return d.nums;}), recent_draws: statsData.recent_draws };
                     for (var i = 0; i < LottoConfig.INDICATORS.length; i++) {
                         var cfg = LottoConfig.INDICATORS[i];
                         if (cfg.filter) {
-                            var val = cfg.calc(pick, context);
+                            var val = cfg.calc(pick, commonCtx);
                             var tol = (cfg.weight || 1.0) < 1.0 ? loosenFactor : 1.0;
                             if ((cfg.filter.min !== undefined && val < (cfg.filter.min / tol)) || (cfg.filter.max !== undefined && val > (cfg.filter.max * tol))) { isPass = false; break; }
                         }
@@ -356,9 +371,15 @@ _global.LottoAI = {
                         if (testP) ensembleScore += (strategyWeights[st.id] || 1.0);
                     });
 
+                    // [v33.05] 시너지 점수 계산 공식 정밀화 (마르코프 비중 최적화)
+                    var markov = this.calculateMarkovScore(pick, lastDraw.nums, statsData);
+                    var compat = this.getCompatibilityScore(pick, synergyMatrix);
+                    var synScore = Math.round((compat * 0.7) + (markov * 0.3));
+
                     results.push({ 
                         nums: pick, strategy: strategy, 
-                        synergyScore: Math.round((this.getCompatibilityScore(pick, synergyMatrix) + this.calculateMarkovScore(pick, lastDraw.nums, statsData)) / 2), 
+                        score: synScore, // score 필드 통일
+                        synergyScore: synScore, 
                         prob: prob, ensembleCount: Math.floor(ensembleScore) 
                     });
                     found = true;

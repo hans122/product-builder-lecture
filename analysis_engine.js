@@ -168,9 +168,7 @@ var AnalysisEngine = {
         header.style.cssText = 'font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; border-left: 4px solid var(--primary-blue); padding-left: 12px; display:flex; align-items:center; gap:6px;';
         header.innerHTML = `${cfg.label} 분석 <span class="tooltip-icon" style="font-size:0.7rem; color:#94a3b8; border:1px solid #e2e8f0; width:14px; height:14px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-weight:bold;">?</span>`;
         
-        // [v32.82] 새로운 툴팁 표준 적용
-        var tipText = (LottoConfig.LOTTO_TIPS[cfg.id] || LottoConfig.PENSION_TIPS[cfg.id] || '통계적 분포 데이터를 분석합니다.').replace('{safe}', '적정 범위');
-        LottoUI.Feedback.tooltip(header, tipText);
+        LottoUI.Feedback.tooltip(header, (LottoConfig.LOTTO_TIPS[cfg.id] || LottoConfig.PENSION_TIPS[cfg.id] || '통계적 분석을 수행합니다.').replace('{safe}', '적정 범위'));
         
         var card = document.createElement('section');
         card.className = 'analysis-card stats-grid-layout';
@@ -178,8 +176,7 @@ var AnalysisEngine = {
         var chartSide = document.createElement('div');
         chartSide.className = 'chart-side';
         var chartId = 'chart-' + cfg.id;
-        chartSide.innerHTML = `<div id="${chartId}" class="chart-wrapper"></div>` +
-            `<div class="chart-tip">💡 <b>전문가 가이드:</b> ${(LottoConfig.LOTTO_TIPS[cfg.id] || LottoConfig.PENSION_TIPS[cfg.id] || '분석 정보를 확인 중입니다.').replace('{safe}', '골든 존')}</div>`;
+        chartSide.innerHTML = `<div id="${chartId}" class="chart-wrapper"></div>`;
         
         var tableSide = document.createElement('div');
         tableSide.className = 'table-side';
@@ -192,24 +189,40 @@ var AnalysisEngine = {
         section.appendChild(card);
         root.appendChild(section);
 
-        // [v32.82] 데이터 유효성 검사 및 새로운 렌더링 표준 적용
         var dists = this.statsData.distributions || {};
         var stats = this.statsData.stats_summary || {};
         var recent = this.statsData.recent_draws || [];
 
         if (dists[cfg.distKey] && stats[cfg.statKey]) {
-            // [v32.98] 최신 회차의 현재값 계산하여 차트에 전달
+            // [v33.03] 1행 데이터와 차트 빨간 선의 값을 완벽히 일치시킴
             var currentVal = null;
             if (recent.length > 0) {
-                // context 객체 생성 (recent_draws 등 포함)
-                var ctx = { recent_draws: recent, last_3_draws: recent.slice(0, 3).map(d => d.nums) };
-                currentVal = cfg.calc(recent[0].nums, ctx);
+                // 첫 번째 행(최신 회차)의 실제 이월수 등 계산
+                var targetDraw = recent[0];
+                var ctx = { 
+                    recent_draws: recent.slice(1), 
+                    last_3_draws: recent.slice(1, 4).map(d => d.nums) 
+                };
+                currentVal = cfg.calc(targetDraw.nums, ctx);
             }
             LottoUI.Chart.curve(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey], cfg, currentVal);
         }
         
         if (recent.length > 0) {
-            LottoUI.Table.renderMini(tableId, recent.slice(0, 6), cfg);
+            // [v33.03] 표의 각 행별로 정확한 상대적 값 계산 로직 적용
+            var tbody = document.getElementById(tableId);
+            if (tbody) {
+                tbody.innerHTML = recent.slice(0, 6).map((d, idx) => {
+                    // 각 행(d)의 입장에서 '과거' 데이터셋 구성
+                    var rowCtx = {
+                        recent_draws: recent.slice(idx + 1),
+                        last_3_draws: recent.slice(idx + 1, idx + 4).map(rd => rd.nums)
+                    };
+                    var val = cfg.calc(d.nums, rowCtx);
+                    var balls = d.nums.map(n => `<div class="ball mini ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('');
+                    return `<tr><td>${d.no}회</td><td><div class="ball-container mini">${balls}</div></td><td><strong>${val}</strong></td></tr>`;
+                }).join('');
+            }
         }
     },
 
