@@ -197,7 +197,7 @@ var PredictionEngine = {
         container.innerHTML = '';
         archive.forEach((res, idx) => {
             var cardWrapper = document.createElement('div');
-            cardWrapper.style.position = 'relative';
+            cardWrapper.className = 'archive-card-wrapper';
             
             var card = LottoUI.createComboCard(res);
             card.style.opacity = '0.9';
@@ -206,14 +206,17 @@ var PredictionEngine = {
                 location.href = 'combination.html';
             };
             
-            // 개별 삭제 버튼 추가
+            // v32.31 애니메이션 지원 삭제 버튼
             var delBtn = document.createElement('button');
+            delBtn.className = 'archive-del-btn';
             delBtn.innerHTML = '×';
-            delBtn.style.cssText = 'position:absolute; top:-5px; left:-5px; width:20px; height:20px; border-radius:50%; background:#f04452; color:white; border:2px solid white; font-size:14px; font-weight:bold; cursor:pointer; z-index:20; display:flex; align-items:center; justify-content:center;';
             delBtn.onclick = (e) => {
                 e.stopPropagation();
                 if(confirm('이 조합을 삭제하시겠습니까?')) {
-                    this.removeFromArchive(res.nums);
+                    cardWrapper.classList.add('removing');
+                    setTimeout(() => {
+                        this.removeFromArchive(res.nums);
+                    }, 400); // 애니메이션 시간(0.4s) 대기
                 }
             };
             

@@ -379,3 +379,40 @@ svg {
     border-radius: 12px;
     animation: pulse 1.5s infinite ease-in-out;
 }
+
+/* [v32.31] 아카이브 카드 애니메이션 */
+.archive-card-wrapper {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+    position: relative;
+}
+.archive-card-wrapper.removing {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+    pointer-events: none;
+}
+.archive-del-btn {
+    transition: all 0.2s ease;
+    opacity: 0.6;
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #f04452;
+    color: white;
+    border: 2px solid white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(240, 68, 82, 0.3);
+}
+.archive-card-wrapper:hover .archive-del-btn {
+    opacity: 1;
+    transform: scale(1.1);
+}
