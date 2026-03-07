@@ -245,24 +245,66 @@ var LottoAI = {
         return matrix;
     },
 
-    // 12. Calculate Ending Chain Score for a combination based on previous draw
-    getEndingChainScore: function(nums, prevNums, matrix) {
-        if (!matrix || !prevNums) return 0;
-        var score = 0;
-        var currentEnds = nums.map(n => n % 10);
-        var prevEnds = prevNums.map(n => n % 10);
+    // 12. [UPGRADE] Hyper-Markov Chain Score (v27.0 - 3D State Transition)
+    calculateMarkovScore: function(nums, prevNums, statsData) {
+        if (!statsData || !prevNums) return 0;
         
-        currentEnds.forEach(c => {
-            prevEnds.forEach(p => {
-                // 전회차 끝수 p에서 현재 끝수 c로 전이된 역사적 빈도 합산
-                score += (matrix[p][c] || 0);
-            });
-        });
-        // 36개 조합 경로(6x6)로 나누어 평균 시너지 산출
-        return Math.round(score / 3.6); 
+        var mEnd = statsData.markov_ending_matrix;
+        var mP9 = statsData.markov_p9_matrix;
+        var mSec = statsData.markov_section_matrix;
+        
+        var score = 0;
+        
+        // 1. 끝수 전이 (Ending)
+        if (mEnd) {
+            var cEnds = nums.map(n => n % 10);
+            var pEnds = prevNums.map(n => n % 10);
+            cEnds.forEach(c => { pEnds.forEach(p => score += (mEnd[p][c] || 0)); });
+        }
+        
+        // 2. 9궁도 전이 (Space)
+        if (mP9) {
+            var cP9 = nums.map(n => (n-1)%9);
+            var pP9 = prevNums.map(n => (n-1)%9);
+            cP9.forEach(c => { pP9.forEach(p => score += (mP9[p][c] || 0)); });
+        }
+        
+        // 3. 3분할 전이 (Section Flow)
+        if (mSec) {
+            var getSec = ns => { var cnt=[0,0,0]; ns.forEach(n=>cnt[Math.floor((n-1)/15)]++); return cnt.indexOf(Math.max(...cnt)); };
+            var cSec = getSec(nums);
+            var pSec = getSec(prevNums);
+            score += (mSec[pSec][cSec] || 0) * 10; // 구간 흐름 가중치
+        }
+
+        return Math.round(score / 5); // 정규화
     },
 
-    // 13. [NEW] Super-Precision Synergy Engine (v25.0 - 22 Indicators, 25+ Pairs)
+    // [NEW] Adaptive Weighting System (v27.0)
+    getTrendWeight: function(k1, k2, statsData) {
+        // 최근 10회차의 상관관계 적중률을 분석하여 가중치 조절
+        // (성능을 위해 간소화된 버전: 최근 3회차만 체크)
+        var draws = (statsData.recent_draws || []).slice(0, 3);
+        if (draws.length === 0) return 1.0;
+        
+        var r = statsData.correlation_matrix[k1][k2];
+        var hit = 0;
+        var summary = statsData.stats_summary;
+        
+        draws.forEach(d => {
+            var z1 = (d[k1] - summary[k1].mean) / summary[k1].std;
+            var z2 = (d[k2] - summary[k2].mean) / summary[k2].std;
+            var rel = z1 * z2;
+            if ((r > 0 && rel > 0) || (r < 0 && rel < 0)) hit++;
+        });
+        
+        var rate = hit / draws.length;
+        if (rate >= 0.9) return 1.5; // 최근 트렌드와 완벽 일치 시 가중치 50% UP
+        if (rate <= 0.3) return 0.7; // 트렌드 이탈 시 가중치 감소
+        return 1.0;
+    },
+
+    // 13. [NEW] Deep Synergy Engine (v26.0 - 29 Indicators, 40+ Pairs)
     checkCorrelationHarmony: function(nums, statsData) {
         if (!statsData || !statsData.correlation_matrix || !statsData.stats_summary) return { score: 0, violations: [] };
         
@@ -271,12 +313,15 @@ var LottoAI = {
         var indicators = LottoConfig.INDICATORS;
         
         var zScores = {};
-        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "empty_zone", "prime", "consecutive", "multiple_3", "multiple_4", "bucket_15", "color", "pattern_corner", "pattern_center", "same_end", "square", "double_num", "mirror", "bucket_9", "bucket_5"];
+        // v26.0 전수 지표 세트 (29개)
+        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor", "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror", "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color", "pattern_corner", "pattern_center", "same_end"];
         
         keys.forEach(key => {
-            var cfg = indicators.find(c => c.distKey === key || c.statKey === key);
+            var cfg = indicators.find(c => (c.distKey === key || c.statKey === key || c.id === key.replace('_','-')));
             if (!cfg) return;
-            var val = cfg.calc(nums, null);
+            // Relative indicators need context
+            var context = { last_3_draws: (statsData.recent_draws || []).slice(0,3).map(d => d.nums) };
+            var val = cfg.calc(nums, context);
             var s = summary[key];
             if (s && s.std !== 0) zScores[key] = (val - s.mean) / s.std;
         });
@@ -284,7 +329,7 @@ var LottoAI = {
         var score = 0;
         var violations = [];
         
-        // v25.0: 초정밀 시너지 - 촘촘한 분석망 (25쌍 이상)
+        // v26.0: 딥 시너지 - 촘촘한 분석망 (40쌍 이상)
         var pairs = [
             ['sum', 'low_count'], ['span', 'mean_gap'], ['empty_zone', 'span'], 
             ['odd_count', 'prime'], ['consecutive', 'mean_gap'], ['ac', 'span'],
@@ -294,7 +339,12 @@ var LottoAI = {
             ['bucket_9', 'bucket_5'], ['pattern_center', 'pattern_corner'], ['same_end', 'end_sum'],
             ['square', 'prime'], ['double_num', 'mirror'], ['ac', 'mean_gap'],
             ['multiple_3', 'multiple_4'], ['color', 'bucket_15'], ['span', 'consecutive'],
-            ['bucket_9', 'low_count'], ['end_sum', 'multiple_3']
+            ['bucket_9', 'low_count'], ['end_sum', 'multiple_3'],
+            ['period_1', 'neighbor'], ['period_1', 'sum'], ['neighbor', 'ac'],
+            ['bucket_7', 'empty_zone'], ['p9', 'color'], ['composite', 'low_count'],
+            ['period_2', 'period_3'], ['multiple_3', 'prime'], ['square', 'pattern_center'],
+            ['double_num', 'same_end'], ['bucket_15', 'bucket_7'], ['mean_gap', 'color'],
+            ['span', 'p9'], ['period_1', 'consecutive']
         ];
 
         pairs.forEach(pair => {
@@ -302,71 +352,78 @@ var LottoAI = {
             if (zScores[k1] === undefined || zScores[k2] === undefined) return;
             
             var r = matrix[k1][k2];
-            if (Math.abs(r) < 0.15) return; 
+            if (Math.abs(r) < 0.12) return; 
 
             var currentRelation = zScores[k1] * zScores[k2];
             var isHarmony = (r > 0 && currentRelation > 0) || (r < 0 && currentRelation < 0);
             
-            // v25.0 정밀 판정: 임계치 1.8 유지
+            // v27.0 동적 가중치 적용
+            var weight = this.getTrendWeight(k1, k2, statsData);
+            
             if (!isHarmony && Math.abs(currentRelation) > 1.8) { 
-                score -= 25; 
+                score -= 20 * weight; 
                 violations.push(`${k1}↔${k2} 모순`);
-            } else if (isHarmony && Math.abs(currentRelation) > 0.7) {
-                score += 4; 
+            } else if (isHarmony && Math.abs(currentRelation) > 0.8) {
+                score += 3 * weight; 
             }
         });
         
-        return { score: Math.max(-100, Math.min(60, score)), violations: violations };
+        return { score: Math.max(-100, Math.min(80, score)), violations: violations };
     },
 
-    // 14. [NEW] Win Probability Index (당첨 기댓값 지수 산출)
+    // 14. [NEW] Win Probability Index (v26.0 - Energy Sync Edition)
     calculateWinProbability: function(nums, isPension, statsData) {
         if (!statsData) return { multiplier: 1.0, confidence: 50 };
         
         if (isPension) {
-            // [Pension Mode]
             var sim = this.runMonteCarlo(nums, true, statsData);
-            // 연금은 자리수별 매칭이 중요하므로 시뮬레이션 비중 상향
             var simEdge = 1.0 + (sim.score - 50) / 150; 
-            
-            // 패턴 조화도 (합계, 홀짝 등 기본 밸런스)
             var balanceScore = this.calculateFlowScore(nums);
             var balanceEdge = 1.0 + (balanceScore / 100);
-
             var multiplier = simEdge * balanceEdge;
-            multiplier = Math.max(0.1, Math.min(3.0, multiplier)); // 연금은 최대 3배까지 우위 가능
-
-            return {
-                multiplier: multiplier.toFixed(2),
-                confidence: 85,
-                grade: multiplier >= 1.8 ? 'TOP' : (multiplier >= 1.2 ? 'HIGH' : 'NORMAL')
-            };
+            return { multiplier: Math.max(0.1, Math.min(3.0, multiplier)).toFixed(2), confidence: 85, grade: multiplier >= 1.8 ? 'TOP' : 'HIGH' };
         } else {
-            // [Lotto Mode]
+            // [Lotto Mode - Energy Sync Analysis]
             var harmony = this.checkCorrelationHarmony(nums, statsData);
             var harmonyEdge = 1.0 + (harmony.score / 100); 
             
-            var energyEdge = 1.0;
+            // v26.0 핵심: 회귀 에너지 동기화 (Energy Sync)
+            var energyBoost = 1.0;
             if (statsData.regression_signals) {
-                var totalHighEnergy = 0;
+                var highEnergyCount = 0, matchedCount = 0;
+                var context = { last_3_draws: (statsData.recent_draws || []).slice(0,3).map(d => d.nums) };
+                
                 for (var label in statsData.regression_signals) {
-                    if (statsData.regression_signals[label].energy > 70) totalHighEnergy++;
+                    var sig = statsData.regression_signals[label];
+                    if (sig.energy >= 80) { // 출현 임박 지표
+                        highEnergyCount++;
+                        var cfg = LottoConfig.INDICATORS.find(c => c.label === label || c.id === label.toLowerCase().replace(/ /g,'_'));
+                        if (cfg) {
+                            var val = cfg.calc(nums, context);
+                            var stat = statsData.stats_summary[cfg.statKey || cfg.distKey];
+                            if (stat && Math.abs(val - stat.mean) <= stat.std) { 
+                                matchedCount++;
+                            }
+                        }
+                    }
                 }
-                if (totalHighEnergy > 0) energyEdge += (harmony.score > 0 ? 0.2 : -0.1);
+                if (highEnergyCount > 0) {
+                    energyBoost = 1.0 + (matchedCount / highEnergyCount) * 0.5;
+                }
             }
 
             var sim = this.runMonteCarlo(nums, false, statsData);
-            var simEdge = 1.0 + (sim.score - 50) / 250;
+            var simEdge = 1.0 + (sim.score - 50) / 200;
 
-            var multiplier = harmonyEdge * energyEdge * simEdge;
-            multiplier = Math.max(0.1, Math.min(2.5, multiplier));
+            var multiplier = harmonyEdge * energyBoost * simEdge;
+            multiplier = Math.max(0.1, Math.min(3.5, multiplier)); 
             
-            var confidence = 70 + (harmony.score > 0 ? 15 : -20);
+            var confidence = 75 + (harmony.score > 0 ? 10 : -15) + (energyBoost > 1.2 ? 10 : 0);
             
             return { 
                 multiplier: multiplier.toFixed(2), 
-                confidence: Math.max(10, Math.min(99, confidence)),
-                grade: multiplier >= 1.5 ? 'TOP' : (multiplier >= 1.1 ? 'HIGH' : 'NORMAL')
+                confidence: Math.min(99, confidence),
+                grade: multiplier >= 2.0 ? 'TOP' : (multiplier >= 1.3 ? 'HIGH' : 'NORMAL')
             };
         }
     }

@@ -144,7 +144,8 @@ var PredictionEngine = {
                 
                 if ((isPass || attempts > 900) && !isDuplicate) {
                     var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
-                    var endScore = LottoAI.getEndingChainScore(pick, lastDraw.nums, this.endingChainMatrix);
+                    // v27.0: 3차원 마르코프 점수 적용
+                    var endScore = LottoAI.calculateMarkovScore(pick, lastDraw.nums, this.statsData);
                     var totalSynergy = Math.round((compScore + endScore) / 2);
                     
                     // [NEW] 당첨 기댓값 계산

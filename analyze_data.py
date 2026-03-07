@@ -123,14 +123,41 @@ def analyze_lotto():
         var = sum((x - mean) ** 2 for x in v_list) / len(v_list)
         stats_summary[k] = {"mean": round(mean, 2), "std": round(var ** 0.5, 2)}
 
+    # [AI] v27.0 Hyper-Markov Chain Analysis
+    # 기존 끝수 전이 외에 9궁도, 3분할 전이 매트릭스 추가
     markov_ending = [[0]*10 for _ in range(10)]
+    markov_p9 = [[0]*9 for _ in range(9)]
+    markov_section = [[0]*3 for _ in range(3)]
+
     for i in range(len(draws) - 1):
-        curr_ends = set([n % 10 for n in draws[i]["nums"]])
-        next_ends = set([n % 10 for n in draws[i+1]["nums"]])
+        curr_nums = draws[i]["nums"]
+        next_nums = draws[i+1]["nums"]
+
+        # 1. 끝수 전이
+        curr_ends = set([n % 10 for n in curr_nums])
+        next_ends = set([n % 10 for n in next_nums])
         for c in curr_ends:
             for n in next_ends: markov_ending[c][n] += 1
 
-    # [AI] 회귀 시점 분석 (Regression Timing)
+        # 2. 9궁도 전이 (공간 흐름)
+        curr_p9 = set([(n-1)%9 for n in curr_nums])
+        next_p9 = set([(n-1)%9 for n in next_nums])
+        for c in curr_p9:
+            for n in next_p9: markov_p9[c][n] += 1
+
+        # 3. 3분할 전이 (구간 흐름: 1~15, 16~30, 31~45)
+        # 각 구간별 개수 분포의 변화를 추적하는 것은 복잡하므로,
+        # 가장 많이 나온 구간(Dominant Section)의 전이를 추적함
+        def get_dominant_section(nums):
+            counts = [0, 0, 0]
+            for n in nums: counts[(n-1)//15] += 1
+            return counts.index(max(counts))
+
+        c_sec = get_dominant_section(curr_nums)
+        n_sec = get_dominant_section(next_nums)
+        markov_section[c_sec][n_sec] += 1
+
+    # [AI] 지표 간 상관관계 분석 (Pearson Correlation Coefficient)
     regression_signals = {}
     for k, v_list in raw_metrics.items():
         if not v_list: continue
@@ -150,12 +177,13 @@ def analyze_lotto():
         regression_signals[label] = {"streak": streak, "energy": min(100, streak * 33)}
 
     # [AI] 지표 간 상관관계 분석 (Pearson Correlation Coefficient)
-    # v25.0: 초정밀 시너지 엔진을 위한 지표 전수 확장 (22개 지표)
+    # v26.0: 딥 시너지 엔진을 위한 전수 지표 확장 (29개 전체 지표)
     corr_keys = [
         "sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", 
-        "empty_zone", "prime", "consecutive", "multiple_3", "multiple_4", 
-        "bucket_15", "color", "pattern_corner", "pattern_center", "same_end",
-        "square", "double_num", "mirror", "bucket_9", "bucket_5"
+        "period_1", "period_2", "period_3", "neighbor", "consecutive",
+        "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror",
+        "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color",
+        "pattern_corner", "pattern_center", "same_end"
     ]
     correlation_matrix = {}
     
@@ -196,8 +224,10 @@ def analyze_lotto():
         "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
         "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
         "markov_ending_matrix": markov_ending,
+        "markov_p9_matrix": markov_p9,         # [NEW] 9궁도 전이
+        "markov_section_matrix": markov_section, # [NEW] 3분할 전이
         "regression_signals": regression_signals,
-        "correlation_matrix": correlation_matrix, # [NEW] 상관계수 매트릭스 추가
+        "correlation_matrix": correlation_matrix,
         "recent_draws": processed_data[::-1][:100]
     }
 
