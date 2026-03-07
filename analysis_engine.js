@@ -65,6 +65,32 @@ var AnalysisEngine = {
         LottoUI.renderMarkovHeatmap('lotto-markov-heatmap', markovMatrix, { color: '49, 130, 246', rowLabel: '끝수 ' });
         
         if (data.regression_signals) this.renderRegressionSignals('lotto-regression-container', data.regression_signals);
+        
+        // [NEW] 번호별 전체 빈도 차트 렌더링
+        if (data.frequency) this.renderFrequencyChart('full-frequency-chart', data.frequency);
+    },
+
+    renderFrequencyChart: function(containerId, freqData) {
+        var container = document.getElementById(containerId);
+        if (!container || !freqData) return;
+        
+        var maxFreq = Math.max(...Object.values(freqData));
+        var html = '';
+        
+        for (var i = 1; i <= 45; i++) {
+            var f = freqData[i] || 0;
+            var h = (f / maxFreq) * 100;
+            var color = LottoUtils.getBallColorClass(i);
+            
+            html += `<div class="bar-wrapper">
+                <div class="bar ${color}" style="height:${h}%; min-height:2px;">
+                    <span class="bar-value">${f}</span>
+                </div>
+                <span class="bar-label">${i}</span>
+            </div>`;
+        }
+        container.innerHTML = html;
+        container.className = 'frequency-chart'; // 스타일 클래스 보장
     },
 
     runPensionAnalysis: function(data) {
