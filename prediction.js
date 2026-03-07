@@ -57,19 +57,7 @@ var PredictionEngine = {
         if (!container) return;
         container.innerHTML = '';
 
-        var allStrategies = [
-            { id: 'standard', label: "💎 다차원 최적화", desc: "평균값 수렴 정석 조합" },
-            { id: 'trend', label: "📊 패턴 유사도형", desc: "최근 당첨 흐름 반영" },
-            { id: 'hot', label: "🔥 기세 추종형", desc: "뜨거운 번호 집중 구성" },
-            { id: 'balanced', label: "⚖️ 밸런스 가중형", desc: "대칭적 균형미 최적화" },
-            { id: 'defensive', label: "🛡️ 데이터 방어형", desc: "미출현 번호 전략 포함" },
-            { id: 'regression', label: "🚀 회귀 에너지형", desc: "출현 임박 시점 집중" },
-            { id: 'neighbor', label: "🏠 이웃수 시너지", desc: "직전 당첨 연계 강화" },
-            { id: 'prime', label: "🔢 소수/합성수형", desc: "수학적 확률 분포 설계" },
-            { id: 'section', label: "🎨 섹션 컬러 배분", desc: "전 구간 균등 배분 밸런스" },
-            { id: 'extreme', label: "📉 저빈도 역습형", desc: "희귀 패턴 기반 잭팟 목표" }
-        ];
-
+        var allStrategies = LottoConfig.STRATEGIES;
         var strategies = selectedStrategy === 'all' 
             ? allStrategies 
             : Array(10).fill(allStrategies.find(s => s.id === selectedStrategy));
@@ -81,6 +69,7 @@ var PredictionEngine = {
         var lastDraw = this.statsData.recent_draws[0];
 
         strategies.forEach(strategy => {
+            if (!strategy) return;
             var found = false, attempts = 0;
             while (!found && attempts < 1000) {
                 attempts++;
@@ -104,13 +93,11 @@ var PredictionEngine = {
                         var n = localPool.splice(Math.floor(Math.random() * localPool.length), 1)[0];
                         if (n >= 1 && n <= 45) pick.push(n);
                     } else {
-                        // 현재까지 뽑힌 번호들과의 궁합 점수 합산 랭킹 산출
                         localPool.sort((a, b) => {
                             var scoreA = pick.reduce((sum, p) => sum + (this.synergyMatrix[p]?.[a] || 0), 0);
                             var scoreB = pick.reduce((sum, p) => sum + (this.synergyMatrix[p]?.[b] || 0), 0);
                             return scoreB - scoreA;
                         });
-                        // 상위 3개 중 하나를 무작위 선택 (변별력 확보)
                         var topN = Math.min(3, localPool.length);
                         var pickedIdx = Math.floor(Math.random() * topN);
                         var n = localPool.splice(pickedIdx, 1)[0];
@@ -121,12 +108,11 @@ var PredictionEngine = {
                 if (pick.length < 6) { for(var i=1; i<=45; i++) { if(pick.length < 6 && !pick.includes(i)) pick.push(i); } }
 
                 pick.sort((a,b)=>a-b);
-                var sum = pick.reduce((a,b)=>a+b, 0);
                 var synergy = LottoSynergy.check(pick, this.statsData);
                 var hasDanger = synergy.some(s => s.status === 'danger');
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
                 
-                // [Full Automation] 모든 지표 자동 필터링 검증
+                // [Strict Harmony Guard] 1. 지표별 필터링
                 var isPass = !hasDanger;
                 LottoConfig.INDICATORS.forEach(cfg => {
                     if (cfg.filter) {
@@ -140,23 +126,21 @@ var PredictionEngine = {
                     }
                 });
 
-                if (strategy.id === 'extreme') isPass = (sum < stats.sum.mean - 20 || sum > stats.sum.mean + 20);
+                // [Strict Harmony Guard] 2. 상관관계 무결성 검증
+                var harmony = LottoAI.checkCorrelationHarmony(pick, this.statsData);
+                if (harmony.violations.length > 0 || harmony.score < 0) {
+                    isPass = false;
+                }
+
+                if (strategy.id === 'extreme') isPass = true;
                 
-                if ((isPass || attempts > 900) && !isDuplicate) {
+                if (isPass && !isDuplicate) {
                     var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
-                    // v27.0: 3차원 마르코프 점수 적용
                     var endScore = LottoAI.calculateMarkovScore(pick, lastDraw.nums, this.statsData);
                     var totalSynergy = Math.round((compScore + endScore) / 2);
-                    
-                    // [NEW] 당첨 기댓값 계산
                     var prob = LottoAI.calculateWinProbability(pick, this.statsData);
                     
-                    results.push({ 
-                        nums: pick, 
-                        strategy: strategy, 
-                        synergyScore: totalSynergy,
-                        prob: prob // 데이터 주입
-                    });
+                    results.push({ nums: pick, strategy: strategy, synergyScore: totalSynergy, prob: prob });
                     found = true;
                 }
             }
@@ -164,7 +148,6 @@ var PredictionEngine = {
 
         results.forEach(res => {
             var card = LottoUI.createComboCard(res);
-            
             card.onclick = () => {
                 localStorage.setItem('lastGeneratedNumbers', JSON.stringify(res.nums));
                 location.href = 'combination.html';
@@ -174,12 +157,8 @@ var PredictionEngine = {
     },
 
     getStrategyColor: function(id) {
-        var colors = {
-            standard: '#3182f6', trend: '#00d084', hot: '#f04452', balanced: '#ff9500', 
-            defensive: '#64748b', regression: '#8b5cf6', neighbor: '#ec4899', 
-            prime: '#06b6d4', section: '#10b981', extreme: '#1e293b'
-        };
-        return colors[id] || '#3182f6';
+        var st = LottoConfig.STRATEGIES.find(s => s.id === id);
+        return st ? st.color : '#3182f6';
     },
 
     renderPoolGrid: function(pools) {

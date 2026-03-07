@@ -97,6 +97,36 @@ window.LottoConfig = {
         'GP4': '수치 균형', 'GP5': '회차 간 상관관계', 'GP7': '번호 속성 밸런스'
     },
 
+    /**
+     * AI Prediction Strategies (SSOT)
+     * - Defined for both Lotto & Pension
+     */
+    STRATEGIES: [
+        { id: 'standard', label: "💎 다차원 최적화", desc: "평균값 수렴 정석 조합", color: '#3182f6' },
+        { id: 'trend', label: "📊 패턴 유사도형", desc: "최근 당첨 흐름 반영", color: '#00d084' },
+        { id: 'hot', label: "🔥 기세 추종형", desc: "뜨거운 번호 집중 구성", color: '#f04452' },
+        { id: 'balanced', label: "⚖️ 밸런스 가중형", desc: "대칭적 균형미 최적화", color: '#ff9500' },
+        { id: 'defensive', label: "🛡️ 데이터 방어형", desc: "미출현 번호 전략 포함", color: '#64748b' },
+        { id: 'regression', label: "🚀 회귀 에너지형", desc: "출현 임박 시점 집중", color: '#8b5cf6' },
+        { id: 'neighbor', label: "🏠 이웃수 시너지", desc: "직전 당첨 연계 강화", color: '#ec4899' },
+        { id: 'prime', label: "🔢 소수/합성수형", desc: "수학적 확률 분포 설계", color: '#06b6d4' },
+        { id: 'section', label: "🎨 섹션 컬러 배분", desc: "전 구간 균등 배분 밸런스", color: '#10b981' },
+        { id: 'extreme', label: "📉 저빈도 역습형", desc: "희귀 패턴 기반 잭팟 목표", color: '#1e293b' }
+    ],
+
+    PENSION_STRATEGIES: [
+        { id: 'markov', label: "🔮 역방향 마르코프", desc: "자리수 전이 확률 최적화", color: '#ff8c00' },
+        { id: 'monte', label: "🧬 몬테카를로 최적", desc: "시뮬레이션 기반 고득점", color: '#3182f6' },
+        { id: 'balance', label: "⚖️ 홀짝/고저 밸런스", desc: "수학적 대칭 균형 조합", color: '#2ecc71' },
+        { id: 'hot', label: "🔥 기세 추종형", desc: "최근 다출현 숫자 집중", color: '#f04452' },
+        { id: 'defensive', label: "🛡️ 데이터 방어형", desc: "미출현 숫자 전략 배치", color: '#64748b' },
+        { id: 'streak', label: "📈 연속 숫자형", desc: "흐름 기반 연속 배열", color: '#8b5cf6' },
+        { id: 'unique', label: "✨ 다양성 극대화", desc: "숫자 중복 최소화 구성", color: '#ec4899' },
+        { id: 'regression', label: "🚀 회귀 에너지형", desc: "출현 임박 시점 타겟팅", color: '#06b6d4' },
+        { id: 'neighbor', label: "🏠 이웃수 시너지", desc: "직전 당첨 번호 연계", color: '#10b981' },
+        { id: 'extreme', label: "📉 저빈도 역습형", desc: "희귀 패턴 기반 잭팟 노림", color: '#1e293b' }
+    ],
+
     LOTTO_TIPS: {
         'sum': '합계 수치는 가장 출현 빈도가 높은 세이프 존 <strong>"{safe}"</strong> 범위를 유지하는 것이 전략적으로 유리합니다.',
         'odd-even': '홀수 개수는 밸런스가 좋은 <strong>"{safe}"</strong> 범위를 권장하며, 특히 3:3 배합이 가장 강력한 정규분포 중심점입니다.',

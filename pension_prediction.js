@@ -89,19 +89,7 @@ var PensionPrediction = {
         if (!container || !this.statsData) return;
         container.innerHTML = '';
 
-        var allStrategies = [
-            { id: 'markov', label: "🔮 역방향 마르코프", desc: "자리수 전이 확률 최적화" },
-            { id: 'monte', label: "🧬 몬테카를로 최적", desc: "시뮬레이션 기반 고득점" },
-            { id: 'balance', label: "⚖️ 홀짝/고저 밸런스", desc: "수학적 대칭 균형 조합" },
-            { id: 'hot', label: "🔥 기세 추종형", desc: "최근 다출현 숫자 집중" },
-            { id: 'defensive', label: "🛡️ 데이터 방어형", desc: "미출현 숫자 전략 배치" },
-            { id: 'streak', label: "📈 연속 숫자형", desc: "흐름 기반 연속 배열" },
-            { id: 'unique', label: "✨ 다양성 극대화", desc: "숫자 중복 최소화 구성" },
-            { id: 'regression', label: "🚀 회귀 에너지형", desc: "출현 임박 시점 타겟팅" },
-            { id: 'neighbor', label: "🏠 이웃수 시너지", desc: "직전 당첨 번호 연계" },
-            { id: 'extreme', label: "📉 저빈도 역습형", desc: "희귀 패턴 기반 잭팟 노림" }
-        ];
-
+        var allStrategies = LottoConfig.PENSION_STRATEGIES;
         var strategies = selectedStrategy === 'all' 
             ? allStrategies 
             : Array(10).fill(allStrategies.find(s => s.id === selectedStrategy));
@@ -110,6 +98,7 @@ var PensionPrediction = {
         var matrix = this.statsData.markov_matrix;
 
         strategies.forEach(strategy => {
+            if (!strategy) return;
             var found = false, attempts = 0;
             while (!found && attempts < 800) {
                 attempts++;
@@ -131,7 +120,7 @@ var PensionPrediction = {
 
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(combo));
                 
-                // [Full Automation] 모든 연금 지표 자동 필터링 검증
+                // [Strict Harmony Guard] 1. 모든 지표 자동 필터링 검증
                 var isPass = true;
                 LottoConfig.PENSION_INDICATORS.forEach(cfg => {
                     if (cfg.filter) {
@@ -141,9 +130,12 @@ var PensionPrediction = {
                     }
                 });
 
-                if (strategy.id === 'extreme') isPass = !isPass; // 합계 골든존 밖
+                // [Strict Harmony Guard] 2. 통합 시너지 점수 검증
+                if (totalSynergy < 0) isPass = false; // 마이너스 시너지 조합 배제
 
-                if ((isPass || attempts > 700) && !isDuplicate) {
+                if (strategy.id === 'extreme') isPass = true; // 익스트림은 필터 예외
+
+                if (isPass && !isDuplicate) {
                     // [NEW] 당첨 기댓값 계산 (연금 모드)
                     var prob = LottoAI.calculateWinProbability(combo, true, this.statsData);
                     
@@ -151,7 +143,7 @@ var PensionPrediction = {
                         group: group, 
                         nums: combo, 
                         strategy: strategy, 
-                        synergyScore: totalSynergy, // 변수명 통일
+                        synergyScore: totalSynergy,
                         prob: prob // 데이터 주입
                     });
                     found = true;
@@ -163,7 +155,7 @@ var PensionPrediction = {
             // LottoUI.createComboCard를 활용하여 레이아웃 통일 (res.nums 전달)
             var card = LottoUI.createComboCard(res);
             
-            // 연금용 특수 스타일 및 구슬 재렌더링 (createComboCard는 기본적으로 로또 구슬을 생성하므로 덮어씌움)
+            // 연금용 특수 스타일 및 구슬 재렌더링
             var ballHtml = `<div class="pension-ball group small" style="background:#4e5968;">${res.group}</div>` + 
                            res.nums.map((n, idx) => `<div class="pension-ball small ${n >= 5 ? 'blue' : 'yellow'}" style="width:24px; height:24px; font-size:0.75rem;">${n}</div>`).join('');
             
@@ -177,7 +169,11 @@ var PensionPrediction = {
 
             card.style.borderColor = '#ff8c0033';
             var rankEl = card.querySelector('.combo-rank');
-            if (rankEl) rankEl.style.background = this.getStrategyColor(res.strategy.id);
+            if (rankEl) {
+                rankEl.style.background = this.getStrategyColor(res.strategy.id);
+                rankEl.style.color = 'white';
+                rankEl.style.fontWeight = '900';
+            }
             
             card.onclick = () => {
                 localStorage.setItem('lastGeneratedPension', JSON.stringify({group: res.group, digits: res.nums}));
@@ -188,12 +184,8 @@ var PensionPrediction = {
     },
 
     getStrategyColor: function(id) {
-        var colors = {
-            markov: '#ff8c00', monte: '#3182f6', balance: '#2ecc71', hot: '#f04452', 
-            defensive: '#64748b', streak: '#8b5cf6', unique: '#ec4899', 
-            regression: '#06b6d4', neighbor: '#10b981', extreme: '#1e293b'
-        };
-        return colors[id] || '#ff8c00';
+        var st = LottoConfig.PENSION_STRATEGIES.find(s => s.id === id);
+        return st ? st.color : '#ff8c00';
     }
 };
 
