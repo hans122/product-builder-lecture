@@ -124,8 +124,13 @@ var CombinationEngine = {
         if (resetBtn) {
             resetBtn.onclick = function() {
                 self._selectedNums = [];
-                container.querySelectorAll('.selectable-ball').forEach(b => b.classList.remove('active'));
+                // 모든 구슬의 선택 효과 제거
+                var allBalls = container.querySelectorAll('.select-ball');
+                allBalls.forEach(function(b) {
+                    b.classList.remove('selected-manual');
+                });
                 self.updateSelectedUI();
+                LottoUI.Feedback.toast('선택이 초기화되었습니다.');
             };
         }
     },

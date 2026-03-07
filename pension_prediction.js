@@ -142,7 +142,7 @@ var PensionPrediction = {
             var tagId = 'ptag-' + Math.random().toString(36).substr(2, 9);
             var isArchived = res.timestamp ? true : false;
             
-            var card = LottoUI.createComboCard(res);
+            var card = LottoUI.Card.combo(res);
             
             // 태그 주입 및 툴팁 연결을 위한 구조 변경
             var header = card.querySelector('.card-header');
@@ -168,7 +168,7 @@ var PensionPrediction = {
             // 툴팁 연결
             setTimeout(() => {
                 var el = document.getElementById(tagId);
-                if (el) LottoUI.attachTooltip(el, isArchived ? '저장소에 보관된 연금 조합입니다.' : '실시간 AI 엔진으로 생성된 신규 연금 조합입니다.');
+                if (el) LottoUI.Feedback.tooltip(el, isArchived ? '저장소에 보관된 연금 조합입니다.' : '실시간 AI 엔진으로 생성된 신규 연금 조합입니다.');
             }, 100);
         });
 
@@ -205,7 +205,7 @@ var PensionPrediction = {
             var tagId = 'ptag-arch-' + Math.random().toString(36).substr(2, 9);
             var wrapper = document.createElement('div');
             wrapper.className = 'archive-card-wrapper';
-            var card = LottoUI.createComboCard(res);
+            var card = LottoUI.Card.combo(res);
             
             // 태그 주입
             var header = card.querySelector('.card-header');
@@ -239,7 +239,7 @@ var PensionPrediction = {
             // 툴팁 연결
             setTimeout(() => {
                 var el = document.getElementById(tagId);
-                if (el) LottoUI.attachTooltip(el, '저장소에 보관된 우수 연금 조합입니다.');
+                if (el) LottoUI.Feedback.tooltip(el, '저장소에 보관된 우수 연금 조합입니다.');
             }, 100);
         });
 

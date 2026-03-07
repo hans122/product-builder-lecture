@@ -82,7 +82,7 @@ var AnalysisEngine = {
                 if (el) {
                     var statusDesc = item.data.energy >= 90 ? '통계적으로 현재 매우 임계점에 도달해 있어 조만간 평균으로 회귀(출현)할 가능성이 매우 높습니다.' : (item.data.energy >= 60 ? '최근 흐름이 평균 범위를 벗어나기 시작하며 에너지가 축적되고 있습니다.' : '현재 통계적 평균 범위 내에서 안정적으로 움직이고 있습니다.');
                     var fullTip = `<strong>${item.label} 회귀 분석</strong><br>${item.data.streak}회차 연속 임계 이탈 중<br><br>${statusDesc}`;
-                    LottoUI.attachTooltip(el, fullTip);
+                    LottoUI.Feedback.tooltip(el, fullTip);
                 }
             });
         }, 100);
@@ -168,9 +168,9 @@ var AnalysisEngine = {
         header.style.cssText = 'font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; border-left: 4px solid var(--primary-blue); padding-left: 12px; display:flex; align-items:center; gap:6px;';
         header.innerHTML = `${cfg.label} 분석 <span class="tooltip-icon" style="font-size:0.7rem; color:#94a3b8; border:1px solid #e2e8f0; width:14px; height:14px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-weight:bold;">?</span>`;
         
-        // v32.41 툴팁 연결
+        // [v32.82] 새로운 툴팁 표준 적용
         var tipText = (LottoConfig.LOTTO_TIPS[cfg.id] || LottoConfig.PENSION_TIPS[cfg.id] || '통계적 분포 데이터를 분석합니다.').replace('{safe}', '적정 범위');
-        LottoUI.attachTooltip(header, tipText);
+        LottoUI.Feedback.tooltip(header, tipText);
         
         var card = document.createElement('section');
         card.className = 'analysis-card stats-grid-layout';
@@ -192,19 +192,32 @@ var AnalysisEngine = {
         section.appendChild(card);
         root.appendChild(section);
 
-        LottoUI.createCurveChart(chartId, this.statsData.distributions[cfg.distKey], cfg.unit, this.statsData.stats_summary[cfg.statKey], cfg);
-        LottoUI.renderMiniTable(tableId, this.statsData.recent_draws.slice(0, 6), cfg);
+        // [v32.82] 데이터 유효성 검사 및 새로운 렌더링 표준 적용
+        var dists = this.statsData.distributions || {};
+        var stats = this.statsData.stats_summary || {};
+        var recent = this.statsData.recent_draws || [];
+
+        if (dists[cfg.distKey] && stats[cfg.statKey]) {
+            LottoUI.Chart.curve(chartId, dists[cfg.distKey], cfg.unit, stats[cfg.statKey], cfg);
+        }
+        
+        if (recent.length > 0) {
+            LottoUI.Table.renderMini(tableId, recent.slice(0, 6), cfg);
+        }
     },
 
     renderFrequencyChart: function() {
         var container = document.getElementById('full-frequency-chart');
         if (!container || !this.statsData.frequency) return;
         var freq = this.statsData.frequency;
-        var max = Math.max(...Object.values(freq));
+        var freqValues = [];
+        for (var k in freq) freqValues.push(freq[k]);
+        var max = Math.max.apply(null, freqValues);
+        
         var html = '<div class="freq-bar-container" style="display:flex; align-items:flex-end; gap:2px; height:150px; padding:20px 0;">';
         for (var i = 1; i <= 45; i++) {
             var val = freq[i] || 0;
-            var h = (val / max) * 100;
+            var h = (val / (max || 1)) * 100;
             html += `<div class="freq-bar ${LottoUtils.getBallColorClass(i)}" style="flex:1; height:${h}%; border-radius:2px 2px 0 0; position:relative;" title="${i}번: ${val}회">` +
                 `<span style="position:absolute; top:-15px; left:50%; transform:translateX(-50%); font-size:0.5rem; font-weight:700;">${i}</span></div>`;
         }
@@ -215,7 +228,8 @@ var AnalysisEngine = {
     renderMarkovBoard: function() {
         var container = document.getElementById('lotto-markov-heatmap');
         if (!container || !this.statsData.markov_ending_matrix) return;
-        LottoUI.renderMarkovHeatmap('lotto-markov-heatmap', this.statsData.markov_ending_matrix, { rowLabel: '끝수 ', color: '240, 68, 82' });
+        // [v32.82] 새로운 마르코프 표준 적용
+        LottoUI.Chart.markov('lotto-markov-heatmap', this.statsData.markov_ending_matrix, { rowLabel: '끝수 ', color: '240, 68, 82' });
     }
 };
 

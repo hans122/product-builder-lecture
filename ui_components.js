@@ -1,10 +1,10 @@
 'use strict';
 
 /**
- * AI UI Component Library v2.0 (Structured Edition)
+ * AI UI Component Library v2.1 (Stability & Full Compatibility)
  * - Organized by functional categories
- * - Unified interaction patterns
- * - High-performance SVG rendering
+ * - Fixed internal binding issues
+ * - Restored missing Table components
  */
 
 var LottoUI = {
@@ -34,7 +34,7 @@ var LottoUI = {
         curve: function(containerId, distData, unit, stat, config) {
             var container = document.getElementById(containerId);
             if (!container) return;
-            var self = this;
+            var self = LottoUI.Chart; // 고정 바인딩
             if ('IntersectionObserver' in window) {
                 var observer = new IntersectionObserver(function(entries) {
                     if (entries[0].isIntersecting) {
@@ -44,7 +44,7 @@ var LottoUI = {
                 }, { threshold: 0.1 });
                 observer.observe(container);
             } else {
-                this._renderCurve(container, distData, unit, stat, config);
+                self._renderCurve(container, distData, unit, stat, config);
             }
         },
         _renderCurve: function(container, distData, unit, stat, config) {
@@ -59,26 +59,19 @@ var LottoUI = {
                 var y = (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / std, 2));
                 points.push({ x: x, y: y });
             }
-            var maxY = Math.max.apply(null, points.map(function(p) { return p.y; }));
             var scaleX = (w - sidePadding * 2) / (maxX - minX);
-            var scaleY = (h - padding - bottomSpace) / (maxY || 1);
+            var scaleY = (h - padding - bottomSpace) / (Math.max.apply(null, points.map(function(p){return p.y;})) || 1);
             
             var getX = function(v) { return sidePadding + (v - minX) * scaleX; };
             var getY = function(v) { return (h - bottomSpace) - v * scaleY; };
             var pathD = "M " + points.map(function(p) { return getX(p.x).toFixed(1) + "," + getY(p.y).toFixed(1); }).join(" L ");
             
-            var labels = [
-                { v: mean - 2 * std, l: '2.5%' },
-                { v: mean, l: (config.label || '') },
-                { v: mean + 2 * std, l: '97.5%' }
-            ];
-
             var svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; overflow:visible;">
                 <defs><pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.4"/></pattern></defs>
                 <rect x="${getX(mean-std)}" y="${padding}" width="${getX(mean+std)-getX(mean-std)}" height="${h-bottomSpace-padding}" fill="url(#h-green)" fill-opacity="0.6"/>
                 <path d="${pathD}" fill="none" stroke="#3182f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="${sidePadding}" y1="${h-bottomSpace}" x2="${w-sidePadding}" y2="${h-bottomSpace}" stroke="#e5e8eb" stroke-width="1"/>
-                ${labels.map(function(l) {
+                ${[{v:mean-2*std, l:'2.5%'}, {v:mean, l:config.label}, {v:mean+2*std, l:'97.5%'}].map(function(l) {
                     var val = LottoUtils.round(Math.max(l.v, dataMin), unit==='개'?0:1);
                     return `<g><text x="${getX(l.v)}" y="${h-bottomSpace+22}" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">${val}${unit}</text></g>`;
                 }).join('')}
@@ -99,6 +92,19 @@ var LottoUI = {
                 });
             });
             container.innerHTML = html + '</div>';
+        }
+    },
+
+    /** [테이블 컴포넌트] */
+    Table: {
+        renderMini: function(containerId, recentDraws, config) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = recentDraws.map(function(d) {
+                var val = config.calc(d.nums);
+                var balls = d.nums.map(function(n) { return '<div class="ball mini ' + LottoUtils.getBallColorClass(n) + '">' + n + '</div>'; }).join('');
+                return '<tr><td>' + d.no + '회</td><td><div class="ball-container mini">' + balls + '</div></td><td><strong>' + val + '</strong></td></tr>';
+            }).join('');
         }
     },
 
@@ -184,10 +190,15 @@ var LottoUI = {
     }
 };
 
-// 하위 호환성 링크 (기존 코드 깨짐 방지)
+// [v2.1 Full Compatibility Aliases]
 LottoUI.createBall = LottoUI.Ball.create;
 LottoUI.createComboCard = LottoUI.Card.combo;
 LottoUI.showToast = LottoUI.Feedback.toast;
 LottoUI.attachTooltip = LottoUI.Feedback.tooltip;
 LottoUI.createCurveChart = LottoUI.Chart.curve;
 LottoUI.renderMarkovHeatmap = LottoUI.Chart.markov;
+LottoUI.renderMiniTable = LottoUI.Table.renderMini;
+LottoUI.showSkeletons = function(containerId, count) {
+    var container = document.getElementById(containerId);
+    if (container) container.innerHTML = '<div class="skeleton-pulse" style="height:100px; background:#f2f4f6; border-radius:12px;"></div>';
+};

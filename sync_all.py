@@ -125,10 +125,16 @@ def main():
     if needs_analysis:
         if not run_step("Deep Analysis", "analyze_data.py"): return
         if not run_step("Logic Verification", "verify_logic_match.py"): return
+        # [v32.90] JS 무결성 검사 추가
+        if not run_step("JS Integrity Check", "verify_js_integrity.py"): return
     else:
         print("⏭️ No logic or data changes. Skipping deep analysis.")
 
     # 5. 버전 및 리소스 동기화 (항상 실행)
+    # 평소에는(needs_analysis가 아닐 때도) 가벼운 JS 검사는 수행하여 안전성 확보
+    if not needs_analysis:
+        if not run_step("JS Fast Check", "verify_js_integrity.py"): return
+
     if not bump_version(): return
     if not run_step("Vibe Sync", "node sync_version.cjs"): return
 

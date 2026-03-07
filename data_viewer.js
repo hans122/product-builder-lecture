@@ -51,7 +51,7 @@ var DataViewer = {
         tbody.innerHTML = '';
         draws.forEach((draw, idx) => {
             var tr = document.createElement('tr');
-            var ballsHtml = draw.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('');
+            var ballsHtml = draw.nums.map(n => LottoUI.Ball.create(n, true).outerHTML).join('');
             
             // 전회차 데이터를 넘겨주어 이월수 등 상대 지표 계산 가능하게 함
             var context = { 

@@ -1,11 +1,71 @@
 'use strict';
 
 /**
- * LottoCore Hub v3.0 (Modularized Edition)
- * - Centralized Storage & Data Management
- * - Robust Fetch with Advanced Cache Busting
- * - Standardized Interaction Patterns
+ * LottoCore Hub v3.1 (Guardian Integrated)
+ * - LottoGuardian: Dependency & Legacy Call Protection
+ * - LottoStorage: Unified Data Access
+ * - LottoDataManager: Reliable Data Loading
  */
+
+/** [가디언] 시스템 무결성 보호기 */
+var LottoGuardian = {
+    REQUIRED_MODULES: ['LottoUtils', 'LottoConfig', 'LottoStorage', 'LottoUI'],
+    
+    /** 모듈 의존성 검사 */
+    checkDependencies: function() {
+        var missing = [];
+        this.REQUIRED_MODULES.forEach(function(m) {
+            if (typeof window[m] === 'undefined') missing.push(m);
+        });
+        if (missing.length > 0) {
+            var msg = "⚠️ 필수 시스템 모듈 누락: " + missing.join(', ') + "\n새로고침이 필요합니다.";
+            console.error(msg);
+            // 페이지 상단에 경고 바 표시
+            this.showSystemError(msg);
+            return false;
+        }
+        return true;
+    },
+
+    /** 구버전 호출 자동 대응 (Proxy) */
+    initLegacyProxy: function() {
+        if (typeof window.Proxy === 'undefined' || !window.LottoUI) return;
+
+        // LottoUI에 대한 프록시 설정
+        var legacyMap = {
+            'renderMiniTable': 'Table.renderMini',
+            'createCurveChart': 'Chart.curve',
+            'renderMarkovHeatmap': 'Chart.markov',
+            'createComboCard': 'Card.combo',
+            'createBall': 'Ball.create',
+            'showToast': 'Feedback.toast',
+            'attachTooltip': 'Feedback.tooltip'
+        };
+
+        var self = this;
+        window.LottoUI = new Proxy(window.LottoUI, {
+            get: function(target, prop) {
+                if (prop in target) return target[prop];
+                
+                // 구버전 함수 호출 시 신규 경로로 연결 및 경고
+                if (legacyMap[prop]) {
+                    var newPath = legacyMap[prop].split('.');
+                    var fn = target[newPath[0]][newPath[1]];
+                    console.warn(`[Guardian] Deprecated: LottoUI.${prop} -> LottoUI.${legacyMap[prop]} (자동 전환됨)`);
+                    return fn;
+                }
+                return undefined;
+            }
+        });
+    },
+
+    showSystemError: function(msg) {
+        var errDiv = document.createElement('div');
+        errDiv.style.cssText = 'position:fixed; top:0; left:0; right:0; background:#f04452; color:white; padding:10px; text-align:center; z-index:99999; font-weight:bold; font-size:0.85rem;';
+        errDiv.innerHTML = msg + ' <button onclick="location.reload()" style="background:white; color:#f04452; border:none; padding:2px 10px; border-radius:4px; margin-left:10px; cursor:pointer;">새로고침</button>';
+        document.body.appendChild(errDiv);
+    }
+};
 
 var LottoStorage = {
     KEYS: {
@@ -15,72 +75,44 @@ var LottoStorage = {
         PENSION_POOL: 'pension_system_pool',
         CONSENT: 'lotto_consent_given'
     },
-
-    get: function(key) {
-        try {
-            var raw = localStorage.getItem(key);
-            return raw ? JSON.parse(raw) : [];
-        } catch(e) { return []; }
-    },
-
-    set: function(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
-    },
-
-    /** 중복 제거 저장 로직 (nums 기준 정렬하여 비교) */
+    get: function(key) { try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : []; } catch(e) { return []; } },
+    set: function(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
     pushUnique: function(key, items, limit, sortBy) {
         var list = this.get(key);
         items.forEach(function(newItem) {
-            var isDup = list.some(function(existing) {
-                return JSON.stringify(existing.nums.slice().sort()) === JSON.stringify(newItem.nums.slice().sort());
-            });
-            if (!isDup) {
-                if (!newItem.timestamp) newItem.timestamp = Date.now();
-                list.unshift(newItem);
-            }
+            var isDup = list.some(function(existing) { return JSON.stringify(existing.nums.slice().sort()) === JSON.stringify(newItem.nums.slice().sort()); });
+            if (!isDup) { if (!newItem.timestamp) newItem.timestamp = Date.now(); list.unshift(newItem); }
         });
         if (sortBy) list.sort(sortBy);
         if (limit) list = list.slice(0, limit);
         this.set(key, list);
         return list;
     },
-
     remove: function(key, nums) {
         var list = this.get(key);
         var numsStr = JSON.stringify(nums.slice().sort());
-        var filtered = list.filter(function(item) {
-            return JSON.stringify(item.nums.slice().sort()) !== numsStr;
-        });
+        var filtered = list.filter(function(item) { return JSON.stringify(item.nums.slice().sort()) !== numsStr; });
         this.set(key, filtered);
         return filtered;
     },
-
-    clear: function(key) {
-        localStorage.removeItem(key);
-    }
+    clear: function(key) { localStorage.removeItem(key); }
 };
 
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
-    SYSTEM_VERSION: '22.29',
-
+    SYSTEM_VERSION: '22.30',
     getStats: function(cb) { this._load('advanced_stats.json', 'lotto', cb); },
     getPensionStats: function(cb) { this._load('pension_stats.json', 'pension', cb); },
-
     _load: function(url, type, cb) {
         if (this.cache[type]) { cb(this.cache[type]); return; }
         var self = this;
-        var finalUrl = url + '?v=' + this.SYSTEM_VERSION + '_' + Math.floor(Date.now()/100000);
-
-        fetch(finalUrl, { cache: 'no-cache' })
+        fetch(url + '?v=' + this.SYSTEM_VERSION + '_' + Math.floor(Date.now()/100000), { cache: 'no-cache' })
             .then(function(res) { if (!res.ok) throw new Error(res.status); return res.json(); })
-            .then(function(data) {
-                self.cache[type] = data;
-                cb(data);
-            })
-            .catch(function(err) {
-                console.error('[LottoCore] Load Failed:', url, err);
-                cb(null);
+            .then(function(data) { self.cache[type] = data; cb(data); })
+            .catch(function(err) { 
+                console.error('[LottoCore] Load Failed:', url, err); 
+                LottoGuardian.showSystemError("⚠️ 데이터 로드 실패. 서버 상태를 확인하세요.");
+                cb(null); 
             });
     }
 };
@@ -91,20 +123,8 @@ var LottoEvents = {
     emit: function(evt, data) { if(this._listeners[evt]) this._listeners[evt].forEach(function(fn) { fn(data); }); }
 };
 
-/** 개인정보 동의 매니저 */
-var PrivacyManager = {
-    init: function() {
-        if (localStorage.getItem(LottoStorage.KEYS.CONSENT)) return;
-        var banner = document.createElement('div');
-        banner.style.cssText = 'position:fixed; bottom:0; left:0; right:0; background:#fff; box-shadow:0 -2px 20px rgba(0,0,0,0.1); z-index:10000; padding:1.5rem; text-align:center; border-top: 1px solid #edf2f7;';
-        banner.innerHTML = '<p style="font-size:0.9rem; margin-bottom:1rem; font-weight:700; color:#191f28;">서비스 제공을 위해 쿠키 및 저장소를 사용합니다. <a href="privacy.html" style="color:#3182f6;">개인정보처리방침</a>에 동의하십니까?</p>' +
-                           '<div style="display:flex; gap:1rem; justify-content:center;"><button id="c-acc" style="padding:10px 24px; border-radius:10px; background:#3182f6; color:white; border:none; font-weight:800; cursor:pointer;">동의함</button><button id="c-dec" style="padding:10px 24px; border-radius:10px; background:#f2f4f6; color:#4e5968; border:none; font-weight:800; cursor:pointer;">거부함</button></div>';
-        document.body.appendChild(banner);
-        document.getElementById('c-acc').onclick = function() { localStorage.setItem(LottoStorage.KEYS.CONSENT, 'true'); banner.remove(); };
-        document.getElementById('c-dec').onclick = function() { banner.remove(); };
-    }
-};
-
 document.addEventListener('DOMContentLoaded', function() {
-    PrivacyManager.init();
+    // 가디언 작동 시작
+    LottoGuardian.initLegacyProxy();
+    LottoGuardian.checkDependencies();
 });

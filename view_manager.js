@@ -75,7 +75,7 @@ var ViewManager = {
             targetContainer.innerHTML = '';
             var sorted = [].concat(numbers).sort(function(a,b){ return a-b; });
             for (var i = 0; i < sorted.length; i++) {
-                targetContainer.appendChild(LottoUI.createBall(sorted[i], true));
+                targetContainer.appendChild(LottoUI.Ball.create(sorted[i], true));
             }
         }
         if (document.getElementById('main-indicator-grid')) {
@@ -92,7 +92,7 @@ var ViewManager = {
                 container.innerHTML = '';
                 var nums = groups[type];
                 for (var i = 0; i < nums.length; i++) {
-                    container.appendChild(LottoUI.createBall(nums[i], true));
+                    container.appendChild(LottoUI.Ball.create(nums[i], true));
                 }
             }
         });
@@ -103,7 +103,7 @@ var ViewManager = {
         if (ballContainer) {
             ballContainer.innerHTML = '';
             for (var i = 0; i < draw.nums.length; i++) {
-                ballContainer.appendChild(LottoUI.createBall(draw.nums[i], true));
+                ballContainer.appendChild(LottoUI.Ball.create(draw.nums[i], true));
             }
             if (document.getElementById('last-draw-info')) {
                 document.getElementById('last-draw-info').style.display = 'flex';

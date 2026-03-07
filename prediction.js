@@ -147,7 +147,7 @@ var PredictionEngine = {
         }
 
         final.forEach(res => {
-            var card = LottoUI.createComboCard(res);
+            var card = LottoUI.Card.combo(res);
             card.onclick = () => {
                 localStorage.setItem('lastGeneratedNumbers', JSON.stringify(res.nums));
                 location.href = 'combination.html';
@@ -178,7 +178,7 @@ var PredictionEngine = {
                 if (clearBtn.dataset.confirm === 'true') {
                     LottoStorage.clear(LottoStorage.KEYS.LOTTO_ARCHIVE);
                     this.renderArchive();
-                    LottoUI.showToast('모든 아카이브가 삭제되었습니다.');
+                    LottoUI.Feedback.toast('모든 아카이브가 삭제되었습니다.');
                     clearBtn.innerText = '전체 삭제';
                     clearBtn.dataset.confirm = 'false';
                 } else {
@@ -200,7 +200,7 @@ var PredictionEngine = {
         archive.forEach(res => {
             var wrapper = document.createElement('div');
             wrapper.className = 'archive-card-wrapper';
-            var card = LottoUI.createComboCard(res);
+            var card = LottoUI.Card.combo(res);
             card.onclick = () => { localStorage.setItem('lastGeneratedNumbers', JSON.stringify(res.nums)); location.href = 'combination.html'; };
             
             var delBtn = document.createElement('button');
@@ -213,7 +213,7 @@ var PredictionEngine = {
                 setTimeout(() => { 
                     LottoStorage.remove(LottoStorage.KEYS.LOTTO_ARCHIVE, res.nums);
                     this.renderArchive(); 
-                    LottoUI.showToast('조합이 삭제되었습니다.', '실행 취소', () => { this.saveToArchive([lastDeleted]); });
+                    LottoUI.Feedback.toast('조합이 삭제되었습니다.', '실행 취소', () => { this.saveToArchive([lastDeleted]); });
                 }, 400);
             };
             wrapper.appendChild(delBtn); wrapper.appendChild(card); container.appendChild(wrapper);
@@ -236,7 +236,7 @@ var PredictionEngine = {
             var el = document.getElementById(id);
             if (el) {
                 el.innerHTML = '';
-                nums.forEach(n => el.appendChild(LottoUI.createBall(n, true)));
+                nums.forEach(n => el.appendChild(LottoUI.Ball.create(n, true)));
             }
         });
     }
@@ -257,9 +257,9 @@ function runBacktest(draws) {
         var excludeHit = draw.nums.every(n => !pools.cold.includes(n));
         if (excludeHit) excludeSuccess++;
         var tr = document.createElement('tr');
-        var winHtml = `<div class="ball-container">${draw.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('')}</div>`;
+        var winHtml = `<div class="ball-container">${draw.nums.map(n => LottoUI.Ball.create(n, true).outerHTML).join('')}</div>`;
         var hotHtml = `<div class="pool-grid-10">${pools.hot.map(n => {
-            var b = LottoUI.createBall(n, true); if (!draw.nums.includes(n)) b.style.opacity = '0.2'; return b.outerHTML;
+            var b = LottoUI.Ball.create(n, true); if (!draw.nums.includes(n)) b.style.opacity = '0.2'; return b.outerHTML;
         }).join('')}</div>`;
         tr.innerHTML = `<td><strong>${draw.no}회</strong></td><td>${winHtml}</td><td>${hotHtml}</td><td><div class="pool-grid-mini">${pools.neutral.map(n => `<span class="pool-num">${n}</span>`).join('')}</div></td><td><div class="pool-grid-mini">${pools.cold.map(n => `<span class="pool-num">${n}</span>`).join('')}</div></td><td><div class="status-badge ${hits.length>=4?'safe':'warning'}">적중 ${hits.length}</div></td>`;
         body.appendChild(tr);
