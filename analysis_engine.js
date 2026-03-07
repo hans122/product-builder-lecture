@@ -39,7 +39,7 @@ var AnalysisEngine = {
             section.innerHTML = `
                 <div class="card-header"><h3>📍 ${cfg.label} 분석</h3></div>
                 <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="${cfg.id}-chart" style="height: 200px;"></div></div>
+                    <div class="chart-wrapper"><div id="${cfg.id}-chart" class="dist-bar-chart" style="height: 200px;"></div></div>
                     <div class="mini-table-wrapper">
                         <h4>📊 최근 ${cfg.label} 리포트</h4>
                         <table class="mini-table"><tbody id="${cfg.id}-mini-body"></tbody></table>
@@ -106,7 +106,7 @@ var AnalysisEngine = {
             section.innerHTML = `
                 <div class="card-header"><h3>📍 ${cfg.label} 분석</h3></div>
                 <div class="analysis-layout-split" style="padding: 20px;">
-                    <div class="chart-wrapper"><div id="${cfg.id}-chart" style="height: 200px;"></div></div>
+                    <div class="chart-wrapper"><div id="${cfg.id}-chart" class="dist-bar-chart" style="height: 200px;"></div></div>
                     <div class="mini-table-wrapper">
                         <h4>📊 최근 ${cfg.label} 리포트</h4>
                         <table class="mini-table"><tbody id="${cfg.id}-mini-body"></tbody></table>

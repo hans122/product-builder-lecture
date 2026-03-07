@@ -54,13 +54,15 @@ var SystemGuardian = {
         this.checkElement('ai-guide-root', 'AI Guide Container');
         this.checkElement('ai-pension-guide-root', 'AI Pension Guide Container');
         
-        // 차트 렌더링 확인 (SVG 존재 여부)
-        var charts = document.querySelectorAll('.dist-bar-chart, .frequency-chart');
+        // 차트 렌더링 확인 (SVG 또는 Bar 존재 여부)
+        var charts = document.querySelectorAll('.dist-bar-chart, .frequency-chart, [id$="-chart"]');
         if (charts.length > 0) {
             var rendered = 0;
-            charts.forEach(c => { if(c.querySelector('svg, .bar')) rendered++; });
+            charts.forEach(c => { 
+                if(c.querySelector('svg, .bar, .bar-wrapper') || c.innerHTML.indexOf('<svg') !== -1) rendered++; 
+            });
             if (rendered < charts.length) this.log('WARN', 'Some Charts Not Rendered (' + rendered + '/' + charts.length + ')');
-            else this.log('PASS', 'All Charts Rendered');
+            else this.log('PASS', 'All Charts Rendered (' + rendered + ')');
         }
 
         this.updateBadge();
