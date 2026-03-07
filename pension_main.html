@@ -68,16 +68,31 @@
         </div>
 
         <!-- 3. AI 엄선 추천 조합 -->
-        <section class="analysis-card">
-            <div class="card-header" style="justify-content: space-between;">
+        <section class="analysis-card" style="background: #fff4e6; border: 1px solid #ff8c0033;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; background: #fffaf0;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span class="icon">✨</span>
                     <h3>AI 실전 압축 조합 (Top 10)</h3>
                 </div>
-                <button id="refresh-pension-btn" class="nav-btn small" style="background: #fff4e6; color: #ff8c00; font-weight: bold; border: none; cursor: pointer;">🔄 조합 새로고침</button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <select id="pension-strategy-select" style="padding: 5px 10px; border-radius: 8px; border: 2px solid #ff8c00; font-size: 0.85rem; font-weight: 800; color: #ff8c00; background: white; outline: none; max-width: 180px;">
+                        <option value="all">전체 전략 (Top 10)</option>
+                        <option value="markov">🔮 역방향 마르코프</option>
+                        <option value="monte">🧬 몬테카를로 최적</option>
+                        <option value="balance">⚖️ 홀짝/고저 밸런스</option>
+                        <option value="hot">🔥 기세 추종형</option>
+                        <option value="defensive">🛡️ 데이터 방어형</option>
+                        <option value="streak">📈 연속 숫자형</option>
+                        <option value="unique">✨ 다양성 극대화</option>
+                        <option value="regression">🚀 회귀 에너지형</option>
+                        <option value="neighbor">🏠 이웃수 시너지</option>
+                        <option value="extreme">📉 저빈도 역습형</option>
+                    </select>
+                    <button id="refresh-pension-btn" class="nav-btn small" style="background: #ff8c00; color: white; font-weight: bold; border: none; cursor: pointer; padding: 6px 12px; border-radius: 8px;">🔄 조합 새로고침</button>
+                </div>
             </div>
-            <div id="pension-recommendations" style="display: flex; gap: 15px; padding: 24px; justify-content: space-between; flex-wrap: wrap;">
-                <!-- 추천 조합 카드 주입 -->
+            <div class="recommendation-grid" id="pension-combinations-container" style="display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 15px; padding: 25px 20px;">
+                <div class="placeholder-text" style="grid-column: 1/-1; padding: 50px; text-align: center; color: #ff8c00;">연금 지능형 연산 시스템 가동 중...</div>
             </div>
         </section>
 
@@ -112,6 +127,7 @@
     <script src="pension_utils.js?v=16.2"></script>
     <script src="ui_components.js?v=16.2"></script>
     <script src="view_manager.js?v=16.2"></script>
+    <script src="pension_prediction.js?v=16.2"></script>
 <script src="validator.js?v=16.2"></script>
 </body>
     </html>

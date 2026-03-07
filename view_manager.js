@@ -135,13 +135,40 @@ var ViewManager = {
         var lastDraw = data.recent_draws[0];
         this.renderPensionLastDraw(lastDraw);
         this.renderPensionIndicators(lastDraw);
-        this.renderPensionRecommendations(data);
+        this.renderPensionBestPicks(data); // 누락된 베스트 픽 렌더링 추가
+    },
 
-        var refreshBtn = document.getElementById('refresh-pension-btn');
-        if (refreshBtn) {
-            var self = this;
-            refreshBtn.onclick = function() { self.renderPensionRecommendations(data); };
+    renderPensionBestPicks: function(data) {
+        var container = document.getElementById('pension-best-digits');
+        if (!container || !data.pos_freq) return;
+        
+        var labels = ['십만', '만', '천', '백', '십', '일'];
+        var html = '';
+        
+        for (var i = 0; i < 6; i++) {
+            var freq = data.pos_freq[i];
+            // 해당 자리의 빈도순 정렬 (Top 3)
+            var sorted = freq.map((f, idx) => ({ num: idx, count: f }))
+                             .sort((a, b) => b.count - a.count)
+                             .slice(0, 3);
+            
+            var ballsHtml = sorted.map((item, idx) => {
+                var opacity = 1 - (idx * 0.3); // 순위별 투명도 차별화
+                return `<div style="display:flex; flex-direction:column; align-items:center; gap:4px; opacity:${opacity};">
+                    <div class="pension-ball small ${item.num >= 5 ? 'blue' : 'yellow'}" style="width:26px; height:26px; font-size:0.8rem;">${item.num}</div>
+                    <span style="font-size:0.6rem; color:#94a3b8; font-weight:700;">${item.count}회</span>
+                </div>`;
+            }).join('');
+
+            html += `<div class="best-pick-box" style="background:white; padding:15px; border-radius:12px; border:1px solid #edf2f7; text-align:center;">
+                <div style="font-size:0.7rem; font-weight:800; color:#64748b; margin-bottom:10px;">${labels[i]}의 자리</div>
+                <div style="display:flex; justify-content:center; gap:8px;">${ballsHtml}</div>
+            </div>`;
         }
+        container.innerHTML = html;
+        container.style.display = 'grid';
+        container.style.gridTemplateColumns = 'repeat(3, 1fr)';
+        container.style.gap = '12px';
     },
 
     renderPensionLastDraw: function(draw) {
@@ -186,32 +213,6 @@ var ViewManager = {
                 '<span style="font-size:0.8rem; font-weight:900; color:' + (i.ok?'#2ecc71':'#ff8c00') + '">' + i.val + '</span>' +
             '</div>';
         }).join('');
-    },
-
-    renderPensionRecommendations: function(data) {
-        var container = document.getElementById('pension-recommendations');
-        if (!container) return;
-        var strategies = ["💎 다차원 최적화", "🔥 기세 추종형", "🔄 이월 시너지", "⚖️ 수치 균형형", "🛡️ 데이터 방어형"];
-        var html = '';
-        for (var k = 0; k < 5; k++) {
-            var group = Math.floor(Math.random() * 5) + 1;
-            var nums = [];
-            for (var n = 0; n < 6; n++) nums.push(Math.floor(Math.random() * 10));
-            
-            var ballsHtml = nums.map(function(num) {
-                return '<div class="pension-ball small" style="width:20px;height:20px;font-size:0.7rem; background:#f1f5f9; color:#1e293b; border:1px solid #e2e8f0;">' + num + '</div>';
-            }).join('');
-
-            html += '<div class="p-combo-card" style="width:calc(20% - 15px); min-width:170px; margin:5px; padding:15px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; display:flex; flex-direction:column; align-items:center;">' +
-                '<span style="font-size:0.6rem; background:#fff4e6; color:#ff8c00; padding:2px 8px; border-radius:10px; font-weight:800; margin-bottom:10px;">' + strategies[k] + '</span>' +
-                '<div style="display:flex; gap:5px; margin-bottom:10px;">' +
-                    '<div class="pension-ball group small" style="width:24px;height:24px;">' + group + '</div>' +
-                    '<div style="display:flex; gap:2px;">' + ballsHtml + '</div>' +
-                '</div>' +
-                '<div style="font-size:0.6rem; color:#94a3b8;">AI 신뢰도: <span style="color:#2ecc71;">' + (80 + Math.floor(Math.random()*15)) + '%</span></div>' +
-            '</div>';
-        }
-        container.innerHTML = html;
     }
 };
 
