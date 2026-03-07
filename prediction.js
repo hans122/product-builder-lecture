@@ -1,19 +1,22 @@
 'use strict';
 
 /**
- * AI Prediction Engine v5.3 (Refactored & Lean)
- * - Uses Unified Engine (LottoAI) for pooling and analysis
- * - Strategy Focused Deep Recommendation Mode
+ * AI Prediction Engine v6.0 - Synergy-AI Edition
+ * - Integrated with Co-occurrence Synergy Matrix
+ * - Advanced Multi-step Filtering (Statistical + Relational)
  */
 
 var PredictionEngine = {
     statsData: null,
+    synergyMatrix: null,
 
     init: function() {
         var self = this;
         LottoDataManager.getStats(function(data) {
             if (!data) return;
             self.statsData = data;
+            // 1. 궁합 매트릭스 실시간 계산
+            self.synergyMatrix = LottoAI.calculateSynergyMatrix(data.recent_draws, 300);
             self.renderAll();
             self.bindEvents();
         });
@@ -54,7 +57,7 @@ var PredictionEngine = {
 
         var allStrategies = [
             { id: 'standard', label: "💎 다차원 최적화", desc: "평균값 수렴 정석 조합" },
-            { id: 'trend', label: "📊 패턴 유사도형", desc: "최근 10회차 당첨 흐름 반영" },
+            { id: 'trend', label: "📊 패턴 유사도형", desc: "최근 당첨 흐름 반영" },
             { id: 'hot', label: "🔥 기세 추종형", desc: "뜨거운 번호 집중 구성" },
             { id: 'balanced', label: "⚖️ 밸런스 가중형", desc: "대칭적 균형미 최적화" },
             { id: 'defensive', label: "🛡️ 데이터 방어형", desc: "미출현 번호 전략 포함" },
@@ -77,7 +80,7 @@ var PredictionEngine = {
 
         strategies.forEach(strategy => {
             var found = false, attempts = 0;
-            while (!found && attempts < 800) {
+            while (!found && attempts < 1000) {
                 attempts++;
                 var pick = [];
                 var pool = pools.hot.concat(pools.neutral);
@@ -87,23 +90,33 @@ var PredictionEngine = {
                 if (strategy.id === 'extreme') pool = pools.cold.concat(pools.neutral.slice(0, 2));
                 if (strategy.id === 'neighbor') {
                     var neighbors = [];
-                    lastDraw.nums.forEach(n => {
-                        if (n > 1) neighbors.push(n-1);
-                        if (n < 45) neighbors.push(n+1);
-                    });
+                    lastDraw.nums.forEach(n => { if (n > 1) neighbors.push(n-1); if (n < 45) neighbors.push(n+1); });
                     pool = neighbors.concat(pools.hot.slice(0, 10));
                 }
 
                 var localPool = [...new Set(pool)];
                 
+                // [Synergy-AI] 궁합 기반 스마트 추출
                 while (pick.length < 6 && localPool.length > 0) {
-                    var n = localPool.splice(Math.floor(Math.random() * localPool.length), 1)[0];
-                    if (n >= 1 && n <= 45 && !pick.includes(n)) pick.push(n);
+                    if (pick.length === 0) {
+                        var n = localPool.splice(Math.floor(Math.random() * localPool.length), 1)[0];
+                        if (n >= 1 && n <= 45) pick.push(n);
+                    } else {
+                        // 현재까지 뽑힌 번호들과의 궁합 점수 합산 랭킹 산출
+                        localPool.sort((a, b) => {
+                            var scoreA = pick.reduce((sum, p) => sum + (this.synergyMatrix[p]?.[a] || 0), 0);
+                            var scoreB = pick.reduce((sum, p) => sum + (this.synergyMatrix[p]?.[b] || 0), 0);
+                            return scoreB - scoreA;
+                        });
+                        // 상위 3개 중 하나를 무작위 선택 (변별력 확보)
+                        var topN = Math.min(3, localPool.length);
+                        var pickedIdx = Math.floor(Math.random() * topN);
+                        var n = localPool.splice(pickedIdx, 1)[0];
+                        if (n >= 1 && n <= 45 && !pick.includes(n)) pick.push(n);
+                    }
                 }
                 
-                if (pick.length < 6) {
-                    for(var i=1; i<=45; i++) { if(pick.length < 6 && !pick.includes(i)) pick.push(i); }
-                }
+                if (pick.length < 6) { for(var i=1; i<=45; i++) { if(pick.length < 6 && !pick.includes(i)) pick.push(i); } }
 
                 pick.sort((a,b)=>a-b);
                 var sum = pick.reduce((a,b)=>a+b, 0);
@@ -111,15 +124,14 @@ var PredictionEngine = {
                 var hasDanger = synergy.some(s => s.status === 'danger');
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
                 
-                var isPass = (Math.abs(sum - stats.sum.mean) <= 50 && !hasDanger);
+                // [Relational Filtering] 궁합 점수 검증 추가
+                var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
+                
+                var isPass = (Math.abs(sum - stats.sum.mean) <= 45 && !hasDanger && compScore >= 15);
                 if (strategy.id === 'extreme') isPass = (sum < stats.sum.mean - 20 || sum > stats.sum.mean + 20);
-                if (strategy.id === 'prime') {
-                    var pCount = pick.filter(n => LottoUtils.isPrime(n)).length;
-                    isPass = isPass && (pCount >= 2 && pCount <= 3);
-                }
-
-                if ((isPass || attempts > 700) && !isDuplicate) {
-                    results.push({ nums: pick, strategy: strategy });
+                
+                if ((isPass || attempts > 900) && !isDuplicate) {
+                    results.push({ nums: pick, strategy: strategy, synergyScore: compScore });
                     found = true;
                 }
             }
@@ -133,9 +145,9 @@ var PredictionEngine = {
             card.innerHTML = `
                 <div class="combo-rank" style="background:${this.getStrategyColor(res.strategy.id)}; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-weight: 900;">${res.strategy.label}</div>
                 <div class="ball-container">${ballHtml}</div>
-                <div class="combo-meta">신뢰도 <b>${92 + Math.floor(Math.random()*7)}%</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>
+                <div class="combo-meta">AI 시너지 <b>${res.synergyScore}pt</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>
                 <div class="combo-desc">${res.strategy.desc}</div>
-                <div class="analyze-badge">정밀 분석 ➔</div>
+                <div class="analyze-badge">궁합 분석 완료 ➔</div>
             `;
             
             card.onclick = () => {

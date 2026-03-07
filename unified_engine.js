@@ -132,5 +132,38 @@ var LottoAI = {
             neutral: scores.slice(30, 35).map(s => s.num).sort((a,b)=>a-b),
             cold: scores.slice(35, 45).map(s => s.num).sort((a,b)=>a-b)
         };
+    },
+
+    // 6. Number Compatibility (Synergy) Matrix
+    calculateSynergyMatrix: function(draws, limit) {
+        var matrix = {};
+        var targetDraws = (draws || []).slice(0, limit || 200); // 최근 200회차 중심 분석
+        
+        targetDraws.forEach(d => {
+            var nums = d.nums;
+            for (var i = 0; i < nums.length; i++) {
+                for (var j = i + 1; j < nums.length; j++) {
+                    var n1 = nums[i], n2 = nums[j];
+                    if (!matrix[n1]) matrix[n1] = {};
+                    if (!matrix[n2]) matrix[n2] = {};
+                    matrix[n1][n2] = (matrix[n1][n2] || 0) + 1;
+                    matrix[n2][n1] = (matrix[n2][n1] || 0) + 1;
+                }
+            }
+        });
+        return matrix;
+    },
+
+    // 7. Calculate Compatibility Score for a given combination
+    getCompatibilityScore: function(nums, matrix) {
+        if (!matrix) return 0;
+        var score = 0;
+        for (var i = 0; i < nums.length; i++) {
+            for (var j = i + 1; j < nums.length; j++) {
+                var n1 = nums[i], n2 = nums[j];
+                if (matrix[n1] && matrix[n1][n2]) score += matrix[n1][n2];
+            }
+        }
+        return score; // 점수가 높을수록 역사적으로 자주 함께 나온 조합
     }
 };
