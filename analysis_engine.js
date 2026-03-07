@@ -1,9 +1,10 @@
 'use strict';
 
 /**
- * AI Analysis Engine v2.0 - Fully Automated Dashboard
+ * AI Analysis Engine v2.1 (Stabilized)
  * - Dynamic Section Generation based on LottoConfig
  * - Seamless Chart & Table Integration
+ * - Fixed Syntax Error in renderRegressionSignals
  */
 
 var AnalysisEngine = {
@@ -30,10 +31,6 @@ var AnalysisEngine = {
         if (!root) return;
         root.innerHTML = '';
 
-        // 1. 전략 그룹 (Hot/Cold) 등 기존 고정 섹션은 유지 혹은 상단 처리
-        // ... (기존 상단 요약 로직 생략 가능 - 필요 시 보강)
-
-        // 2. 지표 기반 섹션 동적 생성
         var indicators = LottoConfig.INDICATORS.filter(cfg => cfg.visible && cfg.visible.analysis);
         
         indicators.forEach(cfg => {
@@ -51,7 +48,6 @@ var AnalysisEngine = {
             `;
             root.appendChild(section);
 
-            // 3. 데이터 주입
             var dist = data.distributions ? data.distributions[cfg.distKey] : null;
             var stat = data.stats_summary ? data.stats_summary[cfg.statKey] : null;
             
@@ -64,10 +60,11 @@ var AnalysisEngine = {
             LottoUI.renderMiniTable(cfg.id + '-mini-body', data.recent_draws.slice(0, 6), cfg);
         });
 
-        // 4. 특수 섹션 (히트맵 등) 렌더링
         if (window.renderOverAppearanceAlert) renderOverAppearanceAlert(data.recent_draws);
         var markovMatrix = LottoAI.calculateEndingChainMatrix(data.recent_draws, 300);
         LottoUI.renderMarkovHeatmap('lotto-markov-heatmap', markovMatrix, { color: '49, 130, 246', rowLabel: '끝수 ' });
+        
+        if (data.regression_signals) this.renderRegressionSignals('lotto-regression-container', data.regression_signals);
     },
 
     runPensionAnalysis: function(data) {
@@ -92,18 +89,32 @@ var AnalysisEngine = {
             `;
             root.appendChild(section);
 
-            var dist = data.distributions[cfg.distKey];
-            var stat = data.stats_summary[cfg.statKey];
-            if (dist) LottoUI.createCurveChart(cfg.id + '-chart', dist, cfg.unit, stat, cfg);
+            var dist = data.distributions ? data.distributions[cfg.distKey] : null;
+            var stat = data.stats_summary ? data.stats_summary[cfg.statKey] : null;
+            if (dist && stat) LottoUI.createCurveChart(cfg.id + '-chart', dist, cfg.unit, stat, cfg);
             LottoUI.renderMiniTable(cfg.id + '-mini-body', data.recent_draws.slice(0, 6), cfg);
         });
 
-        // 특수 섹션 렌더링
         if (window.renderFlowMap) renderFlowMap(data.recent_draws.slice(0, 15));
         if (data.markov_matrix) LottoUI.renderMarkovHeatmap('markov-heatmap-container', data.markov_matrix, { color: '255, 140, 0', rowLabel: '숫자 ' });
         if (data.regression_signals) this.renderRegressionSignals('pension-regression-container', data.regression_signals);
     },
 
     renderRegressionSignals: function(containerId, signals) {
+        var container = document.getElementById(containerId);
+        if (!container || !signals) return;
+        
+        var html = '<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:10px; padding:10px;">';
+        Object.entries(signals).forEach(([key, sig]) => {
+            var energyColor = sig.energy > 70 ? '#f04452' : (sig.energy > 40 ? '#ff9500' : '#3182f6');
+            html += `<div class="analysis-card" style="padding:12px; text-align:center; border-bottom:3px solid ${energyColor};">
+                <div style="font-size:0.7rem; color:#64748b; margin-bottom:5px;">${key} 회귀에너지</div>
+                <div style="font-size:1.1rem; font-weight:900; color:${energyColor};">${sig.energy}%</div>
+            </div>`;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+};
 
 document.addEventListener('DOMContentLoaded', () => AnalysisEngine.init());
