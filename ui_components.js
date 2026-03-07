@@ -215,11 +215,13 @@ var LottoUI = {
         container.innerHTML = html;
     },
 
-    /** 8. AI 추천 조합 카드 */
+    /** 8. AI 추천 조합 카드 (v32.16 가독성 고도화) */
     createComboCard: function(res, options) {
         var opts = options || {};
         var card = document.createElement('div');
         card.className = 'combo-card';
+        card.style.cssText = 'position:relative; cursor:pointer; transition:transform 0.2s; overflow:visible;';
+        
         var self = this;
         var ballsHtml = res.nums.map(function(n) {
             var b = self.createBall(n, true);
@@ -227,40 +229,43 @@ var LottoUI = {
             return b.outerHTML;
         }).join('');
         
+        // 기댓값 배지 설정
         var probHtml = '';
         if (res.prob) {
-            var badgeColor = res.prob.grade === 'TOP' ? '#f04452' : (res.prob.grade === 'HIGH' ? '#3182f6' : '#64748b');
-            probHtml = `
-                <div style="margin-top:12px; padding-top:10px; border-top:1px dashed #eee; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="font-size:0.65rem; color:#64748b; font-weight:700;">당첨 기댓값</div>
-                    <div style="font-size:0.9rem; font-weight:900; color:${badgeColor};">${res.prob.multiplier}배</div>
-                </div>
-                <div style="display:flex; gap:4px; margin-top:4px;">
-                    <span style="font-size:0.6rem; padding:1px 4px; border-radius:4px; background:${badgeColor}15; color:${badgeColor}; font-weight:800;">${res.prob.grade}</span>
-                    <span style="font-size:0.6rem; color:#94a3b8;">신뢰도 ${res.prob.confidence}%</span>
-                </div>
-            `;
+            var color = res.prob.grade === 'TOP' ? '#f04452' : (res.prob.grade === 'HIGH' ? '#3182f6' : '#64748b');
+            probHtml = `<div style="text-align:right;">
+                <div style="font-size:0.9rem; font-weight:900; color:${color}; line-height:1.1;">${res.prob.multiplier}배</div>
+                <div style="font-size:0.55rem; color:#94a3b8; font-weight:700;">기댓값</div>
+            </div>`;
         }
 
+        // 앙상블 배지 설정
         var ensembleHtml = '';
         if (res.ensembleCount > 1) {
-            var isSuper = res.ensembleCount >= 4; // v32.12 슈퍼 앙상블 기준
+            var isSuper = res.ensembleCount >= 4;
             var style = isSuper 
                 ? 'background:linear-gradient(135deg, #ffd700, #ffae00); color:#1a202c; border:1px solid #ffd700; box-shadow:0 2px 6px rgba(255,215,0,0.4);' 
                 : 'background:#f1f5f9; color:#475569; border:1px solid #e2e8f0;';
-            ensembleHtml = `<span style="font-size:0.65rem; padding:2px 8px; border-radius:20px; ${style} font-weight:900;">${isSuper ? '👑 ' : ''}앙상블 +${res.ensembleCount}</span>`;
+            ensembleHtml = `<div style="position:absolute; top:-10px; right:10px; font-size:0.65rem; padding:2px 10px; border-radius:20px; ${style} font-weight:900; z-index:10; white-space:nowrap;">
+                ${isSuper ? '👑 ' : ''}앙상블 +${res.ensembleCount}
+            </div>`;
         }
 
         var strategyLabel = (res.strategy && res.strategy.label) ? res.strategy.label : (opts.strategy || 'AI 추천');
-        var strategyDesc = (res.strategy && res.strategy.desc) ? res.strategy.desc : (opts.desc || '분석된 조합입니다.');
+        var strategyColor = (res.strategy && res.strategy.color) ? res.strategy.color : '#3182f6';
 
-        card.innerHTML = `<div class="combo-rank">${strategyLabel}</div>` +
-            `<div class="ball-container">${ballsHtml}</div>` +
-            `<div class="combo-meta">AI 시너지 <b>${res.synergyScore || 0}pt</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>` +
-            `<div class="combo-desc">${strategyDesc}</div>` +
-            `<div style="display:flex; gap:4px; margin-top:8px; justify-content:center;">${ensembleHtml}</div>` +
-            probHtml +
-            `<div class="analyze-badge">정밀 분석 ➔</div>`;
+        card.innerHTML = ensembleHtml + `
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px; padding:0 4px;">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <span style="font-size:0.65rem; font-weight:800; color:${strategyColor}; background:${strategyColor}15; padding:2px 8px; border-radius:6px; width:fit-content;">${strategyLabel}</span>
+                    <span style="font-size:0.7rem; font-weight:700; color:#191f28;">AI 시너지 ${res.synergyScore || 0}pt</span>
+                </div>
+                ${probHtml}
+            </div>
+            <div class="ball-container" style="display:flex; gap:6px; justify-content:center; margin-bottom:12px;">${ballsHtml}</div>
+            <div style="font-size:0.75rem; color:#4e5968; text-align:center; padding:0 10px; min-height:34px; line-height:1.4;">${res.strategy.desc || ''}</div>
+            <div class="analyze-badge" style="margin-top:15px; text-align:center; font-size:0.7rem; font-weight:800; color:var(--primary-blue); opacity:0.8;">정밀 분석 리포트 ➔</div>
+        `;
         return card;
     },
 
