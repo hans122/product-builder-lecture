@@ -1,19 +1,22 @@
 'use strict';
 
 /**
- * AI Pension Prediction Engine v1.0 - Expert 10 Strategies
- * - Specialized algorithms for Pension Lottery 720+
- * - Strategy-based filtering & Deep Recommendation
+ * AI Pension Prediction Engine v2.0 - Synergy-AI Edition
+ * - Digit-to-Digit Synergy Analysis
+ * - Advanced Markov-Chain Relational Filtering
  */
 
 var PensionPrediction = {
     statsData: null,
+    synergyMatrix: null,
 
     init: function() {
         var self = this;
         LottoDataManager.getPensionStats(function(data) {
             if (!data) return;
             self.statsData = data;
+            // 1. 연금 전용 마르코프 시너지 매트릭스 활용
+            self.synergyMatrix = data.markov_matrix;
             self.renderAll();
             self.bindEvents();
         });
@@ -28,9 +31,7 @@ var PensionPrediction = {
         var self = this;
         var strategySelect = document.getElementById('pension-strategy-select');
         if (strategySelect) {
-            strategySelect.onchange = function() {
-                self.generateSmartCombinations(this.value);
-            };
+            strategySelect.onchange = function() { self.generateSmartCombinations(this.value); };
         }
         
         var refreshBtn = document.getElementById('refresh-pension-btn');
@@ -66,39 +67,37 @@ var PensionPrediction = {
 
         var results = [];
         var matrix = this.statsData.markov_matrix;
-        var recent = this.statsData.recent_draws;
 
         strategies.forEach(strategy => {
             var found = false, attempts = 0;
-            while (!found && attempts < 500) {
+            while (!found && attempts < 800) {
                 attempts++;
                 var combo = [0,0,0,0,0,0];
                 var group = Math.floor(Math.random() * 5) + 1;
 
-                // 전략별 생성 로직
-                if (strategy.id === 'markov' && matrix) {
+                // [Synergy-AI] 자리수 간 상관관계 기반 생성
+                if (strategy.id === 'markov' || Math.random() > 0.5) {
                     var anchor = Math.floor(Math.random() * 10);
                     combo = LottoAI.generateMarkovPension(anchor, matrix);
-                } else if (strategy.id === 'hot') {
-                    for(var i=0; i<6; i++) {
-                        var freq = this.statsData.pos_freq[i];
-                        var sorted = [...freq].map((v, idx) => ({v, idx})).sort((a,b)=>b.v - a.v);
-                        combo[i] = sorted[Math.floor(Math.random()*3)].idx;
-                    }
                 } else {
                     for(var i=0; i<6; i++) combo[i] = Math.floor(Math.random() * 10);
                 }
 
                 var analysis = PensionUtils.analyzeBalance(combo);
+                // 연금 시너지 점수 계산: 각 자리 숫자가 마르코프 매트릭스 상에서 얼마나 높은 확률로 연결되는지 합산
+                var synergyScore = 0;
+                for(var j=5; j>0; j--) {
+                    var next = combo[j], prev = combo[j-1];
+                    if(matrix && matrix[next]) synergyScore += (matrix[next][prev] || 0);
+                }
+
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(combo));
                 
-                // 전략별 필터링
-                var isPass = (analysis.sum >= 20 && analysis.sum <= 35);
+                var isPass = (analysis.sum >= 20 && analysis.sum <= 35 && synergyScore >= 10);
                 if (strategy.id === 'extreme') isPass = (analysis.sum < 20 || analysis.sum > 35);
-                if (strategy.id === 'balance') isPass = isPass && (analysis.odd >= 2 && analysis.odd <= 4);
 
-                if ((isPass || attempts > 450) && !isDuplicate) {
-                    results.push({ group: group, nums: combo, strategy: strategy });
+                if ((isPass || attempts > 700) && !isDuplicate) {
+                    results.push({ group: group, nums: combo, strategy: strategy, synergyScore: synergyScore });
                     found = true;
                 }
             }
@@ -115,7 +114,7 @@ var PensionPrediction = {
             card.innerHTML = `
                 <div class="combo-rank" style="background:${this.getStrategyColor(res.strategy.id)}; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-weight: 900;">${res.strategy.label}</div>
                 <div class="ball-container" style="gap:4px;">${ballHtml}</div>
-                <div class="combo-meta">신뢰도 <b>${90 + Math.floor(Math.random()*9)}%</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>
+                <div class="combo-meta">AI 시너지 <b>${res.synergyScore}pt</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>
                 <div class="combo-desc">${res.strategy.desc}</div>
                 <div class="analyze-badge" style="color:#ff8c00;">정밀 분석 ➔</div>
             `;
