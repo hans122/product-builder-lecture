@@ -217,9 +217,11 @@ var CombinationEngine = {
         trSim.innerHTML = `<td><strong style="color:var(--primary-blue);">🧬 AI 시뮬레이션</strong></td><td>${sim.hits}회</td><td><span class="status-badge safe">적중도</span></td><td class="text-left">1만 회 가상 추첨 결과, 유의미성 ${sim.score}점 산출</td>`;
         container.appendChild(trSim);
 
-        // 3. Individual Indicators
+        // 3. Individual Indicators (Automated)
         var indicatorStatuses = [];
-        LottoConfig.INDICATORS.filter(c => c.group && c.group.indexOf('GL') === 0).forEach(cfg => {
+        var activeIndicators = LottoConfig.INDICATORS.filter(cfg => cfg.visible && cfg.visible.combination);
+        
+        activeIndicators.forEach(cfg => {
             if (!cfg.calc) return;
             var val = cfg.calc(sortedNums, this.statsData);
             var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
@@ -241,23 +243,39 @@ var CombinationEngine = {
 
     renderPensionReport: function(container, nums, sim) {
         if (typeof PensionUtils === 'undefined') { container.innerHTML = '<p>엔진 로딩 중...</p>'; return; }
-        var balance = PensionUtils.analyzeBalance(nums);
-        var pattern = PensionUtils.analyzePatterns(nums);
+        container.innerHTML = '';
+        var stats = this.statsData.stats_summary || {};
+        var activeIndicators = LottoConfig.PENSION_INDICATORS.filter(cfg => cfg.visible && cfg.visible.combination);
+
+        // 1. Monte Carlo Row (Header)
         var gradeInfo = LottoAI.getGrade(sim.score);
         var color = gradeInfo.grade === 'S' ? '#3182f6' : (gradeInfo.grade === 'A' ? '#2ecc71' : '#ff9500');
-
-        container.innerHTML = `
-            <div class="analysis-card" style="padding:20px; border:2px solid ${color}33;">
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <div style="width:80px; height:80px; border-radius:50%; border:4px solid ${color}; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:900; color:${color};">${gradeInfo.grade}</div>
-                    <div><h3 style="margin:0;">AI 스코어: ${sim.score}점</h3><p style="margin:5px 0; font-size:0.8rem; color:#64748b;">1만 회 시뮬레이션 당첨 확률: ${sim.rate}%</p></div>
-                </div>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
-                <div class="analysis-card" style="padding:15px; text-align:center;"><span style="font-size:0.7rem; color:#94a3b8;">P4 합계</span><br><strong>${balance.sum}</strong></div>
-                <div class="analysis-card" style="padding:15px; text-align:center;"><span style="font-size:0.7rem; color:#94a3b8;">P2 중복</span><br><strong>${pattern.maxOccur}개</strong></div>
+        
+        var headerDiv = document.createElement('div');
+        headerDiv.className = 'analysis-card';
+        headerDiv.style.cssText = `padding:20px; border:2px solid ${color}33; margin-bottom:15px;`;
+        headerDiv.innerHTML = `
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div style="width:80px; height:80px; border-radius:50%; border:4px solid ${color}; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:900; color:${color};">${gradeInfo.grade}</div>
+                <div><h3 style="margin:0;">AI 스코어: ${sim.score}점</h3><p style="margin:5px 0; font-size:0.8rem; color:#64748b;">1만 회 시뮬레이션 당첨 확률: ${sim.rate}%</p></div>
             </div>
         `;
+        container.appendChild(headerDiv);
+
+        // 2. Indicators Table
+        var table = document.createElement('table');
+        table.className = 'results-table';
+        table.innerHTML = `<thead><tr><th>항목</th><th>나의 조합</th><th>상태</th><th>통계적 의견</th></tr></thead><tbody id="p-analysis-table-body"></tbody>`;
+        container.appendChild(table);
+        
+        var tbody = table.querySelector('tbody');
+        activeIndicators.forEach(cfg => {
+            var val = cfg.calc(nums, { last_draw: this.statsData.recent_draws[0]?.nums });
+            var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
+            var tr = document.createElement('tr');
+            tr.innerHTML = `<td><strong>${cfg.label}</strong></td><td>${val}</td><td><span class="status-badge ${status}">${status}</span></td><td class="text-left">${status==='danger'?'희귀 패턴':'정상 범위'}</td>`;
+            tbody.appendChild(tr);
+        });
     },
 
     // --- Helpers ---

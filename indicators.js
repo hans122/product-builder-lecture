@@ -9,43 +9,43 @@
 window.LottoConfig = {
     // 1. [GL] 로또 6/45 개별 지표 설정
     INDICATORS: [
-        { id: 'sum', label: '총합', unit: '', group: 'GL1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0), visible: { history: true, analysis: true }, filter: { zLimit: 2.0 } },
-        { id: 'odd-even', label: '홀짝', unit: '', group: 'GL1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'oe', maxLimit: 6, calc: (nums) => nums.filter(n => n % 2 !== 0).length, visible: { history: true, analysis: true }, filter: { min: 2, max: 4 } },
-        { id: 'high-low', label: '고저', unit: '', group: 'GL1', distKey: 'high_low', statKey: 'low_count', drawKey: 'hl', maxLimit: 6, calc: (nums) => nums.filter(n => n <= 22).length, visible: { history: true, analysis: true }, filter: { min: 2, max: 4 } },
-        { id: 'period_1', label: '이월', unit: '개', group: 'GL2', distKey: 'period_1', statKey: 'period_1', drawKey: 'p1', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[0]) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : 0, visible: { history: true, analysis: true } },
+        { id: 'sum', label: '총합', unit: '', group: 'GL1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0), visible: { history: true, analysis: true, combination: true }, filter: { zLimit: 2.0 } },
+        { id: 'odd-even', label: '홀짝', unit: '', group: 'GL1', distKey: 'odd_even', statKey: 'odd_count', drawKey: 'oe', maxLimit: 6, calc: (nums) => nums.filter(n => n % 2 !== 0).length, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 4 } },
+        { id: 'high-low', label: '고저', unit: '', group: 'GL1', distKey: 'high_low', statKey: 'low_count', drawKey: 'hl', maxLimit: 6, calc: (nums) => nums.filter(n => n <= 22).length, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 4 } },
+        { id: 'period_1', label: '이월', unit: '개', group: 'GL2', distKey: 'period_1', statKey: 'period_1', drawKey: 'p1', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[0]) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : 0, visible: { history: true, analysis: true, combination: true } },
         { id: 'neighbor', label: '이웃', unit: '개', group: 'GL2', distKey: 'neighbor', statKey: 'neighbor', drawKey: 'nb', maxLimit: 12, calc: (nums, data) => {
             if (!data || !data.last_3_draws || !data.last_3_draws[0]) return 0;
             const neighbors = new Set();
             data.last_3_draws[0].forEach(n => { if (n > 1) neighbors.add(n - 1); if (n < 45) neighbors.add(n + 1); });
             return nums.filter(n => neighbors.has(n)).length;
-        }, visible: { history: true, analysis: true } },
+        }, visible: { history: true, analysis: true, combination: true } },
         { id: 'period_1_2', label: '2회전', unit: '개', group: 'GL2', distKey: 'period_1_2', statKey: 'period_1_2', drawKey: 'p12', maxLimit: 12, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[0]) ? nums.filter(n => new Set([...data.last_3_draws[0], ...(data.last_3_draws[1]||[])]).has(n)).length : 0, visible: { analysis: true } },
         { id: 'consecutive', label: '연속', unit: '쌍', group: 'GL2', distKey: 'consecutive', statKey: 'consecutive', drawKey: 'seq', maxLimit: 5, calc: (nums) => {
             let cnt = 0; for (let i=0; i<5; i++) if(nums[i]+1 === nums[i+1]) cnt++; return cnt;
-        }, visible: { history: true, analysis: true } },
-        { id: 'prime', label: '소수', unit: '개', group: 'GL3', distKey: 'prime', statKey: 'prime', drawKey: 'pm', maxLimit: 6, calc: (nums) => nums.filter(LottoUtils.isPrime).length, visible: { history: true, analysis: true } },
-        { id: 'composite', label: '합성수', unit: '개', group: 'GL3', distKey: 'composite', statKey: 'composite', drawKey: 'cp', maxLimit: 6, calc: (nums) => nums.filter(LottoUtils.isComposite).length, visible: { history: true, analysis: true } },
+        }, visible: { history: true, analysis: true, combination: true } },
+        { id: 'prime', label: '소수', unit: '개', group: 'GL3', distKey: 'prime', statKey: 'prime', drawKey: 'pm', maxLimit: 6, calc: (nums) => nums.filter(LottoUtils.isPrime).length, visible: { history: true, analysis: true, combination: true } },
+        { id: 'composite', label: '합성수', unit: '개', group: 'GL3', distKey: 'composite', statKey: 'composite', drawKey: 'cp', maxLimit: 6, calc: (nums) => nums.filter(LottoUtils.isComposite).length, visible: { history: true, analysis: true, combination: true } },
         { id: 'multiple-3', label: '3배수', unit: '개', group: 'GL3', distKey: 'multiple_3', statKey: 'multiple_3', drawKey: 'm3', maxLimit: 6, calc: (nums) => nums.filter(n => n % 3 === 0).length, visible: { analysis: true } },
-        { id: 'bucket-15', label: '3분할', unit: '구간', group: 'GL4', distKey: 'bucket_15', statKey: 'bucket_15', drawKey: 'b15', maxLimit: 3, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size, visible: { history: true, analysis: true } },
-        { id: 'color', label: '색상수', unit: '색상', group: 'GL4', distKey: 'color', statKey: 'color', drawKey: 'clr', maxLimit: 5, calc: (nums) => new Set(nums.map(LottoUtils.getBallColorClass)).size, visible: { history: true, analysis: true } },
-        { id: 'end-sum', label: '끝수합', unit: '', group: 'GL5', distKey: 'end_sum', statKey: 'end_sum', drawKey: 'es', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0), visible: { history: true, analysis: true } },
-        { id: 'ac', label: 'AC', unit: '', group: 'GL5', distKey: 'ac', statKey: 'ac', drawKey: 'ac', maxLimit: 10, calc: (nums) => LottoUtils.calculateAC(nums), visible: { history: true, analysis: true }, filter: { min: 7 } },
+        { id: 'bucket-15', label: '3분할', unit: '구간', group: 'GL4', distKey: 'bucket_15', statKey: 'bucket_15', drawKey: 'b15', maxLimit: 3, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size, visible: { history: true, analysis: true, combination: true } },
+        { id: 'color', label: '색상수', unit: '색상', group: 'GL4', distKey: 'color', statKey: 'color', drawKey: 'clr', maxLimit: 5, calc: (nums) => new Set(nums.map(LottoUtils.getBallColorClass)).size, visible: { history: true, analysis: true, combination: true } },
+        { id: 'end-sum', label: '끝수합', unit: '', group: 'GL5', distKey: 'end_sum', statKey: 'end_sum', drawKey: 'es', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0), visible: { history: true, analysis: true, combination: true } },
+        { id: 'ac', label: 'AC', unit: '', group: 'GL5', distKey: 'ac', statKey: 'ac', drawKey: 'ac', maxLimit: 10, calc: (nums) => LottoUtils.calculateAC(nums), visible: { history: true, analysis: true, combination: true }, filter: { min: 7 } },
         { id: 'mean-gap', label: '간격', unit: '', group: 'GL6', distKey: 'mean_gap', statKey: 'mean_gap', drawKey: 'gap', calc: (nums) => {
             var s = [...nums].sort((a,b)=>a-b); var g = []; for(var i=0; i<5; i++) g.push(s[i+1]-s[i]);
             return LottoUtils.round(g.reduce((a,b)=>a+b,0)/5, 1);
-        }, visible: { history: true, analysis: true }, filter: { min: 4, max: 11 } }
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 4, max: 11 } }
     ],
 
     // 1-2. [GP] 연금복권 720+ 개별 지표 설정
     PENSION_INDICATORS: [
-        { id: 'p-sum', label: '합계', unit: '', group: 'GP4', distKey: 'sum', statKey: 'sum', calc: (nums) => PensionUtils.analyzeBalance(nums).sum, visible: { history: true, analysis: true }, filter: { min: 20, max: 35 } },
-        { id: 'p-odd', label: '홀수', unit: '개', group: 'GP7', distKey: 'odd', statKey: 'odd', calc: (nums) => PensionUtils.analyzeBalance(nums).odd, visible: { history: true, analysis: true }, filter: { min: 2, max: 4 } },
-        { id: 'p-low', label: '저번호', unit: '개', group: 'GP7', distKey: 'low', statKey: 'low', calc: (nums) => PensionUtils.analyzeBalance(nums).low, visible: { history: true, analysis: true } },
-        { id: 'p-prime', label: '소수', unit: '개', group: 'GP7', distKey: 'prime', statKey: 'prime', calc: (nums) => PensionUtils.analyzeBalance(nums).prime, visible: { history: true, analysis: true } },
-        { id: 'p-seq', label: '연속', unit: '쌍', group: 'GP1', distKey: 'sequence', statKey: 'sequence', calc: (nums) => PensionUtils.analyzePatterns(nums).seq, visible: { history: true, analysis: true } },
-        { id: 'p-max-occur', label: '중복', unit: '개', group: 'GP2', distKey: 'occurrence', statKey: 'maxOccur', calc: (nums) => PensionUtils.analyzePatterns(nums).maxOccur, visible: { history: true, analysis: true } },
-        { id: 'p-carry', label: '이월', unit: '개', group: 'GP5', distKey: 'carry', statKey: 'carry', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).carry : 0, visible: { history: true, analysis: true } },
-        { id: 'p-neighbor', label: '이웃', unit: '개', group: 'GP5', distKey: 'neighbor', statKey: 'neighbor', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).neighbor : 0, visible: { history: true, analysis: true } }
+        { id: 'p-sum', label: '합계', unit: '', group: 'GP4', distKey: 'sum', statKey: 'sum', calc: (nums) => PensionUtils.analyzeBalance(nums).sum, visible: { history: true, analysis: true, combination: true }, filter: { min: 20, max: 35 } },
+        { id: 'p-odd', label: '홀수', unit: '개', group: 'GP7', distKey: 'odd', statKey: 'odd', calc: (nums) => PensionUtils.analyzeBalance(nums).odd, visible: { history: true, analysis: true, combination: true }, filter: { min: 2, max: 4 } },
+        { id: 'p-low', label: '저번호', unit: '개', group: 'GP7', distKey: 'low', statKey: 'low', calc: (nums) => PensionUtils.analyzeBalance(nums).low, visible: { history: true, analysis: true, combination: true } },
+        { id: 'p-prime', label: '소수', unit: '개', group: 'GP7', distKey: 'prime', statKey: 'prime', calc: (nums) => PensionUtils.analyzeBalance(nums).prime, visible: { history: true, analysis: true, combination: true } },
+        { id: 'p-seq', label: '연속', unit: '쌍', group: 'GP1', distKey: 'sequence', statKey: 'sequence', calc: (nums) => PensionUtils.analyzePatterns(nums).seq, visible: { history: true, analysis: true, combination: true } },
+        { id: 'p-max-occur', label: '중복', unit: '개', group: 'GP2', distKey: 'occurrence', statKey: 'maxOccur', calc: (nums) => PensionUtils.analyzePatterns(nums).maxOccur, visible: { history: true, analysis: true, combination: true } },
+        { id: 'p-carry', label: '이월', unit: '개', group: 'GP5', distKey: 'carry', statKey: 'carry', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).carry : 0, visible: { history: true, analysis: true, combination: true } },
+        { id: 'p-neighbor', label: '이웃', unit: '개', group: 'GP5', distKey: 'neighbor', statKey: 'neighbor', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).neighbor : 0, visible: { history: true, analysis: true, combination: true } }
     ],
 
     // 2. [GL] 시너지 규칙 설정 (복합 지표)
