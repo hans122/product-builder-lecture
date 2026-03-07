@@ -45,7 +45,7 @@ var LottoUI = {
         if (!container) return;
         container.innerHTML = '';
         
-        indicatorIds.forEach(function(id) {
+        indicatorIds.forEach(function(id, idx) {
             var config = LottoConfig.INDICATORS.find(function(c) { return c.id === id; });
             if (!config) return;
             
@@ -56,13 +56,14 @@ var LottoUI = {
                 status = LottoUtils.getZStatus(value, stat);
             }
             
+            var displayLabel = `${LottoUtils.padLeft(idx + 1, 2, '0')}) ${config.label}`;
             var card = document.createElement('div');
             card.className = 'indicator-item';
             card.style.cssText = 'padding: 15px; border-radius: 16px; background: #f8fafc; border: 1px solid #edf2f7; display: flex; flex-direction: column; gap: 4px;';
             
             var label = document.createElement('span');
             label.style.cssText = 'font-size: 0.75rem; color: #64748b; font-weight: 700;';
-            label.innerText = config.label;
+            label.innerText = displayLabel;
             
             var valBox = document.createElement('div');
             valBox.style.cssText = 'display: flex; align-items: baseline; gap: 2px;';

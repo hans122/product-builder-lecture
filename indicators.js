@@ -15,8 +15,8 @@ window.LottoConfig = {
 
         // [GL2] 관계 및 주기
         { id: 'period_1', label: '1회기(이월)', unit: '개', group: 'GL2', distKey: 'period_1', statKey: 'period_1', drawKey: 'p1', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[0]) ? nums.filter(n => new Set(data.last_3_draws[0]).has(n)).length : 0, visible: { history: true, analysis: true, combination: true } },
-        { id: 'period_2', label: '2회기 매칭', unit: '개', group: 'GL2', distKey: 'period_2', statKey: 'period_2', drawKey: 'p2', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[1]) ? nums.filter(n => new Set(data.last_3_draws[1]).has(n)).length : 0, visible: { history: true, analysis: true } },
-        { id: 'period_3', label: '3회기 매칭', unit: '개', group: 'GL2', distKey: 'period_3', statKey: 'period_3', drawKey: 'p3', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[2]) ? nums.filter(n => new Set(data.last_3_draws[2]).has(n)).length : 0, visible: { history: true, analysis: true } },
+        { id: 'period_2', label: '2회기 매칭', unit: '개', group: 'GL2', distKey: 'period_2', statKey: 'period_2', drawKey: 'p2', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[1]) ? nums.filter(n => new Set(data.last_3_draws[1]).has(n)).length : 0, visible: { history: true, analysis: true, combination: true } },
+        { id: 'period_3', label: '3회기 매칭', unit: '개', group: 'GL2', distKey: 'period_3', statKey: 'period_3', drawKey: 'p3', maxLimit: 6, calc: (nums, data) => (data && data.last_3_draws && data.last_3_draws[2]) ? nums.filter(n => new Set(data.last_3_draws[2]).has(n)).length : 0, visible: { history: true, analysis: true, combination: true } },
         { id: 'neighbor', label: '이웃수', unit: '개', group: 'GL2', distKey: 'neighbor', statKey: 'neighbor', drawKey: 'nb', maxLimit: 12, calc: (nums, data) => {
             if (!data || !data.last_3_draws || !data.last_3_draws[0]) return 0;
             const neighbors = new Set();
@@ -30,36 +30,36 @@ window.LottoConfig = {
         // [GL3] 수적 속성
         { id: 'prime', label: '소수', unit: '개', group: 'GL3', distKey: 'prime', statKey: 'prime', drawKey: 'pm', maxLimit: 6, calc: (nums) => nums.filter(LottoUtils.isPrime).length, visible: { history: true, analysis: true, combination: true } },
         { id: 'composite', label: '합성수', unit: '개', group: 'GL3', distKey: 'composite', statKey: 'composite', drawKey: 'cp', maxLimit: 6, calc: (nums) => nums.filter(LottoUtils.isComposite).length, visible: { history: true, analysis: true, combination: true } },
-        { id: 'multiple-3', label: '3배수', unit: '개', group: 'GL3', distKey: 'multiple_3', statKey: 'multiple_3', drawKey: 'm3', maxLimit: 6, calc: (nums) => nums.filter(n => n % 3 === 0).length, visible: { history: true, analysis: true } },
-        { id: 'multiple-4', label: '4배수', unit: '개', group: 'GL3', distKey: 'multiple_4', statKey: 'multiple_4', drawKey: 'm4', maxLimit: 6, calc: (nums) => nums.filter(n => n % 4 === 0).length, visible: { history: true, analysis: true } },
-        { id: 'square', label: '제곱수', unit: '개', group: 'GL3', distKey: 'square', statKey: 'square', drawKey: 'sq', maxLimit: 6, calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length, visible: { history: true, analysis: true } },
-        { id: 'double', label: '쌍수', unit: '개', group: 'GL3', distKey: 'double_num', statKey: 'double_num', drawKey: 'db', maxLimit: 4, calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length, visible: { history: true, analysis: true } },
+        { id: 'multiple-3', label: '3배수', unit: '개', group: 'GL3', distKey: 'multiple_3', statKey: 'multiple_3', drawKey: 'm3', maxLimit: 6, calc: (nums) => nums.filter(n => n % 3 === 0).length, visible: { history: true, analysis: true, combination: true } },
+        { id: 'multiple-4', label: '4배수', unit: '개', group: 'GL3', distKey: 'multiple_4', statKey: 'multiple_4', drawKey: 'm4', maxLimit: 6, calc: (nums) => nums.filter(n => n % 4 === 0).length, visible: { history: true, analysis: true, combination: true } },
+        { id: 'square', label: '제곱수', unit: '개', group: 'GL3', distKey: 'square', statKey: 'square', drawKey: 'sq', maxLimit: 6, calc: (nums) => nums.filter(n => [1,4,9,16,25,36].includes(n)).length, visible: { history: true, analysis: true, combination: true } },
+        { id: 'double', label: '쌍수', unit: '개', group: 'GL3', distKey: 'double_num', statKey: 'double_num', drawKey: 'db', maxLimit: 4, calc: (nums) => nums.filter(n => [11,22,33,44].includes(n)).length, visible: { history: true, analysis: true, combination: true } },
         { id: 'mirror', label: '동형수', unit: '개', group: 'GL3', distKey: 'mirror', statKey: 'mirror', drawKey: 'mr', maxLimit: 6, calc: (nums) => {
             const mirrors = [12,21,13,31,14,41,23,32,24,42,34,43];
             return nums.filter(n => mirrors.includes(n)).length;
-        }, visible: { history: true, analysis: true } },
+        }, visible: { history: true, analysis: true, combination: true } },
 
         // [GL4] 분할 및 구간
         { id: 'bucket-15', label: '3분할', unit: '구간', group: 'GL4', distKey: 'bucket_15', statKey: 'bucket_15', drawKey: 'b15', maxLimit: 3, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/15))).size, visible: { history: true, analysis: true, combination: true } },
         { id: 'bucket-9', label: '5분할', unit: '구간', group: 'GL4', distKey: 'bucket_9', statKey: 'bucket_9', drawKey: 'b9', maxLimit: 5, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/9))).size, visible: { history: true, analysis: true, combination: true } },
-        { id: 'bucket-7', label: '7분법', unit: '구간', group: 'GL4', distKey: 'bucket_7', statKey: 'bucket_7', drawKey: 'b7', maxLimit: 7, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/7))).size, visible: { history: true, analysis: true } },
+        { id: 'bucket-7', label: '7분법', unit: '구간', group: 'GL4', distKey: 'bucket_7', statKey: 'bucket_7', drawKey: 'b7', maxLimit: 7, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/7))).size, visible: { history: true, analysis: true, combination: true } },
         { id: 'bucket-5', label: '9분할', unit: '구간', group: 'GL4', distKey: 'bucket_5', statKey: 'bucket_5', drawKey: 'b5', maxLimit: 6, calc: (nums) => new Set(nums.map(n => Math.floor((n-1)/5))).size, visible: { history: true, analysis: true, combination: true } },
-        { id: 'p궁도', label: '9궁도', unit: '구역', group: 'GL4', distKey: 'p9', statKey: 'p9', drawKey: 'p9', maxLimit: 9, calc: (nums) => new Set(nums.map(n => (n-1)%9)).size, visible: { history: true, analysis: true } },
+        { id: 'p궁도', label: '9궁도', unit: '구역', group: 'GL4', distKey: 'p9', statKey: 'p9', drawKey: 'p9', maxLimit: 9, calc: (nums) => new Set(nums.map(n => (n-1)%9)).size, visible: { history: true, analysis: true, combination: true } },
         { id: 'empty-zone', label: '멸구간', unit: '개', group: 'GL4', distKey: 'empty_zone', statKey: 'empty_zone', drawKey: 'ez', maxLimit: 5, calc: (nums) => {
             const zones = [0,0,0,0,0]; nums.forEach(n => zones[Math.floor((n-1)/10)]++);
             return zones.filter(z => z === 0).length;
-        }, visible: { history: true, analysis: true } },
+        }, visible: { history: true, analysis: true, combination: true } },
         { id: 'color', label: '색상수', unit: '색상', group: 'GL4', distKey: 'color', statKey: 'color', drawKey: 'clr', maxLimit: 5, calc: (nums) => new Set(nums.map(LottoUtils.getBallColorClass)).size, visible: { history: true, analysis: true, combination: true } },
 
         // [GL4-P] 시각적 패턴
         { id: 'pattern-corner', label: '모서리', unit: '개', group: 'GL4', distKey: 'pattern_corner', statKey: 'pattern_corner', drawKey: 'pc', maxLimit: 6, calc: (nums) => {
             const corners = [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42];
             return nums.filter(n => corners.includes(n)).length;
-        }, visible: { history: true, analysis: true } },
+        }, visible: { history: true, analysis: true, combination: true } },
         { id: 'pattern-center', label: '중앙패턴', unit: '개', group: 'GL4', distKey: 'pattern_center', statKey: 'pattern_center', drawKey: 'pcn', maxLimit: 6, calc: (nums) => {
             const centers = [17,18,19,24,25,26,31,32,33];
             return nums.filter(n => centers.includes(n)).length;
-        }, visible: { history: true, analysis: true } },
+        }, visible: { history: true, analysis: true, combination: true } },
 
         // [GL5] 정밀 및 산술
         { id: 'end-sum', label: '끝수합', unit: '', group: 'GL5', distKey: 'end_sum', statKey: 'end_sum', drawKey: 'es', calc: (nums) => nums.reduce((a, b) => a + (b % 10), 0), visible: { history: true, analysis: true, combination: true } },
@@ -67,9 +67,9 @@ window.LottoConfig = {
             const ends = nums.map(n => n % 10);
             const counts = ends.reduce((a, b) => { a[b] = (a[b] || 0) + 1; return a; }, {});
             return Math.max(...Object.values(counts));
-        }, visible: { history: true, analysis: true } },
+        }, visible: { history: true, analysis: true, combination: true } },
         { id: 'ac', label: 'AC', unit: '', group: 'GL5', distKey: 'ac', statKey: 'ac', drawKey: 'ac', maxLimit: 10, calc: (nums) => LottoUtils.calculateAC(nums), visible: { history: true, analysis: true, combination: true }, filter: { min: 7 } },
-        { id: 'span', label: 'Span', unit: '', group: 'GL5', distKey: 'span', statKey: 'span', drawKey: 'spn', calc: (nums) => Math.max(...nums) - Math.min(...nums), visible: { history: true, analysis: true } },
+        { id: 'span', label: 'Span', unit: '', group: 'GL5', distKey: 'span', statKey: 'span', drawKey: 'spn', calc: (nums) => Math.max(...nums) - Math.min(...nums), visible: { history: true, analysis: true, combination: true } },
 
         // [GL6] 심층 지표
         { id: 'mean-gap', label: '간격', unit: '', group: 'GL6', distKey: 'mean_gap', statKey: 'mean_gap', drawKey: 'gap', calc: (nums) => {

@@ -33,11 +33,12 @@ var AnalysisEngine = {
 
         var indicators = LottoConfig.INDICATORS.filter(cfg => cfg.visible && cfg.visible.analysis);
         
-        indicators.forEach(cfg => {
+        indicators.forEach((cfg, idx) => {
+            var displayLabel = `${LottoUtils.padLeft(idx + 1, 2, '0')}) ${cfg.label}`;
             var section = document.createElement('section');
             section.className = 'analysis-card';
             section.innerHTML = `
-                <div class="card-header"><h3>📍 ${cfg.label} 분석</h3></div>
+                <div class="card-header"><h3>📍 ${displayLabel} 분석</h3></div>
                 <div class="analysis-layout-split" style="padding: 20px;">
                     <div class="chart-wrapper"><div id="${cfg.id}-chart" class="dist-bar-chart" style="height: 200px;"></div></div>
                     <div class="mini-table-wrapper">
@@ -130,11 +131,12 @@ var AnalysisEngine = {
 
         var indicators = LottoConfig.PENSION_INDICATORS.filter(cfg => cfg.visible && cfg.visible.analysis);
         
-        indicators.forEach(cfg => {
+        indicators.forEach((cfg, idx) => {
+            var displayLabel = `P${LottoUtils.padLeft(idx + 1, 2, '0')}) ${cfg.label}`;
             var section = document.createElement('section');
             section.className = 'analysis-card';
             section.innerHTML = `
-                <div class="card-header"><h3>📍 ${cfg.label} 분석</h3></div>
+                <div class="card-header"><h3>📍 ${displayLabel} 분석</h3></div>
                 <div class="analysis-layout-split" style="padding: 20px;">
                     <div class="chart-wrapper"><div id="${cfg.id}-chart" class="dist-bar-chart" style="height: 200px;"></div></div>
                     <div class="mini-table-wrapper">

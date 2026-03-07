@@ -203,6 +203,7 @@ var CombinationEngine = {
         container.innerHTML = '';
         var sortedNums = nums.slice().sort((a,b)=>a-b);
         var stats = this.statsData.stats_summary || {};
+        var dists = this.statsData.distributions || {};
         
         // 1. Synergy Report (LottoUI component)
         var synergy = LottoSynergy.check(sortedNums, this.statsData);
@@ -217,17 +218,39 @@ var CombinationEngine = {
         trSim.innerHTML = `<td><strong style="color:var(--primary-blue);">🧬 AI 시뮬레이션</strong></td><td>${sim.hits}회</td><td><span class="status-badge safe">적중도</span></td><td class="text-left">1만 회 가상 추첨 결과, 유의미성 ${sim.score}점 산출</td>`;
         container.appendChild(trSim);
 
-        // 3. Individual Indicators (Automated)
+        // 3. Individual Indicators (Automated & Enhanced)
         var indicatorStatuses = [];
         var activeIndicators = LottoConfig.INDICATORS.filter(cfg => cfg.visible && cfg.visible.combination);
         
         activeIndicators.forEach(cfg => {
             if (!cfg.calc) return;
-            var val = cfg.calc(sortedNums, this.statsData);
-            var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
+            
+            // Context for relative indicators (period, neighbor etc)
+            var context = { 
+                last_3_draws: (this.statsData.recent_draws || []).slice(0, 3).map(d => d.nums) 
+            };
+            
+            var val = cfg.calc(sortedNums, context);
+            var stat = stats[cfg.statKey];
+            var dist = dists[cfg.distKey];
+            var status = LottoUtils.getZStatus(val, stat);
             indicatorStatuses.push(status);
+
+            // Generate detailed opinion using LOTTO_TIPS and actual ranges
+            var tip = LottoConfig.LOTTO_TIPS[cfg.id] || (status === 'danger' ? '희귀 패턴입니다.' : '정상 범위 내 조합입니다.');
+            var zone = LottoUtils.calculateZoneInfo(stat, dist, cfg);
+            if (zone && tip.includes('{safe}')) {
+                tip = tip.replace('{safe}', zone.safe);
+            }
+
+            var displayLabel = `${LottoUtils.padLeft(idx + 1, 2, '0')}) ${cfg.label}`;
             var tr = document.createElement('tr');
-            tr.innerHTML = `<td><strong>${cfg.label}</strong></td><td>${val}</td><td><span class="status-badge ${status}">${status}</span></td><td class="text-left">${status==='danger'?'희귀 패턴':'정상 범위'}</td>`;
+            tr.innerHTML = `
+                <td><strong>${displayLabel}</strong></td>
+                <td><span style="font-weight:900; color:${status==='danger'?'#f04452':'#191f28'};">${val}</span></td>
+                <td><span class="status-badge ${status}">${status==='safe'?'세이프':(status==='warning'?'주의':'위험')}</span></td>
+                <td class="text-left" style="font-size:0.75rem; color:#4a5568;">${tip}</td>
+            `;
             container.appendChild(tr);
         });
 
@@ -245,6 +268,7 @@ var CombinationEngine = {
         if (typeof PensionUtils === 'undefined') { container.innerHTML = '<p>엔진 로딩 중...</p>'; return; }
         container.innerHTML = '';
         var stats = this.statsData.stats_summary || {};
+        var dists = this.statsData.distributions || {};
         var activeIndicators = LottoConfig.PENSION_INDICATORS.filter(cfg => cfg.visible && cfg.visible.combination);
 
         // 1. Monte Carlo Row (Header)
@@ -271,9 +295,24 @@ var CombinationEngine = {
         var tbody = table.querySelector('tbody');
         activeIndicators.forEach(cfg => {
             var val = cfg.calc(nums, { last_draw: this.statsData.recent_draws[0]?.nums });
-            var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
+            var stat = stats[cfg.statKey];
+            var dist = dists[cfg.distKey];
+            var status = LottoUtils.getZStatus(val, stat);
+            
+            var tip = LottoConfig.PENSION_TIPS[cfg.id] || (status === 'danger' ? '희귀 패턴입니다.' : '정상 범위 내 조합입니다.');
+            var zone = LottoUtils.calculateZoneInfo(stat, dist, cfg);
+            if (zone && tip.includes('{safe}')) {
+                tip = tip.replace('{safe}', zone.safe);
+            }
+
+            var displayLabel = `P${LottoUtils.padLeft(idx + 1, 2, '0')}) ${cfg.label}`;
             var tr = document.createElement('tr');
-            tr.innerHTML = `<td><strong>${cfg.label}</strong></td><td>${val}</td><td><span class="status-badge ${status}">${status}</span></td><td class="text-left">${status==='danger'?'희귀 패턴':'정상 범위'}</td>`;
+            tr.innerHTML = `
+                <td><strong>${displayLabel}</strong></td>
+                <td><span style="font-weight:900; color:${status==='danger'?'#f04452':'#191f28'};">${val}</span></td>
+                <td><span class="status-badge ${status}">${status==='safe'?'세이프':(status==='warning'?'주의':'위험')}</span></td>
+                <td class="text-left" style="font-size:0.75rem; color:#4a5568;">${tip}</td>
+            `;
             tbody.appendChild(tr);
         });
     },
