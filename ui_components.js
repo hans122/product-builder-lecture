@@ -92,73 +92,80 @@ var LottoUI = {
         });
     },
 
-    /** 5. SVG 통계 곡선 차트 (Curve Chart) */
+    /** 5. SVG 통계 곡선 차트 (Adaptive SVG v2.0) */
     createCurveChart: function(containerId, distData, unit, stat, config) {
         var container = document.getElementById(containerId);
         if (!container) return;
-        container.innerHTML = '';
         
-        var w = container.clientWidth || 300, h = 210, padding = 30, bottomSpace = 50;
+        var self = this;
+        // 지연 렌더링 지원: 화면에 보일 때만 실제 렌더링 수행
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function(entries) {
+                if (entries[0].isIntersecting) {
+                    self._renderCurveChart(container, distData, unit, stat, config);
+                    observer.disconnect();
+                }
+            }, { threshold: 0.1 });
+            observer.observe(container);
+        } else {
+            this._renderCurveChart(container, distData, unit, stat, config);
+        }
+    },
+
+    _renderCurveChart: function(container, distData, unit, stat, config) {
+        container.innerHTML = '';
+        var w = 300, h = 210, padding = 30, bottomSpace = 55;
         var mean = stat ? stat.mean : 0, std = stat ? stat.std : 1;
         var minX = mean - 3.5 * std, maxX = mean + 3.5 * std;
-        
-        // 정규 분포 곡선 포인트 생성
+
         var points = [];
         for (var x = minX; x <= maxX; x += (maxX - minX) / 100) {
             var y = (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / std, 2));
             points.push({ x: x, y: y });
         }
-        
+
         var maxY = Math.max.apply(null, points.map(function(p) { return p.y; }));
         var scaleX = (w - padding * 2) / (maxX - minX);
-        var scaleY = (h - padding - bottomSpace) / maxY;
-        
+        var scaleY = (h - padding - bottomSpace) / (maxY || 1);
+
         var getX = function(val) { return padding + (val - minX) * scaleX; };
         var getY = function(val) { return (h - bottomSpace) - val * scaleY; };
         var baselineY = h - bottomSpace;
-        
-        var pathD = "M " + points.map(function(p) { return getX(p.x) + "," + getY(p.y); }).join(" L ");
-        
-        // 통계적 앵커 라벨 (2.5%, 16%, 50%, 84%, 97.5%)
+
+        var pathD = "M " + points.map(function(p) { return getX(p.x).toFixed(1) + "," + getY(p.y).toFixed(1); }).join(" L ");
+
+        var hatching = `<defs>
+            <pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.4"/>
+                <line x1="3" y1="0" x2="3" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.4"/>
+            </pattern>
+            <pattern id="h-blue" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1.2" stroke-opacity="0.4"/>
+                <line x1="3" y1="0" x2="3" y2="6" stroke="#3182f6" stroke-width="1.2" stroke-opacity="0.4"/>
+            </pattern>
+        </defs>`;
+
         var labels = [
-            { v: mean - 2 * std, l: '2.5%', p: 1 },
-            { v: mean - std, l: '16%', p: 2 },
-            { v: mean, l: '50%', p: 3 },
-            { v: mean + std, l: '84%', p: 2 },
-            { v: mean + 2 * std, l: '97.5%', p: 1 }
-        ].sort(function(a,b) { return b.p - a.p; });
+            { v: mean - 2 * std, l: '2.5%' },
+            { v: mean, l: (config.label || '') },
+            { v: mean + 2 * std, l: '97.5%' }
+        ];
+
+        var svg = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; overflow:visible;">
+            ${hatching}
+            <rect x="${getX(mean-std)}" y="${padding}" width="${getX(mean+std)-getX(mean-std)}" height="${baselineY-padding}" fill="url(#h-green)" fill-opacity="0.6"/>
+            <rect x="${getX(mean-2*std)}" y="${padding}" width="${getX(mean+2*std)-getX(mean-2*std)}" height="${baselineY-padding}" fill="url(#h-blue)" fill-opacity="0.3"/>
+            <path d="${pathD}" fill="none" stroke="var(--primary-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="${padding}" y1="${baselineY}" x2="${w-padding}" y2="${baselineY}" stroke="#e5e8eb" stroke-width="1"/>
+            ${labels.map(l => `
+                <g>
+                    <line x1="${getX(l.v)}" y1="${baselineY}" x2="${getX(l.v)}" y2="${baselineY+8}" stroke="#cbd5e1"/>
+                    <text x="${getX(l.v)}" y="${baselineY+22}" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">${LottoUtils.round(l.v, unit==='개'?0:1)}${unit}</text>
+                    <text x="${getX(l.v)}" y="${baselineY+35}" text-anchor="middle" font-size="9" font-weight="700" fill="#8b95a1">${l.l}</text>
+                </g>
+            `).join('')}
+        </svg>`;
         
-        var visibleLabels = [];
-        labels.forEach(function(lab) {
-            var x = getX(lab.v);
-            if (visibleLabels.every(function(v) { return Math.abs(getX(v.v) - x) > 45; })) {
-                visibleLabels.push(lab);
-            }
-        });
-        
-        var hatching = '<defs>' +
-            '<pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
-                '<line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.45"/>' +
-                '<line x1="3" y1="0" x2="3" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.45"/>' +
-            '</pattern>' +
-            '<pattern id="h-blue" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
-                '<line x1="0" y1="0" x2="0" y2="6" stroke="#3182f6" stroke-width="1.2" stroke-opacity="0.45"/>' +
-                '<line x1="3" y1="0" x2="3" y2="6" stroke="#3182f6" stroke-width="1.2" stroke-opacity="0.45"/>' +
-            '</pattern>' +
-            '</defs>';
-        
-        var svg = '<svg width="' + w + '" height="' + h + '" style="overflow:visible;">' + hatching +
-            '<rect x="' + getX(mean-std) + '" y="' + padding + '" width="' + (getX(mean+std)-getX(mean-std)) + '" height="' + (baselineY-padding) + '" fill="url(#h-green)"/>' +
-            '<rect x="' + getX(mean-2*std) + '" y="' + padding + '" width="' + (getX(mean+2*std)-getX(mean-2*std)) + '" height="' + (baselineY-padding) + '" fill="url(#h-blue)" fill-opacity="0.5"/>' +
-            '<path d="' + pathD + '" fill="none" stroke="var(--primary-blue)" stroke-width="3" stroke-linecap="round"/>' +
-            '<line x1="' + padding + '" y1="' + baselineY + '" x2="' + (w-padding) + '" y2="' + baselineY + '" stroke="#e5e8eb" stroke-width="1"/>' +
-            visibleLabels.map(function(l) {
-                var displayVal = LottoUtils.round(l.v, 1);
-                return '<g><line x1="' + getX(l.v) + '" y1="' + baselineY + '" x2="' + getX(l.v) + '" y2="' + (baselineY+8) + '" stroke="#cbd5e1"/>' +
-                       '<text x="' + getX(l.v) + '" y="' + (baselineY+22) + '" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">' + displayVal + '</text>' +
-                       '<text x="' + getX(l.v) + '" y="' + (baselineY+35) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#8b95a1">' + l.l + '</text></g>';
-            }).join('') +
-            '</svg>';
         container.innerHTML = svg;
     },
 
