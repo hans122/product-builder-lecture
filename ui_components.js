@@ -208,11 +208,30 @@ var LottoUI = {
             return b.outerHTML;
         }).join('');
         
-        card.innerHTML = '<div class="combo-rank">' + res.strategy.label + '</div>' +
-            '<div class="ball-container">' + ballsHtml + '</div>' +
-            '<div class="combo-meta">신뢰도 <b>' + res.confidence + '%</b> | 합계 ' + res.sum + '</div>' +
-            '<div class="combo-desc">' + res.strategy.desc + '</div>' +
-            '<div class="analyze-badge">정밀 분석 ➔</div>';
+        var probHtml = '';
+        if (res.prob) {
+            var badgeColor = res.prob.grade === 'TOP' ? '#f04452' : (res.prob.grade === 'HIGH' ? '#3182f6' : '#64748b');
+            probHtml = `
+                <div style="margin-top:12px; padding-top:10px; border-top:1px dashed #eee; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.65rem; color:#64748b; font-weight:700;">당첨 기댓값</div>
+                    <div style="font-size:0.9rem; font-weight:900; color:${badgeColor};">${res.prob.multiplier}배</div>
+                </div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                    <span style="font-size:0.6rem; padding:1px 4px; border-radius:4px; background:${badgeColor}15; color:${badgeColor}; font-weight:800;">${res.prob.grade}</span>
+                    <span style="font-size:0.6rem; color:#94a3b8;">신뢰도 ${res.prob.confidence}%</span>
+                </div>
+            `;
+        }
+
+        var strategyLabel = (res.strategy && res.strategy.label) ? res.strategy.label : (opts.strategy || 'AI 추천');
+        var strategyDesc = (res.strategy && res.strategy.desc) ? res.strategy.desc : (opts.desc || '분석된 조합입니다.');
+
+        card.innerHTML = `<div class="combo-rank">${strategyLabel}</div>` +
+            `<div class="ball-container">${ballsHtml}</div>` +
+            `<div class="combo-meta">AI 시너지 <b>${res.synergyScore || 0}pt</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>` +
+            `<div class="combo-desc">${strategyDesc}</div>` +
+            probHtml +
+            `<div class="analyze-badge">정밀 분석 ➔</div>`;
         return card;
     },
 

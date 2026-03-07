@@ -146,24 +146,23 @@ var PredictionEngine = {
                     var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
                     var endScore = LottoAI.getEndingChainScore(pick, lastDraw.nums, this.endingChainMatrix);
                     var totalSynergy = Math.round((compScore + endScore) / 2);
-                    results.push({ nums: pick, strategy: strategy, synergyScore: totalSynergy });
+                    
+                    // [NEW] 당첨 기댓값 계산
+                    var prob = LottoAI.calculateWinProbability(pick, this.statsData);
+                    
+                    results.push({ 
+                        nums: pick, 
+                        strategy: strategy, 
+                        synergyScore: totalSynergy,
+                        prob: prob // 데이터 주입
+                    });
                     found = true;
                 }
             }
         });
 
         results.forEach(res => {
-            var card = document.createElement('div');
-            card.className = 'combo-card';
-            var ballHtml = res.nums.map(n => LottoUI.createBall(n, true).outerHTML).join('');
-
-            card.innerHTML = `
-                <div class="combo-rank" style="background:${this.getStrategyColor(res.strategy.id)}; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-weight: 900;">${res.strategy.label}</div>
-                <div class="ball-container">${ballHtml}</div>
-                <div class="combo-meta">AI 시너지 <b>${res.synergyScore}pt</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>
-                <div class="combo-desc">${res.strategy.desc}</div>
-                <div class="analyze-badge">궁합 분석 완료 ➔</div>
-            `;
+            var card = LottoUI.createComboCard(res);
             
             card.onclick = () => {
                 localStorage.setItem('lastGeneratedNumbers', JSON.stringify(res.nums));
