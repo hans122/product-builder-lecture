@@ -31,6 +31,7 @@ var PredictionEngine = {
             self.synergyMatrix = LottoAI.calculateSynergyMatrix(data.recent_draws, 300);
             self.endingChainMatrix = LottoAI.calculateEndingChainMatrix(data.recent_draws, 300);
             self.renderAll();
+            self.renderArchive(); // [v32.25] 초기화 시 아카이브 표시
             self.bindEvents();
         });
     },
@@ -112,6 +113,69 @@ var PredictionEngine = {
             };
             container.appendChild(card);
         });
+
+        // [v32.25] 아카이브 자동 저장
+        this.saveToArchive(results);
+    },
+
+    /** [v32.25] 아카이브 저장 및 렌더링 로직 */
+    saveToArchive: function(newResults) {
+        var raw = localStorage.getItem('lotto_ai_archive');
+        var archive = raw ? JSON.parse(raw) : [];
+        
+        newResults.forEach(res => {
+            // 중복 체크 (숫자 배열 기반)
+            var isDuplicate = archive.some(item => JSON.stringify(item.nums.slice().sort()) === JSON.stringify(res.nums.slice().sort()));
+            if (!isDuplicate) {
+                // 저장 시점 및 메타데이터 추가
+                var saveItem = {
+                    nums: res.nums,
+                    strategy: res.strategy,
+                    prob: res.prob,
+                    synergyScore: res.synergyScore,
+                    ensembleCount: res.ensembleCount,
+                    timestamp: new Date().getTime()
+                };
+                archive.unshift(saveItem); // 최신순 저장
+            }
+        });
+
+        // 최대 100개까지만 유지
+        archive = archive.slice(0, 100);
+        localStorage.setItem('lotto_ai_archive', JSON.stringify(archive));
+        this.renderArchive();
+    },
+
+    renderArchive: function() {
+        var container = document.getElementById('ai-archive-container');
+        if (!container) return;
+        
+        var raw = localStorage.getItem('lotto_ai_archive');
+        var archive = raw ? JSON.parse(raw) : [];
+        
+        if (archive.length === 0) return;
+        
+        container.innerHTML = '';
+        archive.forEach((res, idx) => {
+            var card = LottoUI.createComboCard(res);
+            card.style.opacity = '0.9';
+            card.onclick = () => {
+                localStorage.setItem('lastGeneratedNumbers', JSON.stringify(res.nums));
+                location.href = 'combination.html';
+            };
+            container.appendChild(card);
+        });
+
+        // 삭제 버튼 이벤트 바인딩 (1회성)
+        var clearBtn = document.getElementById('clear-archive-btn');
+        if (clearBtn) {
+            clearBtn.onclick = () => {
+                if (confirm('저장된 모든 아카이브를 삭제하시겠습니까?')) {
+                    localStorage.removeItem('lotto_ai_archive');
+                    container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1;">저장된 조합이 없습니다.</div>';
+                }
+            };
+        }
     },
 
     renderPoolGrid: function(pools) {
