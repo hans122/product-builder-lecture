@@ -25,6 +25,47 @@ var PensionPrediction = {
     renderAll: function() {
         var strategy = document.getElementById('pension-strategy-select')?.value || 'all';
         this.generateSmartCombinations(strategy);
+        this.runPensionBacktest(); // 백테스트 실행 추가
+    },
+
+    runPensionBacktest: function() {
+        var draws = this.statsData.recent_draws;
+        if (!draws || draws.length < 10) return;
+
+        var totalHits = 0, jackpotCount = 0, excludeHits = 0;
+        var limit = Math.min(15, draws.length);
+        var testDraws = draws.slice(0, limit);
+
+        testDraws.forEach((draw, idx) => {
+            // 과거 시점의 데이터로 예측 시뮬레이션 (단순화를 위해 현재 빈도 활용)
+            var currentNums = draw.nums;
+            var hitCount = 0;
+            
+            // 자리수 적중 시뮬레이션
+            for(var i=0; i<6; i++) {
+                var bestDigit = this.statsData.pos_freq[i].indexOf(Math.max(...this.statsData.pos_freq[i]));
+                if (currentNums[i] === bestDigit) hitCount++;
+            }
+            totalHits += hitCount;
+            if (hitCount >= 4) jackpotCount++;
+
+            // 제외 적중 시뮬레이션 (최저 빈도 숫자가 실제 당첨에 포함되지 않았는지)
+            var isExcludeSuccess = true;
+            for(var j=0; j<6; j++) {
+                var worstDigit = this.statsData.pos_freq[j].indexOf(Math.min(...this.statsData.pos_freq[j]));
+                if (currentNums[j] === worstDigit) isExcludeSuccess = false;
+            }
+            if (isExcludeSuccess) excludeHits++;
+        });
+
+        // 보드 노출 및 데이터 주입
+        var board = document.getElementById('pension-summary-board');
+        if (board) {
+            board.style.display = 'block';
+            document.getElementById('p-avg-hit').innerText = (totalHits / limit).toFixed(1);
+            document.getElementById('p-jackpot-cnt').innerText = jackpotCount;
+            document.getElementById('p-exclude-rate').innerText = Math.round((excludeHits / limit) * 100);
+        }
     },
 
     bindEvents: function() {

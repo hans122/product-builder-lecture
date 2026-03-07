@@ -9,7 +9,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta property="og:title" content="연금복권 720+ AI 분석&예측 - 데이터 기반 자동화 시스템">
     <meta name="twitter:title" content="연금복권 720+ AI 분석&예측 - 데이터 기반 자동화 시스템">
-    <link rel="stylesheet" href="style.css?v=17.1">
+    <link rel="stylesheet" href="style.css?v=17.2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap&v=11.2" rel="stylesheet">
@@ -35,6 +35,17 @@
     </header>
 
     <div class="container wide">
+        <!-- 1. AI 분석 알고리즘 카드 영역 상단에 추가 -->
+        <div id="pension-summary-board" class="analysis-card" style="display: none; background: #fffaf0; border: 1px solid #ff8c0033; margin-bottom: 24px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                <tr>
+                    <td style="padding: 20px; border-right: 1px solid #ff8c0011;"><span class="s-label" style="color:#ff8c00; font-weight:800; font-size:0.75rem;">🎯 평균 자리 적중</span><div style="font-size:1.5rem; font-weight:900; color:#1e293b;"><span id="p-avg-hit">-</span><span style="font-size:0.8rem; color:#94a3b8; margin-left:2px;">개</span></div></td>
+                    <td style="padding: 20px; border-right: 1px solid #ff8c0011;"><span class="s-label" style="color:#ff8c00; font-weight:800; font-size:0.75rem;">🏆 고액 당첨 실적</span><div style="font-size:1.5rem; font-weight:900; color:#1e293b;"><span id="p-jackpot-cnt">-</span><span style="font-size:0.8rem; color:#94a3b8; margin-left:2px;">회</span></div></td>
+                    <td style="padding: 20px;"><span class="s-label" style="color:#ff8c00; font-weight:800; font-size:0.75rem;">🚀 제외 적중률</span><div style="font-size:1.5rem; font-weight:900; color:#f04452;"><span id="p-exclude-rate">-</span><span style="font-size:0.8rem; color:#94a3b8; margin-left:2px;">%</span></div></td>
+                </tr>
+            </table>
+        </div>
+
         <div class="analysis-layout-split" style="display: flex; gap: 24px; margin-bottom: 24px;">
             <!-- 1. AI 분석 알고리즘 카드 -->
             <section class="analysis-card" style="flex: 1;">
@@ -120,14 +131,14 @@
         }
     </style>
 
-    <script src="lotto_utils.js?v=17.1"></script>
-    <script src="indicators.js?v=17.1"></script>
-    <script src="core.js?v=17.1"></script>
-    <script src="unified_engine.js?v=17.1"></script>
-    <script src="pension_utils.js?v=17.1"></script>
-    <script src="ui_components.js?v=17.1"></script>
-    <script src="view_manager.js?v=17.1"></script>
-    <script src="pension_prediction.js?v=17.1"></script>
-<script src="validator.js?v=17.1"></script>
+    <script src="lotto_utils.js?v=17.2"></script>
+    <script src="indicators.js?v=17.2"></script>
+    <script src="core.js?v=17.2"></script>
+    <script src="unified_engine.js?v=17.2"></script>
+    <script src="pension_utils.js?v=17.2"></script>
+    <script src="ui_components.js?v=17.2"></script>
+    <script src="view_manager.js?v=17.2"></script>
+    <script src="pension_prediction.js?v=17.2"></script>
+<script src="validator.js?v=17.2"></script>
 </body>
     </html>
