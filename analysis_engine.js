@@ -1,10 +1,10 @@
 'use strict';
 
 /**
- * AI Analysis Engine v3.1 (Intelligent Tab Edition)
+ * AI Analysis Engine v3.2 (Mobile-First Layout Edition)
+ * - Optimized Grid for diverse screen sizes
  * - Dynamic Group Filtering via Tabs
- * - Chunked Rendering for Performance
- * - Regression Energy Visualization
+ * - Regression Energy Dashboard
  */
 
 var AnalysisEngine = {
@@ -20,7 +20,6 @@ var AnalysisEngine = {
                     self.statsData = data;
                     self.renderPensionRegression();
                     self.initDynamicPensionAnalysis();
-                    // 추가 연금 전용 차트들...
                 }
             });
         } else {
@@ -37,7 +36,13 @@ var AnalysisEngine = {
         }
     },
 
-    /** 1-P. 연금 회귀 시점 분석 보드 */
+    /** 1. AI 회귀 시점 분석 보드 */
+    renderRegressionBoard: function() {
+        var container = document.getElementById('lotto-regression-container');
+        if (!container || !this.statsData.regression_signals) return;
+        this.renderRegressionUI(container, this.statsData.regression_signals);
+    },
+
     renderPensionRegression: function() {
         var container = document.getElementById('pension-regression-container');
         if (!container || !this.statsData.regression_signals) return;
@@ -66,19 +71,37 @@ var AnalysisEngine = {
         container.innerHTML = html;
     },
 
-    /** 3-P. [v32.18] 연금 지능형 탭 시스템 및 동적 지표 분석 */
+    /** 2. 골든타임 전략 그룹 보드 */
+    renderStrategyPools: function() {
+        var pools = LottoAI.getComplexPools(this.statsData.recent_draws, -1);
+        var renderIn = function(id, nums, countId) {
+            var c = document.getElementById(id);
+            if(c) {
+                c.innerHTML = nums.map(n => `<div class="ball small ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('');
+                document.getElementById(countId).innerText = nums.length + '개';
+            }
+        };
+        renderIn('group-hot-container', pools.hot, 'hot-count');
+        renderIn('group-warm-container', pools.neutral, 'warm-count');
+        renderIn('group-cold-container', pools.cold, 'cold-count');
+    },
+
+    /** 3. 지능형 탭 시스템 */
+    initDynamicAnalysis: function() {
+        var indicators = LottoConfig.INDICATORS.filter(function(c) { return c.visible && c.visible.analysis; });
+        this.renderTabs(indicators, 'analysis-tabs', 'dynamic-analysis-root');
+        this.filterByGroup('ALL', 'dynamic-analysis-root', indicators);
+    },
+
     initDynamicPensionAnalysis: function() {
-        var root = document.getElementById('dynamic-pension-root');
-        if (!root) return;
         var indicators = LottoConfig.PENSION_INDICATORS.filter(function(c) { return c.visible && c.visible.analysis; });
         this.renderTabs(indicators, 'pension-analysis-tabs', 'dynamic-pension-root');
         this.filterByGroup('ALL', 'dynamic-pension-root', indicators);
     },
 
     renderTabs: function(indicators, containerId, rootId) {
-        var tabContainer = document.getElementById(containerId || 'analysis-tabs');
+        var tabContainer = document.getElementById(containerId);
         if (!tabContainer) return;
-        
         var self = this;
         var uniqueGroups = ['ALL'];
         indicators.forEach(function(c) { if (uniqueGroups.indexOf(c.group) === -1) uniqueGroups.push(c.group); });
@@ -91,9 +114,7 @@ var AnalysisEngine = {
 
         tabContainer.querySelectorAll('.analysis-tab').forEach(function(tab) {
             tab.onclick = function() {
-                tabContainer.querySelectorAll('.analysis-tab').forEach(function(t){ 
-                    t.classList.remove('active'); t.style.background='transparent'; t.style.color='#94a3b8'; 
-                });
+                tabContainer.querySelectorAll('.analysis-tab').forEach(function(t){ t.classList.remove('active'); t.style.background='transparent'; t.style.color='#94a3b8'; });
                 tab.classList.add('active');
                 tab.style.background = '#f0f7ff';
                 tab.style.color = 'var(--primary-blue)';
@@ -105,46 +126,71 @@ var AnalysisEngine = {
     },
 
     filterByGroup: function(groupId, rootId, indicatorsSet) {
-        var root = document.getElementById(rootId || 'dynamic-analysis-root');
+        var root = document.getElementById(rootId);
         if (!root) return;
         root.innerHTML = '';
-        
-        var indicators = (indicatorsSet || LottoConfig.INDICATORS).filter(function(c) { 
-            return c.visible && c.visible.analysis && (groupId === 'ALL' || c.group === groupId); 
-        });
-
+        var filtered = indicatorsSet.filter(function(c) { return groupId === 'ALL' || c.group === groupId; });
         var self = this;
         var index = 0;
         function renderNext() {
-            if (index >= indicators.length) return;
-            var cfg = indicators[index];
-            self.renderIndicatorCard(root, cfg);
+            if (index >= filtered.length) return;
+            self.renderIndicatorCard(root, filtered[index]);
             index++;
             setTimeout(renderNext, 20);
         }
         renderNext();
     },
 
-    /** 4. 번호별 전체 빈도 차트 */
+    renderIndicatorCard: function(root, cfg) {
+        var section = document.createElement('div');
+        section.className = 'analysis-card-group';
+        section.style.marginBottom = '30px';
+        
+        var header = document.createElement('div');
+        header.className = 'group-header';
+        header.style.cssText = 'font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; border-left: 4px solid var(--primary-blue); padding-left: 12px;';
+        header.innerText = cfg.label + ' 분석';
+        
+        var card = document.createElement('section');
+        card.className = 'analysis-card stats-grid-layout';
+        
+        var chartSide = document.createElement('div');
+        chartSide.className = 'chart-side';
+        var chartId = 'chart-' + cfg.id;
+        chartSide.innerHTML = `<div id="${chartId}" class="chart-wrapper"></div>` +
+            `<div class="chart-tip">💡 <b>전문가 가이드:</b> ${(LottoConfig.LOTTO_TIPS[cfg.id] || LottoConfig.PENSION_TIPS[cfg.id] || '분석 정보를 확인 중입니다.').replace('{safe}', '골든 존')}</div>`;
+        
+        var tableSide = document.createElement('div');
+        tableSide.className = 'table-side';
+        var tableId = 'table-' + cfg.id;
+        tableSide.innerHTML = `<table class="mini-stats-table"><thead><tr><th>회차</th><th>번호</th><th>${cfg.unit || '값'}</th></tr></thead><tbody id="${tableId}"></tbody></table>`;
+        
+        card.appendChild(chartSide);
+        card.appendChild(tableSide);
+        section.appendChild(header);
+        section.appendChild(card);
+        root.appendChild(section);
+
+        LottoUI.createCurveChart(chartId, this.statsData.distributions[cfg.distKey], cfg.unit, this.statsData.stats_summary[cfg.statKey], cfg);
+        LottoUI.renderMiniTable(tableId, this.statsData.recent_draws.slice(0, 6), cfg);
+    },
+
     renderFrequencyChart: function() {
         var container = document.getElementById('full-frequency-chart');
         if (!container || !this.statsData.frequency) return;
-        
         var freq = this.statsData.frequency;
         var max = Math.max(...Object.values(freq));
-        
         var html = '<div class="freq-bar-container" style="display:flex; align-items:flex-end; gap:2px; height:150px; padding:20px 0;">';
         for (var i = 1; i <= 45; i++) {
             var val = freq[i] || 0;
-            var height = (val / max) * 100;
-            html += `<div class="freq-bar ${LottoUtils.getBallColorClass(i)}" style="flex:1; height:${height}%; border-radius:2px 2px 0 0; position:relative;" title="${i}번: ${val}회">` +
+            var h = (val / max) * 100;
+            html += `<div class="freq-bar ${LottoUtils.getBallColorClass(i)}" style="flex:1; height:${h}%; border-radius:2px 2px 0 0; position:relative;" title="${i}번: ${val}회">` +
                 `<span style="position:absolute; top:-15px; left:50%; transform:translateX(-50%); font-size:0.5rem; font-weight:700;">${i}</span></div>`;
         }
         html += '</div>';
         container.innerHTML = html;
     },
 
-    /** 5. AI 마르코프 전이 확률 보드 */
     renderMarkovBoard: function() {
         var container = document.getElementById('lotto-markov-heatmap');
         if (!container || !this.statsData.markov_ending_matrix) return;
@@ -152,6 +198,4 @@ var AnalysisEngine = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    AnalysisEngine.init();
-});
+document.addEventListener('DOMContentLoaded', () => AnalysisEngine.init());
