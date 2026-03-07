@@ -234,15 +234,15 @@ var AnalysisEngine = {
         for (var k in freq) freqValues.push(freq[k]);
         var max = Math.max.apply(null, freqValues);
         
-        // [v33.06] 하단 라벨 공간 확보를 위해 패딩 조정 (bottom: 35px)
-        var html = '<div class="freq-bar-container" style="display:flex; align-items:flex-end; gap:3px; height:200px; padding:30px 10px 35px 10px; background:#f8fafc; border-radius:12px; border:1px solid #edf2f7; margin-bottom:20px;">';
+        // [v33.08] 단독 섹션 최적화: 좌우 여백을 최소화(5px)하여 막대 너비 극대화
+        var html = '<div class="freq-bar-container" style="display:flex; align-items:flex-end; gap:6px; height:260px; padding:40px 8px 45px 8px; background:#f8fafc; border-radius:16px; border:1px solid #e2e8f0; box-shadow:inset 0 1px 4px rgba(0,0,0,0.03); margin-bottom:20px; overflow-x:auto;">';
         for (var i = 1; i <= 45; i++) {
             var val = freq[i] || 0;
             var h = (val / (max || 1)) * 100;
-            // [v33.06] 상단에는 빈도값(val), 하단에는 번호(i) 배치
-            html += `<div class="freq-bar bar ${LottoUtils.getBallColorClass(i)}" style="flex:1; height:${h}%; border-radius:3px 3px 0 0; position:relative; min-width:4px;" title="${i}번: ${val}회">` +
-                `<span style="position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:0.55rem; font-weight:900; color:#3182f6;">${val}</span>` +
-                `<span style="position:absolute; bottom:-25px; left:50%; transform:translateX(-50%) rotate(-45deg); font-size:0.55rem; font-weight:900; color:#64748b; white-space:nowrap;">${i}</span></div>`;
+            // [v33.08] 막대 최소 너비를 12px로 늘리고 간격을 시원하게 배치
+            html += `<div class="freq-bar bar ${LottoUtils.getBallColorClass(i)}" style="flex:1; height:${h}%; border-radius:5px 5px 0 0; position:relative; min-width:12px; transition:all 0.3s;" title="${i}번: ${val}회">` +
+                `<span style="position:absolute; top:-24px; left:50%; transform:translateX(-50%); font-size:0.65rem; font-weight:900; color:#3182f6; white-space:nowrap;">${val}</span>` +
+                `<span style="position:absolute; bottom:-35px; left:50%; transform:translateX(-50%) rotate(-45deg); font-size:0.65rem; font-weight:900; color:#334155; white-space:nowrap;">${i}</span></div>`;
         }
         html += '</div>';
         container.innerHTML = html;
