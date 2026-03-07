@@ -43,14 +43,15 @@ var ContentLoader = {
 
             if (cfg.group !== currentGroup) {
                 currentGroup = cfg.group;
+                var groupNames = LottoConfig.GROUP_NAMES || {};
                 var gTitle = document.createElement('div');
                 gTitle.className = 'guide-group-title';
-                gTitle.innerText = '[' + currentGroup + '] ' + (LottoConfig.GROUP_NAMES[currentGroup] || '분석 지표');
+                gTitle.innerText = '[' + currentGroup + '] ' + (groupNames[currentGroup] || '분석 지표');
                 root.appendChild(gTitle);
 
                 currentSection = document.createElement('section');
                 currentSection.className = 'logic-card';
-                currentSection.innerHTML = '<h3>📍 [' + currentGroup + '] ' + (LottoConfig.GROUP_NAMES[currentGroup] || '') + '</h3>';
+                currentSection.innerHTML = '<h3>📍 [' + currentGroup + '] ' + (groupNames[currentGroup] || '') + '</h3>';
                 root.appendChild(currentSection);
             }
 
