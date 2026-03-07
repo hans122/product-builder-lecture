@@ -1,7 +1,7 @@
 /**
- * LottoCore Hub v12.0
+ * LottoCore Hub v21.2 (Stabilized Edition)
  * - Orchestrates Data, Logic, and Core Utilities
- * - Standardized Hub for all page engines
+ * - Robust Error Handling for JSON Fetching
  */
 
 var LottoEvents = {
@@ -13,7 +13,7 @@ var LottoEvents = {
 var LottoDataManager = {
     cache: { lotto: null, pension: null },
     promises: { lotto: null, pension: null },
-    SYSTEM_VERSION: '12.0',
+    SYSTEM_VERSION: '21.2',
     getCacheKey: function(type) { return 'lotto_data_' + type + '_v' + this.SYSTEM_VERSION; },
     getStats: function(cb) { this._load('advanced_stats.json', 'lotto', cb); },
     getPensionStats: function(cb) { this._load('pension_stats.json', 'pension', cb); },
@@ -25,8 +25,25 @@ var LottoDataManager = {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url + '?v=' + self.SYSTEM_VERSION + '_' + Date.now());
             xhr.onload = () => {
-                var data = JSON.parse(xhr.responseText);
-                self.cache[type] = data; resolve(data);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        var text = xhr.responseText;
+                        if (!text) throw new Error('Empty response from server');
+                        var data = JSON.parse(text);
+                        self.cache[type] = data; 
+                        resolve(data);
+                    } catch (e) {
+                        console.error('[LottoCore] JSON Parse Error:', e, 'URL:', url);
+                        resolve(null);
+                    }
+                } else {
+                    console.error('[LottoCore] HTTP Error:', xhr.status, 'URL:', url);
+                    resolve(null);
+                }
+            };
+            xhr.onerror = () => {
+                console.error('[LottoCore] Network Error. URL:', url);
+                resolve(null);
             };
             xhr.send();
         });
@@ -36,7 +53,7 @@ var LottoDataManager = {
 
 var LottoSynergy = {
     check: function(nums, data) {
-        if (!LottoConfig || !LottoConfig.SYNERGY_RULES) return [];
+        if (!LottoConfig || !LottoConfig.SYNERGY_RULES || !data) return [];
         var v = {}, stats = data.stats_summary || {};
         LottoConfig.INDICATORS.filter(c => c.calc && c.group.startsWith('GL')).forEach(c => v[c.id] = c.calc(nums, data));
         return LottoConfig.SYNERGY_RULES.filter(r => r.check(v, stats)).map(r => ({ id: r.id, label: r.label, status: r.status, desc: r.desc }));
