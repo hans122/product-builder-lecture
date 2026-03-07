@@ -112,14 +112,10 @@ var PredictionEngine = {
 
         var strategies = selectedStrategy === 'all' 
             ? allStrategies 
-            : allStrategies.filter(s => s.id === selectedStrategy);
+            : Array(10).fill(allStrategies.find(s => s.id === selectedStrategy));
 
-        // 레이아웃 조정 (필터링 시 카드 크게)
-        if (selectedStrategy !== 'all') {
-            container.style.gridTemplateColumns = 'repeat(2, 1fr)';
-        } else {
-            container.style.gridTemplateColumns = 'repeat(5, 1fr)';
-        }
+        // 레이아웃 조정
+        container.style.gridTemplateColumns = 'repeat(5, 1fr)';
 
         var stats = this.statsData.stats_summary;
         var results = [];
