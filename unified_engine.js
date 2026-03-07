@@ -8,6 +8,13 @@
 
 var _global = typeof window !== 'undefined' ? window : self;
 _global.LottoAI = {
+    // [v32.22] 엔진 상태 정보 (검증기용)
+    engineStatus: {
+        isMarkovReady: true,
+        isSynergyReady: true,
+        version: '32.22'
+    },
+
     // 1. Monte Carlo Simulation
     runMonteCarlo: function(nums, isPension, statsData) {
         var iterations = 10000;
@@ -154,6 +161,18 @@ _global.LottoAI = {
             for(var j=5; j>0; j--) synergyScore += (matrix[nums[j]] ? (matrix[nums[j]][nums[j-1]] || 0) : 0);
         }
         return Math.round(synergyScore + this.calculateFlowScore(nums));
+    },
+
+    // [v32.22 복구] Lotto Ending Digit Chain Analysis
+    calculateEndingChainMatrix: function(draws, limit) {
+        var matrix = Array.from({length: 10}, function() { return Array(10).fill(0); });
+        var targetDraws = (draws || []).slice(0, limit || 300);
+        for (var i = 0; i < targetDraws.length - 1; i++) {
+            var currentEnds = targetDraws[i].nums.map(function(n) { return n % 10; });
+            var nextEnds = targetDraws[i+1].nums.map(function(n) { return n % 10; });
+            currentEnds.forEach(function(c) { nextEnds.forEach(function(n) { matrix[c][n]++; }); });
+        }
+        return matrix;
     },
 
     // 8. Adaptive Weighting System
