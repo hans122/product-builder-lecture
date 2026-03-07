@@ -119,11 +119,11 @@ var LottoUI = {
         
         // 통계적 앵커 라벨 (2.5%, 16%, 50%, 84%, 97.5%)
         var labels = [
-            { v: mean - 2 * std, l: '세이프 미니', p: 1 },
-            { v: mean - std, l: '옵티 미니', p: 2 },
-            { v: mean, l: '평균', p: 3 },
-            { v: mean + std, l: '옵티 맥스', p: 2 },
-            { v: mean + 2 * std, l: '세이프 맥스', p: 1 }
+            { v: mean - 2 * std, l: '2.5%', p: 1 },
+            { v: mean - std, l: '16%', p: 2 },
+            { v: mean, l: '50%', p: 3 },
+            { v: mean + std, l: '84%', p: 2 },
+            { v: mean + 2 * std, l: '97.5%', p: 1 }
         ].sort(function(a,b) { return b.p - a.p; });
         
         var visibleLabels = [];
@@ -145,8 +145,9 @@ var LottoUI = {
             '<path d="' + pathD + '" fill="none" stroke="var(--primary-blue)" stroke-width="3" stroke-linecap="round"/>' +
             '<line x1="' + padding + '" y1="' + (h-padding) + '" x2="' + (w-padding) + '" y2="' + (h-padding) + '" stroke="#e5e8eb" stroke-width="1"/>' +
             visibleLabels.map(function(l) {
+                var displayVal = LottoUtils.round(l.v, 1);
                 return '<g><line x1="' + getX(l.v) + '" y1="' + (h-padding) + '" x2="' + getX(l.v) + '" y2="' + (h-padding+5) + '" stroke="#cbd5e1"/>' +
-                       '<text x="' + getX(l.v) + '" y="' + (h-10) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#64748b">' + l.l + '</text></g>';
+                       '<text x="' + getX(l.v) + '" y="' + (h-10) + '" text-anchor="middle" font-size="9" font-weight="800" fill="#64748b">' + displayVal + ' (' + l.l + ')</text></g>';
             }).join('') +
             '</svg>';
         container.innerHTML = svg;
