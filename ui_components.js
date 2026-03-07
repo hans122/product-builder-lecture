@@ -94,10 +94,46 @@ var LottoUI = {
         },
         _renderCurve: function(container, distData, unit, stat, config) {
             container.innerHTML = '';
-            var w = 300, h = 210, padding = 30, sidePadding = 15, bottomSpace = 55;
+            // [v32.96] 차트 크기를 표 높이의 약 80%로 조정 (h: 130 -> 160)
+            var w = 300, h = 160, padding = 20, sidePadding = 15, bottomSpace = 45;
             var mean = stat ? stat.mean : 0, std = stat ? stat.std : 1;
             var minX = mean - 3.5 * std, maxX = mean + 3.5 * std;
             var dataKeys = Object.keys(distData).map(Number);
+            var dataMin = dataKeys.length > 0 ? Math.min.apply(null, dataKeys) : 0;
+            var points = [];
+            for (var x = minX; x <= maxX; x += (maxX - minX) / 100) {
+                var y = (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / std, 2));
+                points.push({ x: x, y: y });
+            }
+            var maxY = Math.max.apply(null, points.map(function(p) { return p.y; }));
+            var scaleX = (w - sidePadding * 2) / (maxX - minX);
+            var scaleY = (h - padding - bottomSpace) / (maxY || 1);
+            
+            var getX = function(v) { return sidePadding + (v - minX) * scaleX; };
+            var getY = function(v) { return (h - bottomSpace) - v * scaleY; };
+            var pathD = "M " + points.map(function(p) { return getX(p.x).toFixed(1) + "," + getY(p.y).toFixed(1); }).join(" L ");
+            
+            var labels = [
+                { v: mean - 2 * std, l: '2.5%' },
+                { v: mean, l: (config.label || '') },
+                { v: mean + 2 * std, l: '97.5%' }
+            ];
+
+            var svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; overflow:visible;">
+                <defs><pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.4"/></pattern></defs>
+                <rect x="${getX(mean-std)}" y="${padding}" width="${getX(mean+std)-getX(mean-std)}" height="${h-bottomSpace-padding}" fill="url(#h-green)" fill-opacity="0.6"/>
+                <path d="${pathD}" fill="none" stroke="#3182f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="${sidePadding}" y1="${h-bottomSpace}" x2="${w-sidePadding}" y2="${h-bottomSpace}" stroke="#e5e8eb" stroke-width="1"/>
+                ${labels.map(function(l) {
+                    var val = LottoUtils.round(Math.max(l.v, dataMin), unit==='개'?0:1);
+                    return `<g>
+                        <text x="${getX(l.v)}" y="${h-bottomSpace+18}" text-anchor="middle" font-size="8.5" font-weight="900" fill="#1e293b">${val}${unit}</text>
+                        <text x="${getX(l.v)}" y="${h-bottomSpace+30}" text-anchor="middle" font-size="7.5" font-weight="700" fill="#94a3b8">${l.l}</text>
+                    </g>`;
+                }).join('')}
+            </svg>`;
+            container.innerHTML = svg;
+        },
             var dataMin = dataKeys.length > 0 ? Math.min.apply(null, dataKeys) : 0;
             var points = [];
             for (var x = minX; x <= maxX; x += (maxX - minX) / 100) {
