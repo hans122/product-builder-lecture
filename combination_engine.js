@@ -1,10 +1,10 @@
 'use strict';
 
 /**
- * AI Combination Engine v3.0 (Intelligent Tab Filtering)
- * - Adds Group Filtering for long report tables
- * - Danger Badge visualization on tabs
- * - Preserves existing scoring & hierarchy
+ * AI Combination Engine v3.5 (Stable & Guarded)
+ * - Safe initialization with LottoGuardian
+ * - Real-time manual selection & auto-fill
+ * - Multi-layered error handling for Script Error prevention
  */
 
 var CombinationEngine = {
@@ -14,13 +14,20 @@ var CombinationEngine = {
     _selectedNums: [],
 
     init: function() {
+        // [v32.93] 가디언을 통한 모듈 정합성 우선 확인
+        if (typeof LottoGuardian !== 'undefined' && !LottoGuardian.checkDependencies()) {
+            console.error("[CombinationEngine] Required modules missing.");
+            return;
+        }
+
         this.isPension = document.body.classList.contains('pension-theme');
         var self = this;
 
-        // 1. 번호 선택기 초기화
+        // 1. 번호 선택기 초기화 (UI 즉시 렌더링)
         this.renderSelector();
         this.bindSelectorEvents();
 
+        // 2. 데이터 비동기 로드 후 리포트 출력
         if (this.isPension) {
             LottoDataManager.getPensionStats(function(data) {
                 if (data) { self.statsData = data; self.renderSelection(); }
@@ -92,9 +99,8 @@ var CombinationEngine = {
             autoBtn.onclick = function() {
                 var currentCount = self._selectedNums.length;
                 if (currentCount >= 6) {
-                    // 이미 6개면 초기화 후 새로 생성
                     self._selectedNums = [];
-                    container.querySelectorAll('.select-ball').forEach(b => b.classList.remove('selected-manual'));
+                    container.querySelectorAll('.select-ball').forEach(function(b) { b.classList.remove('selected-manual'); });
                 }
 
                 var needed = 6 - self._selectedNums.length;
@@ -103,14 +109,12 @@ var CombinationEngine = {
                     if (self._selectedNums.indexOf(i) === -1) pool.push(i);
                 }
 
-                // 무작위 셔플 후 필요한 만큼 추출
-                pool.sort(() => Math.random() - 0.5);
+                pool.sort(function() { return Math.random() - 0.5; });
                 var picked = pool.slice(0, needed);
 
-                // 선택 처리
-                picked.forEach(num => {
+                picked.forEach(function(num) {
                     self._selectedNums.push(num);
-                    var ball = container.querySelector(`.select-ball[data-num="${num}"]`);
+                    var ball = container.querySelector('.select-ball[data-num="' + num + '"]');
                     if (ball) ball.classList.add('selected-manual');
                 });
 
@@ -124,11 +128,8 @@ var CombinationEngine = {
         if (resetBtn) {
             resetBtn.onclick = function() {
                 self._selectedNums = [];
-                // 모든 구슬의 선택 효과 제거
                 var allBalls = container.querySelectorAll('.select-ball');
-                allBalls.forEach(function(b) {
-                    b.classList.remove('selected-manual');
-                });
+                allBalls.forEach(function(b) { b.classList.remove('selected-manual'); });
                 self.updateSelectedUI();
                 LottoUI.Feedback.toast('선택이 초기화되었습니다.');
             };
@@ -144,54 +145,67 @@ var CombinationEngine = {
             container.innerHTML = '<div class="placeholder">번호를 선택해주세요</div>';
         } else {
             container.innerHTML = '';
-            var sorted = this._selectedNums.slice().sort((a,b) => a-b);
-            sorted.forEach(n => container.appendChild(LottoUI.Ball.create(n, { mini: true })));
+            var sorted = this._selectedNums.slice().sort(function(a,b) { return a-b; });
+            var self = this;
+            sorted.forEach(function(n) { container.appendChild(LottoUI.Ball.create(n, { mini: true })); });
         }
 
         if (btn) btn.disabled = (this._selectedNums.length !== 6);
     },
 
     renderSelection: function() {
-        var raw = localStorage.getItem(this.isPension ? 'lastGeneratedPension' : 'lastGeneratedNumbers');
+        var key = this.isPension ? 'lastGeneratedPension' : 'lastGeneratedNumbers';
+        var raw = localStorage.getItem(key);
         if (!raw) return;
-        var data = JSON.parse(raw);
-        var nums = this.isPension ? data.digits : data;
-        
-        var container = document.getElementById(this.isPension ? 'p-analysis-report' : 'lotto-analysis-report');
-        if (!container && !this.isPension) container = document.getElementById('analysis-report-body');
-        if (!container) return;
 
-        var sim = LottoAI.runMonteCarlo(nums, this.isPension, this.statsData);
-        
-        if (this.isPension) {
-            this.renderPensionReport(container, nums, sim);
-        } else {
-            this.renderLottoReport(container, nums, sim);
+        try {
+            var data = JSON.parse(raw);
+            var nums = this.isPension ? (data.digits || []) : data;
+            if (!Array.isArray(nums) || nums.length === 0) return;
+            
+            var containerId = this.isPension ? 'p-analysis-report' : 'lotto-analysis-report';
+            var container = document.getElementById(containerId) || document.getElementById('analysis-report-body');
+            if (!container) return;
+
+            if (typeof LottoAI === 'undefined' || !LottoAI.runMonteCarlo) {
+                console.warn("[CombinationEngine] LottoAI not ready yet.");
+                return;
+            }
+
+            var sim = LottoAI.runMonteCarlo(nums, this.isPension, this.statsData);
+            
+            if (this.isPension) {
+                this.renderPensionReport(container, nums, sim);
+            } else {
+                this.renderLottoReport(container, nums, sim);
+            }
+        } catch(e) {
+            console.error("[CombinationEngine] Render error:", e);
         }
     },
 
     /** [v32.33] 로또 리포트 (지능형 탭 필터링 및 요약) */
     renderLottoReport: function(container, nums, sim) {
-        var sortedNums = nums.slice().sort((a,b)=>a-b);
+        var sortedNums = nums.slice().sort(function(a,b) { return a-b; });
         var stats = this.statsData.stats_summary || {};
         var dists = this.statsData.distributions || {};
         
-        var activeIndicators = LottoConfig.INDICATORS.filter(cfg => cfg.visible && cfg.visible.combination);
-        var results = activeIndicators.map(cfg => {
-            var ctx = { last_3_draws: (this.statsData.recent_draws || []).slice(0, 3).map(d => d.nums), recent_draws: this.statsData.recent_draws };
+        var activeIndicators = LottoConfig.INDICATORS.filter(function(cfg) { return cfg.visible && cfg.visible.combination; });
+        var results = activeIndicators.map(function(cfg) {
+            var ctx = { last_3_draws: (this.statsData.recent_draws || []).slice(0, 3).map(function(d) { return d.nums; }), recent_draws: this.statsData.recent_draws };
             var val = cfg.calc(sortedNums, ctx);
             var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
             var tip = LottoConfig.LOTTO_TIPS[cfg.id] || '정상 범위 내 조합입니다.';
             var zone = LottoUtils.calculateZoneInfo(stats[cfg.statKey], dists[cfg.distKey], cfg);
             if (zone && tip.includes('{safe}')) tip = tip.replace('{safe}', zone.safe);
             return { cfg: cfg, val: val, status: status, tip: tip };
-        });
+        }, this);
 
         this._currentResults = results;
-        this.renderReportTabs(results); // 탭 바 렌더링
+        this.renderReportTabs(results);
 
-        // 1. 치명적 결함 강조 (상단 배치)
-        var dangers = results.filter(r => r.status === 'danger');
+        // 1. 치명적 결함 강조
+        var dangers = results.filter(function(r) { return r.status === 'danger'; });
         var reportSection = document.getElementById('report-section');
         if (reportSection) {
             reportSection.style.display = 'block';
@@ -202,21 +216,20 @@ var CombinationEngine = {
                 var dBox = document.createElement('div');
                 dBox.className = 'critical-failures-box';
                 dBox.style.cssText = 'background:#fff5f5; border:2px solid #feb2b2; border-radius:12px; padding:20px; margin-bottom:25px;';
-                dBox.innerHTML = `<div style="color:#c53030; font-weight:900; margin-bottom:12px;">⚠️ 치명적 불균형 요소 (${dangers.length}건)</div>` +
-                    dangers.map(d => `<div style="display:flex; justify-content:space-between; background:white; padding:10px; border-radius:8px; margin-bottom:8px; border-left:4px solid #f56565;">
-                        <div style="font-size:0.8rem;"><b>${d.cfg.label}</b><br><small style="color:#718096;">${d.tip}</small></div>
-                        <div style="text-align:right;"><span style="color:#e53e3e; font-weight:900; font-size:1.1rem;">${d.val}</span><br><small style="color:#fc8181;">위험</small></div>
-                    </div>`).join('');
+                dBox.innerHTML = '<div style="color:#c53030; font-weight:900; margin-bottom:12px;">⚠️ 치명적 불균형 요소 (' + dangers.length + '건)</div>' +
+                    dangers.map(function(d) {
+                        return '<div style="display:flex; justify-content:space-between; background:white; padding:10px; border-radius:8px; margin-bottom:8px; border-left:4px solid #f56565;">' +
+                            '<div style="font-size:0.8rem;"><b>' + d.cfg.label + '</b><br><small style="color:#718096;">' + d.tip + '</small></div>' +
+                            '<div style="text-align:right;"><span style="color:#e53e3e; font-weight:900; font-size:1.1rem;">' + d.val + '</span><br><small style="color:#fc8181;">위험</small></div>' +
+                        '</div>';
+                    }).join('');
                 reportSection.insertBefore(dBox, reportSection.firstChild);
             }
         }
 
-        // 2. 초기 테이블 렌더링 (전체보기)
         this.filterReport('ALL');
 
-        // 3. 기댓값 및 점수 갱신
         var harmony = LottoAI.checkCorrelationHarmony(sortedNums, this.statsData);
-        var prob = LottoAI.calculateWinProbability(sortedNums, false, this.statsData);
         var finalScore = LottoAI.calculateTotalScore(sim.score, [], results) + harmony.score;
         var gradeInfo = LottoAI.getGrade(finalScore);
         
@@ -233,19 +246,19 @@ var CombinationEngine = {
         
         container.style.display = 'flex';
         var groups = ['ALL'];
-        results.forEach(r => { if (groups.indexOf(r.cfg.group) === -1) groups.push(r.cfg.group); });
+        results.forEach(function(r) { if (groups.indexOf(r.cfg.group) === -1) groups.push(r.cfg.group); });
         
-        tabRow.innerHTML = groups.map(gid => {
+        tabRow.innerHTML = groups.map(function(gid) {
             var label = gid === 'ALL' ? '전체' : (LottoConfig.GROUP_NAMES[gid] || gid).split(' ')[0].replace('분석','');
-            var groupDangers = results.filter(r => (gid === 'ALL' || r.cfg.group === gid) && r.status === 'danger').length;
-            var badge = groupDangers > 0 ? `<span style="background:#f04452; color:white; font-size:0.6rem; padding:1px 5px; border-radius:10px; margin-left:4px;">${groupDangers}</span>` : '';
-            return `<div class="report-tab ${gid==='ALL'?'active':''}" data-group="${gid}" style="flex:0 0 auto; padding:6px 12px; font-size:0.8rem; font-weight:700; border-radius:8px; cursor:pointer; white-space:nowrap; transition:all 0.2s; border:1px solid #e2e8f0; background:white;">${label}${badge}</div>`;
+            var groupDangers = results.filter(function(r) { return (gid === 'ALL' || r.cfg.group === gid) && r.status === 'danger'; }).length;
+            var badge = groupDangers > 0 ? '<span style="background:#f04452; color:white; font-size:0.6rem; padding:1px 5px; border-radius:10px; margin-left:4px;">' + groupDangers + '</span>' : '';
+            return '<div class="report-tab ' + (gid==='ALL'?'active':'') + '" data-group="' + gid + '" style="flex:0 0 auto; padding:6px 12px; font-size:0.8rem; font-weight:700; border-radius:8px; cursor:pointer; white-space:nowrap; transition:all 0.2s; border:1px solid #e2e8f0; background:white;">' + label + badge + '</div>';
         }).join('');
 
         var self = this;
-        tabRow.querySelectorAll('.report-tab').forEach(tab => {
+        tabRow.querySelectorAll('.report-tab').forEach(function(tab) {
             tab.onclick = function() {
-                tabRow.querySelectorAll('.report-tab').forEach(t => { 
+                tabRow.querySelectorAll('.report-tab').forEach(function(t) { 
                     t.classList.remove('active'); t.style.background='white'; t.style.color='#64748b'; t.style.borderColor='#e2e8f0';
                 });
                 tab.classList.add('active');
@@ -264,24 +277,21 @@ var CombinationEngine = {
         var tbody = document.getElementById('analysis-report-body');
         if (!tbody || !this._currentResults) return;
         
-        var filtered = this._currentResults.filter(r => groupId === 'ALL' || r.cfg.group === groupId);
+        var filtered = this._currentResults.filter(function(r) { return groupId === 'ALL' || r.cfg.group === groupId; });
         tbody.innerHTML = '';
         
-        filtered.forEach(r => {
+        filtered.forEach(function(r) {
             var sLab = r.status === 'safe' ? '세이프' : (r.status === 'warning' ? '주의' : '위험');
             var tr = document.createElement('tr');
             var tipId = 'rtip-' + Math.random().toString(36).substr(2, 9);
             
-            tr.innerHTML = `
-                <td><strong id="${tipId}" style="cursor:help; border-bottom:1px dashed #cbd5e1;">${r.cfg.label}</strong></td>
-                <td><span style="font-weight:900; color:${r.status==='danger'?'#f04452':'#191f28'};">${r.val}</span></td>
-                <td><span class="status-badge ${r.status}">${sLab}</span></td>
-                <td class="text-left" style="font-size:0.75rem; color:#4a5568;">${r.tip}</td>
-            `;
+            tr.innerHTML = '<td><strong id="' + tipId + '" style="cursor:help; border-bottom:1px dashed #cbd5e1;">' + r.cfg.label + '</strong></td>' +
+                '<td><span style="font-weight:900; color:' + (r.status==='danger'?'#f04452':'#191f28') + ';">' + r.val + '</span></td>' +
+                '<td><span class="status-badge ' + r.status + '">' + sLab + '</span></td>' +
+                '<td class="text-left" style="font-size:0.75rem; color:#4a5568;">' + r.tip + '</td>';
             tbody.appendChild(tr);
             
-            // [v32.81] 새로운 툴팁 표준 적용 (LottoUI.Feedback.tooltip)
-            setTimeout(() => {
+            setTimeout(function() {
                 var el = document.getElementById(tipId);
                 if (el) LottoUI.Feedback.tooltip(el, r.tip);
             }, 50);
@@ -289,10 +299,8 @@ var CombinationEngine = {
     },
 
     renderPensionReport: function(container, nums, sim) {
-        // 연금 리포트도 동일한 탭 로직 적용 가능 (v32.33 이후 확장 예정)
         container.innerHTML = '<tr><td colspan="4" style="padding:50px; text-align:center;">연금 분석 리포트를 생성 중입니다...</td></tr>';
-        // (기존 연금 리포트 로직 유지)
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => CombinationEngine.init());
+document.addEventListener('DOMContentLoaded', function() { CombinationEngine.init(); });

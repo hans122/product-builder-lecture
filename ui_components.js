@@ -8,6 +8,41 @@
  */
 
 var LottoUI = {
+    /** [지표 및 대시보드 컴포넌트] */
+    Indicator: {
+        renderGrid: function(containerId, indicatorIds, numbers, statsData) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            var allConfigs = (LottoConfig.INDICATORS || []).concat(LottoConfig.PENSION_INDICATORS || []);
+            
+            indicatorIds.forEach(function(id, idx) {
+                var config = allConfigs.find(function(c) { return c.id === id; });
+                if (!config) return;
+                var value = config.calc(numbers, statsData);
+                var status = 'safe';
+                var stat = statsData ? (statsData.stats_summary ? statsData.stats_summary[config.statKey] : null) : null;
+                if (stat) status = LottoUtils.getZStatus(value, stat);
+                
+                var isPension = config.id.startsWith('p-');
+                var displayLabel = (isPension ? 'P' : '') + LottoUtils.padLeft(idx + 1, 2, '0') + ') ' + config.label;
+                var card = document.createElement('div');
+                card.className = 'indicator-item';
+                card.style.cssText = 'padding: 15px; border-radius: 16px; background: #f8fafc; border: 1px solid #edf2f7; display: flex; flex-direction: column; gap: 4px;';
+                
+                card.innerHTML = `
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 700;">${displayLabel}</span>
+                    <div style="display: flex; align-items: baseline; gap: 2px;">
+                        <span style="font-size: 1.2rem; font-weight: 900; color: ${status === 'danger' ? '#f04452' : (status === 'warning' ? '#ff9500' : '#191f28')}">${value}</span>
+                        <span style="font-size: 0.7rem; color: #8b95a1; font-weight: 600;">${config.unit || ''}</span>
+                    </div>
+                    <div class="status-badge ${status}" style="margin-top: 5px; width: fit-content;">${status === 'safe' ? '세이프' : (status === 'warning' ? '주의' : '위험')}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    },
+
     /** [구슬 컴포넌트] */
     Ball: {
         create: function(num, options) {
@@ -34,15 +69,25 @@ var LottoUI = {
         curve: function(containerId, distData, unit, stat, config) {
             var container = document.getElementById(containerId);
             if (!container) return;
-            var self = LottoUI.Chart; // 고정 바인딩
+            var self = LottoUI.Chart;
+            
+            // [v32.94] IntersectionObserver 감지 로직 개선
             if ('IntersectionObserver' in window) {
                 var observer = new IntersectionObserver(function(entries) {
-                    if (entries[0].isIntersecting) {
-                        self._renderCurve(container, distData, unit, stat, config);
-                        observer.disconnect();
-                    }
-                }, { threshold: 0.1 });
+                    entries.forEach(function(entry) {
+                        // 1%만 보여도 즉시 렌더링 시작
+                        if (entry.isIntersecting || entry.intersectionRatio > 0) {
+                            self._renderCurve(container, distData, unit, stat, config);
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.01, rootMargin: '50px' });
                 observer.observe(container);
+                
+                // 지연 실행 안전장치: 2초 후에도 안 그려졌으면 강제 실행
+                setTimeout(function() {
+                    if (container.innerHTML === '') self._renderCurve(container, distData, unit, stat, config);
+                }, 2000);
             } else {
                 self._renderCurve(container, distData, unit, stat, config);
             }
@@ -69,11 +114,14 @@ var LottoUI = {
             var svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; overflow:visible;">
                 <defs><pattern id="h-green" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2ecc71" stroke-width="1.2" stroke-opacity="0.4"/></pattern></defs>
                 <rect x="${getX(mean-std)}" y="${padding}" width="${getX(mean+std)-getX(mean-std)}" height="${h-bottomSpace-padding}" fill="url(#h-green)" fill-opacity="0.6"/>
-                <path d="${pathD}" fill="none" stroke="#3182f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="${pathD}" fill="none" stroke="#3182f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="${sidePadding}" y1="${h-bottomSpace}" x2="${w-sidePadding}" y2="${h-bottomSpace}" stroke="#e5e8eb" stroke-width="1"/>
                 ${[{v:mean-2*std, l:'2.5%'}, {v:mean, l:config.label}, {v:mean+2*std, l:'97.5%'}].map(function(l) {
                     var val = LottoUtils.round(Math.max(l.v, dataMin), unit==='개'?0:1);
-                    return `<g><text x="${getX(l.v)}" y="${h-bottomSpace+22}" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">${val}${unit}</text></g>`;
+                    return `<g>
+                        <text x="${getX(l.v)}" y="${h-bottomSpace+18}" text-anchor="middle" font-size="8.5" font-weight="900" fill="#1e293b">${val}${unit}</text>
+                        <text x="${getX(l.v)}" y="${h-bottomSpace+30}" text-anchor="middle" font-size="7.5" font-weight="700" fill="#94a3b8">${l.l}</text>
+                    </g>`;
                 }).join('')}
             </svg>`;
             container.innerHTML = svg;
@@ -198,6 +246,7 @@ LottoUI.attachTooltip = LottoUI.Feedback.tooltip;
 LottoUI.createCurveChart = LottoUI.Chart.curve;
 LottoUI.renderMarkovHeatmap = LottoUI.Chart.markov;
 LottoUI.renderMiniTable = LottoUI.Table.renderMini;
+LottoUI.renderIndicatorGrid = LottoUI.Indicator.renderGrid;
 LottoUI.showSkeletons = function(containerId, count) {
     var container = document.getElementById(containerId);
     if (container) container.innerHTML = '<div class="skeleton-pulse" style="height:100px; background:#f2f4f6; border-radius:12px;"></div>';

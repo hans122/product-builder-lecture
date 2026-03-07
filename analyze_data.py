@@ -97,9 +97,28 @@ def analyze_lotto():
             cov = sum((d1[i]-m1)*(d2[i]-m2) for i in range(n))/n
             corr_matrix[k1][k2] = round(cov/(s1*s2), 2)
 
-    res = {"total_draws": len(draws), "last_3_draws": [d["nums"] for d in draws[-3:][::-1]], "stats_summary": stats_s, "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()}, "frequency": dict(Counter([n for d in draws for n in d["nums"]])), "regression_signals": reg_signals, "correlation_matrix": corr_matrix, "recent_draws": processed_data[::-1][:100]}
+    # [v32.92] 마르코프 끝수 전이 행렬 계산
+    markov_ending = [[0]*10 for _ in range(10)]
+    for i in range(len(draws)-1):
+        curr_ends = [n % 10 for n in draws[i]["nums"]]
+        next_ends = [n % 10 for n in draws[i+1]["nums"]]
+        for c in curr_ends:
+            for n in next_ends:
+                markov_ending[c][n] += 1
+
+    res = {
+        "total_draws": len(draws), 
+        "last_3_draws": [d["nums"] for d in draws[-3:][::-1]], 
+        "stats_summary": stats_s, 
+        "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()}, 
+        "frequency": dict(Counter([n for d in draws for n in d["nums"]])), 
+        "regression_signals": reg_signals, 
+        "correlation_matrix": corr_matrix, 
+        "markov_ending_matrix": markov_ending, # 마르코프 데이터 추가
+        "recent_draws": processed_data[::-1][:100]
+    }
     with open('advanced_stats.json', 'w', encoding='utf-8') as f: json.dump(res, f, ensure_ascii=False, indent=4)
-    print(f"✅ Lotto Analysis Complete (v32.7): {len(draws)} draws.")
+    print(f"✅ Lotto Analysis Complete (v32.9): {len(draws)} draws.")
 
 def analyze_pension():
     if not os.path.exists('pt720.csv'): return

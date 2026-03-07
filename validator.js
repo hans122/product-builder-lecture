@@ -12,11 +12,19 @@ var SystemGuardian = {
 
     init: function() {
         var self = this;
-        // 페이지 로드 1초 후 진단 시작 (렌더링 완료 대기)
-        setTimeout(function() {
-            self.createBadge();
-            self.runDiagnostics();
-        }, 1000);
+        this.createBadge();
+        
+        // [v32.92] 지능형 지연 체크: 데이터가 로드될 때까지 최대 5초간 대기
+        var attempts = 0;
+        var checkInterval = setInterval(function() {
+            attempts++;
+            var cache = (typeof LottoDataManager !== 'undefined') ? (LottoDataManager.cache.lotto || LottoDataManager.cache.pension) : null;
+            
+            if (cache || attempts > 50) { // 데이터가 로드되었거나 5초가 지났을 때
+                clearInterval(checkInterval);
+                self.runDiagnostics();
+            }
+        }, 100);
     },
 
     createBadge: function() {

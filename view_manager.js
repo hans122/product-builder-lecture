@@ -80,7 +80,8 @@ var ViewManager = {
         }
         if (document.getElementById('main-indicator-grid')) {
             var pageConfig = (LottoConfig.PAGES && LottoConfig.PAGES.INDEX) ? LottoConfig.PAGES.INDEX : [];
-            LottoUI.renderIndicatorGrid('main-indicator-grid', pageConfig, numbers, this.statsData);
+            // [v32.82] 새로운 지표 그리드 표준 적용
+            LottoUI.Indicator.renderGrid('main-indicator-grid', pageConfig, numbers, this.statsData);
         }
     },
 
@@ -203,10 +204,8 @@ var ViewManager = {
         
         var pageConfig = (LottoConfig.PAGES && LottoConfig.PAGES.PENSION_INDEX) ? LottoConfig.PAGES.PENSION_INDEX : [];
         
-        // LottoUI의 공통 그리드 엔진 사용 (디자인 통일 및 시계열 지표 노출)
-        // 연금은 PENSION_INDICATORS 배열을 사용해야 하므로 renderIndicatorGrid 내부 로직이 INDICATORS를 참조하는 것을 감안하여
-        // indicators.js의 구조를 살피거나, 독립적인 연금용 그리드 함수를 호출
-        LottoUI.renderIndicatorGrid('pension-indicator-grid', pageConfig, draw.nums, this.statsData);
+        // [v32.82] 새로운 지표 그리드 표준 적용
+        LottoUI.Indicator.renderGrid('pension-indicator-grid', pageConfig, draw.nums, this.statsData);
     }
 };
 
