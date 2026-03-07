@@ -12,26 +12,40 @@ var AnalysisEngine = {
 
     init: function() {
         var self = this;
-        LottoDataManager.getStats(function(data) {
-            if (data) {
-                self.statsData = data;
-                self.renderRegressionBoard();
-                self.renderStrategyPools();
-                self.initDynamicAnalysis();
-                self.renderFrequencyChart();
-                self.renderMarkovBoard();
-            }
-        });
+        var isPension = document.getElementById('dynamic-pension-root') !== null;
+        
+        if (isPension) {
+            LottoDataManager.getPensionStats(function(data) {
+                if (data) {
+                    self.statsData = data;
+                    self.renderPensionRegression();
+                    self.initDynamicPensionAnalysis();
+                    // 추가 연금 전용 차트들...
+                }
+            });
+        } else {
+            LottoDataManager.getStats(function(data) {
+                if (data) {
+                    self.statsData = data;
+                    self.renderRegressionBoard();
+                    self.renderStrategyPools();
+                    self.initDynamicAnalysis();
+                    self.renderFrequencyChart();
+                    self.renderMarkovBoard();
+                }
+            });
+        }
     },
 
-    /** 1. AI 회귀 시점 분석 보드 (에너지 대시보드) */
-    renderRegressionBoard: function() {
-        var container = document.getElementById('lotto-regression-container');
+    /** 1-P. 연금 회귀 시점 분석 보드 */
+    renderPensionRegression: function() {
+        var container = document.getElementById('pension-regression-container');
         if (!container || !this.statsData.regression_signals) return;
-        
-        var signals = this.statsData.regression_signals;
+        this.renderRegressionUI(container, this.statsData.regression_signals);
+    },
+
+    renderRegressionUI: function(container, signals) {
         var html = '<div class="regression-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">';
-        
         for (var label in signals) {
             var s = signals[label];
             var color = s.energy >= 90 ? '#f04452' : (s.energy >= 60 ? '#ff9500' : '#3182f6');
@@ -52,40 +66,17 @@ var AnalysisEngine = {
         container.innerHTML = html;
     },
 
-    /** 2. 골든타임 전략 그룹 보드 */
-    renderStrategyPools: function() {
-        var pools = LottoAI.getComplexPools(this.statsData.recent_draws, -1);
-        var self = this;
-        
-        var renderIn = function(id, nums, countId) {
-            var c = document.getElementById(id);
-            if(c) {
-                c.innerHTML = nums.map(n => `<div class="ball small ${LottoUtils.getBallColorClass(n)}">${n}</div>`).join('');
-                document.getElementById(countId).innerText = nums.length + '개';
-            }
-        };
-        
-        renderIn('group-hot-container', pools.hot, 'hot-count');
-        renderIn('group-warm-container', pools.neutral, 'warm-count');
-        renderIn('group-cold-container', pools.cold, 'cold-count');
-    },
-
-    /** 3. [v32.14] 지능형 탭 시스템 및 동적 지표 분석 */
-    initDynamicAnalysis: function() {
-        var root = document.getElementById('dynamic-analysis-root');
+    /** 3-P. [v32.18] 연금 지능형 탭 시스템 및 동적 지표 분석 */
+    initDynamicPensionAnalysis: function() {
+        var root = document.getElementById('dynamic-pension-root');
         if (!root) return;
-        
-        var indicators = LottoConfig.INDICATORS.filter(function(c) { return c.visible && c.visible.analysis; });
-        var self = this;
-        
-        // 탭 바 생성
-        this.renderTabs(indicators);
-        // 초기 데이터 (전체) 필터링
-        this.filterByGroup('ALL');
+        var indicators = LottoConfig.PENSION_INDICATORS.filter(function(c) { return c.visible && c.visible.analysis; });
+        this.renderTabs(indicators, 'pension-analysis-tabs', 'dynamic-pension-root');
+        this.filterByGroup('ALL', 'dynamic-pension-root', indicators);
     },
 
-    renderTabs: function(indicators) {
-        var tabContainer = document.getElementById('analysis-tabs');
+    renderTabs: function(indicators, containerId, rootId) {
+        var tabContainer = document.getElementById(containerId || 'analysis-tabs');
         if (!tabContainer) return;
         
         var self = this;
@@ -106,19 +97,19 @@ var AnalysisEngine = {
                 tab.classList.add('active');
                 tab.style.background = '#f0f7ff';
                 tab.style.color = 'var(--primary-blue)';
-                self.filterByGroup(tab.dataset.group);
+                self.filterByGroup(tab.dataset.group, rootId, indicators);
                 tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             };
             if (tab.classList.contains('active')) { tab.style.background = '#f0f7ff'; tab.style.color = 'var(--primary-blue)'; }
         });
     },
 
-    filterByGroup: function(groupId) {
-        var root = document.getElementById('dynamic-analysis-root');
+    filterByGroup: function(groupId, rootId, indicatorsSet) {
+        var root = document.getElementById(rootId || 'dynamic-analysis-root');
         if (!root) return;
         root.innerHTML = '';
         
-        var indicators = LottoConfig.INDICATORS.filter(function(c) { 
+        var indicators = (indicatorsSet || LottoConfig.INDICATORS).filter(function(c) { 
             return c.visible && c.visible.analysis && (groupId === 'ALL' || c.group === groupId); 
         });
 
@@ -127,41 +118,7 @@ var AnalysisEngine = {
         function renderNext() {
             if (index >= indicators.length) return;
             var cfg = indicators[index];
-            
-            var section = document.createElement('div');
-            section.className = 'analysis-card-group';
-            section.style.marginBottom = '30px';
-            
-            var header = document.createElement('div');
-            header.className = 'group-header';
-            header.style.cssText = 'font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; border-left: 4px solid var(--primary-blue); padding-left: 12px;';
-            header.innerText = cfg.label + ' 분석';
-            section.appendChild(header);
-
-            var card = document.createElement('section');
-            card.className = 'analysis-card stats-grid-layout';
-            card.style.cssText = 'display: grid; grid-template-columns: 1fr 235px; gap: 24px; padding: 24px; min-height: 280px;';
-            
-            var chartSide = document.createElement('div');
-            chartSide.className = 'chart-side';
-            var chartId = 'chart-' + cfg.id;
-            chartSide.innerHTML = `<div id="${chartId}" class="chart-wrapper" style="height: 200px; width: 100%;"></div>` +
-                `<div class="chart-tip" style="margin-top: 15px; font-size: 0.75rem; color: #64748b; line-height: 1.5; background: #f8fafc; padding: 12px; border-radius: 8px;">` +
-                `💡 <b>전문가 가이드:</b> ${(LottoConfig.LOTTO_TIPS[cfg.id] || '통계적 분포를 분석 중입니다.').replace('{safe}', '골든 존')}</div>`;
-            
-            var tableSide = document.createElement('div');
-            tableSide.className = 'table-side';
-            var tableId = 'table-' + cfg.id;
-            tableSide.innerHTML = `<table class="mini-stats-table"><thead><tr><th>회차</th><th>번호</th><th>${cfg.unit || '값'}</th></tr></thead><tbody id="${tableId}"></tbody></table>`;
-            
-            card.appendChild(chartSide);
-            card.appendChild(tableSide);
-            section.appendChild(card);
-            root.appendChild(section);
-
-            LottoUI.createCurveChart(chartId, self.statsData.distributions[cfg.distKey], cfg.unit, self.statsData.stats_summary[cfg.statKey], cfg);
-            LottoUI.renderMiniTable(tableId, self.statsData.recent_draws.slice(0, 6), cfg);
-
+            self.renderIndicatorCard(root, cfg);
             index++;
             setTimeout(renderNext, 20);
         }
