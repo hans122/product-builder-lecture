@@ -251,13 +251,22 @@ var LottoUI = {
             </div>`;
         }
 
+        // [v32.29] 아카이브 출처 표시 (timestamp 존재 여부로 판단)
+        var isArchived = res.timestamp ? true : false;
+        var archiveTag = isArchived 
+            ? `<span style="font-size:0.55rem; font-weight:900; color:#64748b; background:#f1f5f9; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #e2e8f0;">STORED</span>`
+            : `<span style="font-size:0.55rem; font-weight:900; color:#3182f6; background:#f0f7ff; padding:1px 6px; border-radius:4px; margin-left:4px; border:1px solid #3182f633;">NEW</span>`;
+
         var strategyLabel = (res.strategy && res.strategy.label) ? res.strategy.label : (opts.strategy || 'AI 추천');
         var strategyColor = (res.strategy && res.strategy.color) ? res.strategy.color : '#3182f6';
 
         card.innerHTML = ensembleHtml + `
             <div class="card-header" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px; padding:0 4px;">
                 <div style="display:flex; flex-direction:column; gap:4px;">
-                    <span style="font-size:0.65rem; font-weight:800; color:${strategyColor}; background:${strategyColor}15; padding:2px 8px; border-radius:6px; width:fit-content;">${strategyLabel}</span>
+                    <div style="display:flex; align-items:center;">
+                        <span style="font-size:0.65rem; font-weight:800; color:${strategyColor}; background:${strategyColor}15; padding:2px 8px; border-radius:6px; width:fit-content;">${strategyLabel}</span>
+                        ${archiveTag}
+                    </div>
                     <span style="font-size:0.7rem; font-weight:700; color:#191f28;">AI 시너지 ${res.synergyScore || 0}pt</span>
                 </div>
                 ${probHtml}
