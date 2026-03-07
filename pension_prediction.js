@@ -126,14 +126,8 @@ var PensionPrediction = {
 
                 var analysis = PensionUtils.analyzeBalance(combo);
                 
-                // [Advanced Synergy] 마르코프 전이 + 흐름 점수 통합
-                var synergyScore = 0;
-                for(var j=5; j>0; j--) {
-                    var next = combo[j], prev = combo[j-1];
-                    if(matrix && matrix[next]) synergyScore += (matrix[next][prev] || 0);
-                }
-                var flowScore = LottoAI.calculateFlowScore(combo);
-                var totalScore = synergyScore + flowScore;
+                // [Advanced Synergy] 통합 시너지 엔진 활용 (Refactored)
+                var totalSynergy = LottoAI.calculatePensionSynergy(combo, matrix);
 
                 var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(combo));
                 
@@ -157,7 +151,7 @@ var PensionPrediction = {
                         group: group, 
                         nums: combo, 
                         strategy: strategy, 
-                        synergyScore: Math.round(totalScore),
+                        synergyScore: totalSynergy, // 변수명 통일
                         prob: prob // 데이터 주입
                     });
                     found = true;

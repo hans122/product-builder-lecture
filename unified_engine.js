@@ -214,6 +214,19 @@ var LottoAI = {
         return score;
     },
 
+    /** [NEW] 연금복권 통합 시너지 점수 산출 */
+    calculatePensionSynergy: function(nums, matrix) {
+        var synergyScore = 0;
+        if (matrix) {
+            for(var j=5; j>0; j--) {
+                var next = nums[j], prev = nums[j-1];
+                if(matrix[next]) synergyScore += (matrix[next][prev] || 0);
+            }
+        }
+        var flowScore = this.calculateFlowScore(nums);
+        return Math.round(synergyScore + flowScore);
+    },
+
     // 11. Lotto Ending Digit Chain Analysis
     calculateEndingChainMatrix: function(draws, limit) {
         var matrix = Array.from({length: 10}, () => Array(10).fill(0));
