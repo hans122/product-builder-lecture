@@ -150,27 +150,40 @@ var PensionPrediction = {
                 if (strategy.id === 'extreme') isPass = !isPass; // 합계 골든존 밖
 
                 if ((isPass || attempts > 700) && !isDuplicate) {
-                    results.push({ group: group, nums: combo, strategy: strategy, synergyScore: Math.round(totalScore) });
+                    // [NEW] 당첨 기댓값 계산 (연금 모드)
+                    var prob = LottoAI.calculateWinProbability(combo, true, this.statsData);
+                    
+                    results.push({ 
+                        group: group, 
+                        nums: combo, 
+                        strategy: strategy, 
+                        synergyScore: Math.round(totalScore),
+                        prob: prob // 데이터 주입
+                    });
                     found = true;
                 }
             }
         });
 
         results.forEach(res => {
-            var card = document.createElement('div');
-            card.className = 'combo-card';
-            card.style.borderColor = '#ff8c0033';
-
+            // LottoUI.createComboCard를 활용하여 레이아웃 통일 (res.nums 전달)
+            var card = LottoUI.createComboCard(res);
+            
+            // 연금용 특수 스타일 및 구슬 재렌더링 (createComboCard는 기본적으로 로또 구슬을 생성하므로 덮어씌움)
             var ballHtml = `<div class="pension-ball group small" style="background:#4e5968;">${res.group}</div>` + 
-                           res.nums.map((n, idx) => `<div class="pension-ball small ${n >= 5 ? 'blue' : 'yellow'}">${n}</div>`).join('');
+                           res.nums.map((n, idx) => `<div class="pension-ball small ${n >= 5 ? 'blue' : 'yellow'}" style="width:24px; height:24px; font-size:0.75rem;">${n}</div>`).join('');
+            
+            var ballContainer = card.querySelector('.ball-container');
+            if (ballContainer) {
+                ballContainer.innerHTML = ballHtml;
+                ballContainer.style.display = 'flex';
+                ballContainer.style.justifyContent = 'center';
+                ballContainer.style.gap = '2px';
+            }
 
-            card.innerHTML = `
-                <div class="combo-rank" style="background:${this.getStrategyColor(res.strategy.id)}; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-weight: 900;">${res.strategy.label}</div>
-                <div class="ball-container" style="gap:4px;">${ballHtml}</div>
-                <div class="combo-meta">AI 시너지 <b>${res.synergyScore}pt</b> | 합계 ${res.nums.reduce((a,b)=>a+b,0)}</div>
-                <div class="combo-desc">${res.strategy.desc}</div>
-                <div class="analyze-badge" style="color:#ff8c00;">정밀 분석 ➔</div>
-            `;
+            card.style.borderColor = '#ff8c0033';
+            var rankEl = card.querySelector('.combo-rank');
+            if (rankEl) rankEl.style.background = this.getStrategyColor(res.strategy.id);
             
             card.onclick = () => {
                 localStorage.setItem('lastGeneratedPension', JSON.stringify({group: res.group, digits: res.nums}));
