@@ -200,20 +200,13 @@ var ViewManager = {
     renderPensionIndicators: function(draw) {
         var grid = document.getElementById('pension-indicator-grid');
         if (!grid) return;
-        var p = PensionUtils.analyzePatterns(draw.nums);
-        var b = PensionUtils.analyzeBalance(draw.nums);
-        var items = [
-            { label: '합계 점수', val: b.sum, ok: b.sum >= 20 && b.sum <= 34 },
-            { label: '홀짝 비율', val: (6 - b.odd) + ':' + b.odd, ok: b.odd >= 2 && b.odd <= 4 },
-            { label: '연속 번호', val: p.seq > 0 ? p.seq + '개' : '없음', ok: p.seq < 2 },
-            { label: '번호 종류', val: p.unique + '종', ok: p.unique >= 4 }
-        ];
-        grid.innerHTML = items.map(function(i) {
-            return '<div class="best-box" style="padding:10px; display:flex; justify-content:space-between; align-items:center;">' +
-                '<span style="font-size:0.7rem; color:#64748b;">' + i.label + '</span>' +
-                '<span style="font-size:0.8rem; font-weight:900; color:' + (i.ok?'#2ecc71':'#ff8c00') + '">' + i.val + '</span>' +
-            '</div>';
-        }).join('');
+        
+        var pageConfig = (LottoConfig.PAGES && LottoConfig.PAGES.PENSION_INDEX) ? LottoConfig.PAGES.PENSION_INDEX : [];
+        
+        // LottoUI의 공통 그리드 엔진 사용 (디자인 통일 및 시계열 지표 노출)
+        // 연금은 PENSION_INDICATORS 배열을 사용해야 하므로 renderIndicatorGrid 내부 로직이 INDICATORS를 참조하는 것을 감안하여
+        // indicators.js의 구조를 살피거나, 독립적인 연금용 그리드 함수를 호출
+        LottoUI.renderIndicatorGrid('pension-indicator-grid', pageConfig, draw.nums, this.statsData);
     }
 };
 

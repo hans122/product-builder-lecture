@@ -19,200 +19,56 @@ def calculate_ac(nums):
 def analyze_lotto():
     draws = []
     if not os.path.exists('lt645.csv'): return
-    
     with open('lt645.csv', 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        header = next(reader)
+        reader = csv.reader(f); next(reader)
         for row in reader:
             if not row: continue
             nums = [int(x) for x in row[2:8]]
-            draws.append({
-                "no": int(row[0]),
-                "date": row[1].strip("'"),
-                "nums": sorted(nums)
-            })
-
+            draws.append({"no": int(row[0]), "date": row[1].strip("'"), "nums": sorted(nums)})
     draws.sort(key=lambda x: x['no'])
-    
-    metric_keys = [
-        "sum", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor",
-        "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror",
-        "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color",
-        "pattern_corner", "pattern_center", "end_sum", "same_end", "ac", "span", "mean_gap",
-        "individual_streak", "over_appearance",
-        "recent_5_recurrence", "hot_10_count", "cold_20_count",
-        "avg_recurrence_interval"
-    ]
-    
-    raw_metrics = {k: [] for k in metric_keys}
-    distributions = {k: Counter() for k in metric_keys}
-    processed_data = []
-    
-    corners = [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42]
-    triangle_center = [17,18,19,24,25,26,31,32,33]
-    mirrors = [12,21,13,31,14,41,23,32,24,42,34,43]
-
+    metric_keys = ["sum", "odd_count", "low_count", "period_1", "period_2", "period_3", "neighbor", "consecutive", "prime", "composite", "multiple_3", "multiple_4", "square", "double_num", "mirror", "bucket_15", "bucket_9", "bucket_7", "bucket_5", "p9", "empty_zone", "color", "pattern_corner", "pattern_center", "end_sum", "same_end", "ac", "span", "mean_gap", "individual_streak", "over_appearance", "recent_5_recurrence", "hot_10_count", "cold_20_count", "avg_recurrence_interval"]
+    raw_metrics = {k: [] for k in metric_keys}; distributions = {k: Counter() for k in metric_keys}; processed_data = []
+    corners = [1,2,8,9,6,7,13,14,29,30,36,37,34,35,41,42]; tri_c = [17,18,19,24,25,26,31,32,33]; mirs = [12,21,13,31,14,41,23,32,24,42,34,43]
     last_seen = {n: 0 for n in range(1, 46)}
-
     for i, draw in enumerate(draws):
-        nums_list = draw["nums"]
-        current_no = draw["no"]
-        prev_1 = set(draws[i-1]["nums"]) if i > 0 else set()
-        prev_2 = set(draws[i-2]["nums"]) if i > 1 else set()
-        prev_3 = set(draws[i-3]["nums"]) if i > 2 else set()
-        
-        streak_2_nums = prev_1.intersection(prev_2)
-        ind_streak = len([n for n in nums_list if n in streak_2_nums])
-        
-        recent_5_draws = draws[max(0, i-5):i]
-        over_app, r5_recur = 0, 0
-        if recent_5_draws:
-            all_r5 = [n for d in recent_5_draws for n in d["nums"]]
-            counts_r5 = Counter(all_r5)
-            over_hot = [n for n, c in counts_r5.items() if c >= 3]
-            over_app = len([n for n in nums_list if n in over_hot])
-            r5_recur = sum(counts_r5[n] for n in nums_list)
-
-        recent_10_draws = draws[max(0, i-10):i]
-        h10_count = 0
-        if recent_10_draws:
-            all_r10 = [n for d in recent_10_draws for n in d["nums"]]
-            counts_r10 = Counter(all_r10)
-            hot_10_nums = [n for n, c in counts_r10.items() if c >= 2]
-            h10_count = len([n for n in nums_list if n in hot_10_nums])
-
-        recent_20_draws = draws[max(0, i-20):i]
-        c20_count = 0
-        if recent_20_draws:
-            all_r20_set = set([n for d in recent_20_draws for n in d["nums"]])
-            cold_20_nums = [n for n in range(1, 46) if n not in all_r20_set]
-            c20_count = len([n for n in nums_list if n in cold_20_nums])
-
-        intervals = []
-        for n in nums_list:
-            last = last_seen[n]
-            if last == 0:
-                intervals.append(30)
-            else:
-                intervals.append(current_no - last)
-        avg_interval = round(sum(intervals) / 6, 1)
-
-        for n in nums_list:
-            last_seen[n] = current_no
-
-        neighbors = set()
-        for n in prev_1:
-            if n > 1: neighbors.add(n-1)
-            if n < 45: neighbors.add(n+1)
-
-        oc = len([n for n in nums_list if n % 2 != 0])
-        lc = len([n for n in nums_list if n <= 22])
-        p1 = len([n for n in nums_list if n in prev_1])
-        p2 = len([n for n in nums_list if n in prev_2])
-        p3 = len([n for n in nums_list if n in prev_3])
-        nb = len([n for n in [n for n in prev_1 if n>1] for j in [n-1, n+1] if j in nums_list])
+        nums_list = draw["nums"]; curr_no = draw["no"]
+        prev_1 = set(draws[i-1]["nums"]) if i > 0 else set(); prev_2 = set(draws[i-2]["nums"]) if i > 1 else set(); prev_3 = set(draws[i-3]["nums"]) if i > 2 else set()
+        streak_2 = prev_1.intersection(prev_2); ind_s = len([n for n in nums_list if n in streak_2])
+        r5_draws = draws[max(0, i-5):i]; over_app, r5_rec = 0, 0
+        if r5_draws:
+            all_r5 = [n for d in r5_draws for n in d["nums"]]; c5 = Counter(all_r5)
+            over_app = len([n for n in nums_list if c5[n] >= 3]); r5_rec = sum(c5[n] for n in nums_list)
+        r10_draws = draws[max(0, i-10):i]; h10 = 0
+        if r10_draws:
+            all_r10 = [n for d in r10_draws for n in d["nums"]]; c10 = Counter(all_r10)
+            h10 = len([n for n in nums_list if c10[n] >= 2])
+        r20_draws = draws[max(0, i-20):i]; c20 = 0
+        if r20_draws:
+            r20_s = set([n for d in r20_draws for n in d["nums"]]); c20 = len([n for n in nums_list if n not in r20_s])
+        ints = []; 
+        for n in nums_list: 
+            ls = last_seen[n]; ints.append(30 if ls==0 else curr_no-ls)
+        avg_int = round(sum(ints)/6, 1)
+        for n in nums_list: last_seen[n] = curr_no
+        oc = len([n for n in nums_list if n%2!=0]); lc = len([n for n in nums_list if n<=22])
         cons = sum(1 for j in range(5) if nums_list[j]+1 == nums_list[j+1])
         prime = len([n for n in nums_list if is_prime(n)])
-        comp = len([n for n in nums_list if is_composite(n)])
-        m3 = len([n for n in nums_list if n % 3 == 0])
-        m4 = len([n for n in nums_list if n % 4 == 0])
-        sq = len([n for n in nums_list if n in [1,4,9,16,25,36]])
-        db = len([n for n in nums_list if n in [11,22,33,44]])
-        mr = len([n for n in nums_list if n in mirrors])
-        b15 = len(set((n-1)//15 for n in nums_list))
-        b9 = len(set((n-1)//9 for n in nums_list))
-        b7 = len(set((n-1)//7 for n in nums_list))
-        b5 = len(set((n-1)//5 for n in nums_list))
-        p9 = len(set((n-1)%9 for n in nums_list))
-        zones = [0,0,0,0,0]
-        for n in nums_list: zones[min(4, (n-1)//10)] += 1
-        ez, colors = zones.count(0), len(set((n-1)//10 for n in nums_list))
-        pc = len([n for n in nums_list if n in corners])
-        pcn = len([n for n in nums_list if n in triangle_center])
-        es = sum(n % 10 for n in nums_list)
-        se = max(Counter([n % 10 for n in nums_list]).values())
-        ac = calculate_ac(nums_list)
-        span = nums_list[-1] - nums_list[0]
-        m_gap = round(span / 5, 1)
-
-        m = {
-            "sum": sum(nums_list), "odd_count": oc, "low_count": lc,
-            "period_1": p1, "period_2": p2, "period_3": p3, "neighbor": nb,
-            "consecutive": cons, "prime": prime, "composite": comp,
-            "multiple_3": m3, "multiple_4": m4, "square": sq, "double_num": db, "mirror": mr,
-            "bucket_15": b15, "bucket_9": b9, "bucket_7": b7, "bucket_5": b5, "p9": p9,
-            "empty_zone": ez, "color": colors,
-            "pattern_corner": pc, "pattern_center": pcn, "end_sum": es, "same_end": se,
-            "ac": ac, "span": span, "mean_gap": m_gap,
-            "individual_streak": ind_streak, "over_appearance": over_app,
-            "recent_5_recurrence": r5_recur, "hot_10_count": h10_count, "cold_20_count": c20_count,
-            "avg_recurrence_interval": avg_interval
-        }
-        
+        m = {"sum": sum(nums_list), "odd_count": oc, "low_count": lc, "period_1": len([n for n in nums_list if n in prev_1]), "period_2": len([n for n in nums_list if i>1 and n in draws[i-2]["nums"]]), "period_3": len([n for n in nums_list if i>2 and n in draws[i-3]["nums"]]), "neighbor": len([n for n in nums_list if any(abs(n-px)==1 for px in (draws[i-1]["nums"] if i>0 else []))]), "consecutive": cons, "prime": prime, "composite": len([n for n in nums_list if is_composite(n)]), "multiple_3": len([n for n in nums_list if n%3==0]), "multiple_4": len([n for n in nums_list if n%4==0]), "square": len([n for n in nums_list if n in [1,4,9,16,25,36]]), "double_num": len([n for n in nums_list if n in [11,22,33,44]]), "mirror": len([n for n in nums_list if n in mirs]), "bucket_15": len(set((n-1)//15 for n in nums_list)), "bucket_9": len(set((n-1)//9 for n in nums_list)), "bucket_7": len(set((n-1)//7 for n in nums_list)), "bucket_5": len(set((n-1)//5 for n in nums_list)), "p9": len(set((n-1)%9 for n in nums_list)), "empty_zone": [0,0,0,0,0].count(0), "color": len(set((n-1)//10 for n in nums_list)), "pattern_corner": len([n for n in nums_list if n in corners]), "pattern_center": len([n for n in nums_list if n in tri_c]), "end_sum": sum(n%10 for n in nums_list), "same_end": max(Counter([n%10 for n in nums_list]).values()), "ac": calculate_ac(nums_list), "span": nums_list[-1]-nums_list[0], "mean_gap": round((nums_list[-1]-nums_list[0])/5, 1), "individual_streak": ind_s, "over_appearance": over_app, "recent_5_recurrence": r5_rec, "hot_10_count": h10, "cold_20_count": c20, "avg_recurrence_interval": avg_int}
         processed_data.append({"no": draw["no"], "date": draw["date"], "nums": nums_list, **m})
         for k, v in m.items():
             if k in raw_metrics: raw_metrics[k].append(v)
-            if k != 'avg_recurrence_interval':
-                if k in distributions: distributions[k][v] += 1
-
-    stats_summary = {}
+            if k != 'avg_recurrence_interval' and k in distributions: distributions[k][v] += 1
+    stats_s = {}
     for k, v_list in raw_metrics.items():
         if not v_list: continue
-        mean = sum(v_list) / len(v_list)
-        var = sum((x - mean) ** 2 for x in v_list) / len(v_list)
-        stats_summary[k] = {"mean": round(mean, 2), "std": round(var ** 0.5, 2)}
-
-    markov_ending = [[0]*10 for _ in range(10)]
-    markov_p9 = [[0]*9 for _ in range(9)]
-    markov_section = [[0]*3 for _ in range(3)]
-    
-    def get_sec(ns): 
-        cnt=[0,0,0]
-        for n in ns: cnt[(n-1)//15]+=1
-        return cnt.index(max(cnt))
-
-    for i in range(len(draws) - 1):
-        c_ns, n_ns = draws[i]["nums"], draws[i+1]["nums"]
-        for c in set([n%10 for n in c_ns]):
-            for n in set([n%10 for n in n_ns]): markov_ending[c][n] += 1
-        for c in set([(n-1)%9 for n in c_ns]):
-            for n in set([(n-1)%9 for n in n_ns]): markov_p9[c][n] += 1
-        markov_section[get_sec(c_ns)][get_sec(n_ns)] += 1
-
-    regression_signals = {}
-    for k, v_list in raw_metrics.items():
-        if not v_list: continue
-        stat = stats_summary[k]
-        s_min, s_max = stat["mean"]-stat["std"], stat["mean"]+stat["std"]
-        streak = 0
-        for val in v_list[::-1]:
-            if val < s_min or val > s_max: streak += 1
-            else: break
-        regression_signals[k.replace('_',' ').title()] = {"streak": streak, "energy": min(100, streak*33)}
-
-    corr_keys = metric_keys
-    correlation_matrix = {}
-    for k1 in corr_keys:
-        correlation_matrix[k1] = {}
-        for k2 in corr_keys:
-            if k1 == k2: correlation_matrix[k1][k2] = 1.0; continue
-            d1, d2 = raw_metrics[k1], raw_metrics[k2]
-            n, m1, m2 = len(d1), stats_summary[k1]["mean"], stats_summary[k2]["mean"]
-            s1, s2 = stats_summary[k1]["std"], stats_summary[k2]["std"]
-            if s1 == 0 or s2 == 0: correlation_matrix[k1][k2]=0; continue
-            cov = sum((d1[i]-m1)*(d2[i]-m2) for i in range(n))/n
-            correlation_matrix[k1][k2] = round(cov/(s1*s2), 2)
-
-    result = {
-        "total_draws": len(draws), "last_3_draws": [d["nums"] for d in draws[-3:][::-1]],
-        "stats_summary": stats_summary, "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()},
-        "frequency": dict(Counter([n for d in draws for n in d["nums"]])),
-        "markov_ending_matrix": markov_ending, "markov_p9_matrix": markov_p9, "markov_section_matrix": markov_section,
-        "regression_signals": regression_signals, "correlation_matrix": correlation_matrix,
-        "recent_draws": processed_data[::-1][:100]
-    }
-    with open('advanced_stats.json', 'w', encoding='utf-8') as f:
-        json.dump(result, f, ensure_ascii=False, indent=4)
+        avg = sum(v_list)/len(v_list); var = sum((x-avg)**2 for x in v_list)/len(v_list)
+        stats_s[k] = {"mean": round(avg, 2), "std": round(var**0.5, 2)}
+    m_end = [[0]*10 for _ in range(10)]
+    for i in range(len(draws)-1):
+        for c in set([n%10 for n in draws[i]["nums"]]):
+            for n in set([n%10 for n in draws[i+1]["nums"]]): m_end[c][n]+=1
+    res = {"total_draws": len(draws), "last_3_draws": [d["nums"] for d in draws[-3:][::-1]], "stats_summary": stats_s, "distributions": {k: dict(sorted(v.items())) for k, v in distributions.items()}, "frequency": dict(Counter([n for d in draws for n in d["nums"]])), "markov_ending_matrix": m_end, "recent_draws": processed_data[::-1][:100]}
+    with open('advanced_stats.json', 'w', encoding='utf-8') as f: json.dump(res, f, ensure_ascii=False, indent=4)
     print(f"✅ Lotto Analysis Complete (v32.0): {len(draws)} draws.")
 
 def analyze_pension():
@@ -225,16 +81,64 @@ def analyze_pension():
             ns = [int(d) for d in str(row[3]).zfill(6)]
             draws.append({"no": int(row[0]), "date": row[1], "group": int(row[2]), "nums": ns})
     draws.sort(key=lambda x: x['no'])
+    
+    # v36.0 연금 시계열 지표 집계
+    metric_keys = ["sum", "odd", "low", "prime", "sequence", "maxOccur", "carry", "neighbor", "recent_5_recurrence", "hot_10_count", "avg_interval"]
+    raw_mets = {k: [] for k in metric_keys}; dists = {k: Counter() for k in metric_keys}
+    
+    # 자리수별 마지막 출현 추적 (0~5번 자리, 0~9번 숫자)
+    last_seen_pos = [[0]*10 for _ in range(6)]
+
+    for i, draw in enumerate(draws):
+        nums = draw["nums"]; curr_no = draw["no"]
+        prev = draws[i-1]["nums"] if i > 0 else None
+        
+        # 5회기/10회기 분석을 위한 데이터 슬라이싱
+        r5_draws = draws[max(0, i-5):i]
+        r10_draws = draws[max(0, i-10):i]
+        
+        r5_rec = 0
+        if r5_draws:
+            for p in range(6):
+                c5 = Counter([d["nums"][p] for d in r5_draws])
+                r5_rec += c5[nums[p]]
+        
+        h10 = 0
+        if r10_draws:
+            for p in range(6):
+                c10 = Counter([d["nums"][p] for d in r10_draws])
+                if c10[nums[p]] >= 2: h10 += 1
+        
+        ints = []
+        for p in range(6):
+            ls = last_seen_pos[p][nums[p]]
+            ints.append(25 if ls==0 else curr_no-ls)
+            last_seen_pos[p][nums[p]] = curr_no
+        avg_int = round(sum(ints)/6, 1)
+
+        m = {
+            "sum": sum(nums), "odd": len([n for n in nums if n%2!=0]), "low": len([n for n in nums if n<=4]),
+            "prime": len([n for n in nums if n in [2,3,5,7]]), "sequence": sum(1 for j in range(5) if abs(nums[j]-nums[j+1])==1),
+            "maxOccur": max(Counter(nums).values()), "carry": sum(1 for j in range(6) if prev and nums[j]==prev[j]),
+            "neighbor": sum(1 for j in range(6) if prev and any(abs(nums[j]-px)==1 for px in prev)),
+            "recent_5_recurrence": r5_rec, "hot_10_count": h10, "avg_interval": avg_int
+        }
+        for k, v in m.items():
+            raw_mets[k].append(v)
+            if k != 'avg_interval': dists[k][v] += 1
+
     stats_s = {}
-    metrics = {"sum": []} 
-    for d in draws: metrics["sum"].append(sum(d["nums"]))
-    for k, v_list in metrics.items():
-        m = sum(v_list)/len(v_list); var = sum((x-m)**2 for x in v_list)/len(v_list)
-        stats_s[k] = {"mean": round(m, 2), "std": round(var**0.5, 2)}
-    res = {"total_draws": len(draws), "stats_summary": stats_s, "recent_draws": draws[::-1][:100]}
-    with open('pension_stats.json', 'w', encoding='utf-8') as f:
-        json.dump(res, f, ensure_ascii=False, indent=4)
-    print(f"✅ Pension Analysis Complete: {len(draws)} draws.")
+    for k, v_list in raw_mets.items():
+        avg = sum(v_list)/len(v_list); var = sum((x-avg)**2 for x in v_list)/len(v_list)
+        stats_s[k] = {"mean": round(avg, 2), "std": round(var**0.5, 2)}
+    
+    res = {
+        "total_draws": len(draws), "stats_summary": stats_s, 
+        "distributions": {k: dict(sorted(v.items())) for k, v in dists.items()},
+        "recent_draws": draws[::-1][:100]
+    }
+    with open('pension_stats.json', 'w', encoding='utf-8') as f: json.dump(res, f, ensure_ascii=False, indent=4)
+    print(f"✅ Pension Analysis Complete (v36.0): {len(draws)} draws.")
 
 if __name__ == "__main__":
     analyze_lotto()

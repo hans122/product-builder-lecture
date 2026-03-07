@@ -45,8 +45,11 @@ var LottoUI = {
         if (!container) return;
         container.innerHTML = '';
         
+        // 로또와 연금 지표 통합 검색 풀 구성
+        var allConfigs = (LottoConfig.INDICATORS || []).concat(LottoConfig.PENSION_INDICATORS || []);
+        
         indicatorIds.forEach(function(id, idx) {
-            var config = LottoConfig.INDICATORS.find(function(c) { return c.id === id; });
+            var config = allConfigs.find(function(c) { return c.id === id; });
             if (!config) return;
             
             var value = config.calc(numbers, statsData);
@@ -56,7 +59,9 @@ var LottoUI = {
                 status = LottoUtils.getZStatus(value, stat);
             }
             
-            var displayLabel = `${LottoUtils.padLeft(idx + 1, 2, '0')}) ${config.label}`;
+            // 연금 지표는 P 접두사 붙임
+            var isPension = config.id.startsWith('p-');
+            var displayLabel = `${isPension ? 'P' : ''}${LottoUtils.padLeft(idx + 1, 2, '0')}) ${config.label}`;
             var card = document.createElement('div');
             card.className = 'indicator-item';
             card.style.cssText = 'padding: 15px; border-radius: 16px; background: #f8fafc; border: 1px solid #edf2f7; display: flex; flex-direction: column; gap: 4px;';

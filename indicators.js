@@ -132,7 +132,36 @@ _global.LottoConfig = {
         { id: 'p-seq', label: '연속', unit: '쌍', group: 'GP1', distKey: 'sequence', statKey: 'sequence', calc: (nums) => PensionUtils.analyzePatterns(nums).seq, visible: { history: true, analysis: true, combination: true } },
         { id: 'p-max-occur', label: '중복', unit: '개', group: 'GP2', distKey: 'occurrence', statKey: 'maxOccur', calc: (nums) => PensionUtils.analyzePatterns(nums).maxOccur, visible: { history: true, analysis: true, combination: true } },
         { id: 'p-carry', label: '이월', unit: '개', group: 'GP5', distKey: 'carry', statKey: 'carry', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).carry : 0, visible: { history: true, analysis: true, combination: true } },
-        { id: 'p-neighbor', label: '이웃', unit: '개', group: 'GP5', distKey: 'neighbor', statKey: 'neighbor', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).neighbor : 0, visible: { history: true, analysis: true, combination: true } }
+        { id: 'p-neighbor', label: '이웃', unit: '개', group: 'GP5', distKey: 'neighbor', statKey: 'neighbor', calc: (nums, data) => (data && data.last_draw) ? PensionUtils.analyzeDynamics(nums, data.last_draw).neighbor : 0, visible: { history: true, analysis: true, combination: true } },
+        
+        // [GP5-T] 연금 시계열 분석 (v36.0)
+        { id: 'p-recent-5-recur', label: '5회기 자리수누적', unit: '회', group: 'GP5', distKey: 'recent_5_recurrence', statKey: 'recent_5_recurrence', calc: (nums, data) => {
+            if (!data || !data.recent_draws) return 0;
+            const r5 = data.recent_draws.slice(0, 5);
+            let recur = 0;
+            for(let p=0; p<6; p++) {
+                recur += r5.filter(d => d.nums[p] === nums[p]).length;
+            }
+            return recur;
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 1, max: 5 } },
+        { id: 'p-hot-10-count', label: '10회기 자리수다출현', unit: '개', group: 'GP5', distKey: 'hot_10_count', statKey: 'hot_10_count', calc: (nums, data) => {
+            if (!data || !data.recent_draws) return 0;
+            const r10 = data.recent_draws.slice(0, 10);
+            let hotCount = 0;
+            for(let p=0; p<6; p++) {
+                const freq = r10.filter(d => d.nums[p] === nums[p]).length;
+                if (freq >= 2) hotCount++;
+            }
+            return hotCount;
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 1, max: 3 } },
+        { id: 'p-avg-interval', label: '평균 자리수주기', unit: '회', group: 'GP5', distKey: 'avg_interval', statKey: 'avg_interval', calc: (nums, data) => {
+            if (!data || !data.recent_draws) return 0;
+            const ints = nums.map((n, p) => {
+                const idx = data.recent_draws.findIndex(d => d.nums[p] === n);
+                return idx === -1 ? 25 : (idx + 1);
+            });
+            return LottoUtils.round(ints.reduce((a, b) => a + b, 0) / 6, 1);
+        }, visible: { history: true, analysis: true, combination: true }, filter: { min: 6, max: 14 } }
     ],
 
     GROUP_NAMES: {
@@ -170,7 +199,7 @@ _global.LottoConfig = {
 
     PAGES: {
         INDEX: ['sum', 'odd-even', 'high-low', 'period_1', 'ac', 'recent-5-recur', 'hot-10-count'],
-        PENSION_INDEX: ['p-sum', 'p-odd', 'p-low', 'p-unique']
+        PENSION_INDEX: ['p-sum', 'p-odd', 'p-low', 'p-unique', 'p-recent-5-recur', 'p-hot-10-count', 'p-avg-interval']
     },
 
     LOTTO_TIPS: {
