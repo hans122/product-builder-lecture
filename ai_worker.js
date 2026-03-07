@@ -121,10 +121,24 @@ function generateCombinationsInWorker(pools, strategies, statsData, synergyMatri
 
             if (isPass && !results.some(function(r){return JSON.stringify(r.nums)===JSON.stringify(pick);})) {
                 var prob = LottoAI.calculateWinProbability(pick, false, statsData);
+                
+                // [v35.1] 앙상블 판정 로직 복원 및 최적화
+                var ensembleCount = 1;
+                strategies.forEach(function(st) {
+                    if (st.id === strategy.id) return;
+                    var testPass = true;
+                    // 전략별 약식 필터링 (성능 고려)
+                    if (st.id === 'hot' && pick.filter(function(n){return pools.hot.indexOf(n)!==-1;}).length < 4) testPass = false;
+                    if (st.id === 'balanced' && (sum < 120 || sum > 160)) testPass = false;
+                    if (st.id === 'trend' && prob.multiplier < 1.1) testPass = false;
+                    if (st.id === 'regression' && prob.confidence < 80) testPass = false;
+                    if (testPass) ensembleCount++;
+                });
+
                 results.push({ 
                     nums: pick, strategy: strategy, 
                     synergyScore: Math.round((LottoAI.getCompatibilityScore(pick, synergyMatrix) + LottoAI.calculateMarkovScore(pick, lastDraw.nums, statsData)) / 2), 
-                    prob: prob, ensembleCount: 1 
+                    prob: prob, ensembleCount: ensembleCount 
                 });
                 found = true;
             }
