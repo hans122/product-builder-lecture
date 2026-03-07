@@ -157,13 +157,16 @@ var LottoUI = {
             <rect x="${getX(mean-2*std)}" y="${padding}" width="${getX(mean+2*std)-getX(mean-2*std)}" height="${baselineY-padding}" fill="url(#h-blue)" fill-opacity="0.3"/>
             <path d="${pathD}" fill="none" stroke="var(--primary-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             <line x1="${padding}" y1="${baselineY}" x2="${w-padding}" y2="${baselineY}" stroke="#e5e8eb" stroke-width="1"/>
-            ${labels.map(l => `
+            ${labels.map(l => {
+                var displayVal = LottoUtils.round(l.v, unit==='개'?0:1);
+                if (unit === '개' && displayVal < 0) displayVal = 0;
+                return `
                 <g>
                     <line x1="${getX(l.v)}" y1="${baselineY}" x2="${getX(l.v)}" y2="${baselineY+8}" stroke="#cbd5e1"/>
-                    <text x="${getX(l.v)}" y="${baselineY+22}" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">${LottoUtils.round(l.v, unit==='개'?0:1)}${unit}</text>
+                    <text x="${getX(l.v)}" y="${baselineY+22}" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">${displayVal}${unit}</text>
                     <text x="${getX(l.v)}" y="${baselineY+35}" text-anchor="middle" font-size="9" font-weight="700" fill="#8b95a1">${l.l}</text>
-                </g>
-            `).join('')}
+                </g>`;
+            }).join('')}
         </svg>`;
         
         container.innerHTML = svg;
