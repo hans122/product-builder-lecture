@@ -87,7 +87,7 @@ var ViewManager = {
         var self = this;
         ['hot', 'warm', 'cold'].forEach(function(type) {
             var container = document.getElementById('group-' + type + '-container');
-            if (container) {
+            if (container && groups && groups[type]) {
                 container.innerHTML = '';
                 var nums = groups[type];
                 for (var i = 0; i < nums.length; i++) {

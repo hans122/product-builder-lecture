@@ -6,7 +6,8 @@
  * - Pure Logic focus (No DOM dependency)
  */
 
-var LottoAI = {
+var _global = typeof window !== 'undefined' ? window : self;
+_global.LottoAI = {
     // 1. Monte Carlo Simulation
     runMonteCarlo: function(nums, isPension, statsData) {
         var iterations = 10000;

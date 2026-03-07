@@ -8,6 +8,11 @@
 
 importScripts('lotto_utils.js', 'indicators.js', 'unified_engine.js');
 
+// 전역 객체 재할당 (안전 장치)
+var LottoAI = self.LottoAI;
+var LottoUtils = self.LottoUtils;
+var LottoConfig = self.LottoConfig;
+
 self.onmessage = function(e) {
     var task = e.data;
     var result = null;

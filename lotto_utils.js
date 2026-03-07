@@ -6,7 +6,8 @@
  * - No dependencies, Loaded first
  */
 
-window.LottoUtils = {
+var _global = typeof window !== 'undefined' ? window : self;
+_global.LottoUtils = {
     round: function(val, precision) { var factor = Math.pow(10, precision || 0); return Math.round(val * factor) / factor; },
     isPrime: function(n) { return [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43].includes(Number(n)); },
     isComposite: function(n) { return Number(n) > 1 && !LottoUtils.isPrime(n); },

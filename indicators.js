@@ -6,7 +6,8 @@
  * - Full Number Frequency Visualization Support
  */
 
-window.LottoConfig = {
+var _global = typeof window !== 'undefined' ? window : self;
+_global.LottoConfig = {
     INDICATORS: [
         // [GL1] 기본 밸런스
         { id: 'sum', label: '총합', unit: '', group: 'GL1', distKey: 'sum', statKey: 'sum', drawKey: 'sum', calc: (nums) => nums.reduce((a, b) => a + b, 0), visible: { history: true, analysis: true, combination: true }, filter: { zLimit: 2.0 } },
