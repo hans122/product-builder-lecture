@@ -43,8 +43,8 @@ var ViewManager = {
         var recent = data.recent_draws;
         var lastDraw = recent[0];
 
-        // 1. 기본 정보 렌더링
-        var groups = LottoUtils.getStrategyGroups(recent);
+        // 1. 기본 정보 렌더링 (LottoAI 통합 분석 엔진 활용)
+        var groups = LottoAI.getComplexPools(recent, -1);
         this.renderLottoStrategyGroups(groups);
         this.renderLottoLastDraw(lastDraw);
         this.renderLottoOverAppearance(recent);

@@ -32,15 +32,17 @@ var LottoUtils = {
         return z <= 1.0 ? 'safe' : (z <= 2.0 ? 'warning' : 'danger');
     },
     padLeft: function(str, length, char) { str = String(str); while (str.length < length) str = char + str; return str; },
-    getStrategyGroups: function(recentDraws) {
-        var counts = {}; for (var n = 1; n <= 45; n++) counts[n] = 0;
-        recentDraws.slice(0, 15).forEach(d => d.nums.forEach(n => counts[n]++));
-        var groups = { hot: [], warm: [], cold: [] };
-        for (var num = 1; num <= 45; num++) {
-            var f = counts[num];
-            if (f >= 3) groups.hot.push(num); else if (f >= 1) groups.warm.push(num); else groups.cold.push(num);
-        }
-        return groups;
+    calculateZoneInfo: function(stat, dist, cfg) {
+        if (!stat || !dist) return null;
+        var vals = Object.keys(dist).map(k => parseInt(k.split(/[ :\-]/)[0])).filter(v => !isNaN(v));
+        if (vals.length === 0) return null;
+        var dMax = Math.max.apply(null, vals), dMin = Math.min.apply(null, vals);
+        var limit = (cfg && cfg.maxLimit) ? Math.min(cfg.maxLimit, dMax) : dMax;
+        var optMin = Math.max(dMin, Math.round(stat.mean - stat.std)), optMax = Math.min(limit, Math.round(stat.mean + stat.std));
+        var safeMin = Math.max(dMin, Math.round(stat.mean - 2 * stat.std)), safeMax = Math.min(limit, Math.round(stat.mean + 2 * stat.std));
+        var optHits = 0, safeHits = 0;
+        for (var k in dist) { var v = parseInt(k.split(/[ :\-]/)[0]); if (!isNaN(v)) { if (v >= optMin && v <= optMax) optHits += dist[k]; if (v >= safeMin && v <= safeMax) safeHits += dist[k]; } }
+        return { optimal: optMin + '~' + optMax, safe: safeMin + '~' + safeMax, optHits: optHits, safeHits: safeHits };
     }
 };
 

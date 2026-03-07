@@ -87,5 +87,50 @@ var LottoAI = {
         if (score >= 80) return { grade: 'A', comment: '확률적으로 매우 균형 잡힌 조합입니다.' };
         if (score >= 70) return { grade: 'B', comment: '무난하나 일부 지표가 범위를 벗어납니다.' };
         return { grade: 'C', comment: '통계적으로 당첨 빈도가 낮은 희귀 패턴입니다.' };
+    },
+
+    // 5. Complex Number Pooling (Analysis & Prediction Hub)
+    getComplexPools: function(allDraws, currentIndex) {
+        var history = allDraws.slice(currentIndex + 1);
+        if (history.length < 10) return { hot: [], neutral: [], cold: [] };
+        
+        var lastDraw = history[0];
+        var scores = [];
+
+        for (var i = 1; i <= 45; i++) {
+            var score = 0;
+            var freq10 = history.slice(0, 10).filter(d => d.nums.indexOf(i) !== -1).length;
+            score += freq10 * 15;
+
+            var gap = history.findIndex(d => d.nums.indexOf(i) !== -1);
+            var recent5 = history.slice(0, 5).filter(d => d.nums.indexOf(i) !== -1).length;
+            var recent7 = history.slice(0, 7).filter(d => d.nums.indexOf(i) !== -1).length;
+            var recent10 = history.slice(0, 10).filter(d => d.nums.indexOf(i) !== -1).length;
+            
+            var streak5 = history.slice(0, 5).every(d => d.nums.indexOf(i) !== -1);
+
+            if (streak5 || recent7 >= 5 || recent10 >= 6) { score -= 150; } 
+            else if (recent5 >= 4) { score -= 80; } 
+            else if (recent5 === 3) { score -= 30; } 
+            else {
+                if (gap <= 4) score += 40;
+                else if (gap >= 5 && gap <= 14) score += 25;
+                else if (gap >= 30) score -= 30;
+            }
+
+            if (lastDraw.nums.indexOf(i) !== -1) score += 10;
+            
+            var isNeighbor = lastDraw.nums.some(n => Math.abs(n - i) === 1);
+            if (isNeighbor) score += 20;
+
+            scores.push({ num: i, score: score });
+        }
+        
+        scores.sort((a, b) => b.score - a.score);
+        return {
+            hot: scores.slice(0, 30).map(s => s.num).sort((a,b)=>a-b),
+            neutral: scores.slice(30, 35).map(s => s.num).sort((a,b)=>a-b),
+            cold: scores.slice(35, 45).map(s => s.num).sort((a,b)=>a-b)
+        };
     }
 };

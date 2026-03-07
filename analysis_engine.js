@@ -50,9 +50,9 @@ var AnalysisEngine = {
         }
 
         if (data.recent_draws) {
-            var groups = LottoUtils.getStrategyGroups(data.recent_draws);
+            var groups = LottoAI.getComplexPools(data.recent_draws, -1);
             this.renderStrategyGroup('group-hot-container', groups.hot, 'hot-count');
-            this.renderStrategyGroup('group-warm-container', groups.warm, 'warm-count');
+            this.renderStrategyGroup('group-warm-container', groups.neutral, 'warm-count'); // neutral 매칭
             this.renderStrategyGroup('group-cold-container', groups.cold, 'cold-count');
             if (window.renderOverAppearanceAlert) renderOverAppearanceAlert(data.recent_draws);
             if (window.renderOverAppearanceTable) renderOverAppearanceTable(data.recent_draws);

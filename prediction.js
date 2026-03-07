@@ -1,10 +1,9 @@
 'use strict';
 
 /**
- * AI Prediction Engine v5.2 - Strategy Focused Top 10 Edition
- * - 10 Unique Analysis Algorithms
- * - Deep Recommendation Mode (10 combos per selected strategy)
- * - Enhanced UI with implicit strategy selection
+ * AI Prediction Engine v5.3 (Refactored & Lean)
+ * - Uses Unified Engine (LottoAI) for pooling and analysis
+ * - Strategy Focused Deep Recommendation Mode
  */
 
 var PredictionEngine = {
@@ -21,9 +20,9 @@ var PredictionEngine = {
     },
 
     renderAll: function() {
-        var pools = this.getPools(this.statsData.recent_draws || [], -1);
+        var pools = LottoAI.getComplexPools(this.statsData.recent_draws || [], -1);
         this.renderPoolGrid(pools);
-        var strategy = document.getElementById('lotto-strategy-select').value || 'all';
+        var strategy = document.getElementById('lotto-strategy-select')?.value || 'all';
         this.generateSmartCombinations(pools, strategy);
         if (typeof runBacktest === 'function') runBacktest(this.statsData.recent_draws || []);
     },
@@ -33,7 +32,7 @@ var PredictionEngine = {
         var strategySelect = document.getElementById('lotto-strategy-select');
         if (strategySelect) {
             strategySelect.onchange = function() {
-                var pools = self.getPools(self.statsData.recent_draws || [], -1);
+                var pools = LottoAI.getComplexPools(self.statsData.recent_draws || [], -1);
                 self.generateSmartCombinations(pools, this.value);
             };
         }
@@ -41,55 +40,11 @@ var PredictionEngine = {
         var refreshBtn = document.getElementById('refresh-recommendations-btn');
         if (refreshBtn) {
             refreshBtn.onclick = function() {
-                var pools = self.getPools(self.statsData.recent_draws || [], -1);
-                var curS = document.getElementById('lotto-strategy-select').value || 'all';
+                var pools = LottoAI.getComplexPools(self.statsData.recent_draws || [], -1);
+                var curS = document.getElementById('lotto-strategy-select')?.value || 'all';
                 self.generateSmartCombinations(pools, curS);
             };
         }
-    },
-
-    getPools: function(allDraws, currentIndex) {
-        var history = allDraws.slice(currentIndex + 1);
-        if (history.length < 10) return { hot: [], neutral: [], cold: [] };
-        
-        var lastDraw = history[0];
-        var scores = [];
-
-        for (var i = 1; i <= 45; i++) {
-            var score = 0;
-            var freq10 = history.slice(0, 10).filter(d => d.nums.indexOf(i) !== -1).length;
-            score += freq10 * 15;
-
-            var gap = history.findIndex(d => d.nums.indexOf(i) !== -1);
-            var recent5 = history.slice(0, 5).filter(d => d.nums.indexOf(i) !== -1).length;
-            var recent7 = history.slice(0, 7).filter(d => d.nums.indexOf(i) !== -1).length;
-            var recent10 = history.slice(0, 10).filter(d => d.nums.indexOf(i) !== -1).length;
-            
-            var streak5 = history.slice(0, 5).every(d => d.nums.indexOf(i) !== -1);
-
-            if (streak5 || recent7 >= 5 || recent10 >= 6) { score -= 150; } 
-            else if (recent5 >= 4) { score -= 80; } 
-            else if (recent5 === 3) { score -= 30; } 
-            else {
-                if (gap <= 4) score += 40;
-                else if (gap >= 5 && gap <= 14) score += 25;
-                else if (gap >= 30) score -= 30;
-            }
-
-            if (lastDraw.nums.indexOf(i) !== -1) score += 10;
-            
-            var isNeighbor = lastDraw.nums.some(n => Math.abs(n - i) === 1);
-            if (isNeighbor) score += 20;
-
-            scores.push({ num: i, score: score });
-        }
-        
-        scores.sort((a, b) => b.score - a.score);
-        return {
-            hot: scores.slice(0, 30).map(s => s.num).sort((a,b)=>a-b),
-            neutral: scores.slice(30, 35).map(s => s.num).sort((a,b)=>a-b),
-            cold: scores.slice(35, 45).map(s => s.num).sort((a,b)=>a-b)
-        };
     },
 
     generateSmartCombinations: function(pools, selectedStrategy) {
@@ -99,7 +54,7 @@ var PredictionEngine = {
 
         var allStrategies = [
             { id: 'standard', label: "💎 다차원 최적화", desc: "평균값 수렴 정석 조합" },
-            { id: 'trend', label: "📊 패턴 유사도형", desc: "최근 당첨 흐름 반영" },
+            { id: 'trend', label: "📊 패턴 유사도형", desc: "최근 10회차 당첨 흐름 반영" },
             { id: 'hot', label: "🔥 기세 추종형", desc: "뜨거운 번호 집중 구성" },
             { id: 'balanced', label: "⚖️ 밸런스 가중형", desc: "대칭적 균형미 최적화" },
             { id: 'defensive', label: "🛡️ 데이터 방어형", desc: "미출현 번호 전략 포함" },
@@ -113,6 +68,8 @@ var PredictionEngine = {
         var strategies = selectedStrategy === 'all' 
             ? allStrategies 
             : Array(10).fill(allStrategies.find(s => s.id === selectedStrategy));
+
+        container.style.gridTemplateColumns = 'repeat(5, 1fr)';
 
         var stats = this.statsData.stats_summary;
         var results = [];
@@ -145,9 +102,7 @@ var PredictionEngine = {
                 }
                 
                 if (pick.length < 6) {
-                    for(var i=1; i<=45; i++) {
-                        if(pick.length < 6 && !pick.includes(i)) pick.push(i);
-                    }
+                    for(var i=1; i<=45; i++) { if(pick.length < 6 && !pick.includes(i)) pick.push(i); }
                 }
 
                 pick.sort((a,b)=>a-b);
@@ -222,7 +177,7 @@ function runBacktest(draws) {
     var targetDraws = draws.slice(0, count);
 
     targetDraws.forEach((draw, i) => {
-        var pools = PredictionEngine.getPools(draws, i);
+        var pools = LottoAI.getComplexPools(draws, i);
         var hits = draw.nums.filter(n => pools.hot.includes(n));
         totalHits += hits.length;
         if (hits.length >= 5) jackpotCount++;

@@ -143,5 +143,55 @@ const LottoConfig = {
     PAGES: {
         INDEX: ['sum', 'odd-even', 'high-low', 'period_1', 'neighbor', 'ac'],
         ANALYSIS: ['sum', 'odd-even', 'high-low', 'period_1', 'neighbor', 'period_1_2', 'period_1_3', 'consecutive', 'prime', 'composite', 'multiple-3', 'multiple-5', 'square', 'double', 'bucket-15', 'bucket-9', 'bucket-5', 'bucket-3', 'color', 'pattern-corner', 'pattern-triangle', 'end-sum', 'same-end', 'ac', 'span', 'first-num', 'last-num', 'mean-gap']
+    },
+
+    /** 5. 가이드 팁 및 그룹 명칭 (SSOT) */
+    GROUP_NAMES: {
+        'GL1': '기본 균형 및 합계', 'GL2': '회차 상관관계 (이월/연속)', 'GL3': '특수 번호군 분석',
+        'GL4': '구간 및 패턴 분석', 'GL5': '끝수 및 전문지표', 'GL6': '고급 필터링 지표',
+        'GP1': '자리수별 독립 빈도', 'GP2': '배열 패턴 및 구성 분석', 'GP3': '조별 당첨 분포',
+        'GP4': '수치 균형', 'GP5': '회차 간 상관관계', 'GP6': '세부 균형 분석', 'GP13': '당첨 번호 흐름'
+    },
+
+    LOTTO_TIPS: {
+        'sum': '합계 수치는 가장 출현 빈도가 높은 세이프 존 <strong>"{safe}"</strong> 범위를 유지하는 것이 전략적으로 유리합니다.',
+        'odd-even': '홀수 개수는 밸런스가 좋은 <strong>"{safe}"</strong> 범위를 권장하며, 특히 3:3 배합이 가장 강력한 정규분포 중심점입니다.',
+        'high-low': '고번호와 저번호의 배합은 <strong>"{safe}"</strong> 범위 내에서 선택하여 번호가 한쪽으로 쏠리지 않도록 조절하세요.',
+        'period_1': '이월수(직전 1회차 재출현)는 매 회차 <strong>"{safe}"</strong>개 정도 포함되는 것이 통계적으로 가장 흔한 패턴입니다.',
+        'neighbor': '직전 회차 번호의 주변수(±1)인 이웃수는 <strong>"{safe}"</strong>개 포함될 때 당첨 조합의 완성도가 높아집니다.',
+        'period_1_2': '최근 2개 회차의 당첨번호 합집합 중 <strong>"{safe}"</strong>개를 활용하여 최근의 흐름을 반영해 보세요.',
+        'period_1_3': '최근 3개 회차 번호 중 <strong>"{safe}"</strong>개를 선별하여 조합하면 장기적인 출현 흐름을 잡을 수 있습니다.',
+        'consecutive': '연속번호는 전체 당첨의 절반 이상에서 나타나며, <strong>"{safe}"</strong>쌍 정도를 포함하는 것이 현실적인 공략입니다.',
+        'prime': '소수는 수학적으로 불규칙해 보이지만, 통계적으로는 <strong>"{safe}"</strong>개 범위 내에서 꾸준히 출현하고 있습니다.',
+        'composite': '합성수는 조합의 뼈대를 이루는 수들로, <strong>"{safe}"</strong>개 정도를 포함하여 기본 균형을 맞추세요.',
+        'multiple-3': '3의 배수는 매 회차 평균 2개 내외로 출현하며, <strong>"{safe}"</strong>개 범위를 지키는 것이 안정적입니다.',
+        'multiple-5': '5의 배수는 출현 빈도가 낮으므로 <strong>"{safe}"</strong>개 정도로 가볍게 포함시키는 전략을 권장합니다.',
+        'square': '제곱수는 특이값이지만 <strong>"{safe}"</strong>개 범위 내에서 변별력을 주는 요소로 활용할 수 있습니다.',
+        'double': '11, 22와 같은 쌍수는 <strong>"{safe}"</strong>개 범위 내에서 조합의 유니크함을 더해주는 지표입니다.',
+        'bucket-15': '전체 번호를 3그룹으로 나눴을 때 <strong>"{safe}"</strong>개의 구간이 점유되어야 번호가 이상적으로 분산됩니다.',
+        'bucket-9': '5개 구간 분할 시 <strong>"{safe}"</strong>개 구간에서 번호가 고르게 출현하는 조합이 확률이 높습니다.',
+        'bucket-5': '9개 구간 분할 시 <strong>"{safe}"</strong>개 구간을 점유하여 세밀한 분산도를 확보하는 것이 좋습니다.',
+        'bucket-3': '15개 구간 분할 시 <strong>"{safe}"</strong>개 구간에 번호가 퍼져 있어야 당첨 가능 구역을 모두 커버합니다.',
+        'color': '5가지 공 색상 중 <strong>"{safe}"</strong>가지 이상의 색상이 섞여야 시각적/통계적으로 안정적인 조합이 됩니다.',
+        'pattern-corner': '용지의 4개 모서리 영역에서 <strong>"{safe}"</strong>개 정도의 번호가 출현하는 패턴이 매우 빈번합니다.',
+        'pattern-triangle': '용지 중앙의 삼각형 영역에 <strong>"{safe}"</strong>개의 번호를 배치하여 중심부의 밸런스를 잡으세요.',
+        'end-sum': '일의 자리 숫자들의 합계인 끝수합은 <strong>"{safe}"</strong> 범위 내에서 가장 많이 형성됩니다.',
+        'same-end': '동끝수(일의 자리가 같은 번호)는 <strong>"{safe}"</strong>개 포함될 때 당첨 확률이 비약적으로 상승합니다.',
+        'ac': '산술적 복잡도(AC)는 <strong>"{safe}"</strong> 이상을 유지해야 실제 당첨 번호와 유사한 무작위성을 가집니다.',
+        'span': '가장 큰 수와 작은 수의 차이(Span)는 <strong>"{safe}"</strong> 범위일 때 가장 강력한 당첨 에너지를 가집니다.',
+        'first-num': '조합의 시작인 첫 번째 숫자는 <strong>"{safe}"</strong> 구간 내에서 선택하는 것이 통계적으로 매우 안정적입니다.',
+        'last-num': '조합의 마무리인 마지막 숫자는 <strong>"{safe}"</strong> 구간에 위치할 때 당첨권 진입 확률이 높아집니다.',
+        'mean-gap': '번호들 사이의 평균 간격이 <strong>"{safe}"</strong> 범위에 있어야 번호가 너무 뭉치거나 퍼지지 않은 이상적 밸런스를 갖춥니다.'
+    },
+
+    PENSION_TIPS: {
+        'p-pos-freq': '각 자리마다 0~9까지 확률은 동일하지만, 실제 흐름에서는 특정 숫자가 반복되거나 정체되는 현상이 발생합니다.',
+        'p-sequence': '번호가 1씩 차이나며 이어지는 흐름(123 등)을 관찰하여 너무 인위적인 나열을 피하세요.',
+        'p-repeat': '동일 숫자가 바로 옆에 붙어서 출현하는 패턴입니다. 트리플(777) 등은 매우 희귀합니다.',
+        'p-group': '연금복권의 첫 단추인 조를 선택할 때, 확률 회귀 원칙에 따라 미출현 조를 공략해 보세요.',
+        'p-sum': '조를 제외한 6자리 합계가 20~34 사이인 골든 존이 당첨 확률이 가장 높습니다.',
+        'p-carry': '전회차 숫자가 같은 자리에 그대로 나오는 이월 확률을 반영하여 흐름을 잡으세요.',
+        'p-balance': '홀짝 및 고저 비율이 3:3으로 균형 잡힌 조합이 통계적으로 가장 우세합니다.',
+        'p-flow': '최근 15회차의 번호 이동을 타임라인으로 확인하여 공백 구역을 선별하세요.'
     }
 };
