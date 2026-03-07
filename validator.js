@@ -28,10 +28,11 @@ var SystemGuardian = {
     },
 
     createBadge: function() {
+        var self = this;
         this.badge = document.createElement('div');
         this.badge.id = 'guardian-badge';
         this.badge.style.cssText = 'position:fixed; bottom:15px; right:15px; width:12px; height:12px; border-radius:50%; background:#ccc; z-index:99999; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2); transition:all 0.3s;';
-        this.badge.onclick = () => this.showReport();
+        this.badge.onclick = function() { self.showReport(); };
         document.body.appendChild(this.badge);
     },
 
@@ -66,8 +67,8 @@ var SystemGuardian = {
         var charts = document.querySelectorAll('.dist-bar-chart, .frequency-chart, [id$="-chart"]');
         if (charts.length > 0) {
             var rendered = 0;
-            charts.forEach(c => { 
-                if(c.querySelector('svg, .bar, .bar-wrapper') || c.innerHTML.indexOf('<svg') !== -1) rendered++; 
+            charts.forEach(function(c) { 
+                if(c.querySelector('svg, .bar, .bar-wrapper, .freq-bar') || c.innerHTML.indexOf('<svg') !== -1) rendered++; 
             });
             if (rendered < charts.length) this.log('WARN', 'Some Charts Not Rendered (' + rendered + '/' + charts.length + ')');
             else this.log('PASS', 'All Charts Rendered (' + rendered + ')');

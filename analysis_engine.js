@@ -234,12 +234,13 @@ var AnalysisEngine = {
         for (var k in freq) freqValues.push(freq[k]);
         var max = Math.max.apply(null, freqValues);
         
-        var html = '<div class="freq-bar-container" style="display:flex; align-items:flex-end; gap:2px; height:150px; padding:20px 0;">';
+        var html = '<div class="freq-bar-container" style="display:flex; align-items:flex-end; gap:3px; height:180px; padding:30px 10px 10px 10px; background:#f8fafc; border-radius:12px; border:1px solid #edf2f7;">';
         for (var i = 1; i <= 45; i++) {
             var val = freq[i] || 0;
             var h = (val / (max || 1)) * 100;
-            html += `<div class="freq-bar ${LottoUtils.getBallColorClass(i)}" style="flex:1; height:${h}%; border-radius:2px 2px 0 0; position:relative;" title="${i}번: ${val}회">` +
-                `<span style="position:absolute; top:-15px; left:50%; transform:translateX(-50%); font-size:0.5rem; font-weight:700;">${i}</span></div>`;
+            // [v33.05] validator 호환성을 위해 .bar 클래스 추가 및 시각적 고도화
+            html += `<div class="freq-bar bar ${LottoUtils.getBallColorClass(i)}" style="flex:1; height:${h}%; border-radius:3px 3px 0 0; position:relative; min-width:4px;" title="${i}번: ${val}회">` +
+                `<span style="position:absolute; top:-18px; left:50%; transform:translateX(-50%) rotate(-45deg); font-size:0.55rem; font-weight:900; color:#64748b;">${i}</span></div>`;
         }
         html += '</div>';
         container.innerHTML = html;
