@@ -9,7 +9,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta property="og:title" content="로또 역대 당첨 빅데이터 통계 분석">
     <meta name="twitter:title" content="로또 역대 당첨 빅데이터 통계 분석">
-    <link rel="stylesheet" href="style.css?v=22.8">
+    <link rel="stylesheet" href="style.css?v=22.9">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap&v=11.2" rel="stylesheet">
@@ -48,6 +48,13 @@
     </header>
 
     <div class="container wide">
+        <!-- [v32.14] 지능형 그룹 탭 바 -->
+        <div class="analysis-tabs-container" style="position: sticky; top: 60px; z-index: 100; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); margin: -20px -20px 25px -20px; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
+            <div id="analysis-tabs" style="display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;">
+                <!-- JS에서 동적 생성 -->
+            </div>
+        </div>
+
         <!-- [NEW] AI 회귀 시점 분석 섹션 (출현 임박 신호) -->
         <div class="group-header">🚨 AI 출현 임박 지표 (회귀 시점 분석)</div>
         <div id="lotto-regression-container" style="margin-bottom: 30px;">
@@ -123,13 +130,13 @@
             <p class="disclaimer">※ 본 데이터는 역대 당첨 결과를 바탕으로 제공됩니다.</p>
         </footer>
     </div>
-    <script src="lotto_utils.js?v=22.8"></script>
-    <script src="indicators.js?v=22.8"></script>
-    <script src="core.js?v=22.8"></script>
-    <script src="unified_engine.js?v=22.8"></script>
-    <script src="ui_components.js?v=22.8"></script>
-    <script src="analysis_engine.js?v=22.8"></script>
-    <script src="consent.js?v=22.8"></script>
-<script src="validator.js?v=22.8"></script>
+    <script src="lotto_utils.js?v=22.9"></script>
+    <script src="indicators.js?v=22.9"></script>
+    <script src="core.js?v=22.9"></script>
+    <script src="unified_engine.js?v=22.9"></script>
+    <script src="ui_components.js?v=22.9"></script>
+    <script src="analysis_engine.js?v=22.9"></script>
+    <script src="consent.js?v=22.9"></script>
+<script src="validator.js?v=22.9"></script>
 </body>
 </html>
