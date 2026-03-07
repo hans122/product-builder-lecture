@@ -128,6 +128,14 @@ _global.LottoConfig = {
         { id: 'extreme', label: "📉 저빈도 역습형", desc: "희귀 패턴 기반 잭팟 노림", color: '#1e293b' }
     ],
 
+    /** 
+     * Page-specific visibility groups 
+     */
+    PAGES: {
+        INDEX: ['sum', 'odd-even', 'high-low', 'period_1', 'ac', 'span'],
+        PENSION_INDEX: ['p-sum', 'p-odd', 'p-low', 'p-unique']
+    },
+
     LOTTO_TIPS: {
         'sum': '합계 수치는 가장 출현 빈도가 높은 세이프 존 <strong>"{safe}"</strong> 범위를 유지하는 것이 전략적으로 유리합니다.',
         'odd-even': '홀수 개수는 밸런스가 좋은 <strong>"{safe}"</strong> 범위를 권장하며, 특히 3:3 배합이 가장 강력한 정규분포 중심점입니다.',

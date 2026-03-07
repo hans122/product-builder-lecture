@@ -79,7 +79,8 @@ var ViewManager = {
             }
         }
         if (document.getElementById('main-indicator-grid')) {
-            LottoUI.renderIndicatorGrid('main-indicator-grid', LottoConfig.PAGES.INDEX, numbers, this.statsData);
+            var pageConfig = (LottoConfig.PAGES && LottoConfig.PAGES.INDEX) ? LottoConfig.PAGES.INDEX : [];
+            LottoUI.renderIndicatorGrid('main-indicator-grid', pageConfig, numbers, this.statsData);
         }
     },
 

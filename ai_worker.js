@@ -1,14 +1,13 @@
 'use strict';
 
 /**
- * AI Computation Worker v1.0
+ * AI Computation Worker v1.1
  * - Handles heavy calculations off the main thread
- * - Deep Synergy, Win Probability, Combination Generation
+ * - Ensures exactly 10 combinations are generated
  */
 
 importScripts('lotto_utils.js', 'indicators.js', 'unified_engine.js');
 
-// 전역 객체 재할당 (안전 장치)
 var LottoAI = self.LottoAI;
 var LottoUtils = self.LottoUtils;
 var LottoConfig = self.LottoConfig;
@@ -22,13 +21,10 @@ self.onmessage = function(e) {
             case 'CALC_PROBABILITY':
                 result = LottoAI.calculateWinProbability(task.nums, task.isPension, task.statsData);
                 break;
-            
             case 'CHECK_HARMONY':
                 result = LottoAI.checkCorrelationHarmony(task.nums, task.statsData);
                 break;
-
             case 'GENERATE_COMBINATIONS':
-                // Worker 내부에서 조합 생성 루프 실행 (가장 무거운 작업)
                 result = generateCombinationsInWorker(task.pools, task.strategies, task.statsData, task.synergyMatrix, task.endingChainMatrix);
                 break;
         }
@@ -38,48 +34,44 @@ self.onmessage = function(e) {
     }
 };
 
-// Worker-specific generation logic (Optimized loop)
 function generateCombinationsInWorker(pools, strategies, statsData, synergyMatrix, endingChainMatrix) {
     var results = [];
     var lastDraw = statsData.recent_draws[0];
     var stats = statsData.stats_summary;
+    var targetCount = 10;
+    var totalAttempts = 0;
 
-    strategies.forEach(strategy => {
+    // 10개를 채울 때까지 전략을 순환하며 생성
+    while (results.length < targetCount && totalAttempts < 5000) {
+        totalAttempts++;
+        var strategy = strategies[results.length % strategies.length];
+        
         var found = false, attempts = 0;
-        while (!found && attempts < 2000) { // Worker니까 시도 횟수 2배 상향
+        while (!found && attempts < 500) {
             attempts++;
             var pick = [];
             var pool = pools.hot.concat(pools.neutral);
             
-            // Strategy Pool Logic (Simplified mirror of prediction.js)
             if (strategy.id === 'hot') pool = pools.hot.slice(0, 15);
-            if (strategy.id === 'defensive') pool = pools.neutral.concat(pools.cold);
-            if (strategy.id === 'extreme') pool = pools.cold.concat(pools.neutral.slice(0, 2));
-            if (strategy.id === 'neighbor') {
+            else if (strategy.id === 'defensive') pool = pools.neutral.concat(pools.cold);
+            else if (strategy.id === 'extreme') pool = pools.cold.concat(pools.neutral.slice(0, 2));
+            else if (strategy.id === 'neighbor') {
                 var neighbors = [];
                 lastDraw.nums.forEach(n => { if (n > 1) neighbors.push(n-1); if (n < 45) neighbors.push(n+1); });
                 pool = neighbors.concat(pools.hot.slice(0, 10));
             }
 
             var localPool = [...new Set(pool)];
-            
-            // Random Pick
             while (pick.length < 6 && localPool.length > 0) {
-                var idx = Math.floor(Math.random() * localPool.length);
-                var n = localPool.splice(idx, 1)[0];
+                var n = localPool.splice(Math.floor(Math.random() * localPool.length), 1)[0];
                 pick.push(n);
             }
-            if (pick.length < 6) { 
-                var remain = Array.from({length:45},(_,i)=>i+1).filter(n=>!pick.includes(n));
-                while(pick.length < 6) pick.push(remain.splice(Math.floor(Math.random()*remain.length),1)[0]);
-            }
+            if (pick.length < 6) continue;
             pick.sort((a,b)=>a-b);
 
-            // Filtering
             var harmony = LottoAI.checkCorrelationHarmony(pick, statsData);
             var isPass = (harmony.violations.length === 0 && harmony.score >= 0);
             
-            // Indicator Filters
             if (isPass) {
                 LottoConfig.INDICATORS.forEach(cfg => {
                     if (cfg.filter && isPass) {
@@ -92,16 +84,15 @@ function generateCombinationsInWorker(pools, strategies, statsData, synergyMatri
 
             if (strategy.id === 'extreme') isPass = true;
 
-            if (isPass) {
+            var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
+            if (isPass && !isDuplicate) {
                 var compScore = LottoAI.getCompatibilityScore(pick, synergyMatrix);
                 var endScore = LottoAI.calculateMarkovScore(pick, lastDraw.nums, statsData);
-                var totalSynergy = Math.round((compScore + endScore) / 2);
                 var prob = LottoAI.calculateWinProbability(pick, false, statsData);
-                
-                results.push({ nums: pick, strategy: strategy, synergyScore: totalSynergy, prob: prob });
+                results.push({ nums: pick, strategy: strategy, synergyScore: Math.round((compScore + endScore) / 2), prob: prob });
                 found = true;
             }
         }
-    });
+    }
     return results;
 }
