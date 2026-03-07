@@ -10,13 +10,24 @@ var PredictionEngine = {
     statsData: null,
     synergyMatrix: null,
     endingChainMatrix: null,
+    worker: null,
 
     init: function() {
         var self = this;
+        // Web Worker 초기화
+        if (window.Worker) {
+            this.worker = new Worker('ai_worker.js');
+            this.worker.onmessage = function(e) {
+                if (e.data.type === 'GENERATE_COMBINATIONS') {
+                    self.renderCombinations(e.data.result);
+                }
+            };
+        }
+
         LottoDataManager.getStats(function(data) {
             if (!data) return;
             self.statsData = data;
-            // 1. 궁합 및 끝수 전이 매트릭스 실시간 계산
+            // 1. 궁합 및 끝수 전이 매트릭스 실시간 계산 (메인 스레드에서 수행 - 1회성)
             self.synergyMatrix = LottoAI.calculateSynergyMatrix(data.recent_draws, 300);
             self.endingChainMatrix = LottoAI.calculateEndingChainMatrix(data.recent_draws, 300);
             self.renderAll();
@@ -55,7 +66,9 @@ var PredictionEngine = {
     generateSmartCombinations: function(pools, selectedStrategy) {
         var container = document.getElementById('ai-combinations-container');
         if (!container) return;
-        container.innerHTML = '';
+        
+        // 로딩 UI 표시
+        container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1; padding: 50px;"><div class="spinner"></div><p style="margin-top:15px; color:#3182f6; font-weight:bold;">AI 딥 시너지 엔진이 최적의 조합을 연산 중입니다...</p></div>';
 
         var allStrategies = LottoConfig.STRATEGIES;
         var strategies = selectedStrategy === 'all' 
@@ -64,87 +77,32 @@ var PredictionEngine = {
 
         container.style.gridTemplateColumns = 'repeat(5, 1fr)';
 
-        var stats = this.statsData.stats_summary;
-        var results = [];
-        var lastDraw = this.statsData.recent_draws[0];
+        if (this.worker) {
+            // Worker에 작업 위임
+            this.worker.postMessage({
+                type: 'GENERATE_COMBINATIONS',
+                pools: pools,
+                strategies: strategies,
+                statsData: this.statsData,
+                synergyMatrix: this.synergyMatrix,
+                endingChainMatrix: this.endingChainMatrix
+            });
+        } else {
+            // Fallback (Worker 미지원 브라우저)
+            console.warn('Web Worker not supported. Running on main thread.');
+            // ... (기존 동기 로직 유지 가능하지만 생략, 최신 브라우저 타겟)
+        }
+    },
 
-        strategies.forEach(strategy => {
-            if (!strategy) return;
-            var found = false, attempts = 0;
-            while (!found && attempts < 1000) {
-                attempts++;
-                var pick = [];
-                var pool = pools.hot.concat(pools.neutral);
-                
-                if (strategy.id === 'hot') pool = pools.hot.slice(0, 15);
-                if (strategy.id === 'defensive') pool = pools.neutral.concat(pools.cold);
-                if (strategy.id === 'extreme') pool = pools.cold.concat(pools.neutral.slice(0, 2));
-                if (strategy.id === 'neighbor') {
-                    var neighbors = [];
-                    lastDraw.nums.forEach(n => { if (n > 1) neighbors.push(n-1); if (n < 45) neighbors.push(n+1); });
-                    pool = neighbors.concat(pools.hot.slice(0, 10));
-                }
+    renderCombinations: function(results) {
+        var container = document.getElementById('ai-combinations-container');
+        if (!container) return;
+        container.innerHTML = '';
 
-                var localPool = [...new Set(pool)];
-                
-                // [Synergy-AI] 궁합 기반 스마트 추출
-                while (pick.length < 6 && localPool.length > 0) {
-                    if (pick.length === 0) {
-                        var n = localPool.splice(Math.floor(Math.random() * localPool.length), 1)[0];
-                        if (n >= 1 && n <= 45) pick.push(n);
-                    } else {
-                        localPool.sort((a, b) => {
-                            var scoreA = pick.reduce((sum, p) => sum + (this.synergyMatrix[p]?.[a] || 0), 0);
-                            var scoreB = pick.reduce((sum, p) => sum + (this.synergyMatrix[p]?.[b] || 0), 0);
-                            return scoreB - scoreA;
-                        });
-                        var topN = Math.min(3, localPool.length);
-                        var pickedIdx = Math.floor(Math.random() * topN);
-                        var n = localPool.splice(pickedIdx, 1)[0];
-                        if (n >= 1 && n <= 45 && !pick.includes(n)) pick.push(n);
-                    }
-                }
-                
-                if (pick.length < 6) { for(var i=1; i<=45; i++) { if(pick.length < 6 && !pick.includes(i)) pick.push(i); } }
-
-                pick.sort((a,b)=>a-b);
-                var synergy = LottoSynergy.check(pick, this.statsData);
-                var hasDanger = synergy.some(s => s.status === 'danger');
-                var isDuplicate = results.some(r => JSON.stringify(r.nums) === JSON.stringify(pick));
-                
-                // [Strict Harmony Guard] 1. 지표별 필터링
-                var isPass = !hasDanger;
-                LottoConfig.INDICATORS.forEach(cfg => {
-                    if (cfg.filter) {
-                        var val = cfg.calc(pick, this.statsData);
-                        if (cfg.filter.min !== undefined && val < cfg.filter.min) isPass = false;
-                        if (cfg.filter.max !== undefined && val > cfg.filter.max) isPass = false;
-                        if (cfg.filter.zLimit !== undefined) {
-                            var status = LottoUtils.getZStatus(val, stats[cfg.statKey]);
-                            if (status === 'danger') isPass = false;
-                        }
-                    }
-                });
-
-                // [Strict Harmony Guard] 2. 상관관계 무결성 검증
-                var harmony = LottoAI.checkCorrelationHarmony(pick, this.statsData);
-                if (harmony.violations.length > 0 || harmony.score < 0) {
-                    isPass = false;
-                }
-
-                if (strategy.id === 'extreme') isPass = true;
-                
-                if (isPass && !isDuplicate) {
-                    var compScore = LottoAI.getCompatibilityScore(pick, this.synergyMatrix);
-                    var endScore = LottoAI.calculateMarkovScore(pick, lastDraw.nums, this.statsData);
-                    var totalSynergy = Math.round((compScore + endScore) / 2);
-                    var prob = LottoAI.calculateWinProbability(pick, this.statsData);
-                    
-                    results.push({ nums: pick, strategy: strategy, synergyScore: totalSynergy, prob: prob });
-                    found = true;
-                }
-            }
-        });
+        if (!results || results.length === 0) {
+            container.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1;">조건에 맞는 조합을 찾지 못했습니다. 다시 시도해주세요.</div>';
+            return;
+        }
 
         results.forEach(res => {
             var card = LottoUI.createComboCard(res);
@@ -154,11 +112,6 @@ var PredictionEngine = {
             };
             container.appendChild(card);
         });
-    },
-
-    getStrategyColor: function(id) {
-        var st = LottoConfig.STRATEGIES.find(s => s.id === id);
-        return st ? st.color : '#3182f6';
     },
 
     renderPoolGrid: function(pools) {
