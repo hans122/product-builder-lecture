@@ -294,6 +294,7 @@ var CombinationEngine = {
         document.getElementById('p-random-btn')?.addEventListener('click', () => self.randomizePension());
         document.getElementById('auto-btn')?.addEventListener('click', () => self.pickLottoNumbers(true));
         document.getElementById('semi-btn')?.addEventListener('click', () => self.pickLottoNumbers(false));
+        document.getElementById('semi-auto-btn')?.addEventListener('click', () => self.pickLottoNumbers(false));
 
         document.getElementById('reset-btn')?.addEventListener('click', () => {
             self.state.lotto.manual.clear(); self.state.lotto.auto.clear();
