@@ -904,7 +904,12 @@
             "low_count": -0.88,
             "empty_zone": -0.15,
             "prime": -0.17,
-            "consecutive": -0.04
+            "consecutive": -0.04,
+            "multiple_3": 0.06,
+            "multiple_4": 0.02,
+            "bucket_15": -0.04,
+            "color": 0.15,
+            "pattern_corner": -0.05
         },
         "ac": {
             "sum": -0.03,
@@ -916,7 +921,12 @@
             "low_count": 0.04,
             "empty_zone": -0.21,
             "prime": 0.04,
-            "consecutive": -0.12
+            "consecutive": -0.12,
+            "multiple_3": -0.01,
+            "multiple_4": 0.01,
+            "bucket_15": 0.24,
+            "color": 0.21,
+            "pattern_corner": 0.11
         },
         "end_sum": {
             "sum": 0.01,
@@ -928,7 +938,12 @@
             "low_count": -0.04,
             "empty_zone": 0.05,
             "prime": 0.03,
-            "consecutive": 0.01
+            "consecutive": 0.01,
+            "multiple_3": 0.09,
+            "multiple_4": -0.13,
+            "bucket_15": 0.01,
+            "color": -0.05,
+            "pattern_corner": 0.1
         },
         "span": {
             "sum": -0.03,
@@ -940,7 +955,12 @@
             "low_count": 0.04,
             "empty_zone": -0.53,
             "prime": 0.08,
-            "consecutive": -0.27
+            "consecutive": -0.27,
+            "multiple_3": -0.03,
+            "multiple_4": 0.02,
+            "bucket_15": 0.48,
+            "color": 0.53,
+            "pattern_corner": 0.12
         },
         "mean_gap": {
             "sum": -0.03,
@@ -952,7 +972,12 @@
             "low_count": 0.04,
             "empty_zone": -0.53,
             "prime": 0.08,
-            "consecutive": -0.27
+            "consecutive": -0.27,
+            "multiple_3": -0.03,
+            "multiple_4": 0.02,
+            "bucket_15": 0.48,
+            "color": 0.53,
+            "pattern_corner": 0.12
         },
         "odd_count": {
             "sum": -0.0,
@@ -964,7 +989,12 @@
             "low_count": -0.01,
             "empty_zone": -0.02,
             "prime": 0.57,
-            "consecutive": -0.03
+            "consecutive": -0.03,
+            "multiple_3": 0.03,
+            "multiple_4": -0.55,
+            "bucket_15": -0.04,
+            "color": 0.02,
+            "pattern_corner": 0.01
         },
         "low_count": {
             "sum": -0.88,
@@ -976,7 +1006,12 @@
             "low_count": 1.0,
             "empty_zone": 0.1,
             "prime": 0.15,
-            "consecutive": 0.04
+            "consecutive": 0.04,
+            "multiple_3": -0.04,
+            "multiple_4": -0.04,
+            "bucket_15": 0.04,
+            "color": -0.1,
+            "pattern_corner": -0.01
         },
         "empty_zone": {
             "sum": -0.15,
@@ -988,7 +1023,12 @@
             "low_count": 0.1,
             "empty_zone": 1.0,
             "prime": -0.03,
-            "consecutive": 0.36
+            "consecutive": 0.36,
+            "multiple_3": -0.03,
+            "multiple_4": 0.02,
+            "bucket_15": -0.47,
+            "color": -1.0,
+            "pattern_corner": 0.01
         },
         "prime": {
             "sum": -0.17,
@@ -1000,7 +1040,12 @@
             "low_count": 0.15,
             "empty_zone": -0.03,
             "prime": 1.0,
-            "consecutive": 0.03
+            "consecutive": 0.03,
+            "multiple_3": -0.36,
+            "multiple_4": -0.37,
+            "bucket_15": -0.04,
+            "color": 0.03,
+            "pattern_corner": 0.07
         },
         "consecutive": {
             "sum": -0.04,
@@ -1012,7 +1057,97 @@
             "low_count": 0.04,
             "empty_zone": 0.36,
             "prime": 0.03,
-            "consecutive": 1.0
+            "consecutive": 1.0,
+            "multiple_3": -0.02,
+            "multiple_4": -0.02,
+            "bucket_15": -0.26,
+            "color": -0.36,
+            "pattern_corner": -0.01
+        },
+        "multiple_3": {
+            "sum": 0.06,
+            "ac": -0.01,
+            "end_sum": 0.09,
+            "span": -0.03,
+            "mean_gap": -0.03,
+            "odd_count": 0.03,
+            "low_count": -0.04,
+            "empty_zone": -0.03,
+            "prime": -0.36,
+            "consecutive": -0.02,
+            "multiple_3": 1.0,
+            "multiple_4": -0.06,
+            "bucket_15": -0.02,
+            "color": 0.03,
+            "pattern_corner": -0.0
+        },
+        "multiple_4": {
+            "sum": 0.02,
+            "ac": 0.01,
+            "end_sum": -0.13,
+            "span": 0.02,
+            "mean_gap": 0.02,
+            "odd_count": -0.55,
+            "low_count": -0.04,
+            "empty_zone": 0.02,
+            "prime": -0.37,
+            "consecutive": -0.02,
+            "multiple_3": -0.06,
+            "multiple_4": 1.0,
+            "bucket_15": 0.02,
+            "color": -0.02,
+            "pattern_corner": -0.24
+        },
+        "bucket_15": {
+            "sum": -0.04,
+            "ac": 0.24,
+            "end_sum": 0.01,
+            "span": 0.48,
+            "mean_gap": 0.48,
+            "odd_count": -0.04,
+            "low_count": 0.04,
+            "empty_zone": -0.47,
+            "prime": -0.04,
+            "consecutive": -0.26,
+            "multiple_3": -0.02,
+            "multiple_4": 0.02,
+            "bucket_15": 1.0,
+            "color": 0.47,
+            "pattern_corner": 0.0
+        },
+        "color": {
+            "sum": 0.15,
+            "ac": 0.21,
+            "end_sum": -0.05,
+            "span": 0.53,
+            "mean_gap": 0.53,
+            "odd_count": 0.02,
+            "low_count": -0.1,
+            "empty_zone": -1.0,
+            "prime": 0.03,
+            "consecutive": -0.36,
+            "multiple_3": 0.03,
+            "multiple_4": -0.02,
+            "bucket_15": 0.47,
+            "color": 1.0,
+            "pattern_corner": -0.01
+        },
+        "pattern_corner": {
+            "sum": -0.05,
+            "ac": 0.11,
+            "end_sum": 0.1,
+            "span": 0.12,
+            "mean_gap": 0.12,
+            "odd_count": 0.01,
+            "low_count": -0.01,
+            "empty_zone": 0.01,
+            "prime": 0.07,
+            "consecutive": -0.01,
+            "multiple_3": -0.0,
+            "multiple_4": -0.24,
+            "bucket_15": 0.0,
+            "color": -0.01,
+            "pattern_corner": 1.0
         }
     },
     "recent_draws": [

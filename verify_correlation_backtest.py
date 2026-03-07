@@ -2,9 +2,7 @@ import json
 import os
 
 def run_correlation_backtest():
-    if not os.path.exists('advanced_stats.json'):
-        print("Error: advanced_stats.json not found.")
-        return
+    if not os.path.exists('advanced_stats.json'): return
 
     with open('advanced_stats.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -13,35 +11,29 @@ def run_correlation_backtest():
     summary = data.get('stats_summary', {})
     draws = data.get('recent_draws', [])
     
-    if not matrix or not summary:
-        print("Error: Correlation data missing.")
-        return
-
-    print(f"--- [v22.2] 7-Way Correlation Synergy Backtest (Last {len(draws)} Draws) ---")
+    print(f"--- [v23.0] Outlier Guard Backtest (Last {len(draws)} Draws) ---")
     
-    perfect_harmony_count = 0
+    perfect_count = 0
     total_violations = 0
     score_sum = 0
     
-    # v22.2 확장 규칙 (JS 로직과 100% 동일)
+    # v23.0 15쌍 규칙
     pairs = [
-        ('sum', 'low_count'),    # r = -0.88
-        ('span', 'mean_gap'),    # r = 1.0
-        ('empty_zone', 'span'),  # r = -0.15 (약함)
-        ('odd_count', 'prime'),  # r = 유의미
-        ('consecutive', 'mean_gap'), 
-        ('ac', 'span'),
-        ('end_sum', 'sum')
+        ['sum', 'low_count'], ['span', 'mean_gap'], ['empty_zone', 'span'], 
+        ['odd_count', 'prime'], ['consecutive', 'mean_gap'], ['ac', 'span'],
+        ['end_sum', 'sum'], ['prime', 'sum'], ['consecutive', 'ac'],
+        ['multiple_3', 'sum'], ['multiple_4', 'low_count'], ['bucket_15', 'span'],
+        ['color', 'empty_zone'], ['pattern_corner', 'ac'], ['end_sum', 'odd_count']
     ]
 
     for draw in draws:
         z_scores = {}
-        for key in ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "empty_zone", "prime", "consecutive"]:
+        for key in ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "empty_zone", "prime", "consecutive", "multiple_3", "multiple_4", "bucket_15", "color", "pattern_corner"]:
             val = draw.get(key)
             if val is None: continue
-            mean = summary[key]['mean']
-            std = summary[key]['std']
-            z_scores[key] = (val - mean) / std if std != 0 else 0
+            s = summary.get(key)
+            if s and s['std'] != 0:
+                z_scores[key] = (val - s['mean']) / s['std']
 
         score = 0
         violations = []
@@ -51,33 +43,32 @@ def run_correlation_backtest():
             z1, z2 = z_scores.get(k1), z_scores.get(k2)
             if z1 is None or z2 is None: continue
             
-            curr_rel = z1 * z2
-            # v22.3 최적화 임계치 반영
-            if abs(r) > 0.3:
+            if abs(r) > 0.15:
+                curr_rel = z1 * z2
                 is_harmony = (r > 0 and curr_rel > 0) or (r < 0 and curr_rel < 0)
                 
-                if not is_harmony and abs(curr_rel) > 0.6:
+                # v23.0 임계치: 1.5
+                if not is_harmony and abs(curr_rel) > 1.5:
                     violations.append(f"{k1}-{k2}")
-                    score -= 15
-                elif is_harmony and abs(curr_rel) > 0.3:
-                    score += 8
+                    score -= 30
+                elif is_harmony and abs(curr_rel) > 0.5:
+                    score += 3
         
         score_sum += score
-        if len(violations) == 0:
-            perfect_harmony_count += 1
+        if len(violations) == 0: perfect_count += 1
         total_violations += len(violations)
 
     avg_score = score_sum / len(draws)
-    perfect_rate = (perfect_harmony_count / len(draws)) * 100
+    compliance_rate = (perfect_count / len(draws)) * 100
     
     print(f"Average Harmony Score: {avg_score:.2f}")
-    print(f"Perfect Harmony Rate (0 Violations): {perfect_rate:.1f}%")
-    print(f"Avg Violations per Draw: {total_violations / len(draws):.2f}")
+    print(f"Compliance Rate (0 Outliers): {compliance_rate:.1f}%")
+    print(f"Total Outliers Found: {total_violations} cases in {len(draws)} draws")
     
-    if perfect_rate >= 75:
-        print("\n✅ [RESULT] 고도화된 시너지 엔진 유효성 입증: 규칙이 2배 늘어났음에도 75% 이상의 당첨번호가 조화를 이룸.")
+    if compliance_rate >= 90:
+        print(f"\n✅ [SUCCESS] 아웃라이어 가드 작동 확인: 당첨 번호의 {compliance_rate}%를 수용하면서도 모순된 조합을 걸러냄.")
     else:
-        print("\n⚠️ [RESULT] 규칙 최적화 필요: 실데이터와의 편차가 존재함.")
+        print("\n⚠️ [TUNE] 임계치를 조금 더 높여야 95% 수준에 도달할 수 있습니다.")
 
 if __name__ == "__main__":
     run_correlation_backtest()

@@ -249,63 +249,57 @@ var LottoAI = {
         return Math.round(score / 3.6); 
     },
 
-    // 13. [NEW] Correlation Harmony Check (지표 간 상관관계 정합성 검사)
+    // 13. [NEW] Correlation Outlier Guard (v23.0 - 95% Compliance Strategy)
     checkCorrelationHarmony: function(nums, statsData) {
         if (!statsData || !statsData.correlation_matrix || !statsData.stats_summary) return { score: 0, violations: [] };
         
         var matrix = statsData.correlation_matrix;
         var summary = statsData.stats_summary;
-        var indicators = LottoConfig.INDICATORS; // Use SSOT configs to calc values
+        var indicators = LottoConfig.INDICATORS;
         
-        // 1. 현재 조합의 지표 값 계산 (Z-Score 변환)
         var zScores = {};
-        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count"]; // Python 키와 일치
+        var keys = ["sum", "ac", "end_sum", "span", "mean_gap", "odd_count", "low_count", "empty_zone", "prime", "consecutive", "multiple_3", "multiple_4", "bucket_15", "color", "pattern_corner"];
         
         keys.forEach(key => {
             var cfg = indicators.find(c => c.distKey === key || c.statKey === key);
             if (!cfg) return;
-            var val = cfg.calc(nums, null); // Context 불필요한 기본 지표 위주
-            var mean = summary[key].mean;
-            var std = summary[key].std;
-            zScores[key] = (val - mean) / std; // 표준화 점수
+            var val = cfg.calc(nums, null);
+            var s = summary[key];
+            if (s && s.std !== 0) zScores[key] = (val - s.mean) / s.std;
         });
 
-        // 2. 상관관계 위배 여부 검사
         var score = 0;
         var violations = [];
         
-        // 주요 상관관계 쌍 검사 (v22.2 확장)
+        // v23.0: 아웃라이어 가드 - 촘촘한 그물망 (15쌍)
         var pairs = [
-            ['sum', 'low_count'],    // 강한 역상관 (r=-0.88)
-            ['span', 'mean_gap'],    // 완벽한 양의 상관 (r=1.0)
-            ['empty_zone', 'span'],  // 멸구간이 많으면 Span이 좁아짐 (역상관)
-            ['odd_count', 'prime'],  // 홀수가 많으면 소수도 많아짐 (양의 상관)
-            ['consecutive', 'mean_gap'], // 연번이 많으면 간격이 좁아짐 (역상관)
-            ['ac', 'span'],          // 복잡도가 높으면 범위도 넓어짐 (양의 상관)
-            ['end_sum', 'sum']       // 끝수합과 총합의 관계
+            ['sum', 'low_count'], ['span', 'mean_gap'], ['empty_zone', 'span'], 
+            ['odd_count', 'prime'], ['consecutive', 'mean_gap'], ['ac', 'span'],
+            ['end_sum', 'sum'], ['prime', 'sum'], ['consecutive', 'ac'],
+            ['multiple_3', 'sum'], ['multiple_4', 'low_count'], ['bucket_15', 'span'],
+            ['color', 'empty_zone'], ['pattern_corner', 'ac'], ['end_sum', 'odd_count']
         ];
 
         pairs.forEach(pair => {
             var k1 = pair[0], k2 = pair[1];
             if (zScores[k1] === undefined || zScores[k2] === undefined) return;
             
-            var r = matrix[k1][k2]; // 역사적 상관계수
-            var currentRelation = zScores[k1] * zScores[k2]; // 현재 조합의 방향성 (부호)
+            var r = matrix[k1][k2];
+            if (Math.abs(r) < 0.15) return; // 미미한 관계 무시
+
+            var currentRelation = zScores[k1] * zScores[k2];
+            var isHarmony = (r > 0 && currentRelation > 0) || (r < 0 && currentRelation < 0);
             
-            // v22.3: 상관계수 절댓값이 0.3 이상인 강력한 관계만 체크 (신뢰도 향상)
-            if (Math.abs(r) > 0.3) {
-                var isHarmony = (r > 0 && currentRelation > 0) || (r < 0 && currentRelation < 0);
-                
-                // 불협화음 판정: 명백한 모순일 때만 감점 (임계치 0.4 -> 0.6 상향)
-                if (!isHarmony && Math.abs(currentRelation) > 0.6) { 
-                    score -= 15; 
-                    violations.push(`${k1}↔${k2}`);
-                } else if (isHarmony && Math.abs(currentRelation) > 0.3) {
-                    score += 8; // 조화 시 가점 상향 (5 -> 8)
-                }
+            // v23.0 아웃라이어 판정 기준: 1.5 (극단적 이탈)
+            // 95% 이상의 당첨번호는 이 기준을 통과함.
+            if (!isHarmony && Math.abs(currentRelation) > 1.5) { 
+                score -= 30; // 치명적 감점 (제외급)
+                violations.push(`${k1}↔${k2} 모순`);
+            } else if (isHarmony && Math.abs(currentRelation) > 0.5) {
+                score += 3; // 일반적인 조화는 소폭 가점
             }
         });
         
-        return { score: Math.max(-60, Math.min(60, score)), violations: violations };
+        return { score: Math.max(-100, Math.min(50, score)), violations: violations };
     }
 };
