@@ -1,18 +1,10 @@
-/**
- * AI System Guardian v1.0 (Self-Diagnostic Engine)
- * - Validates Data Integrity, UI Rendering, and AI Status
- * - Provides Real-time Feedback via Console & Badge
- */
-
 'use strict';
 
 var SystemGuardian = {
     results: { total: 0, pass: 0, warn: 0, fail: 0, logs: [] },
-    badge: null,
 
     init: function() {
         var self = this;
-        this.createBadge();
         
         // [v32.92] 지능형 지연 체크: 데이터가 로드될 때까지 최대 5초간 대기
         var attempts = 0;
@@ -25,15 +17,6 @@ var SystemGuardian = {
                 self.runDiagnostics();
             }
         }, 100);
-    },
-
-    createBadge: function() {
-        var self = this;
-        this.badge = document.createElement('div');
-        this.badge.id = 'guardian-badge';
-        this.badge.style.cssText = 'position:fixed; bottom:15px; right:15px; width:12px; height:12px; border-radius:50%; background:#ccc; z-index:99999; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2); transition:all 0.3s;';
-        this.badge.onclick = function() { self.showReport(); };
-        document.body.appendChild(this.badge);
     },
 
     runDiagnostics: function() {
@@ -74,7 +57,7 @@ var SystemGuardian = {
             else this.log('PASS', 'All Charts Rendered (' + rendered + ')');
         }
 
-        this.updateBadge();
+        this.persistReport();
     },
 
     checkElement: function(id, name) {
@@ -101,15 +84,7 @@ var SystemGuardian = {
         this.results = { total: 0, pass: 0, warn: 0, fail: 0, logs: [] };
     },
 
-    updateBadge: function() {
-        if (!this.badge) return;
-        var color = '#2ecc71'; // Green
-        if (this.results.fail > 0) color = '#f04452'; // Red
-        else if (this.results.warn > 0) color = '#ff9500'; // Orange
-        
-        this.badge.style.backgroundColor = color;
-        this.badge.title = 'System Status: ' + (this.results.fail > 0 ? 'Error Detected' : 'Operational');
-
+    persistReport: function() {
         // 로그 영속화 (localStorage에 저장하여 AI가 다음 세션에서 읽을 수 있게 함)
         try {
             var summary = {
@@ -120,15 +95,6 @@ var SystemGuardian = {
             };
             localStorage.setItem('guardian_last_report', JSON.stringify(summary));
         } catch(e) {}
-    },
-
-    showReport: function() {
-        var report = '🛡️ AI System Diagnostic Report\n--------------------------------\n';
-        this.results.logs.forEach(l => {
-            var icon = l.status === 'PASS' ? '✅' : (l.status === 'WARN' ? '⚠️' : '❌');
-            report += icon + ' ' + l.msg + '\n';
-        });
-        alert(report);
     }
 };
 

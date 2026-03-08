@@ -153,19 +153,23 @@ document.addEventListener('DOMContentLoaded', function() {
     LottoGuardian.initLegacyProxy();
     LottoGuardian.checkDependencies();
     
-    // [v32.95] 전역 에러 핸들러 (Script Error 대응)
+    // [v32.96] 전역 에러 핸들러 (Script Error & Workstation Noise 대응)
     window.onerror = function(msg, url, line, col, error) {
-        var isScriptError = msg.toLowerCase().indexOf('script error') > -1;
-        if (isScriptError) {
-            console.warn('[Guardian] Cross-origin script error suppressed by browser security.');
-            return false;
+        var msgStr = String(msg).toLowerCase();
+        var isScriptError = msgStr.indexOf('script error') > -1;
+        var isSecurityError = msgStr.indexOf('securityerror') > -1 || msgStr.indexOf('blocked a frame') > -1;
+        
+        if (isScriptError || isSecurityError) {
+            // 외부 스크립트(Adsense/Disqus) 또는 Preview 환경의 iframe 보안 노이즈 무시
+            console.warn('[Guardian] Suppressed cross-origin/security noise:', msg);
+            return true; // 브라우저 콘솔 출력 억제
         }
         
         var logMsg = '🛑 [System Error] ' + msg + ' (at ' + (url ? url.split('/').pop() : 'unknown') + ':' + line + ')';
         console.error(logMsg, error);
         
-        // 치명적 오류인 경우에만 상단 바 표시 (예: LottoAI 또는 LottoDataManager 실패)
-        if (msg.indexOf('LottoAI') > -1 || msg.indexOf('LottoDataManager') > -1) {
+        // 핵심 엔진 오류인 경우만 경고 바 표시
+        if (msgStr.indexOf('lottoai') > -1 || msgStr.indexOf('datamanager') > -1) {
             LottoGuardian.showSystemError('⚠️ 시스템 엔진 가동 중 오류가 발생했습니다. 새로고침을 권장합니다.');
         }
         return false;
